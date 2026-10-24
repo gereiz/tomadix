@@ -424,4 +424,143 @@ export class AdminUsersService {
 
     return updatedUser;
   }
+
+  /**
+   * Atualiza detalhes cadastrais básicos do usuário (nome de exibição, confirmação de email).
+   */
+  static async updateUserDetails(
+    adminUserId: string,
+    targetUserId: string,
+    data: { displayName?: string; emailConfirmed?: boolean },
+    context?: { ip?: string; ua?: string }
+  ) {
+    const targetUser = await db.user.findUnique({ where: { id: targetUserId } });
+    if (!targetUser) {
+      throw new Error("Usuário alvo não encontrado.");
+    }
+
+    const updateData: Prisma.UserUpdateInput = {};
+    if (data.displayName !== undefined) {
+      updateData.displayName = data.displayName.trim() || null;
+    }
+    if (data.emailConfirmed !== undefined) {
+      updateData.emailConfirmed = Boolean(data.emailConfirmed);
+    }
+
+    const updatedUser = await db.user.update({
+      where: { id: targetUserId },
+      data: updateData,
+    });
+
+    await AdminAuditService.logAction({
+      adminUserId,
+      action: "USER_UPDATE_DETAILS",
+      targetType: "User",
+      targetId: targetUserId,
+      result: "SUCCESS",
+      details: {
+        targetEmail: targetUser.email,
+        changes: data,
+      },
+      ipAddress: context?.ip,
+      userAgent: context?.ua,
+    });
+
+    return updatedUser;
+  }
+
+  /**
+   * Atualiza permissões granulares administrativas de um usuário.
+   * Apenas SUPER_ADMIN pode atribuir privilégios customizados.
+   */
+  static async updateCustomPermissions(
+    adminUserId: string,
+    targetUserId: string,
+    permissions: string[],
+    context?: { ip?: string; ua?: string }
+  ) {
+    const adminUser = await db.user.findUnique({ where: { id: adminUserId } });
+    if (adminUser?.platformRole !== PlatformRole.SUPER_ADMIN) {
+      throw new Error("Apenas usuários com privilégio SUPER_ADMIN podem gerenciar permissões administrativas.");
+    }
+
+    const targetUser = await db.user.findUnique({ where: { id: targetUserId } });
+    if (!targetUser) {
+      throw new Error("Usuário alvo não encontrado.");
+    }
+
+    const currentPrefs = (targetUser.preferences as Record<string, any>) || {};
+    const updatedPrefs = {
+      ...currentPrefs,
+      adminPermissions: permissions,
+    };
+
+    const updatedUser = await db.user.update({
+      where: { id: targetUserId },
+      data: {
+        preferences: updatedPrefs,
+      },
+    });
+
+    await AdminAuditService.logAction({
+      adminUserId,
+      action: "USER_PERMISSIONS_UPDATE",
+      targetType: "User",
+      targetId: targetUserId,
+      result: "SUCCESS",
+      details: {
+        targetEmail: targetUser.email,
+        permissions,
+      },
+      ipAddress: context?.ip,
+      userAgent: context?.ua,
+    });
+
+    return updatedUser;
+  }
+
+  /**
+   * Revoga sessões ativas de um usuário (uma específica ou todas).
+   */
+  static async revokeUserSessions(
+    adminUserId: string,
+    targetUserId: string,
+    sessionId?: string,
+    context?: { ip?: string; ua?: string }
+  ) {
+    const targetUser = await db.user.findUnique({ where: { id: targetUserId } });
+    if (!targetUser) {
+      throw new Error("Usuário alvo não encontrado.");
+    }
+
+    let revokedCount = 0;
+    if (sessionId) {
+      const res = await db.session.deleteMany({
+        where: { id: sessionId, userId: targetUserId },
+      });
+      revokedCount = res.count;
+    } else {
+      const res = await db.session.deleteMany({
+        where: { userId: targetUserId },
+      });
+      revokedCount = res.count;
+    }
+
+    await AdminAuditService.logAction({
+      adminUserId,
+      action: "USER_SESSIONS_REVOKE",
+      targetType: "User",
+      targetId: targetUserId,
+      result: "SUCCESS",
+      details: {
+        targetEmail: targetUser.email,
+        sessionId: sessionId || "ALL",
+        revokedCount,
+      },
+      ipAddress: context?.ip,
+      userAgent: context?.ua,
+    });
+
+    return { revokedCount };
+  }
 }

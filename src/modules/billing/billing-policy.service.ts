@@ -61,6 +61,33 @@ export const DEFAULT_COMMERCIAL_POLICIES: PolicyDefinition[] = [
     dataType: "json",
     defaultValue: ["PROMOTIONAL", "SUBSCRIPTION", "PURCHASED"],
   },
+  {
+    key: "PROMPT_DEFAULT_CREDIT_COST",
+    category: "CREDITS",
+    label: "Custo por Geração de Prompt (Créditos)",
+    description: "Quantidade de créditos consumidos por cada geração padrão de prompt no motor de IA.",
+    dataType: "number",
+    defaultValue: 1,
+    validation: { min: 0, max: 50 },
+  },
+  {
+    key: "PROMPT_CINEMATIC_CREDIT_COST",
+    category: "CREDITS",
+    label: "Custo por Prompt Cinematográfico / Vídeo (Créditos)",
+    description: "Custo em créditos para prompts de alta densidade técnica cinematográfica ou ferramentas de vídeo.",
+    dataType: "number",
+    defaultValue: 2,
+    validation: { min: 0, max: 100 },
+  },
+  {
+    key: "PROMPT_CONTINUITY_CREDIT_COST",
+    category: "CREDITS",
+    label: "Custo por Análise de Continuidade (Créditos)",
+    description: "Custo em créditos para análise automatizada de continuidade e inconsistências entre cenas.",
+    dataType: "number",
+    defaultValue: 1,
+    validation: { min: 0, max: 50 },
+  },
 
   // 2. ASSINATURAS
   {

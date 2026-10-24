@@ -9,6 +9,8 @@ import { getSystemTemplate, SYSTEM_TEMPLATES } from "./prompt-template.catalog";
 import { getToolProfile, TOOL_PROFILES } from "./tool-profiles";
 import { composePromptInstructions } from "./compose-prompt";
 import { generateStructuredJson } from "../ai/gemini-provider";
+import { BillingPolicyService } from "../billing/billing-policy.service";
+import { EntitlementService } from "../billing/entitlement.service";
 
 export interface GeneratePromptResult {
   jobId: string;
@@ -140,7 +142,29 @@ export class PromptEngineService {
       customInstructions: req.customInstructions,
     });
 
-    // 7. Registrar GenerationJob com status PENDING
+    // 7. Política Comercial: Verificar e reservar créditos de consumo de IA
+    const isCinematic =
+      req.templateKey === "individual_scene" ||
+      ["runway_gen3", "sora", "kling_ai"].includes(req.targetTool);
+    const costPolicyKey = isCinematic
+      ? "PROMPT_CINEMATIC_CREDIT_COST"
+      : "PROMPT_DEFAULT_CREDIT_COST";
+    const creditCost = await BillingPolicyService.getPolicyValue<number>(
+      costPolicyKey,
+      isCinematic ? 2 : 1
+    );
+
+    if (creditCost > 0) {
+      await EntitlementService.assertCanConsumeCredits(workspaceId, creditCost);
+      await EntitlementService.deductCredits(
+        workspaceId,
+        creditCost,
+        `Geração de prompt (${req.templateKey} / ${req.targetTool})`,
+        { projectId, templateKey: req.templateKey, targetTool: req.targetTool }
+      );
+    }
+
+    // 8. Registrar GenerationJob com status PENDING
     const modelName = req.model || process.env.GEMINI_DEFAULT_MODEL || "gemini-3.5-flash";
 
     const job = await db.generationJob.create({
@@ -156,6 +180,7 @@ export class PromptEngineService {
           characterId: req.characterId,
           environmentId: req.environmentId,
           customInstructions: req.customInstructions,
+          creditCost,
         } as Prisma.InputJsonValue,
       },
     });
@@ -293,6 +318,35 @@ export class PromptEngineService {
           finishedAt: new Date(),
         },
       });
+
+      // Estorno automático de créditos em caso de falha se a política permitir
+      if (creditCost > 0) {
+        try {
+          const autoRefund = await BillingPolicyService.getPolicyValue<boolean>(
+            "CREDIT_REFUND_ON_FAILURE",
+            true
+          );
+          if (autoRefund) {
+            const ws = await db.workspace.update({
+              where: { id: workspaceId },
+              data: { creditsBalance: { increment: creditCost } },
+              select: { creditsBalance: true },
+            });
+
+            await db.creditLedger.create({
+              data: {
+                workspaceId,
+                amount: creditCost,
+                balanceAfter: ws.creditsBalance,
+                reason: `Estorno automático por falha na geração de prompt: ${err?.message || "Falha de IA"}`,
+                metadata: { jobId: job.id, projectId },
+              },
+            });
+          }
+        } catch (refundError) {
+          console.error("Erro ao estornar créditos de geração com falha:", refundError);
+        }
+      }
 
       throw err;
     }

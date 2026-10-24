@@ -3,10 +3,12 @@
 import { useEffect, useState } from "react";
 import { GatewaysTab } from "./components/gateways-tab";
 import { WebhooksTab } from "./components/webhooks-tab";
+import { SubscriptionsTab } from "./components/subscriptions-tab";
 
 type SectionTab =
   | "overview"
   | "plans"
+  | "subscriptions"
   | "limits"
   | "credit_policies"
   | "subscription_policies"
@@ -251,14 +253,15 @@ export default function AdminBillingPage() {
         {[
           { id: "overview", label: "1. Visão Geral", icon: "📊" },
           { id: "plans", label: "2. Planos & Preços", icon: "💳" },
-          { id: "limits", label: "3. Limites & Recursos", icon: "⚡" },
-          { id: "credit_policies", label: "4. Políticas de Créditos", icon: "🪙" },
-          { id: "subscription_policies", label: "5. Políticas de Assinatura", icon: "🔄" },
-          { id: "promotions", label: "6. Promoções & Ofertas", icon: "🏷️" },
-          { id: "general_settings", label: "7. Configurações Gerais", icon: "⚙️" },
-          { id: "history", label: "8. Auditoria & Snapshots", icon: "🛡️" },
-          { id: "gateways", label: "9. Gateways de Pagamento", icon: "🌐" },
-          { id: "webhooks", label: "10. Webhooks & Eventos", icon: "📡" },
+          { id: "subscriptions", label: "3. Assinaturas Ativas", icon: "📑" },
+          { id: "limits", label: "4. Limites & Recursos", icon: "⚡" },
+          { id: "credit_policies", label: "5. Políticas de Créditos", icon: "🪙" },
+          { id: "subscription_policies", label: "6. Políticas de Renovação", icon: "🔄" },
+          { id: "promotions", label: "7. Promoções & Ofertas", icon: "🏷️" },
+          { id: "general_settings", label: "8. Configurações Gerais", icon: "⚙️" },
+          { id: "history", label: "9. Auditoria & Snapshots", icon: "🛡️" },
+          { id: "gateways", label: "10. Gateways de Pagamento", icon: "🌐" },
+          { id: "webhooks", label: "11. Webhooks & Eventos", icon: "📡" },
         ].map((tab) => (
           <button
             key={tab.id}
@@ -475,6 +478,9 @@ export default function AdminBillingPage() {
           </div>
         </div>
       )}
+
+      {/* SEÇÃO: ASSINATURAS ATIVAS E CONTRATOS */}
+      {activeTab === "subscriptions" && <SubscriptionsTab />}
 
       {/* SEÇÃO 3: LIMITES E FUNCIONALIDADES */}
       {activeTab === "limits" && (

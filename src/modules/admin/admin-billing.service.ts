@@ -1,5 +1,5 @@
 import { db } from "@/lib/db";
-import { PlanTier, SubscriptionStatus, Prisma } from "@prisma/client";
+import { PlanTier, SubscriptionStatus, BillingInterval, Prisma } from "@prisma/client";
 import { DEFAULT_PLANS } from "@/modules/billing/plans.config";
 import { AdminAuditService } from "./admin-audit.service";
 
@@ -486,6 +486,7 @@ export class AdminBillingService {
   static async listSubscriptions(params: {
     status?: SubscriptionStatus;
     tier?: PlanTier;
+    search?: string;
     page?: number;
     limit?: number;
   }) {
@@ -499,6 +500,14 @@ export class AdminBillingService {
     }
     if (params.tier) {
       where.planTier = params.tier;
+    }
+    if (params.search) {
+      where.OR = [
+        { workspace: { name: { contains: params.search, mode: "insensitive" } } },
+        { workspace: { slug: { contains: params.search, mode: "insensitive" } } },
+        { customerId: { contains: params.search, mode: "insensitive" } },
+        { gatewaySubscriptionId: { contains: params.search, mode: "insensitive" } },
+      ];
     }
 
     const [subscriptions, total] = await Promise.all([
@@ -515,6 +524,19 @@ export class AdminBillingService {
               slug: true,
               isPersonal: true,
               creditsBalance: true,
+              memberships: {
+                where: { role: "OWNER" },
+                take: 1,
+                include: {
+                  user: {
+                    select: {
+                      id: true,
+                      email: true,
+                      displayName: true,
+                    },
+                  },
+                },
+              },
             },
           },
           plan: {
@@ -522,6 +544,9 @@ export class AdminBillingService {
               name: true,
               priceMonthly: true,
               priceYearly: true,
+              monthlyCredits: true,
+              maxProjects: true,
+              unlimitedProjects: true,
             },
           },
         },
@@ -538,6 +563,283 @@ export class AdminBillingService {
         totalPages: Math.ceil(total / limit),
       },
     };
+  }
+
+  /**
+   * Obtém detalhes de uma assinatura específica.
+   */
+  static async getSubscriptionDetails(subscriptionId: string) {
+    const subscription = await db.subscription.findUnique({
+      where: { id: subscriptionId },
+      include: {
+        workspace: {
+          include: {
+            memberships: {
+              include: {
+                user: {
+                  select: {
+                    id: true,
+                    email: true,
+                    displayName: true,
+                    platformRole: true,
+                  },
+                },
+              },
+            },
+            _count: {
+              select: {
+                projects: true,
+                memberships: true,
+              },
+            },
+          },
+        },
+        plan: true,
+        invoices: {
+          orderBy: { createdAt: "desc" },
+          take: 10,
+        },
+      },
+    });
+
+    if (!subscription) {
+      throw new Error("Assinatura não encontrada.");
+    }
+
+    const snapshots = await db.commercialSnapshot.findMany({
+      where: { subscriptionId },
+      orderBy: { acceptedAt: "desc" },
+      take: 5,
+    });
+
+    return {
+      subscription,
+      snapshots,
+    };
+  }
+
+  /**
+   * Atualiza parâmetros administrativos de uma assinatura.
+   */
+  static async updateSubscription(
+    adminUserId: string,
+    subscriptionId: string,
+    data: {
+      planTier?: PlanTier;
+      status?: SubscriptionStatus;
+      interval?: BillingInterval;
+      cancelAtPeriodEnd?: boolean;
+      currentPeriodEnd?: string | Date | null;
+      grantCredits?: boolean;
+      notes?: string;
+    },
+    context?: { ip?: string; ua?: string }
+  ) {
+    const subscription = await db.subscription.findUnique({
+      where: { id: subscriptionId },
+      include: { workspace: true, plan: true },
+    });
+
+    if (!subscription) {
+      throw new Error("Assinatura não encontrada.");
+    }
+
+    const updatePayload: Prisma.SubscriptionUpdateInput = {};
+    const oldValues = {
+      planTier: subscription.planTier,
+      status: subscription.status,
+      interval: subscription.interval,
+      cancelAtPeriodEnd: subscription.cancelAtPeriodEnd,
+    };
+
+    if (data.planTier && data.planTier !== subscription.planTier) {
+      updatePayload.plan = { connect: { tier: data.planTier } };
+
+      // Se solicitado concessão de créditos do novo plano
+      if (data.grantCredits) {
+        const targetPlan = await db.plan.findUnique({ where: { tier: data.planTier } });
+        if (targetPlan && targetPlan.monthlyCredits > 0) {
+          const newBalance = subscription.workspace.creditsBalance + targetPlan.monthlyCredits;
+          await db.workspace.update({
+            where: { id: subscription.workspaceId },
+            data: { creditsBalance: newBalance },
+          });
+          await db.creditLedger.create({
+            data: {
+              workspaceId: subscription.workspaceId,
+              amount: targetPlan.monthlyCredits,
+              balanceAfter: newBalance,
+              reason: `Créditos de alteração para plano ${data.planTier} (Ação administrativa)`,
+              metadata: { adminUserId, subscriptionId },
+            },
+          });
+        }
+      }
+    }
+
+    if (data.status) {
+      updatePayload.status = data.status;
+      if (data.status === SubscriptionStatus.CANCELED) {
+        updatePayload.canceledAt = new Date();
+      }
+    }
+
+    if (data.interval) {
+      updatePayload.interval = data.interval;
+    }
+
+    if (data.cancelAtPeriodEnd !== undefined) {
+      updatePayload.cancelAtPeriodEnd = data.cancelAtPeriodEnd;
+    }
+
+    if (data.currentPeriodEnd) {
+      updatePayload.currentPeriodEnd = new Date(data.currentPeriodEnd);
+    }
+
+    const updated = await db.subscription.update({
+      where: { id: subscriptionId },
+      data: updatePayload,
+      include: { workspace: true, plan: true },
+    });
+
+    await AdminAuditService.logAction({
+      adminUserId,
+      action: "SUBSCRIPTION_UPDATE",
+      targetType: "Subscription",
+      targetId: subscriptionId,
+      result: "SUCCESS",
+      details: {
+        workspaceId: subscription.workspaceId,
+        workspaceName: subscription.workspace.name,
+        oldValues,
+        newValues: data,
+        notes: data.notes,
+      },
+      ipAddress: context?.ip,
+      userAgent: context?.ua,
+    });
+
+    return updated;
+  }
+
+  /**
+   * Estende o período de trial de uma assinatura.
+   */
+  static async extendTrial(
+    adminUserId: string,
+    subscriptionId: string,
+    days: number,
+    justification: string,
+    context?: { ip?: string; ua?: string }
+  ) {
+    if (days <= 0) {
+      throw new Error("A quantidade de dias deve ser maior que zero.");
+    }
+    if (!justification || justification.trim().length < 5) {
+      throw new Error("É obrigatório fornecer uma justificativa para a extensão do trial.");
+    }
+
+    const subscription = await db.subscription.findUnique({
+      where: { id: subscriptionId },
+      include: { workspace: true },
+    });
+
+    if (!subscription) {
+      throw new Error("Assinatura não encontrada.");
+    }
+
+    const currentBase = subscription.trialEnd && subscription.trialEnd > new Date()
+      ? subscription.trialEnd
+      : new Date();
+
+    const newTrialEnd = new Date(currentBase.getTime() + days * 24 * 60 * 60 * 1000);
+
+    const updated = await db.subscription.update({
+      where: { id: subscriptionId },
+      data: {
+        status: SubscriptionStatus.TRIALING,
+        trialEnd: newTrialEnd,
+        currentPeriodEnd: newTrialEnd,
+      },
+      include: { workspace: true, plan: true },
+    });
+
+    await AdminAuditService.logAction({
+      adminUserId,
+      action: "SUBSCRIPTION_EXTEND_TRIAL",
+      targetType: "Subscription",
+      targetId: subscriptionId,
+      result: "SUCCESS",
+      details: {
+        workspaceId: subscription.workspaceId,
+        workspaceName: subscription.workspace.name,
+        daysAdded: days,
+        previousTrialEnd: subscription.trialEnd,
+        newTrialEnd,
+        justification,
+      },
+      ipAddress: context?.ip,
+      userAgent: context?.ua,
+    });
+
+    return updated;
+  }
+
+  /**
+   * Cancela uma assinatura administrativamente (imediato ou no fim do ciclo).
+   */
+  static async cancelSubscription(
+    adminUserId: string,
+    subscriptionId: string,
+    immediate: boolean,
+    justification: string,
+    context?: { ip?: string; ua?: string }
+  ) {
+    if (!justification || justification.trim().length < 5) {
+      throw new Error("É obrigatório fornecer uma justificativa para o cancelamento administrativo.");
+    }
+
+    const subscription = await db.subscription.findUnique({
+      where: { id: subscriptionId },
+      include: { workspace: true },
+    });
+
+    if (!subscription) {
+      throw new Error("Assinatura não encontrada.");
+    }
+
+    const updated = await db.subscription.update({
+      where: { id: subscriptionId },
+      data: immediate
+        ? {
+            status: SubscriptionStatus.CANCELED,
+            canceledAt: new Date(),
+            cancelAtPeriodEnd: false,
+          }
+        : {
+            cancelAtPeriodEnd: true,
+            status: SubscriptionStatus.CANCELING,
+          },
+      include: { workspace: true, plan: true },
+    });
+
+    await AdminAuditService.logAction({
+      adminUserId,
+      action: "SUBSCRIPTION_CANCEL",
+      targetType: "Subscription",
+      targetId: subscriptionId,
+      result: "SUCCESS",
+      details: {
+        workspaceId: subscription.workspaceId,
+        workspaceName: subscription.workspace.name,
+        immediate,
+        justification,
+      },
+      ipAddress: context?.ip,
+      userAgent: context?.ua,
+    });
+
+    return updated;
   }
 
   /**

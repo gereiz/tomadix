@@ -11,7 +11,7 @@
     "test": "vitest run",
     "prisma:generate": "prisma generate",
     "prisma:migrate": "prisma migrate dev",
-    "db:clean-tests": "node -r ts-node/register scripts/clean-test-data.ts"
+    "db:clean-tests": "npx tsx scripts/clean-test-data.ts"
   },
   "dependencies": {
     "@google/genai": "^1.0.0",

@@ -36,6 +36,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   const navTabs = [
     { href: "/admin", label: "Visão Geral", icon: "📊" },
     { href: "/admin/users", label: "Usuários", icon: "👥" },
+    { href: "/admin/projects", label: "Projetos", icon: "🎬" },
     { href: "/admin/billing", label: "Comercial & Planos", icon: "💳" },
     { href: "/admin/usage", label: "Consumo & Custos IA", icon: "⚡" },
     { href: "/admin/audit", label: "Auditoria", icon: "🛡️" },
