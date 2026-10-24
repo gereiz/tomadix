@@ -3,7 +3,6 @@ import { headers, cookies } from "next/headers";
 import { SESSION_COOKIE_NAME } from "./session";
 import { AuthService } from "@/modules/auth/auth.service";
 import { hasPermission, Permission } from "./permissions";
-import { WorkspaceRole } from "@prisma/client";
 
 export class AuthenticationError extends Error {
   statusCode = 401;

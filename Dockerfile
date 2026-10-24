@@ -8,6 +8,7 @@ FROM base AS deps
 WORKDIR /app
 
 COPY package.json package-lock.json* ./
+COPY prisma ./prisma/
 
 RUN npm ci
 
@@ -24,7 +25,7 @@ COPY . .
 
 ENV NEXT_TELEMETRY_DISABLED=1
 
-RUN npm run build
+RUN npx prisma generate && npm run build
 
 
 # -----------------------------
