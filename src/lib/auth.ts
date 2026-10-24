@@ -186,9 +186,11 @@ export async function getCurrentWorkspace(
     }
   }
 
-  // Fallback para o primeiro workspace do usuário caso o solicitado não seja acessível
+  // Fallback para o workspace do usuário: prioriza workspace com projetos ativos
   if (!targetMembership) {
-    targetMembership = user.memberships[0];
+    targetMembership =
+      user.memberships.find((m) => (m.workspace as any)?._count?.projects > 0) ||
+      user.memberships[0];
   }
 
   if (!targetMembership) {

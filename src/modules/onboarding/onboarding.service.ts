@@ -159,8 +159,10 @@ export class OnboardingService {
       throw new NotFoundError("Usuário não encontrado.");
     }
 
-    const firstWorkspace = user.memberships[0]?.workspace;
-    const hasProjects = (firstWorkspace?._count?.projects || 0) > 0;
+    const activeWorkspace =
+      user.memberships.find((m) => (m.workspace._count?.projects || 0) > 0)?.workspace ||
+      user.memberships[0]?.workspace;
+    const hasProjects = (activeWorkspace?._count?.projects || 0) > 0;
 
     return {
       userId: user.id,
@@ -170,13 +172,13 @@ export class OnboardingService {
       onboardingCompleted: user.onboardingCompleted,
       onboardingStep: user.onboardingStep,
       preferences: (user.preferences as Record<string, any>) || {},
-      activeWorkspace: firstWorkspace
+      activeWorkspace: activeWorkspace
         ? {
-            id: firstWorkspace.id,
-            name: firstWorkspace.name,
-            slug: firstWorkspace.slug,
-            planName: firstWorkspace.subscription?.plan?.name || "Plano Gratuito",
-            projectsCount: firstWorkspace._count?.projects || 0,
+            id: activeWorkspace.id,
+            name: activeWorkspace.name,
+            slug: activeWorkspace.slug,
+            planName: activeWorkspace.subscription?.plan?.name || "Plano Gratuito",
+            projectsCount: activeWorkspace._count?.projects || 0,
             hasProjects,
           }
         : null,
@@ -189,6 +191,20 @@ export class OnboardingService {
         aspectRatio: t.aspectRatio,
       })),
     };
+  }
+
+  /**
+   * Reinicia o onboarding completo do usuário do passo 1.
+   */
+  static async resetOnboarding(userId: string) {
+    await db.user.update({
+      where: { id: userId },
+      data: {
+        onboardingCompleted: false,
+        onboardingStep: 1,
+      },
+    });
+    return this.getOnboardingState(userId);
   }
 
   /**

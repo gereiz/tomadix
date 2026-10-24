@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 
@@ -43,14 +43,40 @@ export function OnboardingModal({
   onStateUpdate,
 }: OnboardingModalProps) {
   const router = useRouter();
-  const [currentStep, setCurrentStep] = useState(state?.onboardingStep || 1);
+  const [currentStep, setCurrentStep] = useState(1);
   const [creatingStarter, setCreatingStarter] = useState(false);
   const [selectedTemplate, setSelectedTemplate] = useState("cyberpunk_nordestino");
   const [error, setError] = useState<string | null>(null);
 
+  const totalSteps = 7;
+
+  useEffect(() => {
+    if (isOpen) {
+      const initialStep =
+        state?.onboardingStep && state.onboardingStep >= 1 && state.onboardingStep <= totalSteps
+          ? state.onboardingStep
+          : 1;
+      setCurrentStep(initialStep);
+      setError(null);
+    }
+  }, [isOpen, state?.onboardingStep]);
+
   if (!isOpen || !state) return null;
 
-  const totalSteps = 7;
+  const handleRestartTutorial = async () => {
+    setError(null);
+    try {
+      const res = await fetch("/api/onboarding/reset", { method: "POST" });
+      if (res.ok) {
+        setCurrentStep(1);
+        if (onStateUpdate) onStateUpdate();
+      } else {
+        setCurrentStep(1);
+      }
+    } catch {
+      setCurrentStep(1);
+    }
+  };
 
   const handleNextStep = async (stepToSave?: number) => {
     const next = stepToSave || currentStep + 1;
@@ -144,6 +170,14 @@ export function OnboardingModal({
               <span className="rounded-full bg-white/10 px-2.5 py-0.5 text-[11px] font-semibold text-white/70">
                 Etapa {currentStep} de {totalSteps}
               </span>
+              <button
+                type="button"
+                onClick={handleRestartTutorial}
+                className="text-xs text-white/50 hover:text-emerald-400 transition flex items-center gap-1"
+                title="Voltar ao início do tutorial"
+              >
+                🔄 Reiniciar
+              </button>
               <button
                 onClick={handleSkip}
                 className="text-xs text-white/40 hover:text-white transition underline underline-offset-4"
@@ -406,6 +440,15 @@ export function OnboardingModal({
                 >
                   {creatingStarter ? "Criando Universo..." : `Criar Projeto Inicial com "${selectedTemplate === "cyberpunk_nordestino" ? "Neo-Sertão 2099" : "Sombras da Guanabara"}"`}
                 </button>
+                {state.activeWorkspace?.hasProjects && (
+                  <button
+                    type="button"
+                    onClick={() => handleNextStep(6)}
+                    className="rounded-xl border border-white/20 bg-white/5 px-4 py-3 text-xs font-semibold text-white/80 hover:bg-white/10 hover:text-white transition text-center"
+                  >
+                    Manter meus projetos atuais →
+                  </button>
+                )}
               </div>
             </div>
           )}
