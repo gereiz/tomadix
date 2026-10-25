@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import Link from "next/link";
 
 interface PermissionDef {
   id: string;
@@ -404,7 +405,13 @@ export default function AdminUsersPage() {
                   return (
                     <tr key={u.id} className="hover:bg-white/[0.02] transition">
                       <td className="p-3.5">
-                        <div className="font-semibold text-white">{u.displayName || "Sem nome"}</div>
+                        <Link
+                          href={`/admin/users/${u.id}`}
+                          className="font-semibold text-white hover:text-indigo-400 transition inline-flex items-center gap-1.5 group"
+                        >
+                          <span>{u.displayName || "Sem nome"}</span>
+                          <span className="text-[10px] text-indigo-400 opacity-60 group-hover:opacity-100 group-hover:translate-x-0.5 transition-all">➔</span>
+                        </Link>
                         <div className="text-[11px] text-white/40 font-mono">{u.email}</div>
                       </td>
 
@@ -464,11 +471,19 @@ export default function AdminUsersPage() {
                       </td>
 
                       <td className="p-3.5 text-right space-x-1.5 whitespace-nowrap">
+                        <Link
+                          href={`/admin/users/${u.id}`}
+                          className="rounded-lg border border-indigo-500/30 bg-indigo-500/10 px-2.5 py-1 text-[11px] text-indigo-300 hover:bg-indigo-500/20 font-medium transition inline-flex items-center gap-1"
+                          title="Abrir prontuário completo do usuário"
+                        >
+                          Prontuário ➔
+                        </Link>
+
                         <button
                           onClick={() => handleViewDetails(u.id)}
                           className="rounded-lg border border-white/10 px-2.5 py-1 text-[11px] text-white/80 hover:bg-white/10 transition"
                         >
-                          Gerenciar
+                          Rápido
                         </button>
 
                         <button

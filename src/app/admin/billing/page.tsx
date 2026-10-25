@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { GatewaysTab } from "./components/gateways-tab";
 import { WebhooksTab } from "./components/webhooks-tab";
 import { SubscriptionsTab } from "./components/subscriptions-tab";
+import { CreditPricingTab } from "./components/credit-pricing-tab";
 
 type SectionTab =
   | "overview"
@@ -254,8 +255,8 @@ export default function AdminBillingPage() {
           { id: "overview", label: "1. Visão Geral", icon: "📊" },
           { id: "plans", label: "2. Planos & Preços", icon: "💳" },
           { id: "subscriptions", label: "3. Assinaturas Ativas", icon: "📑" },
-          { id: "limits", label: "4. Limites & Recursos", icon: "⚡" },
-          { id: "credit_policies", label: "5. Políticas de Créditos", icon: "🪙" },
+          { id: "limits", label: "4. Limites, Recursos & Custos", icon: "⚡" },
+          { id: "credit_policies", label: "5. Políticas Globais", icon: "🪙" },
           { id: "subscription_policies", label: "6. Políticas de Renovação", icon: "🔄" },
           { id: "promotions", label: "7. Promoções & Ofertas", icon: "🏷️" },
           { id: "general_settings", label: "8. Configurações Gerais", icon: "⚙️" },
@@ -569,6 +570,11 @@ export default function AdminBillingPage() {
                 </tbody>
               </table>
             </div>
+          </div>
+
+          {/* Central de Custos em Créditos por Operação e Políticas de Renovação */}
+          <div className="pt-4">
+            <CreditPricingTab />
           </div>
         </div>
       )}

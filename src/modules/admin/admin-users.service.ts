@@ -153,19 +153,59 @@ export class AdminUsersService {
       throw new Error("Usuário não encontrado.");
     }
 
-    // Agrega contadores de projetos e gerações nos workspaces do usuário (apenas métricas numéricas)
+    // Agrega contadores detalhados de projetos, personagens, ambientes, cenas e créditos
     const workspaceIds = user.memberships.map((m) => m.workspaceId);
 
-    const [totalProjects, totalGenerations] = await Promise.all([
-      db.project.count({
-        where: { workspaceId: { in: workspaceIds } },
-      }),
+    const [
+      totalProjects,
+      totalGenerations,
+      totalCharacters,
+      totalEnvironments,
+      totalScenes,
+      creditsGrantedAgg,
+      creditsConsumedAgg,
+      creditsAdjustedAgg,
+      recentLedgerEntries,
+      userProjects,
+      entitlementOverrides,
+    ] = await Promise.all([
+      db.project.count({ where: { workspaceId: { in: workspaceIds } } }),
       db.generationJob.count({
-        where: {
-          project: {
-            workspaceId: { in: workspaceIds },
+        where: { project: { workspaceId: { in: workspaceIds } } },
+      }),
+      db.character.count({ where: { project: { workspaceId: { in: workspaceIds } }, isArchived: false } }),
+      db.environment.count({ where: { project: { workspaceId: { in: workspaceIds } }, isArchived: false } }),
+      db.scene.count({ where: { project: { workspaceId: { in: workspaceIds } } } }),
+      db.creditLedger.aggregate({
+        where: { workspaceId: { in: workspaceIds }, amount: { gt: 0 } },
+        _sum: { amount: true },
+      }),
+      db.creditLedger.aggregate({
+        where: { workspaceId: { in: workspaceIds }, amount: { lt: 0 } },
+        _sum: { amount: true },
+      }),
+      db.creditLedger.aggregate({
+        where: { workspaceId: { in: workspaceIds }, reason: { contains: "Ajuste administrativo" } },
+        _sum: { amount: true },
+      }),
+      db.creditLedger.findMany({
+        where: { workspaceId: { in: workspaceIds } },
+        orderBy: { createdAt: "desc" },
+        take: 30,
+      }),
+      db.project.findMany({
+        where: { workspaceId: { in: workspaceIds } },
+        orderBy: { updatedAt: "desc" },
+        take: 20,
+        include: {
+          _count: {
+            select: { scenes: true, characters: true, environments: true, generations: true },
           },
         },
+      }),
+      db.userEntitlementOverride.findMany({
+        where: { userId },
+        orderBy: { createdAt: "desc" },
       }),
     ]);
 
@@ -178,17 +218,34 @@ export class AdminUsersService {
         ],
       },
       orderBy: { createdAt: "desc" },
-      take: 10,
+      take: 15,
     });
+
+    const totalCreditsAvailable = user.memberships.reduce(
+      (acc, m) => acc + (m.workspace?.creditsBalance || 0),
+      0
+    );
 
     return {
       user,
       metrics: {
         totalWorkspaces: user.memberships.length,
         totalProjects,
+        totalCharacters,
+        totalEnvironments,
+        totalScenes,
         totalGenerations,
         activeSessionsCount: user.sessions.length,
+        credits: {
+          available: totalCreditsAvailable,
+          granted: creditsGrantedAgg._sum.amount || 0,
+          consumed: Math.abs(creditsConsumedAgg._sum.amount || 0),
+          adjusted: creditsAdjustedAgg._sum.amount || 0,
+        },
       },
+      recentLedgerEntries,
+      userProjects,
+      entitlementOverrides,
       recentAuditLogs,
     };
   }
@@ -308,7 +365,7 @@ export class AdminUsersService {
   }
 
   /**
-   * Ajusta saldo de créditos de um workspace (concessão ou estorno) com auditoria.
+   * Ajusta saldo de créditos de um workspace (concessão ou retirada) com auditoria imutável.
    */
   static async adjustCredits(
     adminUserId: string,
@@ -333,6 +390,13 @@ export class AdminUsersService {
       throw new Error("Workspace não encontrado.");
     }
 
+    // Validação de retirada: impede saldo negativo
+    if (amount < 0 && workspace.creditsBalance + amount < 0) {
+      throw new Error(
+        `Saldo insuficiente para retirada. Saldo atual: ${workspace.creditsBalance} créditos, retirada solicitada: ${Math.abs(amount)} créditos.`
+      );
+    }
+
     const newBalance = Math.max(0, workspace.creditsBalance + amount);
 
     // Registra no livro razão de créditos
@@ -341,9 +405,10 @@ export class AdminUsersService {
         workspaceId,
         amount,
         balanceAfter: newBalance,
-        reason: `Ajuste administrativo: ${reason.trim()}`,
+        reason: `${amount > 0 ? "Concessão" : "Retirada"} administrativa: ${reason.trim()}`,
         metadata: {
           adminUserId,
+          type: amount > 0 ? "ADMIN_GRANT" : "ADMIN_WITHDRAWAL",
           previousBalance: workspace.creditsBalance,
           newBalance,
         },
@@ -359,7 +424,7 @@ export class AdminUsersService {
     // Log na auditoria administrativa
     await AdminAuditService.logAction({
       adminUserId,
-      action: "CREDIT_ADJUST",
+      action: amount > 0 ? "CREDIT_GRANT" : "CREDIT_WITHDRAWAL",
       targetType: "Workspace",
       targetId: workspaceId,
       result: "SUCCESS",
@@ -384,7 +449,7 @@ export class AdminUsersService {
   }
 
   /**
-   * Altera o papel de plataforma de um usuário (apenas SUPER_ADMIN).
+   * Altera o papel de plataforma de um usuário com regras de segurança rígidas (apenas SUPER_ADMIN).
    */
   static async updatePlatformRole(
     adminUserId: string,
@@ -400,6 +465,21 @@ export class AdminUsersService {
     const targetUser = await db.user.findUnique({ where: { id: targetUserId } });
     if (!targetUser) {
       throw new Error("Usuário alvo não encontrado.");
+    }
+
+    // Regra de segurança 1: Não permitir auto-alteração de papel administrativo
+    if (adminUserId === targetUserId && newRole !== targetUser.platformRole) {
+      throw new Error("Um administrador não pode alterar o próprio papel administrativo.");
+    }
+
+    // Regra de segurança 2: Não permitir rebaixamento do último SUPER_ADMIN ativo
+    if (targetUser.platformRole === PlatformRole.SUPER_ADMIN && newRole !== PlatformRole.SUPER_ADMIN) {
+      const superAdminCount = await db.user.count({
+        where: { platformRole: PlatformRole.SUPER_ADMIN, isSuspended: false },
+      });
+      if (superAdminCount <= 1) {
+        throw new Error("Operação bloqueada: Não é permitido rebaixar o único SUPER_ADMIN ativo da plataforma.");
+      }
     }
 
     const updatedUser = await db.user.update({
@@ -423,6 +503,161 @@ export class AdminUsersService {
     });
 
     return updatedUser;
+  }
+
+  /**
+   * Confirmação manual de verificação de e-mail por administrador com justificativa explícita.
+   */
+  static async confirmEmailManually(
+    adminUserId: string,
+    targetUserId: string,
+    justification: string,
+    context?: { ip?: string; ua?: string }
+  ) {
+    if (!justification || justification.trim().length < 5) {
+      throw new Error("É obrigatório fornecer justificativa formal para a verificação manual de e-mail.");
+    }
+
+    const targetUser = await db.user.findUnique({ where: { id: targetUserId } });
+    if (!targetUser) {
+      throw new Error("Usuário alvo não encontrado.");
+    }
+
+    const updatedUser = await db.user.update({
+      where: { id: targetUserId },
+      data: {
+        emailConfirmed: true,
+        emailConfirmationToken: null,
+        emailConfirmationExpiresAt: null,
+      },
+    });
+
+    await AdminAuditService.logAction({
+      adminUserId,
+      action: "USER_EMAIL_MANUAL_CONFIRM",
+      targetType: "User",
+      targetId: targetUserId,
+      result: "SUCCESS",
+      details: {
+        targetEmail: targetUser.email,
+        verifiedByAdmin: true,
+        justification: justification.trim(),
+        note: "Verificação manual executada diretamente pelo operador administrativo.",
+      },
+      ipAddress: context?.ip,
+      userAgent: context?.ua,
+    });
+
+    return updatedUser;
+  }
+
+  /**
+   * Cria concessão administrativa temporária de plano ou recursos para um usuário.
+   */
+  static async grantEntitlementOverride(
+    adminUserId: string,
+    data: {
+      userId: string;
+      workspaceId?: string;
+      grantedPlanTier?: any;
+      courtesyCredits?: number;
+      expiresAt?: string | Date | null;
+      reason: string;
+    },
+    context?: { ip?: string; ua?: string }
+  ) {
+    if (!data.reason || data.reason.trim().length < 5) {
+      throw new Error("Informe uma justificativa para a concessão administrativa de plano/recursos.");
+    }
+
+    const targetUser = await db.user.findUnique({ where: { id: data.userId } });
+    if (!targetUser) {
+      throw new Error("Usuário alvo não encontrado.");
+    }
+
+    const override = await db.userEntitlementOverride.create({
+      data: {
+        userId: data.userId,
+        workspaceId: data.workspaceId || null,
+        grantedPlanTier: data.grantedPlanTier || null,
+        courtesyCredits: data.courtesyCredits || null,
+        expiresAt: data.expiresAt ? new Date(data.expiresAt) : null,
+        reason: data.reason.trim(),
+        adminUserId,
+        isActive: true,
+      },
+    });
+
+    // Se houver créditos de cortesia associados, deposita no workspace
+    if (data.courtesyCredits && data.courtesyCredits > 0 && data.workspaceId) {
+      await this.adjustCredits(
+        adminUserId,
+        data.workspaceId,
+        data.courtesyCredits,
+        `Concessão administrativa de cortesia: ${data.reason.trim()}`,
+        context
+      );
+    }
+
+    await AdminAuditService.logAction({
+      adminUserId,
+      action: "ENTITLEMENT_OVERRIDE_GRANT",
+      targetType: "User",
+      targetId: data.userId,
+      result: "SUCCESS",
+      details: {
+        targetEmail: targetUser.email,
+        overrideId: override.id,
+        grantedPlanTier: data.grantedPlanTier,
+        courtesyCredits: data.courtesyCredits,
+        expiresAt: data.expiresAt,
+        reason: data.reason.trim(),
+      },
+      ipAddress: context?.ip,
+      userAgent: context?.ua,
+    });
+
+    return override;
+  }
+
+  /**
+   * Remove uma concessão administrativa ativa.
+   */
+  static async revokeEntitlementOverride(
+    adminUserId: string,
+    overrideId: string,
+    context?: { ip?: string; ua?: string }
+  ) {
+    const override = await db.userEntitlementOverride.findUnique({
+      where: { id: overrideId },
+      include: { user: true },
+    });
+
+    if (!override) {
+      throw new Error("Concessão administrativa não encontrada.");
+    }
+
+    const updated = await db.userEntitlementOverride.update({
+      where: { id: overrideId },
+      data: { isActive: false },
+    });
+
+    await AdminAuditService.logAction({
+      adminUserId,
+      action: "ENTITLEMENT_OVERRIDE_REVOKE",
+      targetType: "UserEntitlementOverride",
+      targetId: overrideId,
+      result: "SUCCESS",
+      details: {
+        targetUserId: override.userId,
+        targetEmail: override.user.email,
+        revokedOverrideId: overrideId,
+      },
+      ipAddress: context?.ip,
+      userAgent: context?.ua,
+    });
+
+    return updated;
   }
 
   /**

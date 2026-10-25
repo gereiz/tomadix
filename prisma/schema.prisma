@@ -104,6 +104,7 @@ model User {
   platformAuditLogs           PlatformAuditLog[]   @relation("AdminAuditLogs")
   consents                    ConsentRecord[]
   dataSubjectRequests         DataSubjectRequest[]
+  entitlementOverrides        UserEntitlementOverride[]
   createdAt                   DateTime             @default(now())
   updatedAt                   DateTime             @updatedAt
 
@@ -200,11 +201,14 @@ model Workspace {
   creditsBalance Int               @default(20)
   memberships    Membership[]
   invites        WorkspaceInvite[]
-  projects       Project[]
-  subscription   Subscription?
-  invoices       Invoice[]
-  creditLedgers  CreditLedger[]
-  createdAt      DateTime          @default(now())
+  projects                    Project[]
+  subscription                Subscription?
+  invoices                    Invoice[]
+  creditLedgers               CreditLedger[]
+  entitlementOverrides        UserEntitlementOverride[]
+  transfersFrom               ProjectOwnershipTransfer[] @relation("TransfersFrom")
+  transfersTo                 ProjectOwnershipTransfer[] @relation("TransfersTo")
+  createdAt                   DateTime          @default(now())
   updatedAt      DateTime          @updatedAt
 
   @@index([isArchived])
@@ -387,6 +391,7 @@ model Project {
   environments    Environment[]
   scenes          Scene[]
   generations     GenerationJob[]
+  transfers       ProjectOwnershipTransfer[]
   createdAt       DateTime      @default(now())
   updatedAt       DateTime      @updatedAt
 
@@ -658,3 +663,100 @@ model PaymentWebhookEvent {
   @@index([status, createdAt])
   @@index([environment])
 }
+
+model CreditOperation {
+  id                 String              @id @default(cuid())
+  code               String              @unique // "GEN_CHARACTER", "GEN_ENVIRONMENT", etc.
+  name               String
+  description        String?
+  category           String              // "CHARACTERS", "ENVIRONMENTS", "PROMPTS", "SCENES", "EXPANSIONS", "BATCH", "PREMIUM"
+  defaultCreditCost  Int                 @default(1)
+  isFree             Boolean             @default(false)
+  isActive           Boolean             @default(true)
+  version            Int                 @default(1)
+  pricingRules       CreditPricingRule[]
+  createdAt          DateTime            @default(now())
+  updatedAt          DateTime            @updatedAt
+
+  @@index([category, isActive])
+}
+
+model CreditPricingRule {
+  id                 String          @id @default(cuid())
+  operationId        String
+  planTier           PlanTier?
+  creditCost         Int
+  isFree             Boolean         @default(false)
+  effectiveFrom      DateTime        @default(now())
+  effectiveUntil     DateTime?
+  priority           Int             @default(1)
+  isActive           Boolean         @default(true)
+  version            Int             @default(1)
+  operation          CreditOperation @relation(fields: [operationId], references: [id], onDelete: Cascade)
+  createdAt          DateTime        @default(now())
+  updatedAt          DateTime        @updatedAt
+
+  @@index([operationId, planTier, isActive])
+}
+
+model CreditRenewalPolicy {
+  id                 String          @id @default(cuid())
+  name               String
+  description        String?
+  planTier           PlanTier?
+  creditsAmount      Int
+  frequency          String          // "DAILY", "WEEKLY", "MONTHLY", "YEARLY", "ONCE", "CYCLE"
+  moment             String          @default("CYCLE_RENEWAL") // "CYCLE_RENEWAL", "SIGNUP", "SCHEDULED"
+  accumulate         Boolean         @default(false)
+  maxAccumulated     Int?
+  expirationDays     Int?
+  priority           Int             @default(1)
+  isActive           Boolean         @default(true)
+  startsAt           DateTime        @default(now())
+  endsAt             DateTime?
+  createdAt          DateTime        @default(now())
+  updatedAt          DateTime        @updatedAt
+
+  @@index([planTier, isActive])
+}
+
+model UserEntitlementOverride {
+  id                 String          @id @default(cuid())
+  userId             String
+  workspaceId        String?
+  grantedPlanTier    PlanTier?
+  courtesyCredits    Int?
+  expiresAt          DateTime?
+  reason             String
+  adminUserId        String
+  isActive           Boolean         @default(true)
+  createdAt          DateTime        @default(now())
+  updatedAt          DateTime        @updatedAt
+
+  user               User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+  workspace          Workspace?      @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+
+  @@index([userId, isActive])
+  @@index([workspaceId, isActive])
+}
+
+model ProjectOwnershipTransfer {
+  id                 String          @id @default(cuid())
+  projectId          String
+  fromWorkspaceId    String
+  toWorkspaceId      String
+  fromUserId         String?
+  toUserId           String?
+  reason             String
+  adminUserId        String
+  transferredAt      DateTime        @default(now())
+
+  project            Project         @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  fromWorkspace      Workspace       @relation("TransfersFrom", fields: [fromWorkspaceId], references: [id], onDelete: Cascade)
+  toWorkspace        Workspace       @relation("TransfersTo", fields: [toWorkspaceId], references: [id], onDelete: Cascade)
+
+  @@index([projectId, transferredAt])
+  @@index([fromWorkspaceId])
+  @@index([toWorkspaceId])
+}
+

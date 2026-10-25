@@ -366,15 +366,23 @@ export class AdminProjectsService {
 
     const oldWorkspaceName = project.workspace.name;
 
-    const updated = await db.project.update({
-      where: { id: projectId },
-      data: {
-        workspaceId: targetWorkspaceId,
-      },
-      include: {
-        workspace: true,
-      },
-    });
+    // Transação atômica: atualiza workspaceId do projeto e registra no histórico de transferências
+    const [updated, transferRecord] = await db.$transaction([
+      db.project.update({
+        where: { id: projectId },
+        data: { workspaceId: targetWorkspaceId },
+        include: { workspace: true },
+      }),
+      db.projectOwnershipTransfer.create({
+        data: {
+          projectId,
+          fromWorkspaceId: project.workspaceId,
+          toWorkspaceId: targetWorkspaceId,
+          reason: reason.trim(),
+          adminUserId,
+        },
+      }),
+    ]);
 
     await AdminAuditService.logAction({
       adminUserId,
@@ -388,6 +396,7 @@ export class AdminProjectsService {
         fromWorkspaceName: oldWorkspaceName,
         toWorkspaceId: targetWorkspaceId,
         toWorkspaceName: targetWorkspace.name,
+        transferId: transferRecord.id,
         reason: reason.trim(),
       },
       ipAddress: context?.ip,
@@ -395,6 +404,172 @@ export class AdminProjectsService {
     });
 
     return updated;
+  }
+
+  /**
+   * Transfere múltiplos projetos em lote em uma única operação transacionada.
+   */
+  static async transferProjectsBatch(
+    adminUserId: string,
+    projectIds: string[],
+    targetWorkspaceId: string,
+    reason: string,
+    options?: { allowLimitOverride?: boolean },
+    context?: { ip?: string; ua?: string }
+  ) {
+    if (!projectIds || projectIds.length === 0) {
+      throw new Error("Selecione ao menos um projeto para a transferência.");
+    }
+    if (!reason || reason.trim().length < 5) {
+      throw new Error("Informe uma justificativa para a transferência em lote.");
+    }
+
+    const targetWorkspace = await db.workspace.findUnique({
+      where: { id: targetWorkspaceId },
+      include: { subscription: true, _count: { select: { projects: true } } },
+    });
+
+    if (!targetWorkspace) {
+      throw new Error("Workspace de destino não encontrado.");
+    }
+
+    if (!options?.allowLimitOverride) {
+      // Validar se cabe a quantidade de projetos transferidos
+      const currentProjects = targetWorkspace._count.projects;
+      const targetPlan = await db.plan.findUnique({
+        where: { tier: targetWorkspace.subscription?.planTier || "FREE" },
+      });
+      if (targetPlan && !targetPlan.unlimitedProjects && targetPlan.maxProjects !== -1) {
+        if (currentProjects + projectIds.length > targetPlan.maxProjects) {
+          throw new Error(
+            `A transferência de ${projectIds.length} projeto(s) excederá o limite do plano (${targetPlan.maxProjects}). Marque a opção de exceção administrativa auditada se desejar prosseguir.`
+          );
+        }
+      }
+    }
+
+    const results = [];
+    for (const pid of projectIds) {
+      const res = await this.transferProject(adminUserId, pid, targetWorkspaceId, reason, context);
+      results.push(res);
+    }
+
+    await AdminAuditService.logAction({
+      adminUserId,
+      action: "PROJECT_TRANSFER_BATCH",
+      targetType: "Workspace",
+      targetId: targetWorkspaceId,
+      result: "SUCCESS",
+      details: {
+        targetWorkspaceName: targetWorkspace.name,
+        transferredCount: results.length,
+        projectIds,
+        reason: reason.trim(),
+        limitOverride: Boolean(options?.allowLimitOverride),
+      },
+      ipAddress: context?.ip,
+      userAgent: context?.ua,
+    });
+
+    return {
+      transferredCount: results.length,
+      targetWorkspaceId,
+      targetWorkspaceName: targetWorkspace.name,
+    };
+  }
+
+  /**
+   * Consulta o histórico de transferências de proprietários de projetos.
+   */
+  static async listOwnershipTransfers(params: {
+    projectId?: string;
+    workspaceId?: string;
+    page?: number;
+    limit?: number;
+  }) {
+    const page = Math.max(1, params.page || 1);
+    const limit = Math.min(100, Math.max(1, params.limit || 20));
+    const skip = (page - 1) * limit;
+
+    const where: Prisma.ProjectOwnershipTransferWhereInput = {};
+    if (params.projectId) where.projectId = params.projectId;
+    if (params.workspaceId) {
+      where.OR = [
+        { fromWorkspaceId: params.workspaceId },
+        { toWorkspaceId: params.workspaceId },
+      ];
+    }
+
+    const [transfers, total] = await Promise.all([
+      db.projectOwnershipTransfer.findMany({
+        where,
+        orderBy: { transferredAt: "desc" },
+        skip,
+        take: limit,
+        include: {
+          project: { select: { id: true, title: true } },
+          fromWorkspace: { select: { id: true, name: true } },
+          toWorkspace: { select: { id: true, name: true } },
+        },
+      }),
+      db.projectOwnershipTransfer.count({ where }),
+    ]);
+
+    return {
+      transfers,
+      pagination: {
+        page,
+        limit,
+        total,
+        totalPages: Math.ceil(total / limit),
+      },
+    };
+  }
+
+  /**
+   * Restaura a propriedade anterior de um projeto com base no registro de transferência.
+   */
+  static async restorePreviousOwnership(
+    adminUserId: string,
+    transferId: string,
+    reason: string,
+    context?: { ip?: string; ua?: string }
+  ) {
+    const transfer = await db.projectOwnershipTransfer.findUnique({
+      where: { id: transferId },
+      include: { project: true, fromWorkspace: true },
+    });
+
+    if (!transfer) {
+      throw new Error("Registro de transferência não encontrado.");
+    }
+
+    // Transfere de volta para o fromWorkspaceId
+    const restored = await this.transferProject(
+      adminUserId,
+      transfer.projectId,
+      transfer.fromWorkspaceId,
+      `Restauração de propriedade anterior: ${reason.trim()}`,
+      context
+    );
+
+    await AdminAuditService.logAction({
+      adminUserId,
+      action: "PROJECT_OWNERSHIP_RESTORE",
+      targetType: "Project",
+      targetId: transfer.projectId,
+      result: "SUCCESS",
+      details: {
+        transferId,
+        restoredToWorkspaceId: transfer.fromWorkspaceId,
+        restoredToWorkspaceName: transfer.fromWorkspace.name,
+        reason: reason.trim(),
+      },
+      ipAddress: context?.ip,
+      userAgent: context?.ua,
+    });
+
+    return restored;
   }
 
   /**

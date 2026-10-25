@@ -11,6 +11,7 @@ import { composePromptInstructions } from "./compose-prompt";
 import { generateStructuredJson } from "../ai/gemini-provider";
 import { BillingPolicyService } from "../billing/billing-policy.service";
 import { EntitlementService } from "../billing/entitlement.service";
+import { CreditPricingService } from "../billing/credit-pricing.service";
 
 export interface GeneratePromptResult {
   jobId: string;
@@ -142,25 +143,43 @@ export class PromptEngineService {
       customInstructions: req.customInstructions,
     });
 
-    // 7. Política Comercial: Verificar e reservar créditos de consumo de IA
-    const isCinematic =
-      req.templateKey === "individual_scene" ||
-      ["runway_gen3", "sora", "kling_ai"].includes(req.targetTool);
-    const costPolicyKey = isCinematic
-      ? "PROMPT_CINEMATIC_CREDIT_COST"
-      : "PROMPT_DEFAULT_CREDIT_COST";
-    const creditCost = await BillingPolicyService.getPolicyValue<number>(
-      costPolicyKey,
-      isCinematic ? 2 : 1
-    );
+    // 7. Política Comercial: Resolução dinâmica de custos via Catálogo Central de Operações
+    let operationCode = "GEN_IMAGE_PROMPT";
+    if (["runway_gen3", "sora", "kling_ai", "luma_dream_machine"].includes(req.targetTool) || req.templateKey === "video_prompt") {
+      operationCode = "GEN_VIDEO_PROMPT";
+    } else if (req.templateKey === "character_definition") {
+      operationCode = "GEN_CHARACTER";
+    } else if (req.templateKey === "environment_definition") {
+      operationCode = "GEN_ENVIRONMENT";
+    } else if (req.templateKey === "visual_bible") {
+      operationCode = "GEN_VISUAL_BIBLE";
+    } else if (req.templateKey === "scene_sequence") {
+      operationCode = "GEN_SCENE_SEQUENCE";
+    }
+
+    const wsSub = await db.subscription.findUnique({
+      where: { workspaceId },
+      select: { planTier: true },
+    });
+    const currentPlanTier = wsSub?.planTier || "FREE";
+
+    const costResolution = await CreditPricingService.resolveCost(operationCode, currentPlanTier);
+    const creditCost = costResolution.creditCost;
 
     if (creditCost > 0) {
       await EntitlementService.assertCanConsumeCredits(workspaceId, creditCost);
       await EntitlementService.deductCredits(
         workspaceId,
         creditCost,
-        `Geração de prompt (${req.templateKey} / ${req.targetTool})`,
-        { projectId, templateKey: req.templateKey, targetTool: req.targetTool }
+        `Geração de prompt (${costResolution.operationName} / ${req.targetTool})`,
+        {
+          projectId,
+          templateKey: req.templateKey,
+          targetTool: req.targetTool,
+          operationCode,
+          appliedRule: costResolution.appliedRule,
+          ruleVersion: costResolution.version,
+        }
       );
     }
 
