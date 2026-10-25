@@ -1,34 +1,34 @@
 # 10 — Central Comercial, Gestão de Planos e Políticas Declarativas
 
-A **Central de Gestão Comercial** do painel administrativo (`/admin/billing`) permite que operadores autorizados controlem planos, limites, cotas de créditos, preços e políticas comerciais do Tomadix sem necessidade de alterar o código-fonte da aplicação.
+A **Central de Gestão Comercial** do painel administrativo (`/admin/billing`) permite que operadores autorizados controlem planos, limites, cotas de créditos, preços e políticas comerciais do CinePrompt Studio AI (Tomadix) sem necessidade de alterar o código-fonte da aplicação.
 
 ---
 
 ## 1. Modelo de Planos e Catálogo Dinâmico (`Plan`)
 
-Diferente de implementações estáticas, os planos são persistidos no banco de dados com versionamento e controle de estado:
+Diferente de implementações estáticas em código, os planos são persistidos no banco de dados com versionamento e controle de estado:
 - **`commercialStatus`**: `ACTIVE`, `DRAFT`, `ARCHIVED`. Planos em rascunho ou arquivados não aparecem no catálogo público e não aceitam novos checkouts.
 - **Preços em Centavos**: `priceMonthly` e `priceYearly` armazenados como números inteiros em centavos, prevenindo discrepâncias por ponto flutuante.
-- **Limites e Cotas**:
+- **Limites e Cotas por Plano**:
   - `maxProjects`: Teto de projetos cinematográficos (-1 para ilimitado).
   - `maxMembers`: Teto de colaboradores no estúdio (-1 para ilimitado).
+  - `maxCharacters` / `maxEnvironments` / `maxScenes`: Limites de entidades criativas.
+  - `maxConcurrentJobs`: Número de gerações simultâneas de IA permitidas (ex: 1x, 3x, 5x).
+  - `rateLimitPerMin`: Taxa máxima de requisições por minuto ao motor de IA.
+  - `hasPremiumTemplates`: Liberação de templates avançados de direção de fotografia.
   - `monthlyCredits`: Créditos de IA renovados a cada ciclo de faturamento.
-  - `features`: Matriz de recursos habilitados (acesso a bíblia avançada, decupagem anamórfica, exportação em lote).
 
 ---
 
-## 2. Políticas Comerciais Declarativas (`CommercialPolicy`)
+## 2. Gestão de Assinaturas e Ciclo de Vida Contratual
 
-O serviço `BillingPolicyService` gerencia configurações de negócio via banco de dados com cache em memória (TTL de 60s):
-- **Políticas de Créditos**:
-  - `CREDIT_MONTHLY_RESET_MODE`: Expiração no fim do ciclo (`ROLLOVER_NEVER`) ou acúmulo de saldo.
-  - `CREDIT_REFUND_ON_FAILURE`: Estorno automático de créditos em caso de falha da IA.
-  - `CREDIT_ADMIN_MAX_GRANT`: Limite máximo de créditos que um operador admin pode conceder manualmente.
-- **Políticas de Assinatura**:
-  - `SUB_CANCEL_EFFECT`: Efeito do cancelamento no fim do período pago (`PERIOD_END`) ou imediato.
-  - `SUB_GRACE_PERIOD_DAYS`: Dias de carência e tolerância em caso de inadimplência (padrão: 3 dias).
-  - `SUB_GRANDFATHERING_DEFAULT`: Preservação automática de termos para clientes existentes.
-  - `ALLOW_DIRECT_DOWNGRADE`: Se assinantes podem solicitar downgrade diretamente pelo checkout.
+A aba **"3. Assinaturas Ativas"** permite a supervisão integral dos contratos:
+- **Estados Reais da Assinatura**: `ACTIVE`, `TRIALING`, `PAST_DUE`, `CANCELING`, `CANCELED`, `UNPAID`.
+- **Ações de Suporte ao Contrato**:
+  - Conceder período de teste estendido ou cortesia com prazo determinado.
+  - Corrigir dados de status respeitando o contrato real do gateway de pagamento.
+  - Cancelar assinatura com opção de efeito imediato ou ao término do período vigente.
+  - Visualizar o próximo ciclo de cobrança e histórico financeiro.
 
 ---
 
@@ -42,7 +42,19 @@ Quando um administrador edita o preço ou reduz os limites de um plano no catál
 
 ---
 
-## 4. Endpoints da API de Planos e Políticas
+## 4. Integração com a Central de Custos e Renovação de Créditos
+
+A aba **"4. Limites, Recursos & Custos"** unifica:
+- A matriz comparativa de limites e direitos de cada plano.
+- O catálogo dinâmico de operações cobráveis em créditos (`CreditOperation`).
+- As regras de desconto e gratuidade específicas por plano (`CreditPricingRule`).
+- O sistema autônomo e idempotente de renovação periódica de créditos (`CreditRenewalPolicy`).
+
+*(Para documentação aprofundada sobre custos e renovações, consulte o documento [14-central-custos-renovacao-creditos.md](file:///c:/CURSOS/tomadix/docs/14-central-custos-renovacao-creditos.md)).*
+
+---
+
+## 5. Endpoints da API de Planos e Políticas
 
 - `GET /api/admin/billing/plans`: Lista completa de planos para administradores (requer `plans:manage`).
 - `POST /api/admin/billing/plans`: Criação ou atualização de plano com preservação contratual.
