@@ -1,0 +1,48 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 240" width="100%" height="100%">
+  <defs>
+    <linearGradient id="bgGrad_chuva_tempestade" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#070a12" />
+      <stop offset="100%" stop-color="#0f172a" />
+    </linearGradient>
+  </defs>
+
+  <!-- Cinema Base Background -->
+  <rect width="400" height="240" rx="16" fill="url(#bgGrad_chuva_tempestade)" stroke="#1e293b" stroke-width="2"/>
+
+  <!-- Illustrative Graphic Zone -->
+  
+        <!-- Rain Streaks against dark asphalt -->
+        <rect x="40" y="30" width="320" height="150" rx="8" fill="#040d12" stroke="#1e293b" />
+        <!-- Streetlamp glow -->
+        <circle cx="280" cy="65" r="22" fill="#fbbf24" fill-opacity="0.4" filter="drop-shadow(0 0 14px #fbbf24)" />
+        <line x1="280" y1="65" x2="280" y2="160" stroke="#64748b" stroke-width="2" />
+        <!-- Diagonal Raindrops -->
+        <g stroke="#38bdf8" stroke-width="1.6" stroke-linecap="round" opacity="0.8">
+          <line x1="60" y1="40" x2="45" y2="70" />
+          <line x1="120" y1="50" x2="105" y2="80" />
+          <line x1="180" y1="45" x2="165" y2="75" />
+          <line x1="240" y1="55" x2="225" y2="85" />
+          <line x1="90" y1="100" x2="75" y2="130" />
+          <line x1="150" y1="95" x2="135" y2="125" />
+          <line x1="210" y1="105" x2="195" y2="135" />
+          <line x1="300" y1="90" x2="285" y2="120" />
+        </g>
+        <text x="200" y="172" text-anchor="middle" fill="#2dd4bf" font-size="11" font-family="monospace">CINEMATIC RAIN & WET SURFACE REFLECTIONS</text>
+      
+
+  <!-- Header Category Badge -->
+  <g transform="translate(16, 22)">
+    <rect x="0" y="-12" width="170" height="20" rx="5" fill="#14b8a6" fill-opacity="0.18" stroke="#14b8a6" stroke-width="1.2"/>
+    <text x="8" y="2" fill="#2dd4bf" font-size="9" font-family="monospace" font-weight="bold">ATMOSFERA & CLIMA</text>
+  </g>
+
+  <!-- Footer Title and Code -->
+  <rect x="0" y="196" width="400" height="44" fill="#04060b" fill-opacity="0.95" />
+  <line x1="0" y1="196" x2="400" y2="196" stroke="#1e293b" stroke-width="1.2"/>
+  
+  <text x="16" y="215" fill="#f8fafc" font-size="11" font-family="sans-serif" font-weight="bold">Chuva Torrencial & Asfalto Molhado (Cine...</text>
+  <text x="16" y="229" fill="#94a3b8" font-size="9" font-family="monospace">Cinematic Rain & Wet Streets</text>
+  
+  <rect x="310" y="206" width="74" height="20" rx="4" fill="#14b8a6" fill-opacity="0.2" stroke="#14b8a6" stroke-width="0.8"/>
+  <text x="347" y="220" text-anchor="middle" fill="#2dd4bf" font-size="9" font-family="monospace" font-weight="bold">REF V2.0</text>
+</svg>

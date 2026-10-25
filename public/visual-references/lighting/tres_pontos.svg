@@ -1,0 +1,48 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 240" width="100%" height="100%">
+  <defs>
+    <linearGradient id="bgGrad_tres_pontos" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#070a12" />
+      <stop offset="100%" stop-color="#0f172a" />
+    </linearGradient>
+  </defs>
+
+  <!-- Cinema Base Background -->
+  <rect width="400" height="240" rx="16" fill="url(#bgGrad_tres_pontos)" stroke="#1e293b" stroke-width="2"/>
+
+  <!-- Illustrative Graphic Zone -->
+  
+        <!-- 3-Point Lighting Studio Diagram -->
+        <rect x="40" y="30" width="320" height="150" rx="8" fill="#080e18" stroke="#1e293b" />
+        <!-- Subject Center -->
+        <circle cx="200" cy="110" r="22" fill="#334155" stroke="#f8fafc" stroke-width="2" />
+        <text x="200" y="114" text-anchor="middle" fill="#f8fafc" font-size="9" font-weight="bold">ATOR</text>
+        <!-- Key Light (45 deg left) -->
+        <circle cx="110" cy="145" r="14" fill="#f59e0b" filter="drop-shadow(0 0 10px #f59e0b)" />
+        <text x="110" y="170" text-anchor="middle" fill="#fbbf24" font-size="9" font-weight="bold">KEY LIGHT (100%)</text>
+        <line x1="122" y1="135" x2="182" y2="116" stroke="#f59e0b" stroke-width="2.5" stroke-linecap="round" />
+        <!-- Fill Light (45 deg right) -->
+        <circle cx="290" cy="145" r="12" fill="#38bdf8" fill-opacity="0.7" />
+        <text x="290" y="170" text-anchor="middle" fill="#38bdf8" font-size="9" font-weight="bold">FILL LIGHT (50%)</text>
+        <line x1="278" y1="136" x2="218" y2="116" stroke="#38bdf8" stroke-width="1.5" stroke-dasharray="3 3" />
+        <!-- Back / Hair Light (behind) -->
+        <circle cx="140" cy="55" r="10" fill="#e2e8f0" />
+        <text x="140" y="45" text-anchor="middle" fill="#e2e8f0" font-size="8" font-weight="bold">BACK LIGHT</text>
+        <line x1="150" y1="65" x2="186" y2="94" stroke="#e2e8f0" stroke-width="1.8" />
+      
+
+  <!-- Header Category Badge -->
+  <g transform="translate(16, 22)">
+    <rect x="0" y="-12" width="170" height="20" rx="5" fill="#f59e0b" fill-opacity="0.18" stroke="#f59e0b" stroke-width="1.2"/>
+    <text x="8" y="2" fill="#fbbf24" font-size="9" font-family="monospace" font-weight="bold">ILUMINAÇÃO</text>
+  </g>
+
+  <!-- Footer Title and Code -->
+  <rect x="0" y="196" width="400" height="44" fill="#04060b" fill-opacity="0.95" />
+  <line x1="0" y1="196" x2="400" y2="196" stroke="#1e293b" stroke-width="1.2"/>
+  
+  <text x="16" y="215" fill="#f8fafc" font-size="11" font-family="sans-serif" font-weight="bold">Iluminação de Três Pontos (Three-Point S...</text>
+  <text x="16" y="229" fill="#94a3b8" font-size="9" font-family="monospace">Three-Point Lighting</text>
+  
+  <rect x="310" y="206" width="74" height="20" rx="4" fill="#f59e0b" fill-opacity="0.2" stroke="#f59e0b" stroke-width="0.8"/>
+  <text x="347" y="220" text-anchor="middle" fill="#fbbf24" font-size="9" font-family="monospace" font-weight="bold">REF V2.0</text>
+</svg>

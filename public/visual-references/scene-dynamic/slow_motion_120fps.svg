@@ -1,0 +1,41 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 240" width="100%" height="100%">
+  <defs>
+    <linearGradient id="bgGrad_slow_motion_120fps" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#070a12" />
+      <stop offset="100%" stop-color="#0f172a" />
+    </linearGradient>
+  </defs>
+
+  <!-- Cinema Base Background -->
+  <rect width="400" height="240" rx="16" fill="url(#bgGrad_slow_motion_120fps)" stroke="#1e293b" stroke-width="2"/>
+
+  <!-- Illustrative Graphic Zone -->
+  
+        <!-- Slow Motion Water Splash Droplets -->
+        <rect x="40" y="30" width="320" height="150" rx="8" fill="#060c18" stroke="#1e293b" />
+        <!-- Crown Splash -->
+        <ellipse cx="200" cy="140" rx="70" ry="16" fill="#0284c7" fill-opacity="0.4" />
+        <path d="M150 140 Q160 100 170 115 Q185 85 200 110 Q215 85 230 115 Q240 100 250 140 Z" fill="#38bdf8" />
+        <!-- Suspended Floating Droplets -->
+        <circle cx="200" cy="75" r="7" fill="#38bdf8" filter="drop-shadow(0 0 6px #38bdf8)" />
+        <circle cx="175" cy="65" r="4" fill="#7dd3fc" />
+        <circle cx="225" cy="60" r="4.5" fill="#7dd3fc" />
+        <text x="200" y="172" text-anchor="middle" fill="#38bdf8" font-size="11" font-family="monospace">SLOW MOTION (SUSPENDED TIME 120+ FPS)</text>
+      
+
+  <!-- Header Category Badge -->
+  <g transform="translate(16, 22)">
+    <rect x="0" y="-12" width="170" height="20" rx="5" fill="#eab308" fill-opacity="0.18" stroke="#eab308" stroke-width="1.2"/>
+    <text x="8" y="2" fill="#fde047" font-size="9" font-family="monospace" font-weight="bold">DINÂMICA DE CENA</text>
+  </g>
+
+  <!-- Footer Title and Code -->
+  <rect x="0" y="196" width="400" height="44" fill="#04060b" fill-opacity="0.95" />
+  <line x1="0" y1="196" x2="400" y2="196" stroke="#1e293b" stroke-width="1.2"/>
+  
+  <text x="16" y="215" fill="#f8fafc" font-size="11" font-family="sans-serif" font-weight="bold">Câmera Lenta Épica (Slow Motion 120fps)</text>
+  <text x="16" y="229" fill="#94a3b8" font-size="9" font-family="monospace">Slow Motion (120fps+)</text>
+  
+  <rect x="310" y="206" width="74" height="20" rx="4" fill="#eab308" fill-opacity="0.2" stroke="#eab308" stroke-width="0.8"/>
+  <text x="347" y="220" text-anchor="middle" fill="#fde047" font-size="9" font-family="monospace" font-weight="bold">REF V2.0</text>
+</svg>

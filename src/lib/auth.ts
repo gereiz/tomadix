@@ -142,6 +142,31 @@ export async function requirePlatformPermission(permission: PlatformAdminPermiss
   return requirePlatformAdmin(permission);
 }
 
+/**
+ * Exige autorização de administrador para parâmetros visuais.
+ * Permite Administradores da Plataforma (ADMIN, SUPER_ADMIN) ou Administradores do Workspace (OWNER, ADMIN).
+ */
+export async function requireParameterAdmin() {
+  const user = await requireCurrentUser();
+  const isPlatformAdmin = user.platformRole === "ADMIN" || user.platformRole === "SUPER_ADMIN";
+  const envAdminEmails = (process.env.ADMIN_EMAILS || "")
+    .split(",")
+    .map((e) => e.trim().toLowerCase())
+    .filter(Boolean);
+  const isEnvAdmin = Boolean(user.email && envAdminEmails.includes(user.email.toLowerCase()));
+  const isWorkspaceAdmin = Boolean(
+    user.memberships?.some((m) => m.role === "OWNER" || m.role === "ADMIN")
+  );
+
+  if (!isPlatformAdmin && !isEnvAdmin && !isWorkspaceAdmin) {
+    throw new AuthorizationError(
+      "Acesso restrito. Apenas administradores podem gerenciar imagens e referências visuais de parâmetros."
+    );
+  }
+
+  return user;
+}
+
 export const ACTIVE_WORKSPACE_COOKIE = "cineprompt_active_workspace";
 
 /**

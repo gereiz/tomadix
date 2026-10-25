@@ -39,6 +39,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
     { href: "/admin/projects", label: "Projetos", icon: "🎬" },
     { href: "/admin/billing", label: "Comercial & Planos", icon: "💳" },
     { href: "/admin/usage", label: "Consumo & Custos IA", icon: "⚡" },
+    { href: "/admin/visual-library", label: "Biblioteca Visual", icon: "🎨" },
     { href: "/admin/audit", label: "Auditoria", icon: "🛡️" },
   ];
 

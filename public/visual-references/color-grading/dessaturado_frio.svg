@@ -1,0 +1,40 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 240" width="100%" height="100%">
+  <defs>
+    <linearGradient id="bgGrad_dessaturado_frio" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#070a12" />
+      <stop offset="100%" stop-color="#0f172a" />
+    </linearGradient>
+  </defs>
+
+  <!-- Cinema Base Background -->
+  <rect width="400" height="240" rx="16" fill="url(#bgGrad_dessaturado_frio)" stroke="#1e293b" stroke-width="2"/>
+
+  <!-- Illustrative Graphic Zone -->
+  
+        <!-- 3-Way Color Wheels Spectrum -->
+        <rect x="40" y="30" width="320" height="150" rx="8" fill="#090d18" stroke="#1e293b" />
+        <circle cx="100" cy="95" r="28" fill="#0284c7" fill-opacity="0.7" />
+        <circle cx="200" cy="95" r="28" fill="#f43f5e" fill-opacity="0.7" />
+        <circle cx="300" cy="95" r="28" fill="#eab308" fill-opacity="0.7" />
+        <text x="100" y="135" text-anchor="middle" fill="#38bdf8" font-size="9" font-family="monospace">LIFT</text>
+        <text x="200" y="135" text-anchor="middle" fill="#fb7185" font-size="9" font-family="monospace">GAMMA</text>
+        <text x="300" y="135" text-anchor="middle" fill="#fde047" font-size="9" font-family="monospace">GAIN</text>
+        <text x="200" y="172" text-anchor="middle" fill="#fb7185" font-size="11" font-family="monospace">DESSATURADO FRIO E BRUTALISTA (BLEACH BYPASS)</text>
+      
+
+  <!-- Header Category Badge -->
+  <g transform="translate(16, 22)">
+    <rect x="0" y="-12" width="170" height="20" rx="5" fill="#f43f5e" fill-opacity="0.18" stroke="#f43f5e" stroke-width="1.2"/>
+    <text x="8" y="2" fill="#fb7185" font-size="9" font-family="monospace" font-weight="bold">COR & GRADAÇÃO</text>
+  </g>
+
+  <!-- Footer Title and Code -->
+  <rect x="0" y="196" width="400" height="44" fill="#04060b" fill-opacity="0.95" />
+  <line x1="0" y1="196" x2="400" y2="196" stroke="#1e293b" stroke-width="1.2"/>
+  
+  <text x="16" y="215" fill="#f8fafc" font-size="11" font-family="sans-serif" font-weight="bold">Dessaturado Frio e Brutalista (Bleach By...</text>
+  <text x="16" y="229" fill="#94a3b8" font-size="9" font-family="monospace">Bleach Bypass / Desaturated Cold</text>
+  
+  <rect x="310" y="206" width="74" height="20" rx="4" fill="#f43f5e" fill-opacity="0.2" stroke="#f43f5e" stroke-width="0.8"/>
+  <text x="347" y="220" text-anchor="middle" fill="#fb7185" font-size="9" font-family="monospace" font-weight="bold">REF V2.0</text>
+</svg>

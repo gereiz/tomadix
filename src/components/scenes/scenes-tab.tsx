@@ -4,6 +4,7 @@ import { useState, useEffect, useCallback } from "react";
 import Link from "next/link";
 import { ContinuityReport, ContinuityWarning } from "@/modules/scenes/scene.schema";
 import { EntityParametersSection } from "@/components/parameters/entity-parameters-section";
+import { VisualParameterSelector } from "@/components/visual-library/visual-parameter-selector";
 
 export interface SceneItem {
   id: string;
@@ -815,6 +816,47 @@ export function ScenesTab({ projectId, onStatsUpdate, onOpenPromptEngine }: Scen
                       className="w-full rounded-xl border border-white/10 bg-white/5 px-3 py-1.5 text-xs text-white placeholder-white/40 focus:border-emerald-500 focus:outline-none"
                     />
                   </div>
+                </div>
+              </div>
+
+              {/* Seção Cinematográfica: Enquadramento, Movimento e Iluminação com Referências Visuais */}
+              <div className="rounded-2xl border border-amber-500/20 bg-gradient-to-br from-amber-950/10 via-black/20 to-black/40 p-4 space-y-4">
+                <div className="flex items-center justify-between border-b border-white/5 pb-2">
+                  <h4 className="text-xs font-bold uppercase tracking-wider text-amber-400 flex items-center gap-2">
+                    <span>🎬</span> Linguagem de Câmera & Fotografia (Referências Visuais)
+                  </h4>
+                  <span className="text-[10px] text-white/40">
+                    Clique nas opções para ver referências e didáticas
+                  </span>
+                </div>
+
+                <div className="space-y-4">
+                  <VisualParameterSelector
+                    label="Enquadramento da Cena (Framing)"
+                    description="Define a proximidade e a relação de proporção do sujeito no quadro."
+                    value={formData.framing}
+                    onChange={(val) => setFormData((prev) => ({ ...prev, framing: val }))}
+                    category="FRAMING"
+                    compactInitial={true}
+                  />
+
+                  <VisualParameterSelector
+                    label="Movimento de Câmera (Camera Movement)"
+                    description="Define a dinâmica espacial, velocidade e trajetória da câmera durante o plano."
+                    value={formData.cameraMovement}
+                    onChange={(val) => setFormData((prev) => ({ ...prev, cameraMovement: val }))}
+                    category="CAMERA_MOVEMENT"
+                    compactInitial={true}
+                  />
+
+                  <VisualParameterSelector
+                    label="Estilo de Iluminação (Lighting)"
+                    description="Define o contraste, temperatura, direção e atmosfera das fontes de luz."
+                    value={formData.lighting}
+                    onChange={(val) => setFormData((prev) => ({ ...prev, lighting: val }))}
+                    category="LIGHTING"
+                    compactInitial={true}
+                  />
                 </div>
               </div>
 

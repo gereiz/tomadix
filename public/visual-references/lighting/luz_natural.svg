@@ -1,0 +1,58 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 240" width="100%" height="100%">
+  <defs>
+    <linearGradient id="bgGrad_luz_natural" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#070a12" />
+      <stop offset="100%" stop-color="#0f172a" />
+    </linearGradient>
+  </defs>
+
+  <!-- Cinema Base Background -->
+  <rect width="400" height="240" rx="16" fill="url(#bgGrad_luz_natural)" stroke="#1e293b" stroke-width="2"/>
+
+  <!-- Illustrative Graphic Zone -->
+  
+        <circle cx="100" cy="70" r="32" fill="#f59e0b" fill-opacity="0.2" filter="drop-shadow(0 0 15px #f59e0b)" />
+        <circle cx="100" cy="70" r="18" fill="#fbbf24" />
+        <!-- Sun Rays -->
+        <g stroke="#fde047" stroke-width="2.5" stroke-linecap="round">
+          <line x1="100" y1="28" x2="100" y2="16" />
+          <line x1="100" y1="112" x2="100" y2="124" />
+          <line x1="58" y1="70" x2="46" y2="70" />
+          <line x1="142" y1="70" x2="154" y2="70" />
+          <line x1="70" y1="40" x2="62" y2="32" />
+          <line x1="130" y1="100" x2="138" y2="108" />
+          <line x1="70" y1="100" x2="62" y2="108" />
+          <line x1="130" y1="40" x2="138" y2="32" />
+        </g>
+        <!-- Directional light path -->
+        <path d="M125 80 L250 120" stroke="#f59e0b" stroke-width="2" stroke-dasharray="6 4" stroke-opacity="0.8" />
+        <path d="M125 65 L250 90" stroke="#f59e0b" stroke-width="2" stroke-dasharray="6 4" stroke-opacity="0.8" />
+        <!-- Subject sphere with natural falloff -->
+        <defs>
+          <radialGradient id="natSphereGrad" cx="35%" cy="35%" r="65%">
+            <stop offset="0%" stop-color="#fef08a" />
+            <stop offset="35%" stop-color="#f59e0b" />
+            <stop offset="70%" stop-color="#78350f" />
+            <stop offset="100%" stop-color="#180e04" />
+          </radialGradient>
+        </defs>
+        <circle cx="270" cy="115" r="46" fill="url(#natSphereGrad)" stroke="#f59e0b" stroke-width="1.5" />
+        <ellipse cx="270" cy="162" rx="42" ry="8" fill="#000000" fill-opacity="0.6" />
+      
+
+  <!-- Header Category Badge -->
+  <g transform="translate(16, 22)">
+    <rect x="0" y="-12" width="170" height="20" rx="5" fill="#f59e0b" fill-opacity="0.18" stroke="#f59e0b" stroke-width="1.2"/>
+    <text x="8" y="2" fill="#fbbf24" font-size="9" font-family="monospace" font-weight="bold">ILUMINAÇÃO</text>
+  </g>
+
+  <!-- Footer Title and Code -->
+  <rect x="0" y="196" width="400" height="44" fill="#04060b" fill-opacity="0.95" />
+  <line x1="0" y1="196" x2="400" y2="196" stroke="#1e293b" stroke-width="1.2"/>
+  
+  <text x="16" y="215" fill="#f8fafc" font-size="11" font-family="sans-serif" font-weight="bold">Luz Natural (Natural Daylight)</text>
+  <text x="16" y="229" fill="#94a3b8" font-size="9" font-family="monospace">Natural Daylight</text>
+  
+  <rect x="310" y="206" width="74" height="20" rx="4" fill="#f59e0b" fill-opacity="0.2" stroke="#f59e0b" stroke-width="0.8"/>
+  <text x="347" y="220" text-anchor="middle" fill="#fbbf24" font-size="9" font-family="monospace" font-weight="bold">REF V2.0</text>
+</svg>

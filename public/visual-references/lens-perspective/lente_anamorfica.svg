@@ -1,0 +1,42 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 240" width="100%" height="100%">
+  <defs>
+    <linearGradient id="bgGrad_lente_anamorfica" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#070a12" />
+      <stop offset="100%" stop-color="#0f172a" />
+    </linearGradient>
+  </defs>
+
+  <!-- Cinema Base Background -->
+  <rect width="400" height="240" rx="16" fill="url(#bgGrad_lente_anamorfica)" stroke="#1e293b" stroke-width="2"/>
+
+  <!-- Illustrative Graphic Zone -->
+  
+        <!-- Anamorphic 2.39:1 Cinema Letterbox with Streak Flare -->
+        <rect x="40" y="30" width="320" height="150" rx="8" fill="#05070f" />
+        <!-- 2.39:1 Frame Outline -->
+        <rect x="50" y="65" width="300" height="80" rx="3" fill="#0b1329" stroke="#38bdf8" stroke-width="1.5" />
+        <!-- Horizontal Blue Anamorphic Streak Flare -->
+        <line x1="40" y1="105" x2="360" y2="105" stroke="#38bdf8" stroke-width="3.5" filter="drop-shadow(0 0 10px #38bdf8)" />
+        <ellipse cx="200" cy="105" rx="60" ry="8" fill="#ffffff" filter="drop-shadow(0 0 12px #38bdf8)" />
+        <!-- Oval Bokeh Disc -->
+        <ellipse cx="120" cy="105" rx="14" ry="32" fill="#38bdf8" fill-opacity="0.35" stroke="#38bdf8" stroke-width="1.5" />
+        <ellipse cx="280" cy="105" rx="14" ry="32" fill="#38bdf8" fill-opacity="0.35" stroke="#38bdf8" stroke-width="1.5" />
+        <text x="200" y="170" text-anchor="middle" fill="#38bdf8" font-size="11" font-family="monospace">2.39:1 ANAMORPHIC SCOPE + BLUE FLARE</text>
+      
+
+  <!-- Header Category Badge -->
+  <g transform="translate(16, 22)">
+    <rect x="0" y="-12" width="170" height="20" rx="5" fill="#a855f7" fill-opacity="0.18" stroke="#a855f7" stroke-width="1.2"/>
+    <text x="8" y="2" fill="#c084fc" font-size="9" font-family="monospace" font-weight="bold">LENTES & PERSPECTIVA</text>
+  </g>
+
+  <!-- Footer Title and Code -->
+  <rect x="0" y="196" width="400" height="44" fill="#04060b" fill-opacity="0.95" />
+  <line x1="0" y1="196" x2="400" y2="196" stroke="#1e293b" stroke-width="1.2"/>
+  
+  <text x="16" y="215" fill="#f8fafc" font-size="11" font-family="sans-serif" font-weight="bold">Lente Anamórfica de Cinema (2.39:1 Scope)</text>
+  <text x="16" y="229" fill="#94a3b8" font-size="9" font-family="monospace">Anamorphic Cinema Lens</text>
+  
+  <rect x="310" y="206" width="74" height="20" rx="4" fill="#a855f7" fill-opacity="0.2" stroke="#a855f7" stroke-width="0.8"/>
+  <text x="347" y="220" text-anchor="middle" fill="#c084fc" font-size="9" font-family="monospace" font-weight="bold">REF V2.0</text>
+</svg>

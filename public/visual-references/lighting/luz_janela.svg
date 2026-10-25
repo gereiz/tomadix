@@ -1,0 +1,39 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 240" width="100%" height="100%">
+  <defs>
+    <linearGradient id="bgGrad_luz_janela" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#070a12" />
+      <stop offset="100%" stop-color="#0f172a" />
+    </linearGradient>
+  </defs>
+
+  <!-- Cinema Base Background -->
+  <rect width="400" height="240" rx="16" fill="url(#bgGrad_luz_janela)" stroke="#1e293b" stroke-width="2"/>
+
+  <!-- Illustrative Graphic Zone -->
+  
+        <!-- Generic Cinematic Studio Light Rig -->
+        <circle cx="100" cy="75" r="24" fill="#f59e0b" fill-opacity="0.3" filter="drop-shadow(0 0 12px #f59e0b)" />
+        <circle cx="100" cy="75" r="12" fill="#fbbf24" />
+        <!-- Directional Cones -->
+        <polygon points="112,75 280,35 280,155" fill="#f59e0b" fill-opacity="0.18" />
+        <!-- Lit Subject -->
+        <ellipse cx="270" cy="100" rx="36" ry="46" fill="#1e293b" stroke="#fbbf24" stroke-width="2" />
+        <path d="M234 100 A36 46 0 0 1 270 54" stroke="#fef08a" stroke-width="3" fill="none" />
+      
+
+  <!-- Header Category Badge -->
+  <g transform="translate(16, 22)">
+    <rect x="0" y="-12" width="170" height="20" rx="5" fill="#f59e0b" fill-opacity="0.18" stroke="#f59e0b" stroke-width="1.2"/>
+    <text x="8" y="2" fill="#fbbf24" font-size="9" font-family="monospace" font-weight="bold">ILUMINAÇÃO</text>
+  </g>
+
+  <!-- Footer Title and Code -->
+  <rect x="0" y="196" width="400" height="44" fill="#04060b" fill-opacity="0.95" />
+  <line x1="0" y1="196" x2="400" y2="196" stroke="#1e293b" stroke-width="1.2"/>
+  
+  <text x="16" y="215" fill="#f8fafc" font-size="11" font-family="sans-serif" font-weight="bold">Luz de Janela (Window Light Motif)</text>
+  <text x="16" y="229" fill="#94a3b8" font-size="9" font-family="monospace">Window Light</text>
+  
+  <rect x="310" y="206" width="74" height="20" rx="4" fill="#f59e0b" fill-opacity="0.2" stroke="#f59e0b" stroke-width="0.8"/>
+  <text x="347" y="220" text-anchor="middle" fill="#fbbf24" font-size="9" font-family="monospace" font-weight="bold">REF V2.0</text>
+</svg>

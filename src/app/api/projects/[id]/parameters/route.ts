@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getCurrentWorkspace, AuthorizationError } from "@/lib/auth";
+import { getCurrentWorkspace, AuthorizationError, AuthenticationError } from "@/lib/auth";
 import { ParameterService } from "@/modules/parameters/parameter.service";
 import { saveParameterValuesSchema } from "@/modules/parameters/parameter.schema";
 import { TargetContext, ParameterValidationError } from "@/modules/parameters/parameter-resolver.service";
@@ -27,6 +27,9 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
       data: resolution,
     });
   } catch (error) {
+    if (error instanceof AuthenticationError) {
+      return NextResponse.json({ error: error.message }, { status: 401 });
+    }
     if (error instanceof AuthorizationError) {
       return NextResponse.json({ error: error.message }, { status: 403 });
     }

@@ -38,10 +38,13 @@ export function middleware(request: NextRequest) {
   const { pathname, search } = request.nextUrl;
   const correlationId = request.headers.get("x-correlation-id") || crypto.randomUUID();
 
-  // Ignorar assets estáticos e Next.js internals
+  // Ignorar assets estáticos, referências visuais e Next.js internals
   if (
     pathname.startsWith("/_next") ||
-    pathname.startsWith("/favicon.ico")
+    pathname.startsWith("/visual-references") ||
+    pathname.startsWith("/uploads") ||
+    pathname.startsWith("/favicon.ico") ||
+    /\.(svg|png|jpg|jpeg|gif|webp|ico|woff2?)$/i.test(pathname)
   ) {
     return NextResponse.next();
   }
@@ -110,9 +113,11 @@ export const config = {
      * Match all request paths except for:
      * - _next/static (static files)
      * - _next/image (image optimization files)
+     * - visual-references (cinema visual library assets)
+     * - uploads (uploaded media)
      * - favicon.ico (favicon file)
-     * - public files (images, svgs, etc)
+     * - public media files (svg, png, jpg, etc)
      */
-    "/((?!_next/static|_next/image|favicon.ico).*)",
+    "/((?!_next/static|_next/image|visual-references|uploads|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp|ico|woff|woff2)$).*)",
   ],
 };

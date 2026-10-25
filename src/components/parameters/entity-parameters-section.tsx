@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
+import { VisualParameterSelector } from "@/components/visual-library/visual-parameter-selector";
 
 export interface ResolvedParamItem {
   definitionId: string;
@@ -49,6 +50,25 @@ export function EntityParametersSection({
   const [paramsList, setParamsList] = useState<ResolvedParamItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [isAdmin, setIsAdmin] = useState(false);
+
+  useEffect(() => {
+    fetch("/api/auth/me")
+      .then((r) => (r.ok ? r.json() : null))
+      .then((data) => {
+        if (data?.authenticated && data?.user) {
+          const u = data.user;
+          const isPlatform = Boolean(
+            u.isPlatformAdmin || u.platformRole === "ADMIN" || u.platformRole === "SUPER_ADMIN"
+          );
+          const isWpAdmin = Boolean(
+            u.memberships?.some((m: any) => m.role === "OWNER" || m.role === "ADMIN")
+          );
+          setIsAdmin(isPlatform || isWpAdmin);
+        }
+      })
+      .catch(() => setIsAdmin(false));
+  }, []);
 
   const fetchParameters = useCallback(async () => {
     if (!projectId) return;
@@ -134,7 +154,9 @@ export function EntityParametersSection({
           return (
             <div
               key={param.definitionId}
-              className="rounded-xl border border-white/10 bg-black/40 p-3.5 space-y-2 hover:border-emerald-500/30 transition"
+              className={`rounded-xl border border-white/10 bg-black/40 p-3.5 space-y-2 hover:border-emerald-500/30 transition ${
+                param.type === "SELECT" ? "sm:col-span-2" : ""
+              }`}
             >
               {/* Header do Campo: Label, Escopo, Origem */}
               <div className="flex items-start justify-between gap-2">
@@ -182,23 +204,19 @@ export function EntityParametersSection({
               )}
 
               {/* Renderização do Campo de Entrada */}
-              <div className="pt-1">
-                {param.type === "SELECT" && (
-                  <select
-                    value={currentValue ?? ""}
-                    onChange={(e) => onChange(param.definitionId, e.target.value)}
-                    className="w-full rounded-xl border border-white/15 bg-black/80 px-3 py-2 text-xs text-white focus:border-emerald-400 focus:outline-none focus:ring-1 focus:ring-emerald-400 cursor-pointer"
-                  >
-                    <option value="">
-                      {param.required ? "Selecione uma opção obrigatória..." : "Padrão / Não especificado"}
-                    </option>
-                    {(param.options || []).map((opt) => (
-                      <option key={opt.value} value={opt.value}>
-                        {opt.label}
-                      </option>
-                    ))}
-                  </select>
-                )}
+              {param.type === "SELECT" && (
+                <VisualParameterSelector
+                  label={param.label}
+                  description={param.description}
+                  value={String(currentValue ?? "")}
+                  options={param.options || []}
+                  required={param.required}
+                  paramDefinitionId={param.definitionId}
+                  isAdmin={isAdmin}
+                  hideHeader={true}
+                  onChange={(val) => onChange(param.definitionId, val)}
+                />
+              )}
 
                 {param.type === "TEXT" && (
                   <input
@@ -334,7 +352,6 @@ export function EntityParametersSection({
                     })}
                   </div>
                 )}
-              </div>
             </div>
           );
         })}

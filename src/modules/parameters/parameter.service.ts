@@ -5,12 +5,21 @@ import {
   UpdateParameterDefinitionInput,
 } from "./parameter.schema";
 import { ParameterResolver, TargetContext } from "./parameter-resolver.service";
+import { VisualReferenceService } from "@/modules/visual-library/visual-reference.service";
 
 export class ParameterService {
   /**
    * Garante a existência de parâmetros cinematográficos padrão do estúdio para o workspace.
    */
   static async ensureDefaultParameters(workspaceId: string) {
+    // Se o workspace já possui parâmetros configurados, evita reprocessar dezenas de queries a cada requisição
+    const existingCount = await db.parameterDefinition.count({
+      where: { workspaceId },
+    });
+    if (existingCount >= 10) {
+      return;
+    }
+
     const defaultParams: Array<{
       key: string;
       label: string;
@@ -176,6 +185,13 @@ export class ParameterService {
           },
         });
       }
+    }
+
+    // Sincroniza parâmetros cinematográficos com catálogo visual de referências
+    try {
+      await VisualReferenceService.syncDefaultVisualParameters(workspaceId);
+    } catch (err) {
+      console.error("Erro ao sincronizar parâmetros visuais padrão:", err);
     }
   }
 

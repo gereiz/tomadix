@@ -574,7 +574,10 @@ export default function ProjectsPage() {
         )}
 
         {/* Barra de Filtros, Busca e Ações */}
-        <div className="mt-8 flex flex-col gap-4 rounded-2xl border border-white/10 bg-white/[0.02] p-4 lg:flex-row lg:items-center lg:justify-between">
+        <div
+          suppressHydrationWarning
+          className="mt-8 flex flex-col gap-4 rounded-2xl border border-white/10 bg-white/[0.02] p-4 lg:flex-row lg:items-center lg:justify-between"
+        >
           <div className="flex flex-1 flex-col gap-3 sm:flex-row sm:items-center">
             {/* Input de Pesquisa */}
             <div className="relative flex-1">

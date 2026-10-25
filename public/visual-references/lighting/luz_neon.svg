@@ -1,0 +1,44 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 240" width="100%" height="100%">
+  <defs>
+    <linearGradient id="bgGrad_luz_neon" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#070a12" />
+      <stop offset="100%" stop-color="#0f172a" />
+    </linearGradient>
+  </defs>
+
+  <!-- Cinema Base Background -->
+  <rect width="400" height="240" rx="16" fill="url(#bgGrad_luz_neon)" stroke="#1e293b" stroke-width="2"/>
+
+  <!-- Illustrative Graphic Zone -->
+  
+        <!-- Cyberpunk Dual Tone Neon Tubes -->
+        <rect x="40" y="30" width="320" height="150" rx="8" fill="#070913" />
+        <!-- Cyan Tube -->
+        <line x1="75" y1="45" x2="75" y2="165" stroke="#06b6d4" stroke-width="6" stroke-linecap="round" filter="drop-shadow(0 0 12px #06b6d4)" />
+        <!-- Magenta Tube -->
+        <line x1="325" y1="45" x2="325" y2="165" stroke="#f43f5e" stroke-width="6" stroke-linecap="round" filter="drop-shadow(0 0 12px #f43f5e)" />
+        <!-- Character face lit by both sides -->
+        <circle cx="200" cy="95" r="34" fill="#0f172a" stroke="#334155" stroke-width="1.5" />
+        <!-- Cyan rim on left -->
+        <path d="M166 95 A34 34 0 0 1 200 61" stroke="#06b6d4" stroke-width="4.5" fill="none" filter="drop-shadow(0 0 8px #06b6d4)" />
+        <!-- Magenta rim on right -->
+        <path d="M200 61 A34 34 0 0 1 234 95" stroke="#f43f5e" stroke-width="4.5" fill="none" filter="drop-shadow(0 0 8px #f43f5e)" />
+        <text x="200" y="160" text-anchor="middle" fill="#f8fafc" font-size="10" font-family="monospace">CYAN / MAGENTA SPLIT</text>
+      
+
+  <!-- Header Category Badge -->
+  <g transform="translate(16, 22)">
+    <rect x="0" y="-12" width="170" height="20" rx="5" fill="#f59e0b" fill-opacity="0.18" stroke="#f59e0b" stroke-width="1.2"/>
+    <text x="8" y="2" fill="#fbbf24" font-size="9" font-family="monospace" font-weight="bold">ILUMINAÇÃO</text>
+  </g>
+
+  <!-- Footer Title and Code -->
+  <rect x="0" y="196" width="400" height="44" fill="#04060b" fill-opacity="0.95" />
+  <line x1="0" y1="196" x2="400" y2="196" stroke="#1e293b" stroke-width="1.2"/>
+  
+  <text x="16" y="215" fill="#f8fafc" font-size="11" font-family="sans-serif" font-weight="bold">Luz de Neon & Cyberpunk</text>
+  <text x="16" y="229" fill="#94a3b8" font-size="9" font-family="monospace">Neon / Dual-Tone Light</text>
+  
+  <rect x="310" y="206" width="74" height="20" rx="4" fill="#f59e0b" fill-opacity="0.2" stroke="#f59e0b" stroke-width="0.8"/>
+  <text x="347" y="220" text-anchor="middle" fill="#fbbf24" font-size="9" font-family="monospace" font-weight="bold">REF V2.0</text>
+</svg>

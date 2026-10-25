@@ -1,0 +1,44 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 240" width="100%" height="100%">
+  <defs>
+    <linearGradient id="bgGrad_teal_and_orange" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#070a12" />
+      <stop offset="100%" stop-color="#0f172a" />
+    </linearGradient>
+  </defs>
+
+  <!-- Cinema Base Background -->
+  <rect width="400" height="240" rx="16" fill="url(#bgGrad_teal_and_orange)" stroke="#1e293b" stroke-width="2"/>
+
+  <!-- Illustrative Graphic Zone -->
+  
+        <!-- Teal & Orange Blockbuster Split Grade -->
+        <rect x="40" y="30" width="320" height="150" rx="8" fill="#050811" />
+        <!-- Split Halves -->
+        <rect x="40" y="30" width="160" height="150" rx="6" fill="#042f2e" />
+        <rect x="200" y="30" width="160" height="150" rx="6" fill="#451a03" />
+        <!-- Swatch labels -->
+        <text x="120" y="65" text-anchor="middle" fill="#2dd4bf" font-size="13" font-family="monospace" font-weight="bold">TEAL SHADOWS</text>
+        <text x="280" y="65" text-anchor="middle" fill="#fb923c" font-size="13" font-family="monospace" font-weight="bold">ORANGE SKINS</text>
+        <!-- Center Character across boundary -->
+        <circle cx="200" cy="105" r="34" fill="#0f172a" />
+        <path d="M166 105 A34 34 0 0 1 200 71 L200 139 A34 34 0 0 1 166 105 Z" fill="#14b8a6" />
+        <path d="M234 105 A34 34 0 0 1 200 139 L200 71 A34 34 0 0 1 234 105 Z" fill="#f97316" />
+        <text x="200" y="172" text-anchor="middle" fill="#ffffff" font-size="11" font-family="monospace">HOLLYWOOD TEAL & ORANGE COMPLEMENT</text>
+      
+
+  <!-- Header Category Badge -->
+  <g transform="translate(16, 22)">
+    <rect x="0" y="-12" width="170" height="20" rx="5" fill="#f43f5e" fill-opacity="0.18" stroke="#f43f5e" stroke-width="1.2"/>
+    <text x="8" y="2" fill="#fb7185" font-size="9" font-family="monospace" font-weight="bold">COR & GRADAÇÃO</text>
+  </g>
+
+  <!-- Footer Title and Code -->
+  <rect x="0" y="196" width="400" height="44" fill="#04060b" fill-opacity="0.95" />
+  <line x1="0" y1="196" x2="400" y2="196" stroke="#1e293b" stroke-width="1.2"/>
+  
+  <text x="16" y="215" fill="#f8fafc" font-size="11" font-family="sans-serif" font-weight="bold">Teal and Orange (Contraste Complementar ...</text>
+  <text x="16" y="229" fill="#94a3b8" font-size="9" font-family="monospace">Teal and Orange Grading</text>
+  
+  <rect x="310" y="206" width="74" height="20" rx="4" fill="#f43f5e" fill-opacity="0.2" stroke="#f43f5e" stroke-width="0.8"/>
+  <text x="347" y="220" text-anchor="middle" fill="#fb7185" font-size="9" font-family="monospace" font-weight="bold">REF V2.0</text>
+</svg>

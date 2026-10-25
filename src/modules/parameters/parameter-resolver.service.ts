@@ -152,8 +152,20 @@ export class ParameterResolver {
       case "SELECT": {
         const options = (definition.options as Array<{ value: string; label: string }>) || [];
         const validValues = options.map((o) => o.value);
-        if (validValues.length > 0 && !validValues.includes(String(value))) {
-          throw new ParameterValidationError(`Opção '${value}' inválida para o parâmetro '${definition.label}'.`);
+        if (validValues.length > 0) {
+          const strVal = String(value);
+          const cleanVal = strVal.toLowerCase();
+          const isExact = validValues.includes(strVal);
+          const isCaseMatch = validValues.some((v) => v.toLowerCase() === cleanVal);
+          const isLabelMatch = options.some((o) => (o.label || "").toLowerCase() === cleanVal);
+          const isFuzzyMatch = validValues.some((v) => {
+            const vLower = v.toLowerCase();
+            return vLower.includes(cleanVal) || cleanVal.includes(vLower);
+          });
+
+          if (!isExact && !isCaseMatch && !isLabelMatch && !isFuzzyMatch) {
+            throw new ParameterValidationError(`Opção '${value}' inválida para o parâmetro '${definition.label}'.`);
+          }
         }
         break;
       }
@@ -272,8 +284,24 @@ export class ParameterResolver {
 
       // 6. Validação do tipo do valor
       if (!isMissing) {
-        this.validateValue(def, finalValue);
-        resolved[def.key] = finalValue;
+        try {
+          this.validateValue(def, finalValue);
+          resolved[def.key] = finalValue;
+        } catch (valErr) {
+          // Em operações de leitura/resolução, não quebra a interface caso haja valor padrão legado
+          if (def.type === "SELECT" && Array.isArray(def.options) && def.options.length > 0) {
+            const cleanStr = String(finalValue).toLowerCase();
+            const matchedOpt = (def.options as any[]).find((o) => {
+              const optVal = String(o.value).toLowerCase();
+              const optLabel = String(o.label || "").toLowerCase();
+              return cleanStr.includes(optVal) || optVal.includes(cleanStr) || cleanStr.includes(optLabel);
+            });
+            resolved[def.key] = matchedOpt ? matchedOpt.value : (def.options as any[])[0]?.value;
+            finalValue = resolved[def.key];
+          } else {
+            resolved[def.key] = finalValue;
+          }
+        }
       }
 
       details.push({

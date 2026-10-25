@@ -122,21 +122,21 @@ export function WorkspaceSelector() {
     <div className="relative inline-block text-left" ref={dropdownRef}>
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="flex items-center gap-2 rounded-xl border border-white/10 bg-white/[0.04] px-3 py-1.5 text-xs text-white transition hover:bg-white/[0.08]"
+        className="flex items-center gap-1.5 sm:gap-2 rounded-xl border border-white/10 bg-white/[0.04] px-2 sm:px-3 py-1.5 text-xs text-white transition hover:bg-white/[0.08]"
       >
-        <div className="flex h-5 w-5 items-center justify-center rounded-md bg-emerald-400/20 text-[10px] font-bold text-emerald-300">
+        <div className="flex h-5 w-5 flex-shrink-0 items-center justify-center rounded-md bg-emerald-400/20 text-[10px] font-bold text-emerald-300">
           🏢
         </div>
-        <div className="flex flex-col text-left">
-          <span className="font-semibold truncate max-w-[140px]">
+        <div className="flex flex-col text-left truncate">
+          <span className="font-semibold truncate max-w-[80px] xs:max-w-[100px] sm:max-w-[140px]">
             {activeWorkspace.name}
           </span>
         </div>
-        <span className="rounded bg-white/10 px-1.5 py-0.5 text-[9px] font-bold uppercase text-emerald-300">
+        <span className="hidden sm:inline rounded bg-white/10 px-1.5 py-0.5 text-[9px] font-bold uppercase text-emerald-300 flex-shrink-0">
           {activeWorkspace.role}
         </span>
         <svg
-          className={`h-3.5 w-3.5 text-white/40 transition-transform ${isOpen ? "rotate-180" : ""}`}
+          className={`h-3 w-3 sm:h-3.5 sm:w-3.5 text-white/40 transition-transform flex-shrink-0 ${isOpen ? "rotate-180" : ""}`}
           fill="none"
           viewBox="0 0 24 24"
           stroke="currentColor"
@@ -147,7 +147,7 @@ export function WorkspaceSelector() {
 
       {/* Dropdown Menu */}
       {isOpen && (
-        <div className="absolute left-0 mt-2 w-64 origin-top-left rounded-2xl border border-white/15 bg-[#0d1017] p-2 shadow-2xl z-50 backdrop-blur-xl">
+        <div className="absolute right-0 sm:right-auto sm:left-0 mt-2 w-64 max-w-[calc(100vw-2rem)] origin-top-right sm:origin-top-left rounded-2xl border border-white/15 bg-[#0d1017] p-2 shadow-2xl z-50 backdrop-blur-xl">
           <div className="px-3 py-2 text-[10px] uppercase font-bold tracking-wider text-white/40 border-b border-white/10">
             Seus Estúdios & Equipes
           </div>

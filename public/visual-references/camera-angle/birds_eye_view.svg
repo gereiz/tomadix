@@ -1,0 +1,42 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 240" width="100%" height="100%">
+  <defs>
+    <linearGradient id="bgGrad_birds_eye_view" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#070a12" />
+      <stop offset="100%" stop-color="#0f172a" />
+    </linearGradient>
+  </defs>
+
+  <!-- Cinema Base Background -->
+  <rect width="400" height="240" rx="16" fill="url(#bgGrad_birds_eye_view)" stroke="#1e293b" stroke-width="2"/>
+
+  <!-- Illustrative Graphic Zone -->
+  
+        <!-- 90 Degree Overhead View (Bird's Eye) -->
+        <rect x="40" y="30" width="320" height="150" rx="8" fill="#050811" stroke="#1e293b" />
+        <!-- Road / Crosswalk below -->
+        <rect x="150" y="30" width="100" height="150" fill="#1e293b" />
+        <line x1="180" y1="40" x2="180" y2="170" stroke="#f8fafc" stroke-width="4" stroke-dasharray="12 12" />
+        <line x1="220" y1="40" x2="220" y2="170" stroke="#f8fafc" stroke-width="4" stroke-dasharray="12 12" />
+        <!-- Head and shoulders seen directly from above -->
+        <circle cx="200" cy="105" r="14" fill="#10b981" />
+        <ellipse cx="200" cy="105" rx="26" ry="12" fill="#34d399" />
+        <circle cx="200" cy="105" r="45" fill="none" stroke="#10b981" stroke-width="1.5" stroke-dasharray="4 4" />
+        <text x="200" y="172" text-anchor="middle" fill="#34d399" font-size="11" font-family="monospace">TOP DOWN / BIRD'S EYE VIEW 90°</text>
+      
+
+  <!-- Header Category Badge -->
+  <g transform="translate(16, 22)">
+    <rect x="0" y="-12" width="170" height="20" rx="5" fill="#10b981" fill-opacity="0.18" stroke="#10b981" stroke-width="1.2"/>
+    <text x="8" y="2" fill="#34d399" font-size="9" font-family="monospace" font-weight="bold">ÂNGULO DE CÂMERA</text>
+  </g>
+
+  <!-- Footer Title and Code -->
+  <rect x="0" y="196" width="400" height="44" fill="#04060b" fill-opacity="0.95" />
+  <line x1="0" y1="196" x2="400" y2="196" stroke="#1e293b" stroke-width="1.2"/>
+  
+  <text x="16" y="215" fill="#f8fafc" font-size="11" font-family="sans-serif" font-weight="bold">Visão Aérea Oblíqua (Bird's-Eye View)</text>
+  <text x="16" y="229" fill="#94a3b8" font-size="9" font-family="monospace">Bird's-Eye View</text>
+  
+  <rect x="310" y="206" width="74" height="20" rx="4" fill="#10b981" fill-opacity="0.2" stroke="#10b981" stroke-width="0.8"/>
+  <text x="347" y="220" text-anchor="middle" fill="#34d399" font-size="9" font-family="monospace" font-weight="bold">REF V2.0</text>
+</svg>

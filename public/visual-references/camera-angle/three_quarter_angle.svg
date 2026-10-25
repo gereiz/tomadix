@@ -1,0 +1,50 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 240" width="100%" height="100%">
+  <defs>
+    <linearGradient id="bgGrad_three_quarter_angle" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#070a12" />
+      <stop offset="100%" stop-color="#0f172a" />
+    </linearGradient>
+  </defs>
+
+  <!-- Cinema Base Background -->
+  <rect width="400" height="240" rx="16" fill="url(#bgGrad_three_quarter_angle)" stroke="#1e293b" stroke-width="2"/>
+
+  <!-- Illustrative Graphic Zone -->
+  
+        <!-- Eye Level Neutral -->
+        <rect x="40" y="30" width="320" height="150" rx="8" fill="#08101a" stroke="#1e293b" />
+        <rect x="60" y="95" width="34" height="22" rx="4" fill="#10b981" />
+        <polygon points="94,101 106,95 106,117 94,111" fill="#34d399" />
+        <line x1="106" y1="106" x2="260" y2="106" stroke="#34d399" stroke-width="2.5" stroke-linecap="round" />
+        
+    <g transform="translate(260, 105) scale(1.2)">
+      <!-- Cabeça -->
+      <circle cx="0" cy="-25" r="9" fill="#f8fafc" />
+      <circle cx="-2" cy="-25" r="1.5" fill="#0b0f19" /><path d="M-4 -20 Q0 -17 4 -20" stroke="#0b0f19" stroke-width="0.8" fill="none" />
+      <!-- Pescoço e Ombros -->
+      <path d="M-3 -16 L3 -16 L6 -10 L16 2 L-16 2 L-6 -10 Z" fill="#f8fafc" />
+      <!-- Torso -->
+      <path d="M-15 2 L15 2 L11 28 L-11 28 Z" fill="#f8fafc" fill-opacity="0.9" />
+      <!-- Pernas -->
+      <path d="M-10 28 L-4 28 L-3 62 L-9 62 Z M4 28 L10 28 L9 62 L3 62 Z" fill="#f8fafc" fill-opacity="0.8" />
+    </g>
+  
+        <text x="200" y="172" text-anchor="middle" fill="#34d399" font-size="11" font-family="monospace">EYE LEVEL (NEUTRAL 1:1)</text>
+      
+
+  <!-- Header Category Badge -->
+  <g transform="translate(16, 22)">
+    <rect x="0" y="-12" width="170" height="20" rx="5" fill="#10b981" fill-opacity="0.18" stroke="#10b981" stroke-width="1.2"/>
+    <text x="8" y="2" fill="#34d399" font-size="9" font-family="monospace" font-weight="bold">ÂNGULO DE CÂMERA</text>
+  </g>
+
+  <!-- Footer Title and Code -->
+  <rect x="0" y="196" width="400" height="44" fill="#04060b" fill-opacity="0.95" />
+  <line x1="0" y1="196" x2="400" y2="196" stroke="#1e293b" stroke-width="1.2"/>
+  
+  <text x="16" y="215" fill="#f8fafc" font-size="11" font-family="sans-serif" font-weight="bold">Ângulo Três Quartos (Three-Quarter Angle)</text>
+  <text x="16" y="229" fill="#94a3b8" font-size="9" font-family="monospace">Three-Quarter Angle</text>
+  
+  <rect x="310" y="206" width="74" height="20" rx="4" fill="#10b981" fill-opacity="0.2" stroke="#10b981" stroke-width="0.8"/>
+  <text x="347" y="220" text-anchor="middle" fill="#34d399" font-size="9" font-family="monospace" font-weight="bold">REF V2.0</text>
+</svg>

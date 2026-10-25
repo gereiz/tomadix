@@ -1,0 +1,53 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 240" width="100%" height="100%">
+  <defs>
+    <linearGradient id="bgGrad_simetria_central" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#070a12" />
+      <stop offset="100%" stop-color="#0f172a" />
+    </linearGradient>
+  </defs>
+
+  <!-- Cinema Base Background -->
+  <rect width="400" height="240" rx="16" fill="url(#bgGrad_simetria_central)" stroke="#1e293b" stroke-width="2"/>
+
+  <!-- Illustrative Graphic Zone -->
+  
+        <!-- Symmetrical Corridor Framing -->
+        <rect x="50" y="35" width="300" height="140" rx="6" fill="#0e0717" stroke="#334155" stroke-width="1.5" />
+        <!-- Central Axis -->
+        <line x1="200" y1="35" x2="200" y2="175" stroke="#ec4899" stroke-width="2.5" stroke-dasharray="6 3" />
+        <!-- Left Arch -->
+        <polygon points="60,45 150,75 150,155 60,165" fill="#1e112a" stroke="#f472b6" stroke-width="1.5" />
+        <!-- Right Arch (Mirrored) -->
+        <polygon points="340,45 250,75 250,155 340,165" fill="#1e112a" stroke="#f472b6" stroke-width="1.5" />
+        
+    <g transform="translate(200, 105) scale(1.2)">
+      <!-- Cabeça -->
+      <circle cx="0" cy="-25" r="9" fill="#ffffff" />
+      <circle cx="-2" cy="-25" r="1.5" fill="#0b0f19" /><path d="M-4 -20 Q0 -17 4 -20" stroke="#0b0f19" stroke-width="0.8" fill="none" />
+      <!-- Pescoço e Ombros -->
+      <path d="M-3 -16 L3 -16 L6 -10 L16 2 L-16 2 L-6 -10 Z" fill="#ffffff" />
+      <!-- Torso -->
+      <path d="M-15 2 L15 2 L11 28 L-11 28 Z" fill="#ffffff" fill-opacity="0.9" />
+      <!-- Pernas -->
+      <path d="M-10 28 L-4 28 L-3 62 L-9 62 Z M4 28 L10 28 L9 62 L3 62 Z" fill="#ffffff" fill-opacity="0.8" />
+    </g>
+  
+        <text x="200" y="172" text-anchor="middle" fill="#f472b6" font-size="11" font-family="monospace">CENTRAL SYMMETRY (1-POINT PERSPECTIVE)</text>
+      
+
+  <!-- Header Category Badge -->
+  <g transform="translate(16, 22)">
+    <rect x="0" y="-12" width="170" height="20" rx="5" fill="#ec4899" fill-opacity="0.18" stroke="#ec4899" stroke-width="1.2"/>
+    <text x="8" y="2" fill="#f472b6" font-size="9" font-family="monospace" font-weight="bold">COMPOSIÇÃO</text>
+  </g>
+
+  <!-- Footer Title and Code -->
+  <rect x="0" y="196" width="400" height="44" fill="#04060b" fill-opacity="0.95" />
+  <line x1="0" y1="196" x2="400" y2="196" stroke="#1e293b" stroke-width="1.2"/>
+  
+  <text x="16" y="215" fill="#f8fafc" font-size="11" font-family="sans-serif" font-weight="bold">Simetria Bilateral Perfeita</text>
+  <text x="16" y="229" fill="#94a3b8" font-size="9" font-family="monospace">Bilateral Symmetry</text>
+  
+  <rect x="310" y="206" width="74" height="20" rx="4" fill="#ec4899" fill-opacity="0.2" stroke="#ec4899" stroke-width="0.8"/>
+  <text x="347" y="220" text-anchor="middle" fill="#f472b6" font-size="9" font-family="monospace" font-weight="bold">REF V2.0</text>
+</svg>

@@ -404,22 +404,22 @@ export default function ParametersPage() {
         </div>
       )}
 
-      <main className="mx-auto max-w-7xl px-6 py-10">
+      <main className="mx-auto max-w-7xl px-4 sm:px-6 py-6 sm:py-10 w-full min-w-0">
         {/* Header */}
         <div className="flex flex-col justify-between gap-4 md:flex-row md:items-center">
           <div>
-            <div className="flex items-center gap-3">
-              <span className="text-xs font-semibold uppercase tracking-[0.2em] text-emerald-400">
+            <div className="flex items-center gap-2 sm:gap-3 flex-wrap">
+              <span className="text-[10px] sm:text-xs font-semibold uppercase tracking-[0.2em] text-emerald-400">
                 Arquitetura Modular de Prompts
               </span>
-              <span className="rounded-full bg-white/10 px-2.5 py-0.5 text-xs text-white/60">
+              <span className="rounded-full bg-white/10 px-2.5 py-0.5 text-[10px] sm:text-xs text-white/60">
                 {parameters.length} parâmetros
               </span>
             </div>
-            <h1 className="mt-2 text-3xl font-bold tracking-tight md:text-4xl">
+            <h1 className="mt-2 text-2xl sm:text-3xl font-bold tracking-tight md:text-4xl text-white">
               Parâmetros Dinâmicos
             </h1>
-            <p className="mt-1 text-sm text-white/50">
+            <p className="mt-1 text-xs sm:text-sm text-white/50 max-w-2xl leading-relaxed">
               Crie campos e variáveis cinematográficas personalizadas que alimentam o motor de composição de prompts sem alterar código.
             </p>
           </div>
@@ -429,9 +429,9 @@ export default function ParametersPage() {
               resetForm();
               setIsModalOpen(true);
             }}
-            className="flex items-center justify-center gap-2 rounded-xl bg-emerald-400 px-5 py-2.5 font-semibold text-black transition hover:bg-emerald-300 active:scale-[0.98]"
+            className="w-full sm:w-auto flex items-center justify-center gap-2 rounded-xl bg-emerald-400 px-5 py-2.5 font-semibold text-black transition hover:bg-emerald-300 active:scale-[0.98] text-xs sm:text-sm shadow-lg shadow-emerald-400/20"
           >
-            <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <svg className="h-4 w-4 sm:h-5 sm:w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M12 4v16m8-8H4" />
             </svg>
             Novo Parâmetro
@@ -439,14 +439,14 @@ export default function ParametersPage() {
         </div>
 
         {/* Abas por Escopo */}
-        <div className="mt-8 flex overflow-x-auto border-b border-white/10 pb-px gap-2">
+        <div className="mt-6 sm:mt-8 flex overflow-x-auto border-b border-white/10 pb-px gap-1 sm:gap-2 no-scrollbar">
           {SCOPE_TABS.map((tab) => {
             const isActive = selectedScope === tab.id;
             return (
               <button
                 key={tab.id}
                 onClick={() => setSelectedScope(tab.id)}
-                className={`border-b-2 px-4 py-3 text-xs font-semibold transition whitespace-nowrap ${
+                className={`border-b-2 px-3 sm:px-4 py-2.5 sm:py-3 text-xs font-semibold transition whitespace-nowrap ${
                   isActive
                     ? "border-emerald-400 text-emerald-300"
                     : "border-transparent text-white/50 hover:border-white/20 hover:text-white"
@@ -459,8 +459,8 @@ export default function ParametersPage() {
         </div>
 
         {/* Barra de Filtros e Busca */}
-        <div className="mt-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between rounded-2xl border border-white/10 bg-white/[0.02] p-4">
-          <div className="relative flex-1">
+        <div className="mt-6 flex flex-col gap-3 md:flex-row md:items-center md:justify-between rounded-2xl border border-white/10 bg-white/[0.02] p-3.5 sm:p-4">
+          <div className="relative flex-1 min-w-0">
             <svg
               className="pointer-events-none absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-white/40"
               fill="none"
@@ -478,11 +478,11 @@ export default function ParametersPage() {
             />
           </div>
 
-          <div className="flex items-center gap-3">
+          <div className="grid grid-cols-2 gap-2 sm:flex sm:items-center sm:gap-3">
             <select
               value={selectedType}
               onChange={(e) => setSelectedType(e.target.value)}
-              className="rounded-xl border border-white/10 bg-black/40 px-3 py-2 text-xs text-white/80 focus:border-emerald-400 focus:outline-none"
+              className="w-full sm:w-auto rounded-xl border border-white/10 bg-black/40 px-3 py-2 text-xs text-white/80 focus:border-emerald-400 focus:outline-none"
             >
               <option value="ALL">Todos os Tipos</option>
               {TYPE_OPTIONS.map((t) => (
@@ -495,7 +495,7 @@ export default function ParametersPage() {
             <select
               value={statusFilter}
               onChange={(e) => setStatusFilter(e.target.value as any)}
-              className="rounded-xl border border-white/10 bg-black/40 px-3 py-2 text-xs text-white/80 focus:border-emerald-400 focus:outline-none"
+              className="w-full sm:w-auto rounded-xl border border-white/10 bg-black/40 px-3 py-2 text-xs text-white/80 focus:border-emerald-400 focus:outline-none"
             >
               <option value="all">Status: Todos</option>
               <option value="active">Apenas Ativos</option>
@@ -536,19 +536,19 @@ export default function ParametersPage() {
             {parameters.map((p, idx) => (
               <div
                 key={p.id}
-                className={`flex flex-col justify-between gap-4 rounded-2xl border p-4 transition md:flex-row md:items-center ${
+                className={`flex flex-col justify-between gap-3 sm:gap-4 rounded-2xl border p-3.5 sm:p-4 transition md:flex-row md:items-center ${
                   p.enabled
                     ? "border-white/10 bg-white/[0.02] hover:border-emerald-400/30"
                     : "border-white/5 bg-black/20 opacity-60"
                 }`}
               >
-                <div className="flex items-center gap-4">
+                <div className="flex items-start sm:items-center gap-3 sm:gap-4 flex-1 min-w-0">
                   {/* Ordem e Botões de Subir/Descer */}
-                  <div className="flex flex-col items-center justify-center gap-1 text-white/30">
+                  <div className="flex flex-col items-center justify-center gap-1 text-white/30 flex-shrink-0 pt-0.5 sm:pt-0">
                     <button
                       onClick={() => handleMoveOrder(idx, "up")}
                       disabled={idx === 0}
-                      className="hover:text-emerald-400 disabled:opacity-20"
+                      className="hover:text-emerald-400 disabled:opacity-20 text-xs"
                       title="Subir Ordem"
                     >
                       ▲
@@ -557,20 +557,20 @@ export default function ParametersPage() {
                     <button
                       onClick={() => handleMoveOrder(idx, "down")}
                       disabled={idx === parameters.length - 1}
-                      className="hover:text-emerald-400 disabled:opacity-20"
+                      className="hover:text-emerald-400 disabled:opacity-20 text-xs"
                       title="Descer Ordem"
                     >
                       ▼
                     </button>
                   </div>
 
-                  <div>
-                    <div className="flex flex-wrap items-center gap-2">
-                      <span className="font-semibold text-white text-sm">{p.label}</span>
-                      <code className="rounded bg-black/50 px-2 py-0.5 font-mono text-[11px] text-emerald-400 border border-white/10">
+                  <div className="flex-1 min-w-0">
+                    <div className="flex flex-wrap items-center gap-1.5 sm:gap-2">
+                      <span className="font-semibold text-white text-xs sm:text-sm">{p.label}</span>
+                      <code className="rounded bg-black/50 px-1.5 py-0.5 font-mono text-[10px] sm:text-[11px] text-emerald-400 border border-white/10 break-all">
                         {p.key}
                       </code>
-                      <span className="rounded-md bg-white/10 px-2 py-0.5 text-[10px] font-mono text-white/60">
+                      <span className="rounded-md bg-white/10 px-1.5 py-0.5 text-[9px] sm:text-[10px] font-mono text-white/60">
                         {p.type}
                       </span>
                       {(() => {
@@ -579,7 +579,7 @@ export default function ParametersPage() {
                         const isAll = scopesList.includes("ALL") || allScopes.every((s) => scopesList.includes(s));
                         if (isAll) {
                           return (
-                            <span className="rounded-md bg-emerald-400/10 px-2 py-0.5 text-[10px] text-emerald-300 border border-emerald-400/20 font-medium">
+                            <span className="rounded-md bg-emerald-400/10 px-2 py-0.5 text-[9px] sm:text-[10px] text-emerald-300 border border-emerald-400/20 font-medium">
                               🌐 Todos os Escopos
                             </span>
                           );
@@ -594,34 +594,34 @@ export default function ParametersPage() {
                         return scopesList.map((sc) => (
                           <span
                             key={sc}
-                            className="rounded-md bg-emerald-400/10 px-2 py-0.5 text-[10px] text-emerald-300 border border-emerald-400/20"
+                            className="rounded-md bg-emerald-400/10 px-1.5 py-0.5 text-[9px] sm:text-[10px] text-emerald-300 border border-emerald-400/20"
                           >
                             {labelMap[sc] || sc}
                           </span>
                         ));
                       })()}
                       {p.required && (
-                        <span className="rounded-md bg-red-400/10 px-2 py-0.5 text-[10px] text-red-300 border border-red-400/20">
+                        <span className="rounded-md bg-red-400/10 px-1.5 py-0.5 text-[9px] sm:text-[10px] text-red-300 border border-red-400/20">
                           Obrigatório
                         </span>
                       )}
                       {p.isSystem && (
-                        <span className="rounded-md bg-blue-400/10 px-2 py-0.5 text-[10px] text-blue-300 border border-blue-400/20">
+                        <span className="rounded-md bg-blue-400/10 px-1.5 py-0.5 text-[9px] sm:text-[10px] text-blue-300 border border-blue-400/20">
                           Padrão Sistema
                         </span>
                       )}
                     </div>
                     {p.description && (
-                      <p className="mt-1 text-xs text-white/50">{p.description}</p>
+                      <p className="mt-1 text-xs text-white/50 leading-relaxed">{p.description}</p>
                     )}
                   </div>
                 </div>
 
-                <div className="flex items-center gap-3">
+                <div className="flex items-center gap-2 self-end md:self-center border-t border-white/5 pt-2.5 md:border-0 md:pt-0 w-full md:w-auto justify-end flex-shrink-0">
                   {/* Toggle Ativo/Inativo */}
                   <button
                     onClick={() => handleToggle(p)}
-                    className={`rounded-lg px-3 py-1.5 text-xs font-medium transition ${
+                    className={`rounded-lg px-2.5 sm:px-3 py-1.5 text-xs font-medium transition ${
                       p.enabled
                         ? "bg-emerald-500/20 text-emerald-300 border border-emerald-500/30"
                         : "bg-white/10 text-white/50 hover:bg-white/15"

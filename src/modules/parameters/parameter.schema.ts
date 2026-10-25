@@ -24,6 +24,23 @@ export const parameterScopeEnum = z.enum([
 export const parameterOptionSchema = z.object({
   value: z.string().min(1, "O valor da opção não pode ser vazio."),
   label: z.string().min(1, "O rótulo da opção não pode ser vazio."),
+  originalName: z.string().optional().nullable(),
+  category: z.string().optional().nullable(),
+  categoryLabel: z.string().optional().nullable(),
+  description: z.string().optional().nullable(),
+  whatToLookFor: z.string().optional().nullable(),
+  comparisonNotes: z.string().optional().nullable(),
+  imageUrl: z.string().optional().nullable(),
+  thumbnailUrl: z.string().optional().nullable(),
+  secondaryImages: z.array(z.string()).optional().nullable(),
+  videoUrl: z.string().optional().nullable(),
+  altText: z.string().optional().nullable(),
+  order: z.number().int().optional().nullable(),
+  isActive: z.boolean().optional(),
+  isApproved: z.boolean().optional(),
+  license: z.string().optional().nullable(),
+  tags: z.array(z.string()).optional().nullable(),
+  updatedAt: z.string().optional().nullable(),
 });
 
 export const validationRulesSchema = z.object({
@@ -68,6 +85,12 @@ export const baseParameterDefinitionSchema = z.object({
   promptMapping: promptMappingSchema.nullable(),
   order: z.number().int().default(0),
   enabled: z.boolean().default(true),
+  visualReferenceEnabled: z.boolean().optional(),
+  visualReferenceCategory: z.string().optional().nullable(),
+  referenceImage: z.string().optional().nullable(),
+  referenceMedia: z.string().optional().nullable(),
+  referenceDescription: z.string().optional().nullable(),
+  referenceAlt: z.string().optional().nullable(),
 });
 
 export const parameterDefinitionSchema = baseParameterDefinitionSchema.superRefine((val, ctx) => {
