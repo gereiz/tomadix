@@ -7,10 +7,11 @@ interface CreditPricingRule {
   operationId: string;
   planTier?: string | null;
   modelTarget?: string | null;
-  cost: number;
+  cost?: number;
+  creditCost?: number;
   isFree: boolean;
-  version: number;
-  createdAt: string;
+  version?: number;
+  createdAt?: string;
 }
 
 interface CreditOperation {
@@ -20,23 +21,28 @@ interface CreditOperation {
   description?: string | null;
   category: string;
   isActive: boolean;
-  defaultCost: number;
+  defaultCost?: number;
+  defaultCreditCost?: number;
   isFree: boolean;
-  rules: CreditPricingRule[];
+  rules?: CreditPricingRule[];
+  pricingRules?: CreditPricingRule[];
 }
 
 interface RenewalPolicy {
   id: string;
   name: string;
   description?: string | null;
-  planTier: string;
+  planTier?: string | null;
   creditsAmount: number;
-  frequency: "DAILY" | "WEEKLY" | "MONTHLY" | "YEARLY" | "ONCE";
-  allowAccumulate: boolean;
+  frequency: "DAILY" | "WEEKLY" | "MONTHLY" | "YEARLY" | "ONCE" | string;
+  allowAccumulate?: boolean;
+  accumulate?: boolean;
   maxAccumulateBalance?: number | null;
-  active: boolean;
-  priority: number;
-  timezone: string;
+  maxAccumulated?: number | null;
+  active?: boolean;
+  isActive?: boolean;
+  priority?: number;
+  timezone?: string;
 }
 
 const PLAN_TIERS = ["FREE", "PRO", "TEAM", "ENTERPRISE"];
@@ -94,14 +100,49 @@ export function CreditPricingTab() {
 
       if (opsRes.ok) {
         const d = await opsRes.json();
-        setOperations(d.operations || []);
-        if (d.operations?.length > 0 && !simOpCode) {
-          setSimOpCode(d.operations[0].code);
+        const rawOps: any[] = d.operations || [];
+        const normalizedOps: CreditOperation[] = rawOps.map((op) => {
+          const rawRules: any[] = op.pricingRules || op.rules || [];
+          const normalizedRules: CreditPricingRule[] = rawRules.map((r: any) => ({
+            id: r.id,
+            operationId: r.operationId,
+            planTier: r.planTier,
+            modelTarget: r.modelTarget,
+            cost: r.creditCost ?? r.cost ?? 0,
+            creditCost: r.creditCost ?? r.cost ?? 0,
+            isFree: Boolean(r.isFree),
+            version: r.version ?? 1,
+            createdAt: r.createdAt,
+          }));
+
+          const cost = op.defaultCreditCost ?? op.defaultCost ?? 0;
+          return {
+            ...op,
+            defaultCost: cost,
+            defaultCreditCost: cost,
+            rules: normalizedRules,
+            pricingRules: normalizedRules,
+          };
+        });
+
+        setOperations(normalizedOps);
+        if (normalizedOps.length > 0 && !simOpCode) {
+          setSimOpCode(normalizedOps[0].code);
         }
       }
       if (renRes.ok) {
         const d = await renRes.json();
-        setRenewalPolicies(d.policies || []);
+        const rawPolicies: any[] = d.policies || [];
+        const normalizedPolicies: RenewalPolicy[] = rawPolicies.map((pol: any) => ({
+          ...pol,
+          allowAccumulate: pol.accumulate ?? pol.allowAccumulate ?? false,
+          accumulate: pol.accumulate ?? pol.allowAccumulate ?? false,
+          maxAccumulateBalance: pol.maxAccumulated ?? pol.maxAccumulateBalance,
+          maxAccumulated: pol.maxAccumulated ?? pol.maxAccumulateBalance,
+          active: pol.isActive ?? pol.active ?? true,
+          isActive: pol.isActive ?? pol.active ?? true,
+        }));
+        setRenewalPolicies(normalizedPolicies);
       }
     } catch (err: any) {
       setNotification({ type: "error", message: err.message || "Erro ao carregar dados" });
@@ -127,7 +168,13 @@ export function CreditPricingTab() {
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error);
-      setSimResult(data);
+      const resPayload = data.simulation || data;
+      setSimResult({
+        ...resPayload,
+        cost: resPayload.creditCost ?? resPayload.cost ?? 0,
+        appliedRule: resPayload.appliedRule,
+        ruleVersion: resPayload.version ?? resPayload.ruleVersion ?? 1,
+      });
     } catch (err: any) {
       setNotification({ type: "error", message: "Erro na simulação: " + err.message });
     } finally {
@@ -147,6 +194,7 @@ export function CreditPricingTab() {
         body: JSON.stringify({
           planTier: rulePlanTier,
           cost: ruleIsFree ? 0 : Number(ruleCost),
+          creditCost: ruleIsFree ? 0 : Number(ruleCost),
           isFree: ruleIsFree,
         }),
       });
@@ -194,6 +242,7 @@ export function CreditPricingTab() {
           name: newOpName.trim(),
           category: newOpCategory.trim(),
           defaultCost: Number(newOpDefaultCost),
+          defaultCreditCost: Number(newOpDefaultCost),
           description: newOpDescription.trim(),
           isActive: true,
           isFree: Number(newOpDefaultCost) === 0,
@@ -229,8 +278,11 @@ export function CreditPricingTab() {
           creditsAmount: Number(renAmount),
           frequency: renFreq,
           allowAccumulate: renAllowAccumulate,
+          accumulate: renAllowAccumulate,
           maxAccumulateBalance: renMaxAccumulate ? Number(renMaxAccumulate) : undefined,
+          maxAccumulated: renMaxAccumulate ? Number(renMaxAccumulate) : undefined,
           active: true,
+          isActive: true,
           priority: 10,
         }),
       });
@@ -348,22 +400,22 @@ export function CreditPricingTab() {
 
                     <td className="p-3.5">
                       <span className="font-mono font-bold text-white bg-white/5 px-2.5 py-1 rounded border border-white/10">
-                        {op.isFree ? "Gratuito" : `${op.defaultCost} cr`}
+                        {op.isFree ? "Gratuito" : `${op.defaultCreditCost ?? op.defaultCost ?? 0} cr`}
                       </span>
                     </td>
 
                     <td className="p-3.5">
                       <div className="flex flex-wrap items-center gap-1.5">
-                        {op.rules.length === 0 ? (
+                        {(!op.rules || op.rules.length === 0) && (!op.pricingRules || op.pricingRules.length === 0) ? (
                           <span className="text-[11px] text-white/30 italic">Aplica custo padrão a todos os planos</span>
                         ) : (
-                          op.rules.map((rule) => (
+                          (op.rules || op.pricingRules || []).map((rule) => (
                             <span
                               key={rule.id}
                               className="rounded-lg bg-indigo-500/10 border border-indigo-500/30 px-2 py-0.5 text-[10px] font-mono text-indigo-300 flex items-center gap-1"
                             >
                               <strong className="text-white">{rule.planTier}:</strong>
-                              <span>{rule.isFree ? "Grátis" : `${rule.cost} cr`}</span>
+                              <span>{rule.isFree ? "Grátis" : `${rule.creditCost ?? rule.cost ?? 0} cr`}</span>
                               <button
                                 onClick={() => handleDeleteRule(op.id, rule.id)}
                                 className="text-white/40 hover:text-rose-400 font-bold ml-0.5"
@@ -382,7 +434,7 @@ export function CreditPricingTab() {
                         onClick={() => {
                           setRuleModalOp(op);
                           setRulePlanTier("PRO");
-                          setRuleCost(op.defaultCost);
+                          setRuleCost(op.defaultCreditCost ?? op.defaultCost ?? 0);
                           setRuleIsFree(false);
                         }}
                         className="rounded-lg border border-indigo-500/30 bg-indigo-500/10 px-2.5 py-1 text-[11px] text-indigo-300 hover:bg-indigo-500/20 transition font-medium mr-2"
@@ -545,9 +597,9 @@ export function CreditPricingTab() {
                   </td>
 
                   <td className="p-3.5">
-                    {pol.allowAccumulate ? (
+                    {pol.accumulate || pol.allowAccumulate ? (
                       <span className="text-emerald-400 font-semibold">
-                        Acumula {pol.maxAccumulateBalance ? `(Máx: ${pol.maxAccumulateBalance})` : "(Sem teto)"}
+                        Acumula {(pol.maxAccumulated ?? pol.maxAccumulateBalance) ? `(Máx: ${pol.maxAccumulated ?? pol.maxAccumulateBalance})` : "(Sem teto)"}
                       </span>
                     ) : (
                       <span className="text-white/40 italic">Substitui saldo anterior</span>
@@ -555,7 +607,7 @@ export function CreditPricingTab() {
                   </td>
 
                   <td className="p-3.5">
-                    {pol.active ? (
+                    {(pol.isActive ?? pol.active ?? true) ? (
                       <span className="rounded bg-emerald-500/10 border border-emerald-500/30 px-2 py-0.5 text-[10px] text-emerald-400 font-bold">
                         ATIVO
                       </span>

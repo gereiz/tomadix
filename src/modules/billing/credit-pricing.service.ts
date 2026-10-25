@@ -147,13 +147,15 @@ export class CreditPricingService {
       name: string;
       description?: string;
       category: string;
-      defaultCreditCost: number;
+      defaultCreditCost?: number;
+      defaultCost?: number;
       isFree?: boolean;
       isActive?: boolean;
     },
     context?: { ip?: string; ua?: string }
   ) {
-    if (data.defaultCreditCost < 0) {
+    const cost = data.defaultCreditCost ?? data.defaultCost ?? 1;
+    if (cost < 0) {
       throw new Error("O custo padrão de créditos não pode ser negativo.");
     }
 
@@ -170,7 +172,7 @@ export class CreditPricingService {
         name: data.name.trim(),
         description: data.description?.trim() || null,
         category: data.category.trim().toUpperCase(),
-        defaultCreditCost: data.defaultCreditCost,
+        defaultCreditCost: cost,
         isFree: Boolean(data.isFree),
         isActive: data.isActive !== undefined ? data.isActive : true,
         version: 1,
@@ -179,7 +181,7 @@ export class CreditPricingService {
         name: data.name.trim(),
         description: data.description?.trim() || null,
         category: data.category.trim().toUpperCase(),
-        defaultCreditCost: data.defaultCreditCost,
+        defaultCreditCost: cost,
         isFree: Boolean(data.isFree),
         isActive: data.isActive !== undefined ? data.isActive : true,
         version: existing ? existing.version + 1 : 1,

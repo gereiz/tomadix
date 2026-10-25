@@ -40,7 +40,12 @@ export async function POST(request: NextRequest) {
 
     const policy = await CreditRenewalService.createPolicy(
       adminUser.id,
-      body,
+      {
+        ...body,
+        accumulate: body.accumulate !== undefined ? Boolean(body.accumulate) : Boolean(body.allowAccumulate),
+        maxAccumulated: body.maxAccumulated !== undefined ? body.maxAccumulated : body.maxAccumulateBalance,
+        isActive: body.isActive !== undefined ? Boolean(body.isActive) : (body.active !== undefined ? Boolean(body.active) : true),
+      },
       { ip: clientContext, ua: userAgent }
     );
 

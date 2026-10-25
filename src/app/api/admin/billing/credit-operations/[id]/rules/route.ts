@@ -19,7 +19,7 @@ export async function POST(
       {
         operationId: id,
         planTier: body.planTier,
-        creditCost: parseInt(body.creditCost, 10) || 0,
+        creditCost: parseInt(body.creditCost ?? body.cost, 10) || 0,
         isFree: Boolean(body.isFree),
         effectiveUntil: body.effectiveUntil,
         priority: body.priority ? parseInt(body.priority, 10) : 1,
