@@ -3,7 +3,6 @@
 import { useEffect, useState, useCallback } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { Navbar } from "@/components/navigation/navbar";
 import { OnboardingModal, OnboardingState } from "@/components/onboarding/onboarding-modal";
 import { ToastNotification } from "@/components/ui/toast";
 import { PlanLimitModal } from "@/components/ui/plan-limit-modal";
@@ -206,7 +205,6 @@ export default function DashboardPage() {
   if (loading) {
     return (
       <div className="min-h-screen bg-[#0b0d12] text-white">
-        <Navbar />
         <main className="mx-auto max-w-7xl px-6 py-12">
           <div className="animate-pulse space-y-6">
             <div className="h-8 w-64 rounded-xl bg-white/10" />
@@ -225,7 +223,6 @@ export default function DashboardPage() {
   if (error || !data) {
     return (
       <div className="min-h-screen bg-[#0b0d12] text-white">
-        <Navbar />
         <main className="mx-auto max-w-7xl px-6 py-12">
           <div className="rounded-3xl border border-red-500/20 bg-red-950/20 p-8 text-center">
             <h2 className="text-xl font-bold text-red-400">Falha ao Carregar Dashboard</h2>
@@ -246,8 +243,6 @@ export default function DashboardPage() {
 
   return (
     <div className="min-h-screen bg-[#0b0d12] text-white">
-      <Navbar />
-
       <main className="mx-auto max-w-7xl px-6 py-8 sm:py-10">
         {/* Cabeçalho do Dashboard */}
         <div className="flex flex-col justify-between gap-4 border-b border-white/10 pb-6 md:flex-row md:items-center">

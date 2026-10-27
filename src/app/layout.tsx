@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import "./globals.css";
 import { CookieConsentBanner } from "@/components/privacy/cookie-consent-banner";
+import { Navbar } from "@/components/navigation/navbar";
 
 import { BRAND } from "@/config/brand";
 
@@ -23,6 +24,7 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
   return (
     <html lang="pt-BR" suppressHydrationWarning className="dark">
       <body suppressHydrationWarning className="overflow-x-hidden min-h-screen bg-[#0b0d12] text-white selection:bg-emerald-500 selection:text-black">
+        <Navbar />
         {children}
         <CookieConsentBanner />
       </body>

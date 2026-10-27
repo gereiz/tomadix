@@ -3,7 +3,6 @@
 import { useEffect, useState, useCallback, use } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { Navbar } from "@/components/navigation/navbar";
 import { CharactersTab } from "@/components/characters/characters-tab";
 import { EnvironmentsTab } from "@/components/environments/environments-tab";
 import { ScenesTab } from "@/components/scenes/scenes-tab";
@@ -167,7 +166,6 @@ export default function ProjectDetailPage({ params }: { params: Promise<{ id: st
   if (loading) {
     return (
       <div className="min-h-screen bg-[#0b0d12] text-white">
-        <Navbar />
         <main className="mx-auto max-w-7xl px-6 py-12">
           <div className="h-6 w-32 animate-pulse rounded bg-white/10" />
           <div className="mt-4 h-10 w-2/3 animate-pulse rounded bg-white/10" />
@@ -184,7 +182,6 @@ export default function ProjectDetailPage({ params }: { params: Promise<{ id: st
   if (error || !project) {
     return (
       <div className="min-h-screen bg-[#0b0d12] text-white">
-        <Navbar />
         <main className="mx-auto max-w-3xl px-6 py-20 text-center">
           <div className="rounded-3xl border border-red-500/20 bg-red-950/20 p-8">
             <h2 className="text-xl font-bold text-red-300">Não foi possível abrir o projeto</h2>
@@ -203,8 +200,6 @@ export default function ProjectDetailPage({ params }: { params: Promise<{ id: st
 
   return (
     <div className="min-h-screen bg-[#0b0d12] text-white">
-      <Navbar />
-
       <main className="mx-auto max-w-7xl px-6 py-8">
         {/* Navegação Breadcrumb & Voltar */}
         <div className="flex items-center gap-2 text-xs text-white/50">

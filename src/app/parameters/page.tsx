@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useState, useCallback, useMemo } from "react";
-import { Navbar } from "@/components/navigation/navbar";
 import { ParameterInputPreview } from "@/components/parameters/parameter-input-preview";
 import { ParameterType, ParameterScope, ParameterOption } from "@/modules/parameters/parameter.schema";
 
@@ -389,8 +388,6 @@ export default function ParametersPage() {
 
   return (
     <div className="min-h-screen bg-[#0b0d12] text-white">
-      <Navbar />
-
       {/* Toast */}
       {toast && (
         <div

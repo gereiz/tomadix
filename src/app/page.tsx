@@ -1,5 +1,4 @@
 import Link from "next/link";
-import { Navbar } from "@/components/navigation/navbar";
 
 const modules = [
   { number: "01", title: "Projetos", description: "Organize ideias, estilos visuais e configurações." },
@@ -11,7 +10,6 @@ const modules = [
 export default function Home() {
   return (
     <main className="min-h-screen bg-[#0b0d12] text-white">
-      <Navbar />
 
       <section className="mx-auto grid max-w-7xl gap-12 px-6 pb-20 pt-16 md:grid-cols-[1.15fr_.85fr] md:items-center md:pt-24">
         <div>

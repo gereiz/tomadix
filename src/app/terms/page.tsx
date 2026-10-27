@@ -1,5 +1,4 @@
 import Link from "next/link";
-import { Navbar } from "@/components/navigation/navbar";
 
 export const metadata = {
   title: "Termos de Uso | Tomadix",
@@ -9,8 +8,6 @@ export const metadata = {
 export default function TermsPage() {
   return (
     <div className="min-h-screen bg-[#07090e] text-white flex flex-col">
-      <Navbar />
-
       <main className="flex-1 max-w-4xl mx-auto px-6 py-12">
         <div className="rounded-2xl border border-white/10 bg-[#0d111c] p-8 md:p-12 space-y-8">
           <div className="border-b border-white/10 pb-6">

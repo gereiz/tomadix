@@ -2,7 +2,6 @@
 
 import { useEffect, useState, useMemo, useCallback } from "react";
 import Link from "next/link";
-import { Navbar } from "@/components/navigation/navbar";
 import { TransferProjectModal } from "@/components/projects/transfer-project-modal";
 import { ToastNotification } from "@/components/ui/toast";
 import { PlanLimitModal } from "@/components/ui/plan-limit-modal";
@@ -470,8 +469,6 @@ export default function ProjectsPage() {
 
   return (
     <div className="min-h-screen bg-[#0b0d12] text-white">
-      <Navbar />
-
       <main className="mx-auto max-w-7xl px-6 py-10">
         {/* Cabeçalho da Página */}
         <div className="flex flex-col justify-between gap-4 md:flex-row md:items-center">

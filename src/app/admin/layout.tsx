@@ -83,7 +83,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   return (
     <div className="min-h-screen bg-[#07090e] text-white flex flex-col">
       {/* Top Admin Header */}
-      <header className="border-b border-amber-500/20 bg-[#0b0e17]/90 backdrop-blur-md sticky top-0 z-40">
+      <header className="border-b border-amber-500/20 bg-[#0b0e17]/90 backdrop-blur-md sticky top-[57px] z-30">
         <div className="mx-auto flex max-w-7xl items-center justify-between px-6 py-3.5">
           <div className="flex items-center gap-4">
             <Link href="/admin" className="flex items-center gap-2.5">

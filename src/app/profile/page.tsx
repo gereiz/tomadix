@@ -1,7 +1,6 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
-import { Navbar } from "@/components/navigation/navbar";
 import { useRouter } from "next/navigation";
 import { ToastNotification } from "@/components/ui/toast";
 
@@ -295,7 +294,6 @@ export default function ProfilePage() {
   if (loading) {
     return (
       <div className="min-h-screen bg-[#0b0d12] text-white">
-        <Navbar />
         <div className="flex min-h-[60vh] items-center justify-center text-sm text-white/50">
           Carregando configurações da conta...
         </div>
@@ -309,8 +307,6 @@ export default function ProfilePage() {
 
   return (
     <div className="min-h-screen bg-[#0b0d12] text-white">
-      <Navbar />
-
       <main className="mx-auto max-w-6xl px-6 py-10">
         {/* Cabeçalho do Perfil */}
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-6 border-b border-white/10 pb-8">
