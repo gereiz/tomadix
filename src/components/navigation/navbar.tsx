@@ -51,52 +51,46 @@ export function Navbar() {
 
   const navLinks = [
     { href: "/dashboard", label: "Dashboard", icon: "📊" },
+    { href: "/studio", label: "Análise Cinematográfica", icon: "🎞️" },
+    { href: "/workspace", label: "Workspaces", icon: "🗂️" },
     { href: "/projects", label: "Projetos", icon: "🎬" },
-    { href: "/parameters", label: "Parâmetros", icon: "⚙️" },
+    ...(user?.isPlatformAdmin
+      ? [{ href: "/parameters", label: "Parâmetros", icon: "⚙️" }]
+      : []),
     { href: "/pricing", label: "Planos", icon: "💳" },
   ];
 
   return (
-    <header className="sticky top-0 z-40 border-b border-white/10 bg-[#0b0d12]/90 backdrop-blur-md">
-      <div className="mx-auto flex max-w-7xl items-center justify-between px-4 sm:px-6 py-3 sm:py-3.5">
+    <header className="sticky top-0 z-40 border-b border-outline-variant/30 bg-surface/85 backdrop-blur-xl">
+      <div className="w-full flex items-center justify-between px-4 sm:px-6 lg:px-8 py-2.5">
         {/* Lado Esquerdo: Logo + Links Desktop */}
         <div className="flex items-center gap-6 lg:gap-8">
           <Link
             href="/"
-            className="flex items-center gap-2 text-base font-bold tracking-tight text-white transition hover:opacity-90 flex-shrink-0"
+            className="flex items-center gap-2.5 text-base font-bold tracking-tight text-on-surface transition hover:opacity-90 flex-shrink-0"
           >
-            <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-emerald-400 font-mono text-sm font-extrabold text-black">
+            <span className="flex h-8 w-8 items-center justify-center rounded-xl bg-primary font-mono text-sm font-extrabold text-on-primary shadow-[0_0_15px_rgba(78,222,163,0.35)]">
               T
             </span>
-            <span className="tracking-wider">
-              <span className="text-emerald-400 font-black">TOMA</span>DIX
+            <span className="tracking-wider font-headline-sm text-headline-sm uppercase text-on-surface">
+              <span className="text-primary font-black">TOMA</span>DIX
             </span>
           </Link>
 
           {/* Links Desktop */}
-          <nav className="hidden md:flex items-center gap-1">
-            <Link
-              href="/"
-              className={`rounded-lg px-3 py-1.5 text-xs font-medium transition ${
-                pathname === "/"
-                  ? "bg-white/10 text-white"
-                  : "text-white/60 hover:bg-white/5 hover:text-white"
-              }`}
-            >
-              Início
-            </Link>
+          <nav className="hidden md:flex items-center gap-1 p-1 bg-surface-container-lowest/60 rounded-xl border border-outline-variant/20">
             {navLinks.map((link) => {
               const isActive = pathname.startsWith(link.href);
               return (
                 <Link
                   key={link.href}
                   href={link.href}
-                  className={`rounded-lg px-3 py-1.5 text-xs font-medium transition ${
-                    isActive
-                      ? "bg-emerald-400/10 text-emerald-300 font-semibold border border-emerald-400/20"
-                      : "text-white/60 hover:bg-white/5 hover:text-white"
-                  }`}
+                  className={`rounded-lg px-3 py-1.5 text-xs font-medium transition ${isActive
+                    ? "bg-surface-container-high text-primary font-semibold shadow-[0_0_12px_rgba(78,222,163,0.15)]"
+                    : "text-on-surface-variant hover:bg-surface-container-low hover:text-on-surface"
+                    }`}
                 >
+                  <span className="mr-1.5">{link.icon}</span>
                   {link.label}
                 </Link>
               );
@@ -110,24 +104,32 @@ export function Navbar() {
             <>
               <WorkspaceSelector />
 
+              {/*<Link
+                href="/workspace"
+                className={`rounded-lg border border-outline-variant/30 px-3 py-1.5 text-xs font-medium text-on-surface-variant transition hover:bg-surface-container hover:text-on-surface ${pathname === "/workspace"
+                    ? "bg-surface-container-high text-primary border-primary/30"
+                    : ""
+                  }`}
+              >
+                Acervo
+              </Link> */}
+
               <Link
                 href="/workspace/members"
-                className={`rounded-lg border border-white/15 px-3 py-1.5 text-xs font-medium text-white transition hover:bg-white/5 ${
-                  pathname === "/workspace/members"
-                    ? "bg-emerald-400/10 text-emerald-300 border-emerald-400/30"
-                    : ""
-                }`}
+                className={`rounded-lg border border-outline-variant/30 px-3 py-1.5 text-xs font-medium text-on-surface-variant transition hover:bg-surface-container hover:text-on-surface ${pathname === "/workspace/members"
+                  ? "bg-surface-container-high text-primary border-primary/30"
+                  : ""
+                  }`}
               >
                 Equipe
               </Link>
 
               <Link
                 href="/workspace/billing"
-                className={`rounded-lg border border-white/15 px-3 py-1.5 text-xs font-medium text-white transition hover:bg-white/5 ${
-                  pathname === "/workspace/billing"
-                    ? "bg-emerald-400/10 text-emerald-300 border-emerald-400/30"
-                    : ""
-                }`}
+                className={`rounded-lg border border-outline-variant/30 px-3 py-1.5 text-xs font-medium text-on-surface-variant transition hover:bg-surface-container hover:text-on-surface ${pathname === "/workspace/billing"
+                  ? "bg-surface-container-high text-primary border-primary/30"
+                  : ""
+                  }`}
               >
                 Assinatura
               </Link>
@@ -135,9 +137,8 @@ export function Navbar() {
               {user.isPlatformAdmin && (
                 <Link
                   href="/admin"
-                  className={`rounded-lg border border-amber-500/30 bg-amber-500/10 px-3 py-1.5 text-xs font-semibold text-amber-300 transition hover:bg-amber-500/20 flex items-center gap-1.5 ${
-                    pathname.startsWith("/admin") ? "ring-1 ring-amber-400 bg-amber-500/20" : ""
-                  }`}
+                  className={`rounded-lg border border-amber-500/30 bg-amber-500/10 px-3 py-1.5 text-xs font-semibold text-amber-300 transition hover:bg-amber-500/20 flex items-center gap-1.5 ${pathname.startsWith("/admin") ? "ring-1 ring-amber-400 bg-amber-500/20" : ""
+                    }`}
                   title="Painel Administrativo da Plataforma SaaS"
                 >
                   <span className="h-1.5 w-1.5 rounded-full bg-amber-400 animate-pulse" />
@@ -147,16 +148,15 @@ export function Navbar() {
 
               <Link
                 href="/profile"
-                className={`rounded-lg border border-white/15 px-3 py-1.5 text-xs font-medium text-white transition hover:bg-white/5 ${
-                  pathname === "/profile" ? "bg-white/10" : ""
-                }`}
+                className={`rounded-lg border border-outline-variant/30 px-3 py-1.5 text-xs font-medium text-on-surface-variant transition hover:bg-surface-container hover:text-on-surface ${pathname === "/profile" ? "bg-surface-container-high text-on-surface" : ""
+                  }`}
               >
-                Perfil & Estúdio
+                Perfil
               </Link>
 
               <button
                 onClick={handleLogout}
-                className="rounded-lg border border-white/10 px-2.5 py-1.5 text-xs text-white/50 transition hover:bg-white/5 hover:text-white"
+                className="rounded-lg border border-outline-variant/30 px-2.5 py-1.5 text-xs text-on-surface-variant transition hover:bg-surface-container hover:text-error"
                 title="Encerrar sessão"
               >
                 Sair
@@ -166,13 +166,13 @@ export function Navbar() {
             <div className="flex items-center gap-2">
               <Link
                 href="/login"
-                className="rounded-lg border border-white/15 px-3 py-1.5 text-xs font-medium text-white transition hover:bg-white/5"
+                className="rounded-lg border border-outline-variant/40 px-3 py-1.5 text-xs font-medium text-on-surface transition hover:bg-surface-container"
               >
                 Entrar
               </Link>
               <Link
                 href="/register"
-                className="rounded-lg bg-emerald-400 px-3.5 py-1.5 text-xs font-semibold text-black transition hover:bg-emerald-300"
+                className="rounded-lg bg-primary px-3.5 py-1.5 text-xs font-semibold text-on-primary transition hover:bg-primary-fixed shadow-sm shadow-primary/20"
               >
                 Criar Conta
               </Link>
@@ -228,11 +228,10 @@ export function Navbar() {
             <Link
               href="/"
               onClick={() => setIsMobileMenuOpen(false)}
-              className={`flex items-center gap-3 rounded-xl px-3 py-2 text-sm font-medium transition ${
-                pathname === "/"
-                  ? "bg-white/10 text-white font-semibold"
-                  : "text-white/70 hover:bg-white/5 hover:text-white"
-              }`}
+              className={`flex items-center gap-3 rounded-xl px-3 py-2 text-sm font-medium transition ${pathname === "/"
+                ? "bg-white/10 text-white font-semibold"
+                : "text-white/70 hover:bg-white/5 hover:text-white"
+                }`}
             >
               <span>🏠</span> Início
             </Link>
@@ -243,11 +242,10 @@ export function Navbar() {
                   key={link.href}
                   href={link.href}
                   onClick={() => setIsMobileMenuOpen(false)}
-                  className={`flex items-center gap-3 rounded-xl px-3 py-2 text-sm font-medium transition ${
-                    isActive
-                      ? "bg-emerald-400/10 text-emerald-300 font-semibold border border-emerald-400/20"
-                      : "text-white/70 hover:bg-white/5 hover:text-white"
-                  }`}
+                  className={`flex items-center gap-3 rounded-xl px-3 py-2 text-sm font-medium transition ${isActive
+                    ? "bg-lime-400/10 text-lime-400 font-semibold border border-lime-400/20"
+                    : "text-white/70 hover:bg-white/5 hover:text-white"
+                    }`}
                 >
                   <span>{link.icon}</span>
                   {link.label}
@@ -263,24 +261,32 @@ export function Navbar() {
                 Estúdio & Conta
               </div>
               <Link
+                href="/workspace"
+                onClick={() => setIsMobileMenuOpen(false)}
+                className={`flex items-center gap-3 rounded-xl px-3 py-2 text-sm font-medium transition ${pathname === "/workspace"
+                  ? "bg-emerald-400/10 text-emerald-300 font-semibold"
+                  : "text-white/70 hover:bg-white/5"
+                  }`}
+              >
+                <span>🗂️</span> Acervo & Produções (Workspace)
+              </Link>
+              <Link
                 href="/workspace/members"
                 onClick={() => setIsMobileMenuOpen(false)}
-                className={`flex items-center gap-3 rounded-xl px-3 py-2 text-sm font-medium transition ${
-                  pathname === "/workspace/members"
-                    ? "bg-emerald-400/10 text-emerald-300 font-semibold"
-                    : "text-white/70 hover:bg-white/5"
-                }`}
+                className={`flex items-center gap-3 rounded-xl px-3 py-2 text-sm font-medium transition ${pathname === "/workspace/members"
+                  ? "bg-emerald-400/10 text-emerald-300 font-semibold"
+                  : "text-white/70 hover:bg-white/5"
+                  }`}
               >
                 <span>👥</span> Equipe do Estúdio
               </Link>
               <Link
                 href="/workspace/billing"
                 onClick={() => setIsMobileMenuOpen(false)}
-                className={`flex items-center gap-3 rounded-xl px-3 py-2 text-sm font-medium transition ${
-                  pathname === "/workspace/billing"
-                    ? "bg-emerald-400/10 text-emerald-300 font-semibold"
-                    : "text-white/70 hover:bg-white/5"
-                }`}
+                className={`flex items-center gap-3 rounded-xl px-3 py-2 text-sm font-medium transition ${pathname === "/workspace/billing"
+                  ? "bg-emerald-400/10 text-emerald-300 font-semibold"
+                  : "text-white/70 hover:bg-white/5"
+                  }`}
               >
                 <span>💳</span> Assinatura & Créditos
               </Link>
@@ -288,9 +294,8 @@ export function Navbar() {
                 <Link
                   href="/admin"
                   onClick={() => setIsMobileMenuOpen(false)}
-                  className={`flex items-center gap-3 rounded-xl px-3 py-2 text-sm font-semibold transition border border-amber-500/30 bg-amber-500/10 text-amber-300 ${
-                    pathname.startsWith("/admin") ? "ring-1 ring-amber-400" : ""
-                  }`}
+                  className={`flex items-center gap-3 rounded-xl px-3 py-2 text-sm font-semibold transition border border-amber-500/30 bg-amber-500/10 text-amber-300 ${pathname.startsWith("/admin") ? "ring-1 ring-amber-400" : ""
+                    }`}
                 >
                   <span>🛡️</span> Console Admin (SaaS)
                 </Link>
@@ -298,9 +303,8 @@ export function Navbar() {
               <Link
                 href="/profile"
                 onClick={() => setIsMobileMenuOpen(false)}
-                className={`flex items-center gap-3 rounded-xl px-3 py-2 text-sm font-medium transition ${
-                  pathname === "/profile" ? "bg-white/10 text-white font-semibold" : "text-white/70 hover:bg-white/5"
-                }`}
+                className={`flex items-center gap-3 rounded-xl px-3 py-2 text-sm font-medium transition ${pathname === "/profile" ? "bg-white/10 text-white font-semibold" : "text-white/70 hover:bg-white/5"
+                  }`}
               >
                 <span>👤</span> Perfil & Configurações
               </Link>

@@ -198,16 +198,17 @@ export const generatePromptRequestSchema = z.object({
     "scene_sequence",
     "individual_scene",
   ]),
-  targetTool: z.enum(["google_flow", "nano_banana", "generic"]).default("google_flow"),
+  targetTool: z.enum(["google_flow", "nano_banana", "generic"]).optional().default("google_flow"),
   sceneId: z.string().optional(),
   characterId: z.string().optional(),
   environmentId: z.string().optional(),
   customInstructions: z.string().max(2000).optional(),
   model: z.string().optional(),
   parentVersionId: z.string().optional(),
+  outputFormat: z.enum(["json", "text"]).optional().default("json"),
 });
 
-export type GeneratePromptRequest = z.infer<typeof generatePromptRequestSchema>;
+export type GeneratePromptRequest = z.input<typeof generatePromptRequestSchema>;
 
 // Filtro para listagem de histórico
 export const promptHistoryFilterSchema = z.object({
@@ -226,9 +227,10 @@ export const regeneratePromptRequestSchema = z.object({
   customInstructions: z.string().max(2000).optional(),
   targetTool: z.enum(["google_flow", "nano_banana", "generic"]).optional(),
   model: z.string().optional(),
+  outputFormat: z.enum(["json", "text"]).optional().default("json"),
 });
 
-export type RegeneratePromptRequest = z.infer<typeof regeneratePromptRequestSchema>;
+export type RegeneratePromptRequest = z.input<typeof regeneratePromptRequestSchema>;
 
 // Comparador de versões
 export const comparePromptVersionsSchema = z.object({
@@ -240,7 +242,7 @@ export type ComparePromptVersions = z.infer<typeof comparePromptVersionsSchema>;
 
 // Opções de exportação de sequência de cenas
 export const exportSequenceOptionsSchema = z.object({
-  format: z.enum(["json"]).default("json"),
+  format: z.enum(["json", "txt", "markdown"]).default("json"),
   targetTool: z.string().optional(),
   includeDrafts: z.boolean().default(false),
 });

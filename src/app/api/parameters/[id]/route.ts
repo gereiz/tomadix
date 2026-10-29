@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getCurrentWorkspace, AuthorizationError } from "@/lib/auth";
+import { getCurrentWorkspace, requirePlatformAdmin, AuthorizationError, AuthenticationError } from "@/lib/auth";
 import { ParameterService } from "@/modules/parameters/parameter.service";
 import { updateParameterDefinitionSchema } from "@/modules/parameters/parameter.schema";
 import { ZodError } from "zod";
@@ -11,7 +11,7 @@ type RouteParams = {
 export async function GET(_request: NextRequest, { params }: RouteParams) {
   try {
     const { id } = await params;
-    const { workspace } = await getCurrentWorkspace();
+    const { workspace } = await getCurrentWorkspace(null, "parameters:read");
 
     const parameter = await ParameterService.getParameterById(id, workspace.id);
     if (!parameter) {
@@ -20,6 +20,9 @@ export async function GET(_request: NextRequest, { params }: RouteParams) {
 
     return NextResponse.json({ data: parameter });
   } catch (error) {
+    if (error instanceof AuthenticationError) {
+      return NextResponse.json({ error: error.message }, { status: 401 });
+    }
     if (error instanceof AuthorizationError) {
       return NextResponse.json({ error: error.message }, { status: 403 });
     }
@@ -30,8 +33,9 @@ export async function GET(_request: NextRequest, { params }: RouteParams) {
 
 export async function PATCH(request: NextRequest, { params }: RouteParams) {
   try {
+    await requirePlatformAdmin();
     const { id } = await params;
-    const { workspace } = await getCurrentWorkspace();
+    const { workspace } = await getCurrentWorkspace(null, "parameters:read");
 
     const body = await request.json();
     const validatedData = updateParameterDefinitionSchema.parse(body);
@@ -43,6 +47,9 @@ export async function PATCH(request: NextRequest, { params }: RouteParams) {
       data: updated,
     });
   } catch (error) {
+    if (error instanceof AuthenticationError) {
+      return NextResponse.json({ error: error.message }, { status: 401 });
+    }
     if (error instanceof AuthorizationError) {
       return NextResponse.json({ error: error.message }, { status: 403 });
     }
@@ -65,13 +72,17 @@ export async function PATCH(request: NextRequest, { params }: RouteParams) {
 
 export async function DELETE(_request: NextRequest, { params }: RouteParams) {
   try {
+    await requirePlatformAdmin();
     const { id } = await params;
-    const { workspace } = await getCurrentWorkspace();
+    const { workspace } = await getCurrentWorkspace(null, "parameters:read");
 
     await ParameterService.deleteParameter(id, workspace.id);
 
     return NextResponse.json({ message: "Parâmetro excluído com sucesso." });
   } catch (error) {
+    if (error instanceof AuthenticationError) {
+      return NextResponse.json({ error: error.message }, { status: 401 });
+    }
     if (error instanceof AuthorizationError) {
       return NextResponse.json({ error: error.message }, { status: 403 });
     }

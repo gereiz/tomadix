@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getCurrentWorkspace, AuthorizationError, AuthenticationError } from "@/lib/auth";
+import { getCurrentWorkspace, requirePlatformAdmin, AuthorizationError, AuthenticationError } from "@/lib/auth";
 import { ParameterService } from "@/modules/parameters/parameter.service";
 import { parameterDefinitionSchema } from "@/modules/parameters/parameter.schema";
 import { ZodError } from "zod";
@@ -43,7 +43,8 @@ export async function GET(request: NextRequest) {
 
 export async function POST(request: NextRequest) {
   try {
-    const { workspace } = await getCurrentWorkspace(null, "parameters:manage");
+    await requirePlatformAdmin();
+    const { workspace } = await getCurrentWorkspace(null, "parameters:read");
     const body = await request.json();
 
     const validatedInput = parameterDefinitionSchema.parse(body);

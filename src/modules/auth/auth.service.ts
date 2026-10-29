@@ -5,7 +5,7 @@ import {
   generateSecureToken,
   hashToken,
 } from "@/lib/security";
-import { WorkspaceRole } from "@prisma/client";
+import { Prisma, WorkspaceRole, Session } from "@prisma/client";
 import { RegisterInput, LoginInput } from "./auth.schema";
 
 export class AuthenticationError extends Error {
@@ -27,7 +27,45 @@ export interface ClientContext {
   userAgent?: string | null;
 }
 
+export type ValidatedSessionUser = Prisma.UserGetPayload<{
+  include: {
+    memberships: {
+      include: {
+        workspace: true;
+      };
+    };
+  };
+}>;
+
+interface SessionCacheEntry {
+  data: {
+    session: Session;
+    user: ValidatedSessionUser;
+  };
+  expiresAt: number;
+}
+const sessionCache = new Map<string, SessionCacheEntry>();
+const inflightSessionValidations = new Map<
+  string,
+  Promise<{ session: Session; user: ValidatedSessionUser } | null>
+>();
+const SESSION_CACHE_TTL_MS = 60 * 1000; // 60 segundos para absorver requisições simultâneas e navegações rápidas
+
 export class AuthService {
+  /**
+   * Invalida o cache de sessões em memória.
+   */
+  static invalidateSessionCache(userId?: string) {
+    if (userId) {
+      for (const [hash, entry] of sessionCache.entries()) {
+        if (entry.data?.user?.id === userId) {
+          sessionCache.delete(hash);
+        }
+      }
+    } else {
+      sessionCache.clear();
+    }
+  }
   /**
    * Registra um novo usuário no sistema, criando seu Workspace principal com o papel OWNER.
    */
@@ -204,45 +242,79 @@ export class AuthService {
   /**
    * Valida um token de sessão, renova se próximo do vencimento e retorna o usuário com workspaces.
    */
-  static async validateSession(rawToken: string) {
+  static async validateSession(
+    rawToken: string
+  ): Promise<{ session: Session; user: ValidatedSessionUser } | null> {
     const tokenHash = hashToken(rawToken);
 
-    const session = await withDbRetry(() =>
-      db.session.findUnique({
-        where: { tokenHash },
-        include: {
-          user: {
+    // Verificar se a sessão está no cache recente
+    const cached = sessionCache.get(tokenHash);
+    if (cached && cached.expiresAt > Date.now()) {
+      return cached.data;
+    }
+
+    // Deduplicar requisições concorrentes com o mesmo tokenHash
+    const inflight = inflightSessionValidations.get(tokenHash);
+    if (inflight) {
+      return inflight;
+    }
+
+    const validationPromise = (async () => {
+      try {
+        const session = await withDbRetry(() =>
+          db.session.findUnique({
+            where: { tokenHash },
             include: {
-              memberships: {
+              user: {
                 include: {
-                  workspace: true,
+                  memberships: {
+                    include: {
+                      workspace: true,
+                    },
+                  },
                 },
               },
             },
-          },
-        },
-      })
-    );
+          })
+        );
 
-    if (!session) {
-      return null;
-    }
+        if (!session) {
+          sessionCache.delete(tokenHash);
+          return null;
+        }
 
-    // Verifica se a sessão expirou
-    if (session.expiresAt.getTime() <= Date.now()) {
-      await db.session.delete({ where: { id: session.id } }).catch(() => {});
-      return null;
-    }
+        // Verifica se a sessão expirou
+        if (session.expiresAt.getTime() <= Date.now()) {
+          sessionCache.delete(tokenHash);
+          await db.session.delete({ where: { id: session.id } }).catch(() => {});
+          return null;
+        }
 
-    // Se o usuário foi suspenso pela administração, rejeitar a sessão
-    if (session.user.isSuspended) {
-      return null;
-    }
+        // Se o usuário foi suspenso pela administração, rejeitar a sessão
+        if (session.user.isSuspended) {
+          sessionCache.delete(tokenHash);
+          return null;
+        }
 
-    return {
-      session,
-      user: session.user,
-    };
+        const result = {
+          session,
+          user: session.user,
+        };
+
+        // Armazenar no cache de curta duração
+        sessionCache.set(tokenHash, {
+          data: result,
+          expiresAt: Date.now() + SESSION_CACHE_TTL_MS,
+        });
+
+        return result;
+      } finally {
+        inflightSessionValidations.delete(tokenHash);
+      }
+    })();
+
+    inflightSessionValidations.set(tokenHash, validationPromise);
+    return validationPromise;
   }
 
   /**
@@ -250,6 +322,7 @@ export class AuthService {
    */
   static async logout(rawToken: string) {
     const tokenHash = hashToken(rawToken);
+    sessionCache.delete(tokenHash);
     await db.session.deleteMany({
       where: { tokenHash },
     });
@@ -259,6 +332,7 @@ export class AuthService {
    * Encerra todas as sessões ativas do usuário.
    */
   static async revokeAllUserSessions(userId: string) {
+    this.invalidateSessionCache(userId);
     await db.session.deleteMany({
       where: { userId },
     });

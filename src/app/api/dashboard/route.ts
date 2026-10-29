@@ -5,7 +5,7 @@ import { DashboardService } from "@/modules/dashboard/dashboard.service";
 export async function GET() {
   try {
     const { user, workspace } = await getCurrentWorkspace();
-    const data = await DashboardService.getDashboardData(user.id, workspace.id);
+    const data = await DashboardService.getDashboardData(user.id, workspace.id, user);
 
     return NextResponse.json({
       data,

@@ -6,6 +6,7 @@ import {
   ExportSequenceOptions,
 } from "./prompt-engine.schema";
 import { PromptEngineService } from "./prompt-engine.service";
+import { formatPromptToPlainText } from "./format-plain-text";
 
 export interface UnifiedPromptHistoryItem {
   id: string;
@@ -145,7 +146,9 @@ export class PromptHistoryService {
           versionNumber: snapshot.versionNumber || 1,
           status: "SUCCEEDED",
           outputJson: v.outputJson,
-          outputText: v.outputText,
+          outputText:
+            v.outputText ||
+            (v.outputJson ? formatPromptToPlainText(v.templateKey, v.outputJson) : null),
           tokens: techMeta.tokens || null,
           durationMs: techMeta.durationMs || null,
           parentVersionId: snapshot.parentVersionId || null,
@@ -287,11 +290,16 @@ export class PromptHistoryService {
       }
     }
 
+    const textA =
+      vA.outputText || (vA.outputJson ? formatPromptToPlainText(vA.templateKey, vA.outputJson) : "");
+    const textB =
+      vB.outputText || (vB.outputJson ? formatPromptToPlainText(vB.templateKey, vB.outputJson) : "");
+
     const isIdentical =
       addedKeys.length === 0 &&
       removedKeys.length === 0 &&
       modifiedKeys.length === 0 &&
-      (vA.outputText || "") === (vB.outputText || "");
+      (textA || "") === (textB || "");
 
     return {
       versionA: {
@@ -301,7 +309,7 @@ export class PromptHistoryService {
         targetTool: vA.targetTool,
         modelName: vA.modelName,
         createdAt: vA.createdAt.toISOString(),
-        outputText: vA.outputText,
+        outputText: textA,
         outputJson: vA.outputJson,
         parameters: paramsA,
       },
@@ -312,7 +320,7 @@ export class PromptHistoryService {
         targetTool: vB.targetTool,
         modelName: vB.modelName,
         createdAt: vB.createdAt.toISOString(),
-        outputText: vB.outputText,
+        outputText: textB,
         outputJson: vB.outputJson,
         parameters: paramsB,
       },
@@ -327,8 +335,8 @@ export class PromptHistoryService {
         changed: changedParams,
       },
       textDiff: {
-        identical: (vA.outputText || "") === (vB.outputText || ""),
-        characterLengthDiff: (vB.outputText || "").length - (vA.outputText || "").length,
+        identical: textA === textB,
+        characterLengthDiff: (textB || "").length - (textA || "").length,
       },
       identical: isIdentical,
     };
@@ -381,11 +389,17 @@ export class PromptHistoryService {
     const snapshot = (version.inputSnapshot as any) || {};
     const techMeta = snapshot.technicalMetadata || {};
 
+    const formattedText =
+      version.outputText ||
+      (version.outputJson ? formatPromptToPlainText(version.templateKey, version.outputJson) : "");
+
     // Estrutura limpa sem dados confidenciais do servidor ou do banco
     return {
       tomadixVersion: "1.0",
       cinepromptStudioVersion: "1.0",
       exportTimestamp: new Date().toISOString(),
+      versionId: version.id,
+      versionNumber: snapshot.versionNumber || 1,
       project: {
         id: project.id,
         title: project.title,
@@ -397,16 +411,23 @@ export class PromptHistoryService {
         version: version.templateVersion,
       },
       targetTool: version.targetTool,
-      versionNumber: snapshot.versionNumber || 1,
-      parentVersionId: snapshot.parentVersionId || null,
-      compiledPromptText: version.outputText || null,
+      modelName: version.modelName,
+      createdAt: version.createdAt.toISOString(),
+      outputText: formattedText,
+      formattedText,
+      compiledPromptText: formattedText,
       promptStructuredJson: version.outputJson,
+      outputJson: version.outputJson,
+      parametersSnapshot: snapshot.resolvedParameters || {},
+      scene: version.scene || null,
+      parentVersionId: snapshot.parentVersionId || null,
       contextSnapshot: {
         parameters: snapshot.resolvedParameters || {},
         directorInstructions: snapshot.customInstructions || null,
         sceneTitle: snapshot.sceneTitle || version.scene?.title || null,
         characterName: snapshot.characterName || null,
         environmentName: snapshot.environmentName || null,
+        elementsSnapshot: snapshot.elementsSnapshot || {},
       },
       technicalMetadata: {
         model: version.modelName,
@@ -537,6 +558,7 @@ export class PromptHistoryService {
       scenes: sequenceItems,
     };
   }
+
 
   /**
    * 9. Exibe os erros de geração registrados para o projeto.

@@ -1,0 +1,440 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="pt-BR"><head><meta charset="utf-8"/><meta content="width=device-width, initial-scale=1.0" name="viewport"/><meta content="web_standard" name="shell-type"/><title>Tomadix</title><link href="https://fonts.googleapis.com" rel="preconnect"/><link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&amp;family=JetBrains+Mono:wght@500&amp;family=Plus+Jakarta+Sans:wght@600;700&amp;display=swap" rel="stylesheet"/><link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/><style>@layer base{html,body{margin:0;padding:0;}body{overscroll-behavior:none;}main>:first-child{margin-top:0!important;}main>:last-child{margin-bottom:0!important;}}::-webkit-scrollbar{display:none;}</style><script src="https://cdn.tailwindcss.com"></script><script id="tailwind-config">tailwind.config={darkMode:"class",theme:{extend:{colors:{"surface-container-lowest":"#0b0f13","on-secondary-fixed-variant":"#0b513d","secondary-fixed-dim":"#95d3ba","on-tertiary-fixed-variant":"#00513a","inverse-surface":"#e0e3e8","on-secondary-fixed":"#002117","surface-container-low":"#181c20","inverse-on-surface":"#2d3135","primary":"#4edea3","inverse-primary":"#006c49","error":"#ffb4ab","surface":"#101418","surface-bright":"#363a3e","secondary-container":"#0b513d","primary-fixed":"#6ffbbe","on-primary-container":"#00422b","tertiary-fixed-dim":"#62dcad","on-surface":"#e0e3e8","on-secondary":"#003829","error-container":"#93000a","background":"#101418","on-background":"#e0e3e8","on-tertiary-fixed":"#002115","outline":"#86948a","secondary-fixed":"#b0f0d6","on-tertiary":"#003827","surface-container-high":"#262a2f","on-primary":"#003824","secondary":"#95d3ba","on-primary-fixed":"#002113","surface-container":"#1c2024","surface-dim":"#101418","outline-variant":"#3c4a42","on-surface-variant":"#bbcabf","primary-fixed-dim":"#4edea3","tertiary":"#62dcad","surface-tint":"#4edea3","tertiary-container":"#37b78a","surface-container-highest":"#31353a","on-primary-fixed-variant":"#005236","on-error":"#690005","surface-variant":"#31353a","tertiary-fixed":"#80f9c8","on-secondary-container":"#83c2a9","primary-container":"#10b981","on-tertiary-container":"#00422e","on-error-container":"#ffdad6"},borderRadius:{"DEFAULT":"0.25rem","lg":"0.5rem","xl":"0.75rem","full":"9999px"},spacing:{"space-xl":"2.25rem","space-lg":"1.5rem","margin-desktop":"3rem","space-xs":"0.25rem","space-md":"0.875rem","margin":"1.5rem","gutter":"1.25rem","space-sm":"0.5rem","space-2xl":"3.5rem","gutter-lg":"1.75rem"},fontFamily:{"headline-lg":["Plus Jakarta Sans"],"display-hero":["Plus Jakarta Sans"],"display-hero-mobile":["Plus Jakarta Sans"],"body-md":["Inter"],"label-caps":["Plus Jakarta Sans"],"body-lg":["Inter"],"body-sm":["Inter"],"headline-md":["Plus Jakarta Sans"],"label-code":["JetBrains Mono"],"headline-sm":["Plus Jakarta Sans"]},fontSize:{"headline-lg":["28px",{"lineHeight":"36px","letterSpacing":"-0.02em","fontWeight":"600"}],"display-hero":["40px",{"lineHeight":"48px","letterSpacing":"-0.03em","fontWeight":"700"}],"display-hero-mobile":["28px",{"lineHeight":"36px","letterSpacing":"-0.02em","fontWeight":"700"}],"body-md":["13px",{"lineHeight":"20px","letterSpacing":"-0.005em","fontWeight":"400"}],"label-caps":["11px",{"lineHeight":"14px","letterSpacing":"0.08em","fontWeight":"700"}],"body-lg":["15px",{"lineHeight":"24px","letterSpacing":"-0.01em","fontWeight":"400"}],"body-sm":["12px",{"lineHeight":"18px","letterSpacing":"0em","fontWeight":"400"}],"headline-md":["20px",{"lineHeight":"28px","letterSpacing":"-0.015em","fontWeight":"600"}],"label-code":["11px",{"lineHeight":"16px","letterSpacing":"0.04em","fontWeight":"500"}],"headline-sm":["16px",{"lineHeight":"24px","letterSpacing":"-0.01em","fontWeight":"600"}]}}}};</script></head><body class="bg-surface font-body-md text-on-surface antialiased min-h-screen"><header class="fixed top-0 left-0 right-0 z-50 bg-surface/80 backdrop-blur-xl border-b border-outline-variant/30"><div class="h-16 w-full px-gutter-lg flex items-center justify-between gap-space-lg"><div class="flex items-center gap-space-xl"><div class="flex items-center gap-space-sm"><img alt="Tomadix Logo" class="h-8 w-auto object-contain" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAaOZP8qODzhUC32LvwijZMOFOAivo4pCQqQ9wLaGwnr3wUXMCBJqbW7zv_T_Ycw922-bllvbUxPzvPIqmhxqCa4GtCWbOJo90uyPjjUJp1LczRHGVjyutTMrZuZT-UGzqvVFybFr-J6NErxK0N9Mp2w3reBs0w1O_5XlPMRqHYEePSoamKryWRcyQ_gGz2vKmG32bz4tsQSgypDQ6u_nJea2RYhDXOKS-LVOlJBhve"/><span class="font-headline-sm text-headline-sm tracking-wider uppercase text-on-surface">TOMADIX</span></div><div class="hidden xl:flex items-center gap-space-xs pl-space-md py-space-xs bg-surface-container-low rounded-lg border border-outline-variant/40"><div class="flex items-center gap-space-xs px-space-xs"><span class="material-symbols-outlined text-primary text-[18px]">movie_filter</span><span class="font-body-sm text-body-sm text-on-surface font-semibold">ibitWeb Studio</span><span class="font-label-caps text-label-caps bg-secondary-container text-on-secondary-container px-space-xs py-0.5 rounded-full uppercase">OWNER</span></div><button class="p-1 text-on-surface-variant hover:text-on-surface flex items-center"><span class="material-symbols-outlined text-[16px]">expand_more</span></button></div></div><nav class="hidden md:flex items-center gap-space-xs p-1 bg-surface-container-lowest/60 rounded-xl border border-outline-variant/20" data-active-classes="bg-surface-container-high text-primary font-semibold rounded-lg shadow-[0_0_12px_rgba(78,222,163,0.15)]"><a class="px-space-md py-space-xs font-body-sm text-body-sm text-on-surface-variant hover:text-on-surface transition-colors" data-path="estudio" href="#">Estúdio</a><a class="px-space-md py-space-xs font-body-sm text-body-sm text-on-surface-variant hover:text-on-surface transition-colors" data-path="projetos" href="#">Projetos</a><a class="px-space-md py-space-xs font-body-sm text-body-sm text-on-surface-variant hover:text-on-surface transition-colors" data-path="parametros" href="#">Parâmetros</a><a class="px-space-md py-space-xs font-body-sm text-body-sm text-on-surface-variant hover:text-on-surface transition-colors" data-path="dashboard" href="#">Dashboard</a><a class="px-space-md py-space-xs font-body-sm text-body-sm text-on-surface-variant hover:text-on-surface transition-colors" data-path="planos" href="#">Planos</a></nav><div class="flex items-center gap-space-md"><div class="hidden lg:flex items-center gap-space-xs"><a class="px-space-sm py-1 font-body-sm text-body-sm text-on-surface-variant hover:text-on-surface transition-colors" data-path="equipe" href="#">Equipe</a><a class="px-space-sm py-1 font-body-sm text-body-sm text-on-surface-variant hover:text-on-surface transition-colors" data-path="assinatura" href="#">Assinatura</a><a class="px-space-sm py-1 font-body-sm text-body-sm text-on-surface-variant hover:text-on-surface transition-colors" data-path="perfil-estudio" href="#">Perfil &amp; Estúdio</a></div><div class="h-4 w-[1px] bg-outline-variant/40 hidden lg:block"></div><div class="relative flex items-center gap-space-sm"><div class="w-8 h-8 rounded-full bg-primary flex items-center justify-center"><span class="material-symbols-outlined text-on-primary text-[18px]">person</span></div><span class="absolute top-0 right-0 w-2.5 h-2.5 rounded-full bg-primary ring-2 ring-surface"></span></div><button class="p-1.5 text-on-surface-variant hover:text-error hover:bg-surface-container-high rounded-lg transition-colors" title="Sair do estúdio"><span class="material-symbols-outlined text-[20px]">logout</span></button></div></div></header><main class="w-full pt-16 bg-surface min-h-[calc(100vh-4rem)]"><div class="flex flex-col w-full relative min-h-full pb-36">
+<!-- Subtle Cinematic Ambient Glow -->
+<div class="pointer-events-none absolute top-0 left-1/2 -translate-x-1/2 w-3/4 max-w-5xl h-96 bg-primary/5 blur-[120px] rounded-full"></div>
+<div class="w-full max-w-7xl mx-auto px-margin md:px-margin-desktop py-space-xl relative z-10 flex flex-col gap-space-xl">
+<!-- Top Header & Breadcrumbs / Actions -->
+<div class="flex flex-col lg:flex-row lg:items-end justify-between gap-space-lg">
+<div class="flex flex-col gap-space-xs max-w-3xl">
+<div class="inline-flex items-center gap-space-xs w-fit px-space-md py-1 rounded-full bg-surface-container-high/80 backdrop-blur-md shadow-sm">
+<span class="w-2 h-2 rounded-full bg-primary animate-pulse shadow-[0_0_8px_rgba(78,222,163,0.8)]"></span>
+<span class="font-label-caps text-label-caps text-primary tracking-widest uppercase">Estúdio Visual v2.0 • IA Integrada</span>
+</div>
+<h1 class="font-display-hero text-display-hero tracking-tight text-on-surface">
+          Galeria Cinematográfica <span class="text-primary font-display-hero text-display-hero">&amp; Hub de IA</span>
+</h1>
+<p class="font-body-lg text-body-lg text-on-surface-variant leading-relaxed">
+          Crie projetos, personagens, cenários e cenas com parâmetros cinematográficos dinâmicos e geração assistida de prompts JSON em tempo real.
+        </p>
+</div>
+<!-- Action Cluster -->
+<div class="flex items-center gap-space-sm self-start lg:self-end shrink-0">
+<button class="px-space-md py-space-xs rounded-xl bg-surface-container-high/60 hover:bg-surface-container-high text-on-surface transition-all flex items-center gap-space-xs shadow-sm group">
+<span class="material-symbols-outlined text-[18px] text-on-surface-variant group-hover:text-primary transition-colors">history_edu</span>
+<span class="font-body-sm text-body-sm font-semibold">Projetos Clássicos</span>
+</button>
+<button class="px-space-md py-space-xs rounded-xl bg-surface-container-high/60 hover:bg-surface-container-high text-on-surface transition-all flex items-center gap-space-xs shadow-sm group">
+<span class="material-symbols-outlined text-[18px] text-on-surface-variant group-hover:text-secondary transition-colors">video_library</span>
+<span class="font-body-sm text-body-sm font-semibold">Biblioteca Visual</span>
+</button>
+</div>
+</div>
+<!-- Filter Bar & Search Layer -->
+<div class="flex flex-col md:flex-row items-stretch md:items-center justify-between gap-space-md bg-surface-container-lowest/80 backdrop-blur-xl p-space-xs rounded-2xl shadow-sm">
+<!-- Filter Chips -->
+<div class="flex items-center gap-1.5 overflow-x-auto py-1 px-1" id="filter-container">
+<button class="filter-chip px-space-md py-1.5 rounded-xl bg-primary text-on-primary font-body-sm text-body-sm font-semibold shadow-sm flex items-center gap-space-xs whitespace-nowrap transition-all" data-filter="all">
+<span class="material-symbols-outlined text-[16px]">grid_view</span>
+<span>Todos (5)</span>
+</button>
+<button class="filter-chip px-space-md py-1.5 rounded-xl bg-surface-container-high/40 hover:bg-surface-container-high text-on-surface-variant hover:text-on-surface font-body-sm text-body-sm transition-all flex items-center gap-space-xs whitespace-nowrap" data-filter="projeto">
+<span class="w-1.5 h-1.5 rounded-full bg-primary"></span>
+<span>Projetos</span>
+</button>
+<button class="filter-chip px-space-md py-1.5 rounded-xl bg-surface-container-high/40 hover:bg-surface-container-high text-on-surface-variant hover:text-on-surface font-body-sm text-body-sm transition-all flex items-center gap-space-xs whitespace-nowrap" data-filter="personagem">
+<span class="w-1.5 h-1.5 rounded-full bg-secondary"></span>
+<span>Personagens</span>
+</button>
+<button class="filter-chip px-space-md py-1.5 rounded-xl bg-surface-container-high/40 hover:bg-surface-container-high text-on-surface-variant hover:text-on-surface font-body-sm text-body-sm transition-all flex items-center gap-space-xs whitespace-nowrap" data-filter="ambiente">
+<span class="w-1.5 h-1.5 rounded-full bg-tertiary"></span>
+<span>Ambientes</span>
+</button>
+<button class="filter-chip px-space-md py-1.5 rounded-xl bg-surface-container-high/40 hover:bg-surface-container-high text-on-surface-variant hover:text-on-surface font-body-sm text-body-sm transition-all flex items-center gap-space-xs whitespace-nowrap" data-filter="cena">
+<span class="w-1.5 h-1.5 rounded-full bg-primary-fixed"></span>
+<span>Cenas</span>
+</button>
+<button class="filter-chip px-space-md py-1.5 rounded-xl bg-surface-container-high/40 hover:bg-surface-container-high text-on-surface-variant hover:text-on-surface font-body-sm text-body-sm transition-all flex items-center gap-space-xs whitespace-nowrap" data-filter="prompt">
+<span class="w-1.5 h-1.5 rounded-full bg-secondary-fixed"></span>
+<span>Prompts IA</span>
+</button>
+</div>
+<!-- Search & Sorting cluster -->
+<div class="flex items-center gap-space-xs px-1 shrink-0">
+<div class="relative flex-1 md:w-64">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant text-[18px]">search</span>
+<input class="w-full bg-surface-container-high/40 focus:bg-surface-container-high text-on-surface pl-9 pr-12 py-1.5 rounded-xl text-body-sm font-body-sm placeholder:text-on-surface-variant/60 focus:outline-none focus:ring-1 focus:ring-primary transition-all" placeholder="Buscar ativos ou tags..." type="text"/>
+<span class="absolute right-2.5 top-1/2 -translate-y-1/2 px-1.5 py-0.5 rounded bg-surface-container text-on-surface-variant font-label-code text-label-code opacity-75">⌘K</span>
+</div>
+<div class="relative">
+<button class="px-space-md py-1.5 rounded-xl bg-surface-container-high/40 hover:bg-surface-container-high text-on-surface flex items-center gap-space-xs text-body-sm font-body-sm font-medium transition-all shadow-sm">
+<span>Mais Recentes</span>
+<span class="material-symbols-outlined text-[16px] text-on-surface-variant">arrow_drop_down</span>
+</button>
+</div>
+</div>
+</div>
+<!-- Active Count Indicator -->
+<div class="flex items-center justify-between px-space-xs">
+<div class="flex items-center gap-space-xs font-body-sm text-body-sm text-on-surface-variant">
+<span>Mostrando <span class="text-on-surface font-semibold font-label-code text-label-code">5</span> ativos cinematográficos sincronizados</span>
+<span class="text-outline-variant">•</span>
+<span class="text-primary font-label-code text-label-code">Cache Studio Ok</span>
+</div>
+<div class="hidden sm:flex items-center gap-space-sm text-on-surface-variant font-label-code text-label-code">
+<span>MODO GRID 3x2</span>
+</div>
+</div>
+<!-- Gallery Grid -->
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-space-lg" id="gallery-grid">
+<!-- CARD 1: Prompt IA (google_flow) -->
+<article class="group relative flex flex-col rounded-2xl bg-surface-container-low/70 hover:bg-surface-container-low backdrop-blur-md transition-all duration-300 hover:-translate-y-1 shadow-lg hover:shadow-2xl overflow-hidden" data-category="prompt">
+<div class="relative h-48 w-full bg-surface-container-lowest overflow-hidden flex items-center justify-center">
+<img class="w-full h-full object-cover opacity-80 group-hover:scale-105 transition-transform duration-700" data-alt="Futuristic neon metropolis aerial drone shot tilted downwards with volumetric fog, holographic teal and emerald billboards, cinematic film grain, dark cyberpunk tones and hyper-realistic camera angles." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAF6gQhaqsbIhggr1H44iTemXzP8i_I-wCI3aokEWl07TVF4oL9OX6nD_FInIkBWJC8FtnXskfrlbddZzrIcKT6XNZLVB2pcoOkB-VRtLPFHeW0fNOukIjHSGdgl2mkiJGVCh6v_PCh8tJN8UQxcdg9DyfC4P6EFNx2qiyTLlTQmYeEiH2tiCxXAMGA1m8T6amPL4FBtUpyzLw15oOAh4impbCYtRuhABNZkkW8UxX9"/>
+<div class="absolute inset-0 bg-gradient-to-t from-surface-container-low via-transparent to-black/40"></div>
+<div class="absolute top-3 left-3 flex items-center gap-space-xs">
+<span class="px-2.5 py-1 rounded-lg bg-surface-container-lowest/80 backdrop-blur-md text-primary font-label-code text-label-code uppercase tracking-wider flex items-center gap-1 shadow-sm">
+<span class="material-symbols-outlined text-[14px]">auto_awesome</span>
+              google_flow
+            </span>
+</div>
+<div class="absolute top-3 right-3 text-on-surface-variant font-label-code text-label-code bg-surface-container-lowest/60 px-2 py-0.5 rounded-md backdrop-blur-sm">
+            26 de out.
+          </div>
+<div class="absolute bottom-3 left-3 right-3 flex items-center justify-between">
+<span class="text-on-surface-variant font-label-caps text-label-caps uppercase tracking-wider bg-surface-container-high/80 px-2 py-0.5 rounded backdrop-blur-sm">
+              Comercial Tomadix
+            </span>
+<span class="material-symbols-outlined text-primary text-[20px] opacity-75">terminal</span>
+</div>
+</div>
+<div class="p-space-lg flex flex-col flex-1 justify-between gap-space-md">
+<div class="flex flex-col gap-space-xs">
+<h2 class="font-headline-sm text-headline-sm text-on-surface group-hover:text-primary transition-colors">
+              Prompt v1 — google_flow
+            </h2>
+<div class="p-space-sm rounded-xl bg-surface-container-lowest/90 font-label-code text-label-code text-on-surface-variant leading-relaxed line-clamp-3">
+              "High altitude drone shot descending rapidly in a vertical tilt-down camera movement over a futuristic neon city with anamorphic lens flares and dense mist..."
+            </div>
+</div>
+<div class="pt-space-sm flex items-center justify-between bg-surface-container-lowest/30 -mx-space-lg -mb-space-lg p-space-md">
+<div class="flex items-center gap-1.5 font-label-code text-label-code text-secondary">
+<span class="w-1.5 h-1.5 rounded-full bg-secondary"></span>
+<span>gemini-1.5-flash</span>
+</div>
+<button class="px-space-md py-1.5 rounded-xl bg-surface-container-high hover:bg-primary text-on-surface hover:text-on-primary font-body-sm text-body-sm font-semibold transition-all flex items-center gap-1">
+<span>Abrir</span>
+<span class="material-symbols-outlined text-[16px]">arrow_forward</span>
+</button>
+</div>
+</div>
+</article>
+<!-- CARD 2: Cena #1 (A apresentação do Ibit) -->
+<article class="group relative flex flex-col rounded-2xl bg-surface-container-low/70 hover:bg-surface-container-low backdrop-blur-md transition-all duration-300 hover:-translate-y-1 shadow-lg hover:shadow-2xl overflow-hidden" data-category="cena">
+<div class="relative h-48 w-full bg-surface-container-lowest overflow-hidden flex items-center justify-center">
+<img class="w-full h-full object-cover opacity-80 group-hover:scale-105 transition-transform duration-700" data-alt="Cinematic frame composition with 2.39 to 1 aspect ratio, wide lens capture of futuristic metropolitan skyway in Brazil, atmospheric morning rain and flying vehicles, cinematic graded emerald and teal lighting." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDoMLPotAyqRkSW9Suwipj2E89IlCUL_8KBzZx8hKh_9Eto0qw6Jm-ZOrWe6FqdsH4K6vMgbydwwjwIzwIatlKL3JssKp0vJqKi4Pbc_esdMclJ7DAbXFhNwxYfutV64vD91sAz44HNGD2qW2gqw9jggVpom8TXJkTenbH1L1eOFhlL2ThXJpyfDtxzkMfwjon83QDdRFOGMEUsQb-x_poRSM1Vh9vKQQV7HSBMoz2p"/>
+<div class="absolute inset-0 bg-gradient-to-t from-surface-container-low via-transparent to-black/40"></div>
+<div class="absolute top-3 left-3 flex items-center gap-space-xs">
+<span class="px-2.5 py-1 rounded-lg bg-surface-container-lowest/80 backdrop-blur-md text-tertiary font-label-code text-label-code uppercase tracking-wider flex items-center gap-1 shadow-sm">
+<span class="material-symbols-outlined text-[14px]">movie</span>
+              Cena #1
+            </span>
+</div>
+<div class="absolute top-3 right-3 text-on-surface-variant font-label-code text-label-code bg-surface-container-lowest/60 px-2 py-0.5 rounded-md backdrop-blur-sm">
+            26 de out.
+          </div>
+<div class="absolute bottom-3 left-3 right-3 flex items-center justify-between">
+<span class="text-on-surface-variant font-label-caps text-label-caps uppercase tracking-wider bg-surface-container-high/80 px-2 py-0.5 rounded backdrop-blur-sm">
+              Comercial Tomadix
+            </span>
+<div class="flex items-center gap-1 bg-surface-container-high/90 px-2 py-0.5 rounded text-on-surface font-label-code text-label-code">
+<span class="material-symbols-outlined text-[14px] text-tertiary">timer</span>
+              10s
+            </div>
+</div>
+</div>
+<div class="p-space-lg flex flex-col flex-1 justify-between gap-space-md">
+<div class="flex flex-col gap-space-xs">
+<h2 class="font-headline-sm text-headline-sm text-on-surface group-hover:text-primary transition-colors">
+              A apresentação do Ibit
+            </h2>
+<p class="font-body-sm text-body-sm text-on-surface-variant line-clamp-3 leading-relaxed">
+              A cena começa com a visão aérea da cidade, em movimento suave e contínuo como se fosse filmada por um drone cinematográfico de alta precisão revelando a base tecnológica.
+            </p>
+</div>
+<div class="pt-space-sm flex items-center justify-between bg-surface-container-lowest/30 -mx-space-lg -mb-space-lg p-space-md">
+<div class="flex items-center gap-1.5 font-label-code text-label-code text-on-surface-variant">
+<span class="material-symbols-outlined text-[16px] text-primary">videocam</span>
+<span>10s • Brasil Futurista</span>
+</div>
+<button class="px-space-md py-1.5 rounded-xl bg-surface-container-high hover:bg-primary text-on-surface hover:text-on-primary font-body-sm text-body-sm font-semibold transition-all flex items-center gap-1">
+<span>Abrir</span>
+<span class="material-symbols-outlined text-[16px]">arrow_forward</span>
+</button>
+</div>
+</div>
+</article>
+<!-- CARD 3: Ambiente (Brasil Futurista cyberpunk) -->
+<article class="group relative flex flex-col rounded-2xl bg-surface-container-low/70 hover:bg-surface-container-low backdrop-blur-md transition-all duration-300 hover:-translate-y-1 shadow-lg hover:shadow-2xl overflow-hidden" data-category="ambiente">
+<div class="relative h-48 w-full bg-surface-container-lowest overflow-hidden flex items-center justify-center">
+<img class="w-full h-full object-cover opacity-80 group-hover:scale-105 transition-transform duration-700" data-alt="Futuristic cyber city set in a lush Brazilian valley, Gov Valadares futuristic skyline with solar towers, monorails, night sky with deep emerald aurora borealis and sleek reflections on wet surfaces." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBjXV_FppE_fs2G-VVBgSbXLwDtxmVQXT6IaVoyAF32JCiHLgMLWVaqvPoy8SfldkuW0CnHpauV9F6om85Y3avNDZzZ0-x1W0976QlmfpVcEeu5V79JzgixdFZqUSYq_3NRLqx55xbexiAfjIpck_oqpoV9AQLXIWukp_aDK4TiADqiJp96q4iSD5csqo7axG28M0iiduH2YoxgoFRaHB7hOQ7vOzqfPSjBhqoy9qAx"/>
+<div class="absolute inset-0 bg-gradient-to-t from-surface-container-low via-transparent to-black/40"></div>
+<div class="absolute top-3 left-3 flex items-center gap-space-xs">
+<span class="px-2.5 py-1 rounded-lg bg-surface-container-lowest/80 backdrop-blur-md text-secondary-fixed-dim font-label-code text-label-code uppercase tracking-wider flex items-center gap-1 shadow-sm">
+<span class="material-symbols-outlined text-[14px]">landscape</span>
+              Ambiente
+            </span>
+</div>
+<div class="absolute top-3 right-3 text-on-surface-variant font-label-code text-label-code bg-surface-container-lowest/60 px-2 py-0.5 rounded-md backdrop-blur-sm">
+            26 de out.
+          </div>
+<div class="absolute bottom-3 left-3 right-3 flex items-center justify-between">
+<span class="text-on-surface-variant font-label-caps text-label-caps uppercase tracking-wider bg-surface-container-high/80 px-2 py-0.5 rounded backdrop-blur-sm">
+              Comercial Tomadix
+            </span>
+<span class="material-symbols-outlined text-secondary text-[20px] opacity-75">wb_twilight</span>
+</div>
+</div>
+<div class="p-space-lg flex flex-col flex-1 justify-between gap-space-md">
+<div class="flex flex-col gap-space-xs">
+<h2 class="font-headline-sm text-headline-sm text-on-surface group-hover:text-primary transition-colors">
+              Brasil Futurista cyberpunk
+            </h2>
+<p class="font-body-sm text-body-sm text-on-surface-variant line-clamp-3 leading-relaxed">
+              A Cidade de Governador Valadares/MG mas em um cenário totalmente futurista e tecnológico, com pontes de luz pulsante e estética solar-punk avançada.
+            </p>
+</div>
+<div class="pt-space-sm flex items-center justify-between bg-surface-container-lowest/30 -mx-space-lg -mb-space-lg p-space-md">
+<div class="flex items-center gap-1.5 font-label-code text-label-code text-on-surface-variant">
+<span class="w-1.5 h-1.5 rounded-full bg-secondary"></span>
+<span>1 tomada no cenário</span>
+</div>
+<button class="px-space-md py-1.5 rounded-xl bg-surface-container-high hover:bg-primary text-on-surface hover:text-on-primary font-body-sm text-body-sm font-semibold transition-all flex items-center gap-1">
+<span>Abrir</span>
+<span class="material-symbols-outlined text-[16px]">arrow_forward</span>
+</button>
+</div>
+</div>
+</article>
+<!-- CARD 4: Personagem (Ibit — Protagonista) -->
+<article class="group relative flex flex-col rounded-2xl bg-surface-container-low/70 hover:bg-surface-container-low backdrop-blur-md transition-all duration-300 hover:-translate-y-1 shadow-lg hover:shadow-2xl overflow-hidden" data-category="personagem">
+<div class="relative h-48 w-full bg-surface-container-lowest overflow-hidden flex items-center justify-center">
+<img class="w-full h-full object-cover opacity-80 group-hover:scale-105 transition-transform duration-700" data-alt="High detail portrait of an empathetic android robot character named Ibit, sleek matte dark obsidian casing, gentle glowing emerald optical visor, studio rim lighting, cinematic depth of field." src="https://lh3.googleusercontent.com/aida-public/AB6AXuC3m3U0DPZCILwM7iQ1L6CkV501SGY606LgqDzgGFASXZ-m1XGqxWqb3rNR8vKHMFpxW_XnFCm2Sfq3tgaKVY0LT8h_NBOeYcNEFey2sKQhxmfwpXortcnF--du82fWn0YN_sD2k_-0IDBIZUtX_YYqtOvrlRqnZDGVAXNBQMOqXVyHs6jFLJdvGc9zvvtItP1XmWnViSRrKgPTXfqR0FKgiqSXl2k6vA54wq_48FkB"/>
+<div class="absolute inset-0 bg-gradient-to-t from-surface-container-low via-transparent to-black/40"></div>
+<div class="absolute top-3 left-3 flex items-center gap-space-xs">
+<span class="px-2.5 py-1 rounded-lg bg-surface-container-lowest/80 backdrop-blur-md text-secondary font-label-code text-label-code uppercase tracking-wider flex items-center gap-1 shadow-sm">
+<span class="material-symbols-outlined text-[14px]">face</span>
+              Personagem
+            </span>
+</div>
+<div class="absolute top-3 right-3 text-on-surface-variant font-label-code text-label-code bg-surface-container-lowest/60 px-2 py-0.5 rounded-md backdrop-blur-sm">
+            26 de out.
+          </div>
+<div class="absolute bottom-3 left-3 right-3 flex items-center justify-between">
+<span class="text-on-surface-variant font-label-caps text-label-caps uppercase tracking-wider bg-surface-container-high/80 px-2 py-0.5 rounded backdrop-blur-sm">
+              Comercial Tomadix
+            </span>
+<span class="material-symbols-outlined text-secondary text-[20px] opacity-75">smart_toy</span>
+</div>
+</div>
+<div class="p-space-lg flex flex-col flex-1 justify-between gap-space-md">
+<div class="flex flex-col gap-space-xs">
+<h2 class="font-headline-sm text-headline-sm text-on-surface group-hover:text-primary transition-colors">
+              Ibit — Protagonista
+            </h2>
+<p class="font-body-sm text-body-sm text-on-surface-variant line-clamp-3 leading-relaxed">
+              Ibit é um robô humanoide que domina o mundo virtual e tecnológico. Ele é a representação física da inteligência cinematográfica generativa, veloz e elegante.
+            </p>
+</div>
+<div class="pt-space-sm flex items-center justify-between bg-surface-container-lowest/30 -mx-space-lg -mb-space-lg p-space-md">
+<div class="flex items-center gap-1.5 font-label-code text-label-code text-on-surface-variant">
+<span class="material-symbols-outlined text-[16px] text-secondary">movie_creation</span>
+<span>1 cena vinculada</span>
+</div>
+<button class="px-space-md py-1.5 rounded-xl bg-surface-container-high hover:bg-primary text-on-surface hover:text-on-primary font-body-sm text-body-sm font-semibold transition-all flex items-center gap-1">
+<span>Abrir</span>
+<span class="material-symbols-outlined text-[16px]">arrow_forward</span>
+</button>
+</div>
+</div>
+</article>
+<!-- CARD 5: Projeto (Comercial Tomadix) -->
+<article class="group relative flex flex-col rounded-2xl bg-surface-container-low/70 hover:bg-surface-container-low backdrop-blur-md transition-all duration-300 hover:-translate-y-1 shadow-lg hover:shadow-2xl overflow-hidden" data-category="projeto">
+<div class="relative h-48 w-full bg-surface-container-lowest overflow-hidden flex items-center justify-center">
+<img class="w-full h-full object-cover opacity-80 group-hover:scale-105 transition-transform duration-700" data-alt="Film production clapboard with high tech LED status screens, set on an editing console board surrounded by soft glowing studio screens with scripts and cinematic timelines." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCi79-3jI0DtlOSXM3G655SgfFmqCq-fH1L9S1owUAwV80AgUXqtUZeTTnE6nJGRaQ4ZagSbF53K8E3jJGjFZ-XuSUA0Q_g71irzC7iAHvT9rQBUccV7JUJQ9TrX-RdN4Dw0igS-rAwkA8AdybhBPGjBTlD4v0L_7-f7W81kbTwlK4PiO6xVRh86htv5w_U0K5-harTH7TUlSiMcBwP67CfJDJkc21Nc5PP96WQ5QXD"/>
+<div class="absolute inset-0 bg-gradient-to-t from-surface-container-low via-transparent to-black/40"></div>
+<div class="absolute top-3 left-3 flex items-center gap-space-xs">
+<span class="px-2.5 py-1 rounded-lg bg-surface-container-lowest/80 backdrop-blur-md text-primary font-label-code text-label-code uppercase tracking-wider flex items-center gap-1 shadow-sm">
+<span class="material-symbols-outlined text-[14px]">movie_filter</span>
+              Projeto Principal
+            </span>
+</div>
+<div class="absolute top-3 right-3 text-on-surface-variant font-label-code text-label-code bg-surface-container-lowest/60 px-2 py-0.5 rounded-md backdrop-blur-sm">
+            26 de out.
+          </div>
+<div class="absolute bottom-3 left-3 right-3 flex items-center justify-between">
+<span class="text-primary font-label-caps text-label-caps uppercase tracking-wider bg-surface-container-high/80 px-2 py-0.5 rounded backdrop-blur-sm">
+              STATUS ATIVO
+            </span>
+<span class="material-symbols-outlined text-primary text-[20px] opacity-75">folder_special</span>
+</div>
+</div>
+<div class="p-space-lg flex flex-col flex-1 justify-between gap-space-md">
+<div class="flex flex-col gap-space-xs">
+<h2 class="font-headline-sm text-headline-sm text-on-surface group-hover:text-primary transition-colors">
+              Comercial Tomadix
+            </h2>
+<p class="font-body-sm text-body-sm text-on-surface-variant line-clamp-3 leading-relaxed">
+              Produção institucional cinematográfica completa para demonstrar as capacidades do Tomadix AI na orquestração de scripts, iluminação e rendering visual.
+            </p>
+</div>
+<div class="pt-space-sm flex items-center justify-between bg-surface-container-lowest/30 -mx-space-lg -mb-space-lg p-space-md">
+<div class="flex items-center gap-1.5 font-label-code text-label-code text-on-surface-variant">
+<span class="w-1.5 h-1.5 rounded-full bg-primary"></span>
+<span>1 cena • 1 personagem</span>
+</div>
+<button class="px-space-md py-1.5 rounded-xl bg-surface-container-high hover:bg-primary text-on-surface hover:text-on-primary font-body-sm text-body-sm font-semibold transition-all flex items-center gap-1">
+<span>Abrir</span>
+<span class="material-symbols-outlined text-[16px]">arrow_forward</span>
+</button>
+</div>
+</div>
+</article>
+<!-- CARD 6: Add Quick Slot / Visual Sandbox -->
+<div class="relative flex flex-col items-center justify-center p-space-xl rounded-2xl bg-surface-container-lowest/50 hover:bg-surface-container-low/60 border border-dashed border-outline-variant/40 hover:border-primary/50 transition-all duration-300 group cursor-pointer text-center min-h-[360px]" onclick="document.getElementById('quick-prompt-input').focus()">
+<div class="w-14 h-14 rounded-2xl bg-surface-container-high flex items-center justify-center mb-space-md group-hover:scale-110 group-hover:bg-primary transition-all duration-300 shadow-md">
+<span class="material-symbols-outlined text-primary group-hover:text-on-primary text-[28px] transition-colors">add</span>
+</div>
+<h3 class="font-headline-sm text-headline-sm text-on-surface mb-space-xs">Novo Elemento com IA</h3>
+<p class="font-body-sm text-body-sm text-on-surface-variant max-w-xs leading-relaxed">
+          Inicie um novo storyboard, personagem ou prompt cinematográfico usando a barra de comando abaixo.
+        </p>
+<span class="mt-space-md px-space-md py-1 rounded-full bg-surface-container-high text-primary font-label-code text-label-code uppercase tracking-wider">
+          Pressione ⌘ + Enter
+        </span>
+</div>
+</div>
+</div>
+<!-- FLOATING COMMAND PROMPT BAR (Raycast / Modern Studio AI Style) -->
+<div class="fixed bottom-6 left-1/2 -translate-x-1/2 w-full max-w-4xl px-4 z-40">
+<div class="p-2 sm:p-2.5 rounded-2xl bg-surface-container-lowest/90 backdrop-blur-2xl border border-outline-variant/30 shadow-[0_24px_60px_-12px_rgba(0,0,0,0.85),0_0_0_1px_rgba(78,222,163,0.15)] flex flex-col gap-2">
+<!-- Type Selectors -->
+<div class="flex items-center gap-1 px-1 overflow-x-auto" id="ai-entity-selectors">
+<button class="ai-tab px-space-sm py-1 rounded-lg bg-surface-container text-primary font-body-sm text-body-sm font-semibold flex items-center gap-1.5 transition-all" data-type="projeto">
+<span class="material-symbols-outlined text-[15px]">folder</span>
+<span>Projeto</span>
+</button>
+<button class="ai-tab px-space-sm py-1 rounded-lg hover:bg-surface-container text-on-surface-variant hover:text-on-surface font-body-sm text-body-sm flex items-center gap-1.5 transition-all" data-type="personagem">
+<span class="material-symbols-outlined text-[15px]">person</span>
+<span>Personagem</span>
+</button>
+<button class="ai-tab px-space-sm py-1 rounded-lg hover:bg-surface-container text-on-surface-variant hover:text-on-surface font-body-sm text-body-sm flex items-center gap-1.5 transition-all" data-type="ambiente">
+<span class="material-symbols-outlined text-[15px]">apartment</span>
+<span>Ambiente</span>
+</button>
+<button class="ai-tab px-space-sm py-1 rounded-lg hover:bg-surface-container text-on-surface-variant hover:text-on-surface font-body-sm text-body-sm flex items-center gap-1.5 transition-all" data-type="cena">
+<span class="material-symbols-outlined text-[15px]">movie</span>
+<span>Cena</span>
+</button>
+<button class="ai-tab px-space-sm py-1 rounded-lg hover:bg-surface-container text-on-surface-variant hover:text-on-surface font-body-sm text-body-sm flex items-center gap-1.5 transition-all" data-type="prompt">
+<span class="material-symbols-outlined text-[15px]">auto_awesome</span>
+<span>Prompt IA</span>
+</button>
+</div>
+<!-- Input row & Generate trigger -->
+<div class="flex items-center gap-space-sm pl-space-md pr-1.5 py-1 bg-surface-container-high/40 rounded-xl focus-within:bg-surface-container-high/80 focus-within:ring-1 focus-within:ring-primary/50 transition-all">
+<span class="material-symbols-outlined text-primary text-[20px] shrink-0 animate-pulse">spark</span>
+<input class="flex-1 bg-transparent text-on-surface text-body-sm font-body-sm placeholder:text-on-surface-variant/50 focus:outline-none min-w-0" id="quick-prompt-input" placeholder="Descreva a premissa, iluminação ou estilo da nova cena cinematográfica... (Ex: Cyberpunk noturno sob chuva reflexiva)" type="text"/>
+<div class="flex items-center gap-space-xs shrink-0">
+<button class="p-2 text-on-surface-variant hover:text-on-surface hover:bg-surface-container rounded-lg transition-colors hidden sm:flex" title="Parâmetros avançados">
+<span class="material-symbols-outlined text-[18px]">tune</span>
+</button>
+<button class="px-space-lg py-2 rounded-xl bg-primary hover:bg-primary-fixed text-on-primary font-headline-sm text-headline-sm font-bold shadow-[0_0_20px_rgba(78,222,163,0.35)] hover:shadow-[0_0_28px_rgba(78,222,163,0.55)] transition-all flex items-center gap-1.5 active:scale-95" id="generate-btn">
+<span>Criar com IA</span>
+<span class="material-symbols-outlined text-[18px]">bolt</span>
+</button>
+</div>
+</div>
+</div>
+</div>
+<!-- Interactive Logic -->
+<script>
+    (function() {
+      // 1. Filter Chip Toggle
+      const chips = document.querySelectorAll('.filter-chip');
+      const cards = document.querySelectorAll('#gallery-grid article');
+
+      chips.forEach(chip => {
+        chip.addEventListener('click', () => {
+          chips.forEach(c => {
+            c.classList.remove('bg-primary', 'text-on-primary', 'shadow-sm');
+            c.classList.add('bg-surface-container-high/40', 'text-on-surface-variant');
+          });
+          chip.classList.remove('bg-surface-container-high/40', 'text-on-surface-variant');
+          chip.classList.add('bg-primary', 'text-on-primary', 'shadow-sm');
+
+          const filter = chip.getAttribute('data-filter');
+          cards.forEach(card => {
+            if (filter === 'all' || card.getAttribute('data-category') === filter) {
+              card.style.display = 'flex';
+            } else {
+              card.style.display = 'none';
+            }
+          });
+        });
+      });
+
+      // 2. AI Command Bar Entity Switcher
+      const aiTabs = document.querySelectorAll('.ai-tab');
+      const input = document.getElementById('quick-prompt-input');
+
+      const placeholders = {
+        projeto: 'Descreva o tema do projeto, formato (curta, spot publicitário) e tom...',
+        personagem: 'Descreva a fisionomia, vestimenta, arquétipo e paleta do personagem...',
+        ambiente: 'Defina a locação, clima, lente (anamórfica 35mm), volumetria e iluminação...',
+        cena: 'Descreva o enquadramento (close-up, travelling), ação do personagem e transição...',
+        prompt: 'Insira diretrizes de geração para JSON/Midjourney/Runway Gen-3...'
+      };
+
+      aiTabs.forEach(tab => {
+        tab.addEventListener('click', () => {
+          aiTabs.forEach(t => {
+            t.classList.remove('bg-surface-container', 'text-primary', 'font-semibold');
+            t.classList.add('text-on-surface-variant');
+          });
+          tab.classList.add('bg-surface-container', 'text-primary', 'font-semibold');
+          tab.classList.remove('text-on-surface-variant');
+
+          const type = tab.getAttribute('data-type');
+          if (placeholders[type]) {
+            input.placeholder = placeholders[type];
+          }
+          input.focus();
+        });
+      });
+
+      // 3. Quick Enter shortcut
+      document.addEventListener('keydown', (e) => {
+        if ((e.metaKey || e.ctrlKey) && e.key === 'Enter') {
+          e.preventDefault();
+          document.getElementById('generate-btn').click();
+        }
+      });
+
+      // Micro Feedback on Generate
+      const genBtn = document.getElementById('generate-btn');
+      genBtn.addEventListener('click', () => {
+        const originalContent = genBtn.innerHTML;
+        genBtn.innerHTML = '<span>Processando...</span><span class="material-symbols-outlined text-[18px] animate-spin">progress_activity</span>';
+        genBtn.classList.add('opacity-90');
+        setTimeout(() => {
+          genBtn.innerHTML = originalContent;
+          genBtn.classList.remove('opacity-90');
+          input.value = '';
+          input.placeholder = 'Ativo gerado com sucesso! Insira outra instrução...';
+        }, 1200);
+      });
+    })();
+  </script>
+</div></main><footer class="w-full bg-surface-container-lowest border-t border-outline-variant/30 py-space-lg"><div class="w-full px-gutter-lg flex flex-col md:flex-row items-center justify-between gap-space-md font-body-sm text-body-sm text-on-surface-variant"><div class="flex items-center gap-space-sm"><span class="font-label-code text-label-code text-primary uppercase">TOMADIX CINEMATIC AI v2.4</span><span class="text-outline">•</span><span>Hub de Pré-produção Audiovisual</span></div><div class="flex items-center gap-space-lg"><span>Latência do Motor: <strong class="text-secondary font-label-code text-label-code">18ms</strong></span><span>Status: <strong class="text-primary font-label-code text-label-code">ONLINE</strong></span><span class="text-on-surface-variant/80">© 2025 Tomadix Inc.</span></div></div></footer></body></html>

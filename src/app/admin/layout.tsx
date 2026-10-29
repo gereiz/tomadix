@@ -35,6 +35,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
 
   const navTabs = [
     { href: "/admin", label: "Visão Geral", icon: "📊" },
+    { href: "/admin/parameters", label: "Parâmetros Cinematográficos", icon: "⚙️" },
     { href: "/admin/users", label: "Usuários", icon: "👥" },
     { href: "/admin/projects", label: "Projetos", icon: "🎬" },
     { href: "/admin/billing", label: "Comercial & Planos", icon: "💳" },
@@ -84,7 +85,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
     <div className="min-h-screen bg-[#07090e] text-white flex flex-col">
       {/* Top Admin Header */}
       <header className="border-b border-amber-500/20 bg-[#0b0e17]/90 backdrop-blur-md sticky top-[57px] z-30">
-        <div className="mx-auto flex max-w-7xl items-center justify-between px-6 py-3.5">
+        <div className="w-full flex items-center justify-between px-4 sm:px-6 lg:px-8 py-3.5">
           <div className="flex items-center gap-4">
             <Link href="/admin" className="flex items-center gap-2.5">
               <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-amber-400 font-mono text-xs font-black text-black">
@@ -126,7 +127,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
         </div>
 
         {/* Sub Navigation Bar */}
-        <div className="mx-auto max-w-7xl px-6">
+        <div className="w-full px-4 sm:px-6 lg:px-8">
           <nav className="flex gap-1 overflow-x-auto py-2 no-scrollbar">
             {navTabs.map((tab) => {
               const isActive =
@@ -154,7 +155,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
       </header>
 
       {/* Main Admin Content */}
-      <main className="flex-1 mx-auto max-w-7xl w-full p-6">{children}</main>
+      <main className="flex-1 w-full px-4 sm:px-6 lg:px-8 py-6">{children}</main>
     </div>
   );
 }

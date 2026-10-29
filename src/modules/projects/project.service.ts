@@ -9,11 +9,35 @@ import { EntitlementService } from "@/modules/billing/entitlement.service";
 import { NotFoundError, AuthorizationError } from "@/lib/auth";
 import { WorkspaceService } from "@/modules/workspaces/workspace.service";
 
+export type ProjectWithCounts = Prisma.ProjectGetPayload<{
+  include: {
+    _count: {
+      select: {
+        characters: true;
+        environments: true;
+        scenes: true;
+        parameterValues: true;
+        generations: true;
+      };
+    };
+  };
+}>;
+
+export type PaginatedProjectList = ProjectWithCounts[] & {
+  total?: number;
+  page?: number;
+  limit?: number;
+  totalPages?: number;
+};
+
 export class ProjectService {
   /**
    * Lista os projetos de um workspace com suporte a filtros, busca e ordenação.
    */
-  static async listProjects(workspaceId: string, query: ListProjectsQuery) {
+  static async listProjects(
+    workspaceId: string,
+    query: ListProjectsQuery
+  ): Promise<PaginatedProjectList> {
     const where: Prisma.ProjectWhereInput = {
       workspaceId,
     };
@@ -60,7 +84,49 @@ export class ProjectService {
         break;
     }
 
-    return db.project.findMany({
+    const page = query.page || 1;
+    const limit = query.limit;
+
+    if (limit) {
+      const skip = (page - 1) * limit;
+      const [projects, total] = await Promise.all([
+        db.project.findMany({
+          where,
+          orderBy,
+          skip,
+          take: limit,
+          include: {
+            _count: {
+              select: {
+                characters: true,
+                environments: true,
+                scenes: true,
+                parameterValues: true,
+                generations: true,
+              },
+            },
+          },
+        }),
+        db.project.count({ where }),
+      ]);
+
+      const totalPages = Math.ceil(total / limit) || 1;
+      const sanitized = projects.map((p) => {
+        if (p.configuration && typeof p.configuration === "object" && "cinematicAnalyses" in (p.configuration as any)) {
+          const { cinematicAnalyses: _ignored, ...restConfig } = p.configuration as Record<string, any>;
+          return { ...p, configuration: restConfig };
+        }
+        return p;
+      });
+      const paginatedList: any = sanitized;
+      paginatedList.total = total;
+      paginatedList.page = page;
+      paginatedList.limit = limit;
+      paginatedList.totalPages = totalPages;
+      return paginatedList;
+    }
+
+    const projects = await db.project.findMany({
       where,
       orderBy,
       include: {
@@ -74,6 +140,14 @@ export class ProjectService {
           },
         },
       },
+    });
+
+    return projects.map((p) => {
+      if (p.configuration && typeof p.configuration === "object" && "cinematicAnalyses" in (p.configuration as any)) {
+        const { cinematicAnalyses: _ignored, ...restConfig } = p.configuration as Record<string, any>;
+        return { ...p, configuration: restConfig };
+      }
+      return p;
     });
   }
 

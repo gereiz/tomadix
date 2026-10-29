@@ -1,6 +1,7 @@
 "use client";
 
-import { useEffect, useState, useCallback, useMemo } from "react";
+import { useEffect, useState, useCallback } from "react";
+import Link from "next/link";
 import { ParameterInputPreview } from "@/components/parameters/parameter-input-preview";
 import { ParameterType, ParameterScope, ParameterOption } from "@/modules/parameters/parameter.schema";
 
@@ -69,6 +70,8 @@ export default function ParametersPage() {
   const [selectedType, setSelectedType] = useState<string>("ALL");
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState<"all" | "active" | "inactive">("all");
+
+  const [isPlatformAdmin, setIsPlatformAdmin] = useState(false);
 
   // Modais
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -150,6 +153,20 @@ export default function ParametersPage() {
     }
   }, [selectedScope, selectedType, search, statusFilter]);
 
+  // Verificar papel administrativo do usuário atual
+  useEffect(() => {
+    fetch("/api/auth/me")
+      .then((res) => (res.ok ? res.json() : null))
+      .then((data) => {
+        if (data?.authenticated && data?.user?.isPlatformAdmin) {
+          setIsPlatformAdmin(true);
+        } else {
+          setIsPlatformAdmin(false);
+        }
+      })
+      .catch(() => setIsPlatformAdmin(false));
+  }, []);
+
   useEffect(() => {
     const handler = setTimeout(() => {
       loadParameters();
@@ -216,6 +233,10 @@ export default function ParametersPage() {
   // Submeter Criação / Edição
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!isPlatformAdmin) {
+      showToast("Ação não autorizada. Apenas administradores podem modificar parâmetros.", "error");
+      return;
+    }
     const errors: Record<string, string> = {};
 
     if (!formData.key.trim()) {
@@ -401,7 +422,7 @@ export default function ParametersPage() {
         </div>
       )}
 
-      <main className="mx-auto max-w-7xl px-4 sm:px-6 py-6 sm:py-10 w-full min-w-0">
+      <main className="w-full px-4 sm:px-6 lg:px-8 py-6 sm:py-10 min-w-0">
         {/* Header */}
         <div className="flex flex-col justify-between gap-4 md:flex-row md:items-center">
           <div>
@@ -421,18 +442,38 @@ export default function ParametersPage() {
             </p>
           </div>
 
-          <button
-            onClick={() => {
-              resetForm();
-              setIsModalOpen(true);
-            }}
-            className="w-full sm:w-auto flex items-center justify-center gap-2 rounded-xl bg-emerald-400 px-5 py-2.5 font-semibold text-black transition hover:bg-emerald-300 active:scale-[0.98] text-xs sm:text-sm shadow-lg shadow-emerald-400/20"
-          >
-            <svg className="h-4 w-4 sm:h-5 sm:w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M12 4v16m8-8H4" />
-            </svg>
-            Novo Parâmetro
-          </button>
+          {isPlatformAdmin ? (
+            <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
+              <Link
+                href="/admin/parameters"
+                className="flex items-center justify-center gap-2 rounded-xl border border-lime-500/30 bg-lime-500/10 hover:bg-lime-500/20 px-4 py-2.5 font-semibold text-lime-300 transition text-xs sm:text-sm"
+                title="Acessar Governança Global das 9 Categorias Cinematográficas"
+              >
+                <span>⚙️</span>
+                <span>Console Administrativo</span>
+              </Link>
+
+              <button
+                onClick={() => {
+                  resetForm();
+                  setIsModalOpen(true);
+                }}
+                className="flex items-center justify-center gap-2 rounded-xl bg-lime-400 px-5 py-2.5 font-semibold text-black transition hover:bg-lime-300 active:scale-[0.98] text-xs sm:text-sm shadow-lg shadow-lime-400/20 cursor-pointer"
+              >
+                <svg className="h-4 w-4 sm:h-5 sm:w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M12 4v16m8-8H4" />
+                </svg>
+                Novo Parâmetro
+              </button>
+            </div>
+          ) : (
+            <div className="flex items-center gap-2">
+              <span className="rounded-xl border border-white/10 bg-white/5 px-3.5 py-2 text-xs font-medium text-white/70 flex items-center gap-2">
+                <span className="h-2 w-2 rounded-full bg-emerald-400"></span>
+                <span>Catálogo Geral • Modo Consulta</span>
+              </span>
+            </div>
+          )}
         </div>
 
         {/* Abas por Escopo */}
@@ -516,17 +557,19 @@ export default function ParametersPage() {
           <div className="mt-10 rounded-3xl border border-dashed border-white/15 p-12 text-center">
             <h3 className="text-lg font-semibold text-white">Nenhum parâmetro encontrado</h3>
             <p className="mt-1 text-xs text-white/50 max-w-sm mx-auto">
-              Crie novos parâmetros dinâmicos ou altere os filtros de escopo e tipo para visualizar opções.
+              Altere os filtros de escopo e tipo para visualizar opções cadastradas.
             </p>
-            <button
-              onClick={() => {
-                resetForm();
-                setIsModalOpen(true);
-              }}
-              className="mt-5 rounded-xl bg-emerald-400 px-5 py-2 text-xs font-semibold text-black hover:bg-emerald-300 transition"
-            >
-              Criar Primeiro Parâmetro
-            </button>
+            {isPlatformAdmin && (
+              <button
+                onClick={() => {
+                  resetForm();
+                  setIsModalOpen(true);
+                }}
+                className="mt-5 rounded-xl bg-emerald-400 px-5 py-2 text-xs font-semibold text-black hover:bg-emerald-300 transition"
+              >
+                Criar Primeiro Parâmetro
+              </button>
+            )}
           </div>
         ) : (
           <div className="mt-6 space-y-3">
@@ -540,26 +583,32 @@ export default function ParametersPage() {
                 }`}
               >
                 <div className="flex items-start sm:items-center gap-3 sm:gap-4 flex-1 min-w-0">
-                  {/* Ordem e Botões de Subir/Descer */}
-                  <div className="flex flex-col items-center justify-center gap-1 text-white/30 flex-shrink-0 pt-0.5 sm:pt-0">
-                    <button
-                      onClick={() => handleMoveOrder(idx, "up")}
-                      disabled={idx === 0}
-                      className="hover:text-emerald-400 disabled:opacity-20 text-xs"
-                      title="Subir Ordem"
-                    >
-                      ▲
-                    </button>
-                    <span className="text-[10px] font-mono">{idx + 1}</span>
-                    <button
-                      onClick={() => handleMoveOrder(idx, "down")}
-                      disabled={idx === parameters.length - 1}
-                      className="hover:text-emerald-400 disabled:opacity-20 text-xs"
-                      title="Descer Ordem"
-                    >
-                      ▼
-                    </button>
-                  </div>
+                  {/* Ordem e Posição */}
+                  {isPlatformAdmin ? (
+                    <div className="flex flex-col items-center justify-center gap-1 text-white/30 flex-shrink-0 pt-0.5 sm:pt-0">
+                      <button
+                        onClick={() => handleMoveOrder(idx, "up")}
+                        disabled={idx === 0}
+                        className="hover:text-emerald-400 disabled:opacity-20 text-xs"
+                        title="Subir Ordem"
+                      >
+                        ▲
+                      </button>
+                      <span className="text-[10px] font-mono">{idx + 1}</span>
+                      <button
+                        onClick={() => handleMoveOrder(idx, "down")}
+                        disabled={idx === parameters.length - 1}
+                        className="hover:text-emerald-400 disabled:opacity-20 text-xs"
+                        title="Descer Ordem"
+                      >
+                        ▼
+                      </button>
+                    </div>
+                  ) : (
+                    <div className="flex items-center justify-center text-white/40 font-mono text-[11px] px-1.5 flex-shrink-0">
+                      #{idx + 1}
+                    </div>
+                  )}
 
                   <div className="flex-1 min-w-0">
                     <div className="flex flex-wrap items-center gap-1.5 sm:gap-2">
@@ -615,40 +664,54 @@ export default function ParametersPage() {
                 </div>
 
                 <div className="flex items-center gap-2 self-end md:self-center border-t border-white/5 pt-2.5 md:border-0 md:pt-0 w-full md:w-auto justify-end flex-shrink-0">
-                  {/* Toggle Ativo/Inativo */}
-                  <button
-                    onClick={() => handleToggle(p)}
-                    className={`rounded-lg px-2.5 sm:px-3 py-1.5 text-xs font-medium transition ${
-                      p.enabled
-                        ? "bg-emerald-500/20 text-emerald-300 border border-emerald-500/30"
-                        : "bg-white/10 text-white/50 hover:bg-white/15"
-                    }`}
-                  >
-                    {p.enabled ? "Ativo" : "Inativo"}
-                  </button>
+                  {isPlatformAdmin ? (
+                    <>
+                      {/* Toggle Ativo/Inativo */}
+                      <button
+                        onClick={() => handleToggle(p)}
+                        className={`rounded-lg px-2.5 sm:px-3 py-1.5 text-xs font-medium transition ${
+                          p.enabled
+                            ? "bg-emerald-500/20 text-emerald-300 border border-emerald-500/30"
+                            : "bg-white/10 text-white/50 hover:bg-white/15"
+                        }`}
+                      >
+                        {p.enabled ? "Ativo" : "Inativo"}
+                      </button>
 
-                  {/* Editar */}
-                  <button
-                    onClick={() => handleOpenEdit(p)}
-                    className="rounded-lg p-2 text-white/50 hover:bg-white/10 hover:text-white transition"
-                    title="Editar Definição"
-                  >
-                    <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-                    </svg>
-                  </button>
+                      {/* Editar */}
+                      <button
+                        onClick={() => handleOpenEdit(p)}
+                        className="rounded-lg p-2 text-white/50 hover:bg-white/10 hover:text-white transition"
+                        title="Editar Definição"
+                      >
+                        <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                        </svg>
+                      </button>
 
-                  {/* Excluir (apenas não de sistema) */}
-                  {!p.isSystem && (
-                    <button
-                      onClick={() => setParamToDelete(p)}
-                      className="rounded-lg p-2 text-white/40 hover:bg-red-500/20 hover:text-red-400 transition"
-                      title="Excluir"
+                      {/* Excluir (apenas não de sistema) */}
+                      {!p.isSystem && (
+                        <button
+                          onClick={() => setParamToDelete(p)}
+                          className="rounded-lg p-2 text-white/40 hover:bg-red-500/20 hover:text-red-400 transition"
+                          title="Excluir"
+                        >
+                          <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                          </svg>
+                        </button>
+                      )}
+                    </>
+                  ) : (
+                    <span
+                      className={`rounded-lg px-2.5 sm:px-3 py-1 text-xs font-medium ${
+                        p.enabled
+                          ? "bg-emerald-500/10 text-emerald-300 border border-emerald-500/20"
+                          : "bg-white/5 text-white/40 border border-white/10"
+                      }`}
                     >
-                      <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                      </svg>
-                    </button>
+                      {p.enabled ? "Ativo" : "Inativo"}
+                    </span>
                   )}
                 </div>
               </div>
@@ -658,7 +721,7 @@ export default function ParametersPage() {
       </main>
 
       {/* Modal / Painel de Criação e Edição com Live Preview Interativo */}
-      {isModalOpen && (
+      {isPlatformAdmin && isModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4 backdrop-blur-md">
           <div className="relative max-h-[92vh] w-full max-w-4xl overflow-y-auto rounded-3xl border border-white/10 bg-[#12161f] p-6 shadow-2xl md:p-8">
             <div className="flex items-center justify-between border-b border-white/10 pb-4">
@@ -1019,7 +1082,7 @@ export default function ParametersPage() {
       )}
 
       {/* Modal de Exclusão */}
-      {paramToDelete && (
+      {isPlatformAdmin && paramToDelete && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4 backdrop-blur-sm">
           <div className="w-full max-w-md rounded-3xl border border-red-500/30 bg-[#141215] p-6 shadow-2xl">
             <h3 className="text-lg font-bold text-white">Excluir Parâmetro</h3>

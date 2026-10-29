@@ -256,8 +256,8 @@ export class VisualReferenceService extends VisualReferenceResolver {
         options: this.getCatalogOptions("FRAMING"),
       },
       {
-        key: "angulo_camera",
-        label: "Ângulo de Câmera & Ponto de Vista",
+        key: "angulo_camera_posicao",
+        label: "Ângulo & Ponto de Vista da Câmera",
         description: "Elevação vertical e angulação da lente em relação ao sujeito.",
         type: "SELECT",
         scope: "SCENE",
@@ -269,7 +269,7 @@ export class VisualReferenceService extends VisualReferenceResolver {
       },
       {
         key: "estilo_iluminacao",
-        label: "Iluminação Cinematográfica",
+        label: "Estilo de Iluminação Primária",
         description: "Direção, contraste e temperatura da fonte de iluminação primária.",
         type: "SELECT",
         scope: "GLOBAL",
@@ -280,11 +280,11 @@ export class VisualReferenceService extends VisualReferenceResolver {
         options: this.getCatalogOptions("LIGHTING"),
       },
       {
-        key: "lente_perspectiva",
-        label: "Lente & Perspectiva Óptica",
+        key: "distancia_focal_lente",
+        label: "Distância Focal da Lente",
         description: "Distância focal, compressão de planos e desfoque óptico.",
         type: "SELECT",
-        scope: "GLOBAL",
+        scope: "SCENE",
         required: false,
         defaultValue: "lente_normal_50mm",
         category: "LENS_PERSPECTIVE",
@@ -292,8 +292,8 @@ export class VisualReferenceService extends VisualReferenceResolver {
         options: this.getCatalogOptions("LENS_PERSPECTIVE"),
       },
       {
-        key: "composicao_cinematografica",
-        label: "Composição & Geometria do Quadro",
+        key: "composicao_quadro",
+        label: "Geometria & Composição do Quadro",
         description: "Regras de terços, linhas-guia, simetria e equilíbrio de quadro.",
         type: "SELECT",
         scope: "SCENE",
@@ -304,8 +304,8 @@ export class VisualReferenceService extends VisualReferenceResolver {
         options: this.getCatalogOptions("COMPOSITION"),
       },
       {
-        key: "foco_tratamento_optico",
-        label: "Foco & Tratamento Óptico",
+        key: "profundidade_campo_foco",
+        label: "Profundidade de Campo & Foco",
         description: "Nitidez seletiva, motion blur, flares e transições de foco.",
         type: "SELECT",
         scope: "SCENE",
@@ -316,9 +316,9 @@ export class VisualReferenceService extends VisualReferenceResolver {
         options: this.getCatalogOptions("FOCUS_OPTICS"),
       },
       {
-        key: "cor_gradacao_cinematografica",
-        label: "Cor & Gradação Cinematográfica",
-        description: "Color grading, saturação, temperatura e paleta cromática.",
+        key: "paleta_cor_dominante",
+        label: "Paleta de Cores Dominante",
+        description: "Harmonia cromática principal para pós-processamento e color grading.",
         type: "SELECT",
         scope: "GLOBAL",
         required: false,
@@ -328,8 +328,8 @@ export class VisualReferenceService extends VisualReferenceResolver {
         options: this.getCatalogOptions("COLOR_GRADING"),
       },
       {
-        key: "dinamica_movimento_cena",
-        label: "Dinâmica e Comportamento da Cena",
+        key: "velocidade_obturador_movimento",
+        label: "Obturador & Sensação de Movimento",
         description: "Velocidade temporal, naturalidade e ritmo de ação dos atores.",
         type: "SELECT",
         scope: "SCENE",
@@ -341,7 +341,7 @@ export class VisualReferenceService extends VisualReferenceResolver {
       },
       {
         key: "formato_sensor_camera",
-        label: "Formato do Sensor & Proporção",
+        label: "Formato do Sensor / Câmera",
         description: "Tamanho do fotograma e proporção física de captura de cinema.",
         type: "SELECT",
         scope: "GLOBAL",
@@ -352,8 +352,8 @@ export class VisualReferenceService extends VisualReferenceResolver {
         options: this.getCatalogOptions("SENSOR_FORMAT"),
       },
       {
-        key: "atmosfera_clima",
-        label: "Atmosfera, Clima & Partículas",
+        key: "atmosfera_climatica_particulas",
+        label: "Atmosfera, Clima & Partículas Volumétricas",
         description: "Névoa, chuva, poeira, vapor e condições ambientais do cenário.",
         type: "SELECT",
         scope: "ENVIRONMENT",
@@ -365,46 +365,56 @@ export class VisualReferenceService extends VisualReferenceResolver {
       },
     ];
 
-    for (const def of definitionsToSeed) {
-      const existing = await db.parameterDefinition.findFirst({
-        where: {
+    const existingList = await db.parameterDefinition.findMany({
+      where: {
+        workspaceId,
+        key: { in: definitionsToSeed.map((d) => d.key) },
+      },
+    });
+    const existingMap = new Map(existingList.map((e) => [e.key, e]));
+
+    const toCreate = definitionsToSeed.filter((def) => !existingMap.has(def.key));
+    if (toCreate.length > 0) {
+      await db.parameterDefinition.createMany({
+        data: toCreate.map((def) => ({
           workspaceId,
           key: def.key,
-        },
+          label: def.label,
+          description: def.description,
+          type: def.type,
+          scope: def.scope,
+          required: def.required,
+          defaultValue: def.defaultValue,
+          options: def.options as any,
+          order: def.order,
+          isSystem: true,
+          enabled: true,
+        })),
+        skipDuplicates: true,
       });
+    }
 
-      if (!existing) {
-        await db.parameterDefinition.create({
-          data: {
-            workspaceId,
-            key: def.key,
-            label: def.label,
-            description: def.description,
-            type: def.type,
-            scope: def.scope,
-            required: def.required,
-            defaultValue: def.defaultValue,
-            options: def.options as any,
-            order: def.order,
-            isSystem: true,
-            enabled: true,
-          },
-        });
-      } else {
-        // Atualiza com as opções ricas se tiver apenas opções simples de texto
-        const currentOpts = (existing.options as any[]) || [];
-        const needsEnrichment = currentOpts.length === 0 || !currentOpts[0]?.imageUrl;
+    // Apenas os existentes que necessitam enriquecimento
+    const toEnrich = definitionsToSeed.filter((def) => {
+      const existing = existingMap.get(def.key);
+      if (!existing) return false;
+      const currentOpts = (existing.options as any[]) || [];
+      return currentOpts.length === 0 || !currentOpts[0]?.imageUrl;
+    });
 
-        if (needsEnrichment) {
-          await db.parameterDefinition.update({
+    if (toEnrich.length > 0) {
+      await Promise.all(
+        toEnrich.map((def) => {
+          const existing = existingMap.get(def.key)!;
+          return db.parameterDefinition.update({
             where: { id: existing.id },
             data: {
               options: def.options as any,
               description: def.description,
             },
           });
-        }
-      }
+        })
+      );
     }
   }
 }

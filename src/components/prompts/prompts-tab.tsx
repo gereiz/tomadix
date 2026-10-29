@@ -80,6 +80,7 @@ export function PromptsTab({ projectId, initialSceneId, onStatsUpdate }: Prompts
   const [filterScene, setFilterScene] = useState<string>("ALL");
 
   // Generation & Active View State
+  const [outputFormat, setOutputFormat] = useState<"json" | "text">("json");
   const [generating, setGenerating] = useState(false);
   const [generationError, setGenerationError] = useState<string | null>(null);
   const [currentResult, setCurrentResult] = useState<PromptVersionItem | null>(null);
@@ -209,6 +210,7 @@ export function PromptsTab({ projectId, initialSceneId, onStatsUpdate }: Prompts
         characterId: needsCharacter ? selectedCharacterId : undefined,
         environmentId: needsEnvironment ? selectedEnvironmentId : undefined,
         customInstructions: customInstructions.trim() ? customInstructions : undefined,
+        outputFormat,
       };
 
       const res = await fetch(`/api/projects/${projectId}/prompts/generate`, {
@@ -233,6 +235,8 @@ export function PromptsTab({ projectId, initialSceneId, onStatsUpdate }: Prompts
         status: "SUCCEEDED",
         outputJson: data.data.data,
         outputText:
+          data.data.formattedText ||
+          data.data.outputText ||
           data.data.data?.compiledPromptText ||
           data.data.data?.compiledProductionPrompt ||
           data.data.data?.compiledBasePrompt ||
@@ -243,6 +247,7 @@ export function PromptsTab({ projectId, initialSceneId, onStatsUpdate }: Prompts
       };
 
       setCurrentResult(newVersionItem);
+      setActiveViewTab(outputFormat);
       await fetchHistory();
       if (onStatsUpdate) onStatsUpdate();
     } catch (err: any) {
@@ -285,6 +290,8 @@ export function PromptsTab({ projectId, initialSceneId, onStatsUpdate }: Prompts
         status: "SUCCEEDED",
         outputJson: data.data.data,
         outputText:
+          data.data.formattedText ||
+          data.data.outputText ||
           data.data.data?.compiledPromptText ||
           data.data.data?.compiledProductionPrompt ||
           null,
@@ -555,6 +562,40 @@ export function PromptsTab({ projectId, initialSceneId, onStatsUpdate }: Prompts
               </div>
             )}
 
+            {/* Formato de Saída Principal (JSON ou Texto Simples) */}
+            <div>
+              <label className="block text-xs font-semibold text-white/80 mb-1.5 flex items-center justify-between">
+                <span>Formato de Saída</span>
+                <span className="text-[10px] text-lime-400/90 font-medium">Ambos formatos disponíveis</span>
+              </label>
+              <div className="grid grid-cols-2 gap-2">
+                <button
+                  type="button"
+                  onClick={() => setOutputFormat("json")}
+                  className={`rounded-xl p-2.5 text-center text-xs font-medium border transition flex items-center justify-center gap-2 ${
+                    outputFormat === "json"
+                      ? "bg-lime-500/20 text-lime-300 border-lime-500/40 font-semibold shadow-sm shadow-lime-500/10"
+                      : "bg-white/5 text-white/60 border-white/10 hover:text-white"
+                  }`}
+                >
+                  <span className="font-mono text-lime-400 font-bold">{"{ }"}</span>
+                  <span>JSON Estruturado</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setOutputFormat("text")}
+                  className={`rounded-xl p-2.5 text-center text-xs font-medium border transition flex items-center justify-center gap-2 ${
+                    outputFormat === "text"
+                      ? "bg-lime-500/20 text-lime-300 border-lime-500/40 font-semibold shadow-sm shadow-lime-500/10"
+                      : "bg-white/5 text-white/60 border-white/10 hover:text-white"
+                  }`}
+                >
+                  <span className="text-lime-400">📝</span>
+                  <span>Texto Simples (.txt)</span>
+                </button>
+              </div>
+            </div>
+
             {/* Diretrizes Adicionais do Diretor */}
             <div>
               <label className="block text-xs font-semibold text-white/80 mb-1.5">
@@ -565,7 +606,7 @@ export function PromptsTab({ projectId, initialSceneId, onStatsUpdate }: Prompts
                 onChange={(e) => setCustomInstructions(e.target.value)}
                 placeholder="Ex: Enfatizar luz volumétrica de néon, atmosfera de chuva densa, granulação 35mm..."
                 rows={3}
-                className="w-full rounded-xl border border-white/10 bg-[#0f1218] p-3 text-xs text-white placeholder-white/30 focus:border-emerald-500 focus:outline-none resize-none"
+                className="w-full rounded-xl border border-white/10 bg-[#0f1218] p-3 text-xs text-white placeholder-white/30 focus:border-lime-500 focus:outline-none resize-none"
               />
             </div>
 
@@ -586,19 +627,19 @@ export function PromptsTab({ projectId, initialSceneId, onStatsUpdate }: Prompts
             <button
               onClick={handleGenerate}
               disabled={generating}
-              className="w-full flex items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-600 px-4 py-3 text-xs font-bold text-white shadow-lg shadow-emerald-500/20 hover:from-emerald-400 hover:to-teal-500 transition disabled:opacity-50 disabled:cursor-not-allowed"
+              className="w-full flex items-center justify-center gap-2 rounded-xl bg-lime-400 px-4 py-3 text-xs font-bold text-black shadow-lg shadow-lime-400/20 hover:bg-lime-300 transition disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {generating ? (
                 <>
-                  <div className="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent" />
+                  <div className="h-4 w-4 animate-spin rounded-full border-2 border-black border-t-transparent" />
                   <span>Compondo e Consultando Gemini...</span>
                 </>
               ) : (
                 <>
-                  <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <svg className="h-4 w-4 text-black" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z" />
                   </svg>
-                  <span>Gerar Prompt Estruturado</span>
+                  <span>Gerar Prompt Cinematográfico</span>
                 </>
               )}
             </button>
@@ -630,7 +671,7 @@ export function PromptsTab({ projectId, initialSceneId, onStatsUpdate }: Prompts
               <div className="flex flex-wrap items-center justify-between gap-3 pb-4 border-b border-white/10">
                 <div>
                   <div className="flex items-center gap-2">
-                    <span className="rounded-md bg-emerald-500/20 px-2 py-0.5 text-[10px] font-bold text-emerald-300 font-mono">
+                    <span className="rounded-md bg-lime-500/20 border border-lime-500/30 px-2 py-0.5 text-[10px] font-bold text-lime-300 font-mono">
                       v{currentResult.versionNumber || 1}
                     </span>
                     <h3 className="text-sm font-bold text-white uppercase font-mono">
@@ -656,7 +697,7 @@ export function PromptsTab({ projectId, initialSceneId, onStatsUpdate }: Prompts
                     onClick={() => setActiveViewTab("json")}
                     className={`rounded-lg px-3 py-1 font-medium transition ${
                       activeViewTab === "json"
-                        ? "bg-emerald-500/20 text-emerald-300 font-semibold"
+                        ? "bg-lime-500/20 text-lime-300 font-semibold"
                         : "text-white/60 hover:text-white"
                     }`}
                   >
@@ -666,17 +707,17 @@ export function PromptsTab({ projectId, initialSceneId, onStatsUpdate }: Prompts
                     onClick={() => setActiveViewTab("text")}
                     className={`rounded-lg px-3 py-1 font-medium transition ${
                       activeViewTab === "text"
-                        ? "bg-emerald-500/20 text-emerald-300 font-semibold"
+                        ? "bg-lime-500/20 text-lime-300 font-semibold"
                         : "text-white/60 hover:text-white"
                     }`}
                   >
-                    Texto
+                    Texto Simples
                   </button>
                   <button
                     onClick={() => setActiveViewTab("details")}
                     className={`rounded-lg px-3 py-1 font-medium transition ${
                       activeViewTab === "details"
-                        ? "bg-emerald-500/20 text-emerald-300 font-semibold"
+                        ? "bg-lime-500/20 text-lime-300 font-semibold"
                         : "text-white/60 hover:text-white"
                     }`}
                   >
@@ -688,19 +729,28 @@ export function PromptsTab({ projectId, initialSceneId, onStatsUpdate }: Prompts
               {/* Corpo de Exibição */}
               {activeViewTab === "json" && (
                 <div className="space-y-3">
-                  <div className="relative rounded-2xl border border-white/10 bg-black/60 p-4 font-mono text-xs text-emerald-300 max-h-[460px] overflow-y-auto">
+                  <div className="relative rounded-2xl border border-white/10 bg-black/60 p-4 font-mono text-xs text-lime-300/90 max-h-[460px] overflow-y-auto">
                     <pre>{JSON.stringify(currentResult.outputJson, null, 2)}</pre>
                   </div>
                   <div className="flex flex-wrap items-center justify-between gap-2 pt-2">
                     <div className="flex items-center gap-2">
                       <a
-                        href={`/api/projects/${projectId}/prompts/${currentResult.id}/export?download=true`}
-                        className="flex items-center gap-1.5 rounded-xl border border-white/20 bg-white/5 px-3 py-2 text-xs font-medium text-white hover:bg-white/10 transition"
+                        href={`/api/projects/${projectId}/prompts/${currentResult.id}/export?format=json&download=true`}
+                        className="flex items-center gap-1.5 rounded-xl border border-white/20 bg-white/5 px-3 py-2 text-xs font-medium text-white hover:bg-white/10 hover:border-lime-500/40 transition"
                       >
-                        <svg className="h-3.5 w-3.5 text-emerald-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <svg className="h-3.5 w-3.5 text-lime-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
                         </svg>
                         Baixar .json
+                      </a>
+                      <a
+                        href={`/api/projects/${projectId}/prompts/${currentResult.id}/export?format=txt&download=true`}
+                        className="flex items-center gap-1.5 rounded-xl border border-white/20 bg-white/5 px-3 py-2 text-xs font-medium text-white hover:bg-white/10 hover:border-lime-500/40 transition"
+                      >
+                        <svg className="h-3.5 w-3.5 text-lime-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                        </svg>
+                        Baixar .txt
                       </a>
                       <button
                         onClick={() => {
@@ -719,7 +769,7 @@ export function PromptsTab({ projectId, initialSceneId, onStatsUpdate }: Prompts
                       onClick={() =>
                         handleCopy(JSON.stringify(currentResult.outputJson, null, 2), "json")
                       }
-                      className="flex items-center gap-1.5 rounded-xl bg-emerald-500 px-4 py-2 text-xs font-semibold text-white hover:bg-emerald-400 transition"
+                      className="flex items-center gap-1.5 rounded-xl bg-lime-400 px-4 py-2 text-xs font-bold text-black hover:bg-lime-300 transition"
                     >
                       {copySuccess === "json" ? "✓ JSON Copiado!" : "Copiar JSON (1-Clique)"}
                     </button>
@@ -729,20 +779,52 @@ export function PromptsTab({ projectId, initialSceneId, onStatsUpdate }: Prompts
 
               {activeViewTab === "text" && (
                 <div className="space-y-3">
-                  <div className="rounded-2xl border border-white/10 bg-black/60 p-5 text-xs text-white/90 leading-relaxed font-sans max-h-[460px] overflow-y-auto whitespace-pre-wrap">
+                  <div className="rounded-2xl border border-white/10 bg-black/60 p-5 text-xs text-white/90 leading-relaxed font-sans max-h-[460px] overflow-y-auto whitespace-pre-wrap select-text">
                     {currentResult.outputText ||
                       "Nenhum texto de prompt compilado disponível para este template."}
                   </div>
-                  {currentResult.outputText && (
-                    <div className="flex justify-end gap-2">
-                      <button
-                        onClick={() => handleCopy(currentResult.outputText!, "text")}
-                        className="flex items-center gap-1.5 rounded-xl bg-emerald-500 px-4 py-2 text-xs font-semibold text-white hover:bg-emerald-400 transition"
+                  <div className="flex flex-wrap items-center justify-between gap-2 pt-2">
+                    <div className="flex items-center gap-2">
+                      <a
+                        href={`/api/projects/${projectId}/prompts/${currentResult.id}/export?format=txt&download=true`}
+                        className="flex items-center gap-1.5 rounded-xl border border-white/20 bg-white/5 px-3 py-2 text-xs font-medium text-white hover:bg-white/10 hover:border-lime-500/40 transition"
                       >
-                        {copySuccess === "text" ? "✓ Texto Copiado!" : "Copiar Texto do Prompt"}
+                        <svg className="h-3.5 w-3.5 text-lime-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                        </svg>
+                        Baixar .txt
+                      </a>
+                      <a
+                        href={`/api/projects/${projectId}/prompts/${currentResult.id}/export?format=json&download=true`}
+                        className="flex items-center gap-1.5 rounded-xl border border-white/20 bg-white/5 px-3 py-2 text-xs font-medium text-white hover:bg-white/10 hover:border-lime-500/40 transition"
+                      >
+                        <svg className="h-3.5 w-3.5 text-lime-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                        </svg>
+                        Baixar .json
+                      </a>
+                      <button
+                        onClick={() => {
+                          setRegeneratingVersion(currentResult);
+                          setRegenerateInstructions("");
+                        }}
+                        className="flex items-center gap-1.5 rounded-xl border border-white/20 bg-white/5 px-3 py-2 text-xs font-medium text-white hover:bg-white/10 transition"
+                      >
+                        <svg className="h-3.5 w-3.5 text-blue-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                        </svg>
+                        Regenerar
                       </button>
                     </div>
-                  )}
+                    {currentResult.outputText && (
+                      <button
+                        onClick={() => handleCopy(currentResult.outputText!, "text")}
+                        className="flex items-center gap-1.5 rounded-xl bg-lime-400 px-4 py-2 text-xs font-bold text-black hover:bg-lime-300 transition"
+                      >
+                        {copySuccess === "text" ? "✓ Texto Copiado!" : "Copiar Texto (1-Clique)"}
+                      </button>
+                    )}
+                  </div>
                 </div>
               )}
 
@@ -826,7 +908,7 @@ export function PromptsTab({ projectId, initialSceneId, onStatsUpdate }: Prompts
                       setComparisonResult(null);
                       setCompareModalOpen(true);
                     }}
-                    className="rounded-xl border border-white/20 bg-white/5 px-3 py-1.5 text-xs font-semibold text-emerald-300 hover:bg-white/10 transition flex items-center gap-1.5"
+                    className="rounded-xl border border-white/20 bg-white/5 px-3 py-1.5 text-xs font-semibold text-lime-300 hover:border-lime-500/40 hover:bg-white/10 transition flex items-center gap-1.5"
                   >
                     <svg className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4" />
@@ -899,7 +981,7 @@ export function PromptsTab({ projectId, initialSceneId, onStatsUpdate }: Prompts
                     key={ver.id}
                     className={`flex items-center justify-between p-3 rounded-2xl border transition ${
                       currentResult?.id === ver.id
-                        ? "border-emerald-500/50 bg-emerald-500/10"
+                        ? "border-lime-500/50 bg-lime-500/10"
                         : ver.status === "FAILED"
                         ? "border-red-500/20 bg-red-500/5"
                         : "border-white/5 bg-white/[0.02] hover:border-white/20"
@@ -913,7 +995,7 @@ export function PromptsTab({ projectId, initialSceneId, onStatsUpdate }: Prompts
                     >
                       <div className="flex items-center gap-2">
                         {ver.status === "SUCCEEDED" ? (
-                          <span className="rounded bg-emerald-500/20 px-1.5 py-0.5 text-[10px] font-bold text-emerald-300 font-mono">
+                          <span className="rounded bg-lime-500/20 px-1.5 py-0.5 text-[10px] font-bold text-lime-300 font-mono">
                             v{ver.versionNumber || 1}
                           </span>
                         ) : (
@@ -945,13 +1027,22 @@ export function PromptsTab({ projectId, initialSceneId, onStatsUpdate }: Prompts
                       )}
                     </div>
 
-                    <div className="flex items-center gap-2 pl-3">
+                    <div className="flex items-center gap-1.5 pl-3">
                       {ver.status === "SUCCEEDED" ? (
                         <>
                           <a
-                            href={`/api/projects/${projectId}/prompts/${ver.id}/export?download=true`}
-                            title="Baixar JSON"
-                            className="p-1.5 rounded-lg text-white/60 hover:text-emerald-400 hover:bg-white/5 transition"
+                            href={`/api/projects/${projectId}/prompts/${ver.id}/export?format=txt&download=true`}
+                            title="Baixar Texto Simples (.txt)"
+                            className="p-1.5 rounded-lg text-white/60 hover:text-lime-400 hover:bg-white/5 transition"
+                          >
+                            <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                            </svg>
+                          </a>
+                          <a
+                            href={`/api/projects/${projectId}/prompts/${ver.id}/export?format=json&download=true`}
+                            title="Baixar JSON (.json)"
+                            className="p-1.5 rounded-lg text-white/60 hover:text-lime-400 hover:bg-white/5 transition"
                           >
                             <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />

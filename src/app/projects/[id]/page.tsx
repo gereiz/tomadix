@@ -7,6 +7,8 @@ import { CharactersTab } from "@/components/characters/characters-tab";
 import { EnvironmentsTab } from "@/components/environments/environments-tab";
 import { ScenesTab } from "@/components/scenes/scenes-tab";
 import { PromptsTab } from "@/components/prompts/prompts-tab";
+import { ProjectParameterSettings } from "@/components/parameters/project-parameter-settings";
+import { QuickCreationBar } from "@/components/studio/quick-creation-bar";
 
 interface SceneCharacterLink {
   character: {
@@ -87,15 +89,16 @@ export default function ProjectDetailPage({ params }: { params: Promise<{ id: st
   const [activeTab, setActiveTab] = useState<TabType>("overview");
   const [visitedTabs, setVisitedTabs] = useState<Record<string, boolean>>({ overview: true });
   const [actionLoading, setActionLoading] = useState(false);
+  const [refreshKey, setRefreshKey] = useState(0);
 
   useEffect(() => {
     setVisitedTabs((prev) => ({ ...prev, [activeTab]: true }));
   }, [activeTab]);
 
   // Carregar dados do projeto
-  const loadProject = useCallback(async () => {
+  const loadProject = useCallback(async (silent = false) => {
     try {
-      setLoading(true);
+      if (!silent) setLoading(true);
       setError(null);
       const res = await fetch(`/api/projects/${resolvedParams.id}`);
       if (!res.ok) {
@@ -107,11 +110,34 @@ export default function ProjectDetailPage({ params }: { params: Promise<{ id: st
       const data = await res.json();
       setProject(data.data);
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Erro inesperado.");
+      if (!silent) {
+        setError(err instanceof Error ? err.message : "Erro inesperado.");
+      }
     } finally {
-      setLoading(false);
+      if (!silent) setLoading(false);
     }
   }, [resolvedParams.id]);
+
+  const handleQuickItemCreated = useCallback(
+    (createdItem?: any) => {
+      loadProject(true);
+      setRefreshKey((prev) => prev + 1);
+      if (createdItem?.type === "CHARACTER") {
+        setVisitedTabs((prev) => ({ ...prev, characters: true }));
+        setActiveTab("characters");
+      } else if (createdItem?.type === "ENVIRONMENT") {
+        setVisitedTabs((prev) => ({ ...prev, environments: true }));
+        setActiveTab("environments");
+      } else if (createdItem?.type === "SCENE") {
+        setVisitedTabs((prev) => ({ ...prev, scenes: true }));
+        setActiveTab("scenes");
+      } else if (createdItem?.type === "PROMPT") {
+        setVisitedTabs((prev) => ({ ...prev, prompts: true }));
+        setActiveTab("prompts");
+      }
+    },
+    [loadProject]
+  );
 
   useEffect(() => {
     loadProject();
@@ -166,7 +192,7 @@ export default function ProjectDetailPage({ params }: { params: Promise<{ id: st
   if (loading) {
     return (
       <div className="min-h-screen bg-[#0b0d12] text-white">
-        <main className="mx-auto max-w-7xl px-6 py-12">
+        <main className="w-full px-4 sm:px-6 lg:px-8 py-12">
           <div className="h-6 w-32 animate-pulse rounded bg-white/10" />
           <div className="mt-4 h-10 w-2/3 animate-pulse rounded bg-white/10" />
           <div className="mt-8 grid grid-cols-4 gap-4">
@@ -182,7 +208,7 @@ export default function ProjectDetailPage({ params }: { params: Promise<{ id: st
   if (error || !project) {
     return (
       <div className="min-h-screen bg-[#0b0d12] text-white">
-        <main className="mx-auto max-w-3xl px-6 py-20 text-center">
+        <main className="w-full px-4 sm:px-6 lg:px-8 py-20 text-center">
           <div className="rounded-3xl border border-red-500/20 bg-red-950/20 p-8">
             <h2 className="text-xl font-bold text-red-300">Não foi possível abrir o projeto</h2>
             <p className="mt-2 text-sm text-white/60">{error}</p>
@@ -200,7 +226,7 @@ export default function ProjectDetailPage({ params }: { params: Promise<{ id: st
 
   return (
     <div className="min-h-screen bg-[#0b0d12] text-white">
-      <main className="mx-auto max-w-7xl px-6 py-8">
+      <main className="w-full px-4 sm:px-6 lg:px-8 pt-8 pb-28">
         {/* Navegação Breadcrumb & Voltar */}
         <div className="flex items-center gap-2 text-xs text-white/50">
           <Link href="/projects" className="hover:text-emerald-400 transition">
@@ -428,21 +454,22 @@ export default function ProjectDetailPage({ params }: { params: Promise<{ id: st
         {/* Conteúdo das Abas dos Módulos Internos com Cache em Memória */}
         {visitedTabs["characters"] && (
           <div className={activeTab === "characters" ? "block" : "hidden"}>
-            <CharactersTab projectId={project.id} onStatsUpdate={loadProject} />
+            <CharactersTab key={`char-${refreshKey}`} projectId={project.id} onStatsUpdate={() => loadProject(true)} />
           </div>
         )}
 
         {visitedTabs["environments"] && (
           <div className={activeTab === "environments" ? "block" : "hidden"}>
-            <EnvironmentsTab projectId={project.id} onStatsUpdate={loadProject} />
+            <EnvironmentsTab key={`env-${refreshKey}`} projectId={project.id} onStatsUpdate={() => loadProject(true)} />
           </div>
         )}
 
         {visitedTabs["scenes"] && (
           <div className={activeTab === "scenes" ? "block" : "hidden"}>
             <ScenesTab
+              key={`scene-${refreshKey}`}
               projectId={project.id}
-              onStatsUpdate={loadProject}
+              onStatsUpdate={() => loadProject(true)}
               onOpenPromptEngine={() => setActiveTab("prompts")}
             />
           </div>
@@ -450,273 +477,27 @@ export default function ProjectDetailPage({ params }: { params: Promise<{ id: st
 
         {visitedTabs["parameters"] && (
           <div className={activeTab === "parameters" ? "block" : "hidden"}>
-            <ProjectParametersTab projectId={project.id} onValuesUpdated={loadProject} />
+            <ProjectParameterSettings projectId={project.id} />
           </div>
         )}
 
         {visitedTabs["prompts"] && (
           <div className={activeTab === "prompts" ? "block" : "hidden"}>
-            <PromptsTab projectId={project.id} onStatsUpdate={loadProject} />
+            <PromptsTab key={`prompt-${refreshKey}`} projectId={project.id} onStatsUpdate={() => loadProject(true)} />
           </div>
         )}
 
       </main>
+
+      {/* Barra de Criação Rápida no contexto deste projeto (sem opção de criar projetos) */}
+      <QuickCreationBar
+        currentProjectId={project.id}
+        currentProjectTitle={project.title}
+        onItemCreated={handleQuickItemCreated}
+      />
     </div>
   );
 }
 
-function ProjectParametersTab({
-  projectId,
-  onValuesUpdated,
-}: {
-  projectId: string;
-  onValuesUpdated: () => void;
-}) {
-  const [loading, setLoading] = useState(true);
-  const [saving, setSaving] = useState(false);
-  const [paramsData, setParamsData] = useState<any[]>([]);
-  const [definitions, setDefinitions] = useState<Record<string, any>>({});
-  const [formValues, setFormValues] = useState<Record<string, any>>({});
-  const [message, setMessage] = useState<string | null>(null);
 
-  const fetchParams = useCallback(async () => {
-    try {
-      setLoading(true);
-      const [resParams, resDefs] = await Promise.all([
-        fetch(`/api/projects/${projectId}/parameters?targetType=PROJECT`),
-        fetch("/api/parameters"),
-      ]);
-
-      if (resParams.ok && resDefs.ok) {
-        const dataParams = await resParams.json();
-        const dataDefs = await resDefs.json();
-
-        const defMap: Record<string, any> = {};
-        for (const d of dataDefs.data || []) {
-          defMap[d.id] = d;
-        }
-        setDefinitions(defMap);
-
-        const details = dataParams.data?.details || [];
-        setParamsData(details);
-
-        const initialValues: Record<string, any> = {};
-        for (const item of details) {
-          if (item.value !== undefined && item.value !== null) {
-            initialValues[item.definitionId] = item.value;
-          }
-        }
-        setFormValues(initialValues);
-      }
-    } catch (err) {
-      console.error(err);
-    } finally {
-      setLoading(false);
-    }
-  }, [projectId]);
-
-  useEffect(() => {
-    fetchParams();
-  }, [fetchParams]);
-
-  const handleSave = async () => {
-    try {
-      setSaving(true);
-      setMessage(null);
-
-      const payload = {
-        values: Object.entries(formValues).map(([defId, val]) => ({
-          parameterDefinitionId: defId,
-          targetType: "PROJECT",
-          value: val,
-        })),
-      };
-
-      const res = await fetch(`/api/projects/${projectId}/parameters`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload),
-      });
-
-      if (!res.ok) throw new Error("Erro ao salvar parâmetros.");
-
-      setMessage("Parâmetros do projeto salvos com sucesso!");
-      fetchParams();
-      onValuesUpdated();
-      setTimeout(() => setMessage(null), 3000);
-    } catch (err) {
-      alert(err instanceof Error ? err.message : "Erro ao salvar.");
-    } finally {
-      setSaving(false);
-    }
-  };
-
-  if (loading) {
-    return (
-      <div className="mt-8 space-y-4">
-        {[1, 2, 3].map((i) => (
-          <div key={i} className="h-20 animate-pulse rounded-2xl bg-white/5" />
-        ))}
-      </div>
-    );
-  }
-
-  return (
-    <div className="mt-8 space-y-6">
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 rounded-3xl border border-white/10 bg-white/[0.02] p-6">
-        <div>
-          <h3 className="text-xl font-bold text-white">Parâmetros Ativos no Projeto</h3>
-          <p className="mt-1 text-xs text-white/50">
-            Configure as variáveis cinematográficas resolvidas automaticamente para o escopo global deste projeto.
-          </p>
-        </div>
-        <Link
-          href="/parameters"
-          className="rounded-xl border border-emerald-400/30 bg-emerald-400/10 px-4 py-2 text-xs font-semibold text-emerald-300 hover:bg-emerald-400/20 transition whitespace-nowrap"
-        >
-          Administrar Definições de Parâmetros →
-        </Link>
-      </div>
-
-      {message && (
-        <div className="rounded-xl border border-emerald-500/30 bg-emerald-950/80 p-3 text-xs text-emerald-300">
-          ✓ {message}
-        </div>
-      )}
-
-      {paramsData.length === 0 ? (
-        <div className="rounded-3xl border border-dashed border-white/10 p-12 text-center text-xs text-white/40">
-          Nenhum parâmetro de escopo Global disponível no momento.
-        </div>
-      ) : (
-        <div className="grid gap-4 sm:grid-cols-2">
-          {paramsData
-            .filter((p) => p.scope === "GLOBAL" || p.scope === "OUTPUT")
-            .map((p) => {
-              const def = definitions[p.definitionId];
-              const currentVal = formValues[p.definitionId] ?? "";
-
-              return (
-                <div key={p.definitionId} className="rounded-2xl border border-white/10 bg-black/30 p-5 space-y-3">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <span className="font-semibold text-sm text-white">{p.label}</span>
-                      <code className="ml-2 text-[10px] text-white/40 font-mono">{p.key}</code>
-                    </div>
-                    <span
-                      className={`text-[9px] font-mono px-2 py-0.5 rounded border ${
-                        p.source === "EXPLICIT"
-                          ? "bg-emerald-400/10 text-emerald-300 border-emerald-400/20"
-                          : "bg-white/5 text-white/40 border-white/10"
-                      }`}
-                    >
-                      {p.source === "EXPLICIT" ? "Definido no Projeto" : "Padrão do Sistema"}
-                    </span>
-                  </div>
-
-                  {(p.description || def?.description) && (
-                    <p className="text-[11px] text-white/50">{p.description || def?.description}</p>
-                  )}
-
-                  {/* Inputs específicos */}
-                  {p.type === "SELECT" && (
-                    <select
-                      value={currentVal}
-                      onChange={(e) =>
-                        setFormValues({ ...formValues, [p.definitionId]: e.target.value })
-                      }
-                      className="w-full rounded-xl border border-white/10 bg-black/60 px-3 py-2 text-xs text-white focus:outline-none focus:border-emerald-400 cursor-pointer"
-                    >
-                      <option value="">Selecione...</option>
-                      {((p.options || def?.options || []) as any[]).map((opt: any) => (
-                        <option key={opt.value} value={opt.value}>
-                          {opt.label}
-                        </option>
-                      ))}
-                    </select>
-                  )}
-
-                  {p.type === "TEXT" && (
-                    <input
-                      type="text"
-                      value={currentVal}
-                      onChange={(e) =>
-                        setFormValues({ ...formValues, [p.definitionId]: e.target.value })
-                      }
-                      className="w-full rounded-xl border border-white/10 bg-black/60 px-3 py-2 text-xs text-white focus:outline-none focus:border-emerald-400"
-                    />
-                  )}
-
-                  {p.type === "TEXTAREA" && (
-                    <textarea
-                      rows={2}
-                      value={currentVal}
-                      onChange={(e) =>
-                        setFormValues({ ...formValues, [p.definitionId]: e.target.value })
-                      }
-                      className="w-full rounded-xl border border-white/10 bg-black/60 px-3 py-2 text-xs text-white focus:outline-none focus:border-emerald-400"
-                    />
-                  )}
-
-                  {p.type === "RANGE" && (
-                    <div className="space-y-1">
-                      <div className="flex justify-between text-[10px] font-mono text-white/60">
-                        <span>0</span>
-                        <span className="font-bold text-emerald-400">{currentVal || 0}</span>
-                        <span>100</span>
-                      </div>
-                      <input
-                        type="range"
-                        min="0"
-                        max="100"
-                        value={currentVal || 0}
-                        onChange={(e) =>
-                          setFormValues({
-                            ...formValues,
-                            [p.definitionId]: Number(e.target.value),
-                          })
-                        }
-                        className="w-full accent-emerald-400 cursor-pointer"
-                      />
-                    </div>
-                  )}
-
-                  {p.type === "BOOLEAN" && (
-                    <button
-                      type="button"
-                      onClick={() =>
-                        setFormValues({
-                          ...formValues,
-                          [p.definitionId]: !currentVal,
-                        })
-                      }
-                      className={`rounded-lg px-3 py-1.5 text-xs font-medium transition ${
-                        currentVal
-                          ? "bg-emerald-500 text-black font-semibold"
-                          : "bg-white/10 text-white/60"
-                      }`}
-                    >
-                      {currentVal ? "✓ Ativado" : "Desativado"}
-                    </button>
-                  )}
-                </div>
-              );
-            })}
-        </div>
-      )}
-
-      {paramsData.length > 0 && (
-        <div className="flex justify-end pt-4">
-          <button
-            onClick={handleSave}
-            disabled={saving}
-            className="rounded-xl bg-emerald-400 px-6 py-2.5 text-xs font-semibold text-black hover:bg-emerald-300 transition disabled:opacity-50"
-          >
-            {saving ? "Salvando..." : "Salvar Parâmetros do Projeto"}
-          </button>
-        </div>
-      )}
-    </div>
-  );
-}
 

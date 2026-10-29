@@ -12,6 +12,7 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
     const { workspace } = await getCurrentWorkspace();
     const { searchParams } = new URL(request.url);
     const download = searchParams.get("download") === "true";
+    const format = (searchParams.get("format") || "json").toLowerCase();
 
     const exportData = await PromptHistoryService.exportVersion(
       versionId,
@@ -19,16 +20,20 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
       workspace.id
     );
 
-    const jsonContent = JSON.stringify(exportData, null, 2);
-
     if (download) {
+      const isText = format === "txt" || format === "text";
+      const fileExt = isText ? "txt" : "json";
+      const contentType = isText ? "text/plain; charset=utf-8" : "application/json; charset=utf-8";
+      const bodyContent = isText ? (exportData.formattedText || exportData.outputText || "") : JSON.stringify(exportData, null, 2);
+
       const filename = `tomadix-${exportData.template.key}-v${exportData.versionNumber}-${projectId.slice(
         0,
         6
-      )}.json`;
-      return new NextResponse(jsonContent, {
+      )}.${fileExt}`;
+
+      return new NextResponse(bodyContent, {
         headers: {
-          "Content-Type": "application/json; charset=utf-8",
+          "Content-Type": contentType,
           "Content-Disposition": `attachment; filename="${filename}"`,
         },
       });

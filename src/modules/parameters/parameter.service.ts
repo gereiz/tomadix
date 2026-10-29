@@ -7,16 +7,48 @@ import {
 import { ParameterResolver, TargetContext } from "./parameter-resolver.service";
 import { VisualReferenceService } from "@/modules/visual-library/visual-reference.service";
 
+// Cache em memória de definições de parâmetros com TTL de 5 minutos
+interface ParameterCacheEntry {
+  data: any[];
+  expiresAt: number;
+}
+const parametersCache = new Map<string, ParameterCacheEntry>();
+const PARAMETERS_CACHE_TTL_MS = 5 * 60 * 1000;
+const defaultParametersCheckedWorkspaces = new Set<string>();
+
 export class ParameterService {
+  /**
+   * Invalida o cache de parâmetros para um workspace específico ou globalmente.
+   */
+  static invalidateCache(workspaceId?: string) {
+    if (workspaceId) {
+      defaultParametersCheckedWorkspaces.delete(workspaceId);
+      for (const key of parametersCache.keys()) {
+        if (key.startsWith(`${workspaceId}:`)) {
+          parametersCache.delete(key);
+        }
+      }
+    } else {
+      defaultParametersCheckedWorkspaces.clear();
+      parametersCache.clear();
+    }
+  }
+
   /**
    * Garante a existência de parâmetros cinematográficos padrão do estúdio para o workspace.
    */
   static async ensureDefaultParameters(workspaceId: string) {
+    // Se o workspace já foi verificado na memória de execução, evita round-trip desnecessário ao Supabase
+    if (defaultParametersCheckedWorkspaces.has(workspaceId)) {
+      return;
+    }
+
     // Se o workspace já possui parâmetros configurados, evita reprocessar dezenas de queries a cada requisição
     const existingCount = await db.parameterDefinition.count({
       where: { workspaceId },
     });
     if (existingCount >= 10) {
+      defaultParametersCheckedWorkspaces.add(workspaceId);
       return;
     }
 
@@ -158,34 +190,39 @@ export class ParameterService {
       },
     ];
 
-    for (const def of defaultParams) {
-      const exists = await db.parameterDefinition.findFirst({
-        where: {
+    const existingList = await db.parameterDefinition.findMany({
+      where: {
+        workspaceId,
+        key: { in: defaultParams.map((d) => d.key) },
+      },
+      select: { key: true },
+    });
+    const existingKeys = new Set(existingList.map((e) => e.key));
+
+    const toCreate = defaultParams.filter((def) => !existingKeys.has(def.key));
+    if (toCreate.length > 0) {
+      await db.parameterDefinition.createMany({
+        data: toCreate.map((def) => ({
           workspaceId,
           key: def.key,
-        },
+          label: def.label,
+          description: def.description,
+          type: def.type,
+          scope: def.scope,
+          required: def.required,
+          defaultValue: def.defaultValue as Prisma.InputJsonValue,
+          options: (def.options || []) as Prisma.InputJsonValue,
+          order: def.order,
+          promptMapping: def.promptMapping ? (def.promptMapping as Prisma.InputJsonValue) : undefined,
+          isSystem: true,
+          enabled: true,
+        })),
+        skipDuplicates: true,
       });
-
-      if (!exists) {
-        await db.parameterDefinition.create({
-          data: {
-            workspaceId,
-            key: def.key,
-            label: def.label,
-            description: def.description,
-            type: def.type,
-            scope: def.scope,
-            required: def.required,
-            defaultValue: def.defaultValue as Prisma.InputJsonValue,
-            options: (def.options || []) as Prisma.InputJsonValue,
-            order: def.order,
-            promptMapping: def.promptMapping ? (def.promptMapping as Prisma.InputJsonValue) : undefined,
-            isSystem: true,
-            enabled: true,
-          },
-        });
-      }
+      this.invalidateCache(workspaceId);
     }
+
+    defaultParametersCheckedWorkspaces.add(workspaceId);
 
     // Sincroniza parâmetros cinematográficos com catálogo visual de referências
     try {
@@ -207,11 +244,35 @@ export class ParameterService {
       enabled?: boolean | "all";
     }
   ) {
+    const isSearch = Boolean(filters?.search && filters.search.trim() !== "");
+    const cacheKey = `${workspaceId}:${filters?.scope || "ALL"}:${filters?.type || "ALL"}:${filters?.enabled ?? "all"}`;
+
+    if (!isSearch) {
+      const cached = parametersCache.get(cacheKey);
+      if (cached && cached.expiresAt > Date.now()) {
+        return cached.data;
+      }
+    }
+
     // Garante parâmetros básicos
     await this.ensureDefaultParameters(workspaceId);
 
+    const searchConditions =
+      filters?.search && filters.search.trim() !== ""
+        ? [
+            { label: { contains: filters.search.trim(), mode: "insensitive" as const } },
+            { key: { contains: filters.search.trim(), mode: "insensitive" as const } },
+            { description: { contains: filters.search.trim(), mode: "insensitive" as const } },
+          ]
+        : undefined;
+
     const where: Prisma.ParameterDefinitionWhereInput = {
-      workspaceId,
+      AND: [
+        {
+          OR: [{ workspaceId }, { workspaceId: null }],
+        },
+        ...(searchConditions ? [{ OR: searchConditions }] : []),
+      ],
     };
 
     if (filters?.type && filters.type !== "ALL") {
@@ -222,15 +283,6 @@ export class ParameterService {
       where.enabled = filters.enabled === true;
     }
 
-    if (filters?.search && filters.search.trim() !== "") {
-      const term = filters.search.trim();
-      where.OR = [
-        { label: { contains: term, mode: "insensitive" } },
-        { key: { contains: term, mode: "insensitive" } },
-        { description: { contains: term, mode: "insensitive" } },
-      ];
-    }
-
     const params = await db.parameterDefinition.findMany({
       where,
       orderBy: [
@@ -239,8 +291,47 @@ export class ParameterService {
       ],
     });
 
+    // Chaves legadas/duplicadas ou geradas por suítes de teste que não devem poluir a listagem
+    const LEGACY_OR_TEST_KEYS = new Set([
+      "lente_perspectiva",
+      "cor_gradacao_cinematografica",
+      "angulo_camera",
+      "composicao_cinematografica",
+      "foco_tratamento_optico",
+      "dinamica_movimento_cena",
+      "atmosfera_clima",
+    ]);
+    const isTestOrLegacyKey = (key: string) =>
+      LEGACY_OR_TEST_KEYS.has(key) ||
+      key.startsWith("anamorphic_flare_streak_") ||
+      key.startsWith("lut_color_grading_") ||
+      key.startsWith("texture_noise_custom_") ||
+      key.startsWith("param_hack_");
+
+    // Deduplica por chave (e por rótulo normalizado), preferindo parâmetros locais do workspace sobre globais
+    const deduplicatedMap = new Map<string, (typeof params)[0]>();
+    for (const p of params) {
+      if (isTestOrLegacyKey(p.key)) continue;
+      const existing = deduplicatedMap.get(p.key);
+      if (!existing) {
+        deduplicatedMap.set(p.key, p);
+      } else if (p.workspaceId === workspaceId && existing.workspaceId !== workspaceId) {
+        deduplicatedMap.set(p.key, p);
+      }
+    }
+
+    const seenLabels = new Set<string>();
+    const deduplicatedParams: typeof params = [];
+    for (const p of deduplicatedMap.values()) {
+      const normLabel = (p.label || "").trim().toLowerCase();
+      if (normLabel && seenLabels.has(normLabel)) continue;
+      if (normLabel) seenLabels.add(normLabel);
+      deduplicatedParams.push(p);
+    }
+
+    let result = deduplicatedParams;
     if (filters?.scope && filters.scope !== "ALL") {
-      return params.filter((p) => {
+      result = deduplicatedParams.filter((p) => {
         if (p.scope === filters.scope) return true;
         if (Array.isArray(p.scopes)) {
           const list = p.scopes as string[];
@@ -250,7 +341,14 @@ export class ParameterService {
       });
     }
 
-    return params;
+    if (!isSearch) {
+      parametersCache.set(cacheKey, {
+        data: result,
+        expiresAt: Date.now() + PARAMETERS_CACHE_TTL_MS,
+      });
+    }
+
+    return result;
   }
 
   /**
@@ -288,7 +386,7 @@ export class ParameterService {
     });
     const nextOrder = (maxOrder._max.order ?? 0) + 1;
 
-    return db.parameterDefinition.create({
+    const created = await db.parameterDefinition.create({
       data: {
         workspaceId,
         key: input.key,
@@ -307,6 +405,9 @@ export class ParameterService {
         enabled: input.enabled ?? true,
       },
     });
+
+    this.invalidateCache(workspaceId);
+    return created;
   }
 
   /**
@@ -350,10 +451,13 @@ export class ParameterService {
     if (input.order !== undefined) data.order = input.order;
     if (input.enabled !== undefined) data.enabled = input.enabled;
 
-    return db.parameterDefinition.update({
+    const updated = await db.parameterDefinition.update({
       where: { id },
       data,
     });
+
+    this.invalidateCache(workspaceId);
+    return updated;
   }
 
   /**
@@ -365,12 +469,15 @@ export class ParameterService {
       throw new Error("Parâmetro não encontrado.");
     }
 
-    return db.parameterDefinition.update({
+    const updated = await db.parameterDefinition.update({
       where: { id },
       data: {
         enabled: !existing.enabled,
       },
     });
+
+    this.invalidateCache(workspaceId);
+    return updated;
   }
 
   /**
@@ -385,6 +492,8 @@ export class ParameterService {
         })
       )
     );
+
+    this.invalidateCache(workspaceId);
   }
 
   /**
@@ -405,9 +514,12 @@ export class ParameterService {
       where: { parameterDefinitionId: id },
     });
 
-    return db.parameterDefinition.delete({
+    const deleted = await db.parameterDefinition.delete({
       where: { id },
     });
+
+    this.invalidateCache(workspaceId);
+    return deleted;
   }
 
   /**
@@ -471,24 +583,29 @@ export class ParameterService {
     workspaceId: string,
     target: TargetContext
   ) {
-    // Garante parâmetros básicos padrão se ainda não foram populados
-    await this.ensureDefaultParameters(workspaceId);
+    // 1. Obter definições ativas do workspace (utilizando cache em memória)
+    const definitions = await this.listParameters(workspaceId, { enabled: true });
 
-    // 1. Obter definições ativas do workspace
-    const definitions = await db.parameterDefinition.findMany({
-      where: {
-        workspaceId,
-        enabled: true,
-      },
-      orderBy: { order: "asc" },
+    // 2. Filtrar apenas os parâmetros habilitados na configuração do projeto (Etapas 3 e 4)
+    const project = await db.project.findFirst({
+      where: { id: projectId, workspaceId },
+      select: { configuration: true },
     });
+    const config = (project?.configuration as any) || {};
+    const settings = config.parameterSettings;
 
-    // 2. Obter todos os valores gravados no projeto
+    let activeDefs = definitions;
+    if (settings && Array.isArray(settings.enabledParameterKeys)) {
+      const allowedSet = new Set(settings.enabledParameterKeys);
+      activeDefs = definitions.filter((d) => allowedSet.has(d.key));
+    }
+
+    // 3. Obter todos os valores gravados no projeto
     const allProjectValues = await db.parameterValue.findMany({
       where: { projectId },
     });
 
-    // 3. Executar o motor de resolução com precedência estrita
-    return ParameterResolver.resolveForTarget(definitions, allProjectValues, target);
+    // 4. Executar o motor de resolução com precedência estrita
+    return ParameterResolver.resolveForTarget(activeDefs, allProjectValues, target);
   }
 }

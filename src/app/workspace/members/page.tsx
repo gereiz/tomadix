@@ -316,7 +316,7 @@ export default function WorkspaceMembersPage() {
 
   return (
     <div className="min-h-screen bg-[#07090e] text-white">
-      <div className="mx-auto max-w-6xl px-6 py-12">
+      <div className="w-full px-4 sm:px-6 lg:px-8 py-12">
         {/* Header */}
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 border-b border-white/10 pb-6">
           <div>

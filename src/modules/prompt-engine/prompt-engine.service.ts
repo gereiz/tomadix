@@ -9,6 +9,8 @@ import { getSystemTemplate, SYSTEM_TEMPLATES } from "./prompt-template.catalog";
 import { getToolProfile, TOOL_PROFILES } from "./tool-profiles";
 import { composePromptInstructions } from "./compose-prompt";
 import { generateStructuredJson } from "../ai/gemini-provider";
+import { ParameterService } from "../parameters/parameter.service";
+import { formatPromptToPlainText } from "./format-plain-text";
 import { BillingPolicyService } from "../billing/billing-policy.service";
 import { EntitlementService } from "../billing/entitlement.service";
 import { CreditPricingService } from "../billing/credit-pricing.service";
@@ -21,6 +23,8 @@ export interface GeneratePromptResult {
   targetTool: string;
   model: string;
   data: PromptEngineOutput;
+  formattedText?: string;
+  outputFormat?: "json" | "text";
   tokens?: {
     inputTokens: number;
     outputTokens: number;
@@ -99,31 +103,23 @@ export class PromptEngineService {
       if (!environmentData) throw new Error(`Ambiente (${req.environmentId}) não encontrado.`);
     }
 
-    // 5. Carregar e resolver parâmetros dinâmicos
-    const [paramDefs, paramValues] = await Promise.all([
-      db.parameterDefinition.findMany({
-        where: { enabled: true, OR: [{ workspaceId: null }, { workspaceId }] },
-      }),
-      db.parameterValue.findMany({
-        where: { projectId },
-        include: { definition: true },
-      }),
-    ]);
+    // 5. Carregar e resolver parâmetros cinematográficos do projeto e do contexto específico (Etapa 5)
+    const targetContext = req.sceneId
+      ? { type: "SCENE" as const, id: req.sceneId }
+      : req.characterId
+      ? { type: "CHARACTER" as const, id: req.characterId }
+      : req.environmentId
+      ? { type: "ENVIRONMENT" as const, id: req.environmentId }
+      : { type: "PROJECT" as const, id: projectId };
 
-    const resolvedParameters: Record<string, any> = {};
-    const missingRequiredParams: string[] = [];
+    const parameterResolution = await ParameterService.resolveForProject(
+      projectId,
+      workspaceId,
+      targetContext
+    );
 
-    // Mapear valores por escopo
-    for (const def of paramDefs) {
-      const matchedVal = paramValues.find((pv) => pv.parameterDefinitionId === def.id);
-      if (matchedVal && matchedVal.value !== null && matchedVal.value !== undefined) {
-        resolvedParameters[def.key] = matchedVal.value;
-      } else if (def.defaultValue !== null && def.defaultValue !== undefined) {
-        resolvedParameters[def.key] = def.defaultValue;
-      } else if (def.required) {
-        missingRequiredParams.push(def.label || def.key);
-      }
-    }
+    const resolvedParameters: Record<string, any> = parameterResolution.resolved;
+    const missingRequiredParams = parameterResolution.missingRequired;
 
     if (missingRequiredParams.length > 0) {
       throw new Error(
@@ -145,7 +141,7 @@ export class PromptEngineService {
 
     // 7. Política Comercial: Resolução dinâmica de custos via Catálogo Central de Operações
     let operationCode = "GEN_IMAGE_PROMPT";
-    if (["runway_gen3", "sora", "kling_ai", "luma_dream_machine"].includes(req.targetTool) || req.templateKey === "video_prompt") {
+    if (["runway_gen3", "sora", "kling_ai", "luma_dream_machine"].includes(req.targetTool || "google_flow") || req.templateKey === "video_prompt") {
       operationCode = "GEN_VIDEO_PROMPT";
     } else if (req.templateKey === "character_definition") {
       operationCode = "GEN_CHARACTER";
@@ -227,9 +223,11 @@ export class PromptEngineService {
       });
 
 
-      // 11. Extrair outputText caso o schema contenha um texto compilado de prompt
+      // 11. Extrair outputText e formatar saída em Texto Simples (Etapa 5)
       const rawData = geminiResult.data as any;
+      const formattedText = formatPromptToPlainText(geminiResult.data, req.templateKey);
       const outputText =
+        formattedText ||
         rawData.compiledPromptText ||
         rawData.compiledProductionPrompt ||
         rawData.compiledBasePrompt ||
@@ -253,7 +251,7 @@ export class PromptEngineService {
           sceneId: req.sceneId || null,
           templateKey: req.templateKey,
           templateVersion: template.version,
-          targetTool: req.targetTool,
+          targetTool: req.targetTool || "google_flow",
           modelName: geminiResult.model || modelName,
           inputSnapshot: {
             versionNumber,
@@ -320,9 +318,11 @@ export class PromptEngineService {
         versionId: promptVersion.id,
         templateKey: req.templateKey,
         templateVersion: template.version,
-        targetTool: req.targetTool,
+        targetTool: req.targetTool || "google_flow",
         model: geminiResult.model || modelName,
         data: geminiResult.data,
+        formattedText,
+        outputFormat: req.outputFormat || "json",
         tokens: geminiResult.tokens,
         createdAt: promptVersion.createdAt.toISOString(),
       };

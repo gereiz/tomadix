@@ -15,13 +15,19 @@ export async function GET(request: NextRequest) {
       status: searchParams.get("status") ?? "active",
       sort: searchParams.get("sort") ?? "updatedAt_desc",
       genre: searchParams.get("genre") ?? undefined,
+      page: searchParams.get("page") ?? undefined,
+      limit: searchParams.get("limit") ?? undefined,
     });
 
-    const projects = await ProjectService.listProjects(workspace.id, query);
+    const result = await ProjectService.listProjects(workspace.id, query);
+    const hasPaginationMeta = (result as any).total !== undefined && query.limit !== undefined;
 
     return NextResponse.json({
-      data: projects,
-      total: projects.length,
+      data: result,
+      total: hasPaginationMeta ? (result as any).total : result.length,
+      page: hasPaginationMeta ? (result as any).page : 1,
+      limit: hasPaginationMeta ? (result as any).limit : result.length,
+      totalPages: hasPaginationMeta ? (result as any).totalPages : 1,
     });
   } catch (error) {
     if (error instanceof AuthenticationError) {

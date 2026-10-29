@@ -9,6 +9,15 @@ export async function GET() {
       return NextResponse.json({ authenticated: false, user: null }, { status: 401 });
     }
 
+    const envAdminEmails = (process.env.ADMIN_EMAILS || "")
+      .split(",")
+      .map((e) => e.trim().toLowerCase())
+      .filter(Boolean);
+    const isPlatformAdmin =
+      user.platformRole === "ADMIN" ||
+      user.platformRole === "SUPER_ADMIN" ||
+      Boolean(user.email && envAdminEmails.includes(user.email.toLowerCase()));
+
     return NextResponse.json({
       authenticated: true,
       user: {
@@ -17,7 +26,7 @@ export async function GET() {
         displayName: user.displayName,
         emailConfirmed: user.emailConfirmed,
         platformRole: user.platformRole,
-        isPlatformAdmin: user.platformRole === "ADMIN" || user.platformRole === "SUPER_ADMIN",
+        isPlatformAdmin,
         memberships: user.memberships.map((m) => ({
           workspaceId: m.workspaceId,
           workspaceName: m.workspace.name,

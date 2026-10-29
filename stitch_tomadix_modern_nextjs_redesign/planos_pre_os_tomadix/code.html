@@ -1,0 +1,696 @@
+<!DOCTYPE html>
+
+<html class="dark scroll-smooth" lang="pt-BR"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Tomadix • Planos Comerciais Cinematográficos</title>
+<!-- Inter & Plus Jakarta Sans Google Fonts -->
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&amp;family=Plus+Jakarta+Sans:wght@500;600;700;800&amp;family=JetBrains+Mono:wght@400;500;600&amp;display=swap" rel="stylesheet"/>
+<!-- Tailwind CSS CDN with plugins -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<!-- Tailwind Config -->
+<script data-purpose="tailwind-config">
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            brand: {
+              emerald: '#10b981',
+              neon: '#00f59b',
+              glow: '#059669',
+              dark: '#050709',
+              panel: '#0d1117',
+              surface: '#13181f',
+              border: '#1f2732',
+              borderLight: '#2c3746'
+            }
+          },
+          fontFamily: {
+            sans: ['Inter', 'sans-serif'],
+            display: ['Plus Jakarta Sans', 'sans-serif'],
+            mono: ['JetBrains Mono', 'monospace']
+          },
+          boxShadow: {
+            'glow-emerald': '0 0 35px -5px rgba(0, 245, 155, 0.25)',
+            'glow-emerald-lg': '0 0 60px -10px rgba(0, 245, 155, 0.35)',
+            'subtle-card': '0 10px 30px -10px rgba(0, 0, 0, 0.7)'
+          }
+        }
+      }
+    }
+  </script>
+<!-- Custom Core Styles -->
+<style data-purpose="custom-styling">
+    body {
+      background-color: #07090c;
+      color: #f3f4f6;
+      font-family: 'Inter', sans-serif;
+    }
+    .font-display {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+    }
+    .font-mono-code {
+      font-family: 'JetBrains Mono', monospace;
+    }
+    /* Subtle noise/grid background overlay */
+    .bg-grid-pattern {
+      background-image: radial-gradient(rgba(255, 255, 255, 0.05) 1px, transparent 1px);
+      background-size: 32px 32px;
+    }
+    .emerald-glow-radial {
+      background: radial-gradient(600px circle at 50% 0%, rgba(0, 245, 155, 0.12), transparent 70%);
+    }
+    /* Smooth transition for billing toggle switch */
+    .toggle-knob {
+      transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    /* Custom scrollbar */
+    ::-webkit-scrollbar {
+      width: 8px;
+      height: 8px;
+    }
+    ::-webkit-scrollbar-track {
+      background: #0b0f13;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #1e2630;
+      border-radius: 4px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: #2b3644;
+    }
+  </style>
+</head>
+<body class="min-h-screen flex flex-col bg-[#07090c] text-gray-200 antialiased selection:bg-brand-emerald selection:text-black">
+<!-- BEGIN: TopNavigation -->
+<header class="sticky top-0 z-50 w-full border-b border-white/[0.08] bg-[#090d12]/80 backdrop-blur-xl">
+<div class="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between gap-4">
+<!-- Brand Logo & Workspace Selector -->
+<div class="flex items-center gap-5">
+<!-- Logo -->
+<a class="flex items-center gap-2.5 group transition-transform active:scale-95" href="#dashboard">
+<div class="w-8 h-8 rounded-lg bg-[#00f59b] flex items-center justify-center font-black text-black text-lg shadow-[0_0_15px_rgba(0,245,155,0.4)]">
+            T
+          </div>
+<span class="font-display font-extrabold tracking-wider text-white text-lg group-hover:text-brand-neon transition-colors">
+            TOMADIX
+          </span>
+</a>
+<!-- Workspace Dropdown Pill -->
+<div class="hidden md:flex items-center bg-[#131920] border border-white/[0.08] hover:border-white/[0.18] rounded-full px-3 py-1.5 gap-2 transition cursor-pointer">
+<span class="w-2 h-2 rounded-full bg-brand-neon animate-pulse"></span>
+<span class="text-xs font-semibold text-gray-200">ibitWeb Studio</span>
+<span class="text-[10px] font-mono tracking-wider px-1.5 py-0.5 rounded bg-brand-neon/15 text-brand-neon font-bold uppercase">OWNER</span>
+<svg class="w-3.5 h-3.5 text-gray-400" fill="none" stroke="currentColor" viewbox="0 0 24 24">
+<path d="M19 9l-7 7-7-7" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
+</svg>
+</div>
+</div>
+<!-- Main Navigation Links -->
+<nav class="hidden lg:flex items-center space-x-1">
+<a class="flex items-center gap-2 px-3.5 py-2 text-xs font-medium text-gray-400 hover:text-white rounded-lg hover:bg-white/[0.04] transition" href="#estudio">
+<svg class="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>
+          Estúdio
+        </a>
+<a class="flex items-center gap-2 px-3.5 py-2 text-xs font-medium text-gray-400 hover:text-white rounded-lg hover:bg-white/[0.04] transition" href="#projetos">
+<svg class="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>
+          Projetos
+        </a>
+<a class="flex items-center gap-2 px-3.5 py-2 text-xs font-medium text-gray-400 hover:text-white rounded-lg hover:bg-white/[0.04] transition" href="#parametros">
+<svg class="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>
+          Parâmetros
+        </a>
+<a class="flex items-center gap-2 px-3.5 py-2 text-xs font-medium text-gray-400 hover:text-white rounded-lg hover:bg-white/[0.04] transition" href="#dashboard">
+<svg class="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>
+          Dashboard
+        </a>
+<!-- Active Planos Tab -->
+<a class="flex items-center gap-2 px-3.5 py-2 text-xs font-semibold text-brand-neon bg-brand-neon/10 border border-brand-neon/30 rounded-lg shadow-sm" href="#planos">
+<svg class="w-4 h-4 text-brand-neon" fill="currentColor" viewbox="0 0 24 24"><path d="M4 4h16v3H4V4zm0 6h16v10H4V10zm2 2v6h12v-6H6z"></path></svg>
+          Planos
+        </a>
+</nav>
+<!-- Right Utility Actions & User Menu -->
+<div class="flex items-center gap-2 sm:gap-3">
+<div class="hidden xl:flex items-center gap-1 text-xs text-gray-400 pr-2 border-r border-white/[0.08]">
+<a class="px-2.5 py-1.5 hover:text-white rounded-md hover:bg-white/[0.04] transition" href="#equipe">Equipe</a>
+<a class="px-2.5 py-1.5 hover:text-white rounded-md hover:bg-white/[0.04] transition" href="#assinatura">Assinatura</a>
+<a class="px-2.5 py-1.5 hover:text-white rounded-md hover:bg-white/[0.04] transition" href="#perfil">Perfil &amp; Estúdio</a>
+</div>
+<button class="px-3 py-1.5 text-xs text-gray-400 hover:text-red-400 rounded-md hover:bg-red-500/10 transition flex items-center gap-1.5" type="button">
+<svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>
+<span class="hidden sm:inline">Sair</span>
+</button>
+<!-- User Avatar with emerald status ring -->
+<div class="relative pl-1">
+<div class="w-8 h-8 rounded-full bg-gradient-to-tr from-brand-emerald to-brand-neon p-[1.5px] cursor-pointer ring-2 ring-transparent hover:ring-brand-neon/30 transition">
+<div class="w-full h-full bg-[#0d1319] rounded-full flex items-center justify-center text-xs font-bold text-brand-neon">
+              IB
+            </div>
+</div>
+<span class="absolute bottom-0 right-0 w-2.5 h-2.5 bg-brand-neon border-2 border-[#090d12] rounded-full"></span>
+</div>
+</div>
+</div>
+</header>
+<!-- END: TopNavigation -->
+<!-- BEGIN: MainContent -->
+<main class="flex-1 relative overflow-hidden bg-grid-pattern">
+<!-- Atmospheric Ambient Lighting Effects -->
+<div class="absolute top-0 left-1/2 -translate-x-1/2 w-full max-w-7xl h-[420px] emerald-glow-radial pointer-events-none -z-10"></div>
+<div class="absolute top-96 left-1/4 w-96 h-96 bg-brand-glow/5 rounded-full blur-3xl pointer-events-none -z-10"></div>
+<div class="absolute top-96 right-1/4 w-96 h-96 bg-cyan-500/5 rounded-full blur-3xl pointer-events-none -z-10"></div>
+<div class="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8 pt-12 pb-24">
+<!-- BEGIN: HeroSection -->
+<section class="text-center max-w-4xl mx-auto mb-14" data-purpose="hero-header">
+<!-- Badge Pill -->
+<div class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white/[0.04] border border-brand-neon/30 text-brand-neon text-xs font-medium tracking-wide shadow-[0_0_20px_rgba(0,245,155,0.15)] mb-6 animate-fade-in">
+<svg class="w-3.5 h-3.5 text-brand-neon" fill="none" stroke="currentColor" viewbox="0 0 24 24">
+<path d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
+</svg>
+<span>Planos Comerciais Transparentes</span>
+</div>
+<!-- Main Title -->
+<h1 class="font-display font-extrabold text-3xl sm:text-5xl lg:text-6xl text-white tracking-tight leading-[1.1] mb-5">
+          Potencialize suas produções <br class="hidden sm:inline"/>
+<span class="bg-gradient-to-r from-white via-gray-200 to-brand-neon bg-clip-text text-transparent">cinematográficas com IA</span>
+</h1>
+<!-- Subtitle -->
+<p class="text-gray-400 text-sm sm:text-base lg:text-lg max-w-2xl mx-auto leading-relaxed font-normal">
+          Escolha o plano ideal para você ou sua produtora. Crie bíblias visuais, cenas, parâmetros e roteiros cinematográficos com fidelidade incomparável.
+        </p>
+<!-- Billing Frequency Switch Toggle -->
+<div class="mt-8 inline-flex items-center gap-3 p-1.5 bg-[#10151d] border border-white/[0.09] rounded-full shadow-inner" data-purpose="billing-switcher">
+<span class="text-xs font-semibold px-3 py-1 cursor-pointer transition text-white" id="monthly-label">Cobrança Mensal</span>
+<button aria-checked="false" class="relative w-12 h-6 bg-gray-800 rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-brand-neon/50" id="billing-toggle" role="switch" type="button">
+<span class="toggle-knob block w-5 h-5 bg-brand-neon rounded-full shadow-md transform translate-x-0.5 mt-0.5" id="billing-knob"></span>
+</button>
+<div class="flex items-center gap-2 pr-2">
+<span class="text-xs font-medium cursor-pointer transition text-gray-400" id="annual-label">Cobrança Anual</span>
+<span class="inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-bold bg-brand-neon/15 text-brand-neon border border-brand-neon/30">
+              17% OFF (2 meses grátis)
+            </span>
+</div>
+</div>
+</section>
+<!-- END: HeroSection -->
+<!-- BEGIN: PricingCardsGrid -->
+<section class="grid grid-cols-1 lg:grid-cols-3 gap-8 items-stretch mb-24" data-purpose="pricing-grid">
+<!-- ================= CARD 1: PLANO GRATUITO ================= -->
+<article class="relative flex flex-col rounded-2xl bg-[#0e131a]/80 backdrop-blur-md border border-white/[0.08] hover:border-white/[0.18] p-7 transition duration-300 shadow-subtle-card">
+<!-- Top Row: Name & Tag -->
+<div class="flex items-center justify-between gap-2 mb-3">
+<h3 class="font-display font-bold text-xl text-white">Plano Gratuito</h3>
+<span class="text-[11px] font-semibold px-2.5 py-1 rounded-md bg-white/[0.06] text-gray-300 border border-white/[0.08]">
+              Seu Plano Atual
+            </span>
+</div>
+<p class="text-gray-400 text-xs min-h-[36px] mb-6 leading-relaxed">
+            Ideal para experimentar a engenharia de prompts cinematográficos e testar a plataforma.
+          </p>
+<!-- Price Display -->
+<div class="mb-6 pb-6 border-b border-white/[0.08]">
+<div class="flex items-baseline gap-1">
+<span class="font-display font-extrabold text-4xl text-white tracking-tight">Grátis</span>
+</div>
+<span class="text-xs text-gray-400 mt-1 block">Acesso vitalício aos recursos essenciais</span>
+</div>
+<!-- Structured Quick Metrics -->
+<div class="space-y-2.5 mb-6 text-xs bg-black/20 p-3.5 rounded-xl border border-white/[0.05]">
+<div class="flex justify-between items-center text-gray-300">
+<span class="text-gray-400">Projetos Simultâneos:</span>
+<span class="font-semibold font-mono-code text-white">3</span>
+</div>
+<div class="flex justify-between items-center text-gray-300">
+<span class="text-gray-400">Membros da Equipe:</span>
+<span class="font-semibold font-mono-code text-white">1</span>
+</div>
+<div class="flex justify-between items-center text-gray-300">
+<span class="text-gray-400">Créditos de IA / mês:</span>
+<span class="font-bold font-mono-code text-brand-neon">20 créditos</span>
+</div>
+</div>
+<!-- Feature Checklist -->
+<ul class="space-y-3 text-xs text-gray-300 mb-8 flex-1">
+<li class="flex items-start gap-2.5">
+<svg class="w-4 h-4 text-brand-neon mt-0.5 shrink-0" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path d="M5 13l4 4L19 7" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"></path></svg>
+<span>Até 2 projetos ativos simultâneos</span>
+</li>
+<li class="flex items-start gap-2.5">
+<svg class="w-4 h-4 text-brand-neon mt-0.5 shrink-0" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path d="M5 13l4 4L19 7" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"></path></svg>
+<span>1 membro no estúdio</span>
+</li>
+<li class="flex items-start gap-2.5">
+<svg class="w-4 h-4 text-brand-neon mt-0.5 shrink-0" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path d="M5 13l4 4L19 7" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"></path></svg>
+<span>20 créditos de geração com Gemini por mês</span>
+</li>
+<li class="flex items-start gap-2.5">
+<svg class="w-4 h-4 text-brand-neon mt-0.5 shrink-0" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path d="M5 13l4 4L19 7" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"></path></svg>
+<span>Templates cinematográficos essenciais</span>
+</li>
+<li class="flex items-start gap-2.5">
+<svg class="w-4 h-4 text-brand-neon mt-0.5 shrink-0" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path d="M5 13l4 4L19 7" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"></path></svg>
+<span>Exportação de prompts em JSON</span>
+</li>
+<li class="flex items-start gap-2.5">
+<svg class="w-4 h-4 text-brand-neon mt-0.5 shrink-0" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path d="M5 13l4 4L19 7" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"></path></svg>
+<span>Resolução de parâmetros dinâmicos</span>
+</li>
+</ul>
+<!-- Action CTA Button -->
+<button class="w-full py-3 px-4 rounded-xl border border-white/[0.15] bg-[#141922] hover:bg-[#1c232f] text-xs font-semibold text-gray-200 hover:text-white transition duration-200" type="button">
+            Gerenciar Assinatura
+          </button>
+</article>
+<!-- ================= CARD 2: PLANO PRO RENOVADO (HERO / FEATURED) ================= -->
+<article class="relative flex flex-col rounded-2xl bg-gradient-to-b from-[#111c18] via-[#0d1419] to-[#0a0f14] border-2 border-brand-neon shadow-glow-emerald p-7 transition duration-300 lg:-translate-y-3">
+<!-- Outstanding Floating Badge -->
+<div class="absolute -top-3.5 left-1/2 -translate-x-1/2">
+<span class="inline-flex items-center gap-1.5 px-4 py-1 rounded-full bg-brand-neon text-black text-[11px] font-black uppercase tracking-wider shadow-[0_0_15px_rgba(0,245,155,0.6)]">
+              ★ MAIS ESCOLHIDO
+            </span>
+</div>
+<!-- Top Row: Name & Tag -->
+<div class="flex items-center justify-between gap-2 mb-3 mt-2">
+<h3 class="font-display font-extrabold text-2xl text-white">Plano Pro Renovado</h3>
+<span class="text-[10px] font-mono px-2 py-0.5 rounded bg-brand-neon/20 text-brand-neon font-bold border border-brand-neon/30">
+              POPULAR
+            </span>
+</div>
+<p class="text-gray-300 text-xs min-h-[36px] mb-6 leading-relaxed">
+            Plano Pro com capacidade expandida para cineastas, diretores e criadores independentes.
+          </p>
+<!-- Price Display -->
+<div class="mb-6 pb-6 border-b border-brand-neon/20">
+<div class="flex items-baseline gap-1.5">
+<span class="font-display font-black text-4xl sm:text-5xl text-white tracking-tight" id="price-pro">R$ 129,00</span>
+<span class="text-xs font-semibold text-gray-400" id="period-pro">/mês</span>
+</div>
+<span class="text-xs text-brand-neon/90 font-medium mt-1.5 block" id="subtext-pro">Cobrado mensalmente • Cancele quando quiser</span>
+</div>
+<!-- Structured Quick Metrics -->
+<div class="space-y-2.5 mb-6 text-xs bg-brand-neon/[0.06] p-3.5 rounded-xl border border-brand-neon/25">
+<div class="flex justify-between items-center text-gray-200">
+<span class="text-gray-300">Projetos Simultâneos:</span>
+<span class="font-bold font-mono-code text-white">15</span>
+</div>
+<div class="flex justify-between items-center text-gray-200">
+<span class="text-gray-300">Membros da Equipe:</span>
+<span class="font-bold font-mono-code text-white">5</span>
+</div>
+<div class="flex justify-between items-center text-gray-200">
+<span class="text-gray-300">Créditos de IA / mês:</span>
+<span class="font-black font-mono-code text-brand-neon">200 créditos</span>
+</div>
+</div>
+<!-- Feature Checklist -->
+<ul class="space-y-3 text-xs text-gray-200 mb-8 flex-1">
+<li class="flex items-start gap-2.5">
+<svg class="w-4 h-4 text-brand-neon mt-0.5 shrink-0" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path d="M5 13l4 4L19 7" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"></path></svg>
+<span class="font-medium text-white">15 projetos simultâneos ativos</span>
+</li>
+<li class="flex items-start gap-2.5">
+<svg class="w-4 h-4 text-brand-neon mt-0.5 shrink-0" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path d="M5 13l4 4L19 7" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"></path></svg>
+<span>5 membros na equipe com controle granular</span>
+</li>
+<li class="flex items-start gap-2.5">
+<svg class="w-4 h-4 text-brand-neon mt-0.5 shrink-0" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path d="M5 13l4 4L19 7" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"></path></svg>
+<span>200 créditos com Gemini 1.5 Pro &amp; Flash</span>
+</li>
+<li class="flex items-start gap-2.5">
+<svg class="w-4 h-4 text-brand-neon mt-0.5 shrink-0" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path d="M5 13l4 4L19 7" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"></path></svg>
+<span>Lock de personagens e seeds cinematográficas consistentes</span>
+</li>
+<li class="flex items-start gap-2.5">
+<svg class="w-4 h-4 text-brand-neon mt-0.5 shrink-0" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path d="M5 13l4 4L19 7" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"></path></svg>
+<span>Exportação Runway Gen-3, Midjourney v6.1 e Kling</span>
+</li>
+<li class="flex items-start gap-2.5">
+<svg class="w-4 h-4 text-brand-neon mt-0.5 shrink-0" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path d="M5 13l4 4L19 7" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"></path></svg>
+<span>Análise de decupagem e beat sheets automáticos</span>
+</li>
+<li class="flex items-start gap-2.5">
+<svg class="w-4 h-4 text-brand-neon mt-0.5 shrink-0" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path d="M5 13l4 4L19 7" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"></path></svg>
+<span>Suporte prioritário via Discord VIP &amp; WhatsApp</span>
+</li>
+</ul>
+<!-- Action CTA Button -->
+<button class="w-full py-3.5 px-4 rounded-xl bg-gradient-to-r from-[#00f59b] to-[#10b981] hover:from-[#10b981] hover:to-[#059669] text-black font-extrabold text-xs uppercase tracking-wider shadow-[0_0_20px_rgba(0,245,155,0.4)] hover:shadow-[0_0_30px_rgba(0,245,155,0.6)] transition duration-200 active:scale-[0.98]" type="button">
+            Contratar Plano Pro Renovado ⚡
+          </button>
+</article>
+<!-- ================= CARD 3: CINEPROMPT TEAM ILIMITADO ================= -->
+<article class="relative flex flex-col rounded-2xl bg-[#0e131a]/80 backdrop-blur-md border border-white/[0.08] hover:border-white/[0.18] p-7 transition duration-300 shadow-subtle-card">
+<!-- Top Row: Name & Tag -->
+<div class="flex items-center justify-between gap-2 mb-3">
+<h3 class="font-display font-bold text-xl text-white">CinePrompt Team</h3>
+<span class="text-[10px] font-mono font-bold px-2.5 py-1 rounded-md bg-purple-500/15 text-purple-300 border border-purple-500/30 uppercase tracking-wide">
+              ENTERPRISE
+            </span>
+</div>
+<p class="text-gray-400 text-xs min-h-[36px] mb-6 leading-relaxed">
+            Estúdios de alta demanda, agências de publicidade e produtoras audiovisuais.
+          </p>
+<!-- Price Display -->
+<div class="mb-6 pb-6 border-b border-white/[0.08]">
+<div class="flex items-baseline gap-1.5">
+<span class="font-display font-extrabold text-4xl text-white tracking-tight" id="price-team">R$ 249,00</span>
+<span class="text-xs font-semibold text-gray-400" id="period-team">/mês</span>
+</div>
+<span class="text-xs text-gray-400 mt-1 block" id="subtext-team">Faturamento flexível corporativo</span>
+</div>
+<!-- Structured Quick Metrics -->
+<div class="space-y-2.5 mb-6 text-xs bg-black/20 p-3.5 rounded-xl border border-white/[0.05]">
+<div class="flex justify-between items-center text-gray-300">
+<span class="text-gray-400">Projetos Simultâneos:</span>
+<span class="font-bold font-mono-code text-white">Ilimitados</span>
+</div>
+<div class="flex justify-between items-center text-gray-300">
+<span class="text-gray-400">Membros da Equipe:</span>
+<span class="font-bold font-mono-code text-white">10 inclusos</span>
+</div>
+<div class="flex justify-between items-center text-gray-300">
+<span class="text-gray-400">Créditos de IA / mês:</span>
+<span class="font-bold font-mono-code text-cyan-400">2500 créditos</span>
+</div>
+</div>
+<!-- Feature Checklist -->
+<ul class="space-y-3 text-xs text-gray-300 mb-8 flex-1">
+<li class="flex items-start gap-2.5">
+<svg class="w-4 h-4 text-brand-neon mt-0.5 shrink-0" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path d="M5 13l4 4L19 7" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"></path></svg>
+<span>Projetos ilimitados com versionamento em nuvem</span>
+</li>
+<li class="flex items-start gap-2.5">
+<svg class="w-4 h-4 text-brand-neon mt-0.5 shrink-0" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path d="M5 13l4 4L19 7" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"></path></svg>
+<span>10 membros de equipe inclusos (+ adicionais)</span>
+</li>
+<li class="flex items-start gap-2.5">
+<svg class="w-4 h-4 text-brand-neon mt-0.5 shrink-0" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path d="M5 13l4 4L19 7" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"></path></svg>
+<span>2.500 créditos de alta velocidade dedicados</span>
+</li>
+<li class="flex items-start gap-2.5">
+<svg class="w-4 h-4 text-brand-neon mt-0.5 shrink-0" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path d="M5 13l4 4L19 7" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"></path></svg>
+<span>Treinamento de LoRA e embeddings personalizados</span>
+</li>
+<li class="flex items-start gap-2.5">
+<svg class="w-4 h-4 text-brand-neon mt-0.5 shrink-0" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path d="M5 13l4 4L19 7" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"></path></svg>
+<span>Acesso antecipado a motores de vídeo (Sora &amp; Gen-3)</span>
+</li>
+<li class="flex items-start gap-2.5">
+<svg class="w-4 h-4 text-brand-neon mt-0.5 shrink-0" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path d="M5 13l4 4L19 7" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"></path></svg>
+<span>Exportação em lote de storyboards e b-roll scripts</span>
+</li>
+<li class="flex items-start gap-2.5">
+<svg class="w-4 h-4 text-brand-neon mt-0.5 shrink-0" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path d="M5 13l4 4L19 7" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"></path></svg>
+<span>SLA corporativo com canal dedicado no Slack</span>
+</li>
+</ul>
+<!-- Action CTA Button -->
+<button class="w-full py-3.5 px-4 rounded-xl border border-white/[0.2] bg-white/[0.04] hover:bg-white/[0.08] hover:border-brand-neon text-xs font-semibold text-white transition duration-200" type="button">
+            Contratar CinePrompt Team Ilimitado
+          </button>
+</article>
+</section>
+<!-- END: PricingCardsGrid -->
+<!-- BEGIN: FeatureComparisonTable -->
+<section class="mb-24" data-purpose="feature-matrix">
+<div class="text-center mb-10">
+<h2 class="font-display font-bold text-2xl sm:text-3xl text-white tracking-tight mb-2">
+            Matriz de Recursos &amp; Capacidades Técnicas
+          </h2>
+<p class="text-gray-400 text-sm">
+            Compare minuciosamente o que cada plano oferece para a sua pipeline criativa.
+          </p>
+</div>
+<div class="overflow-x-auto rounded-2xl border border-white/[0.08] bg-[#0c1016]/90 backdrop-blur-md shadow-2xl">
+<table class="w-full text-left border-collapse text-xs">
+<thead>
+<tr class="border-b border-white/[0.08] bg-white/[0.02]">
+<th class="p-4 sm:p-5 font-semibold text-gray-300 w-1/3">Capacidades da Plataforma</th>
+<th class="p-4 sm:p-5 font-semibold text-gray-300 text-center w-1/5">Plano Gratuito</th>
+<th class="p-4 sm:p-5 font-bold text-brand-neon text-center w-1/5 bg-brand-neon/[0.03]">Plano Pro Renovado</th>
+<th class="p-4 sm:p-5 font-semibold text-gray-300 text-center w-1/5">CinePrompt Team</th>
+</tr>
+</thead>
+<tbody class="divide-y divide-white/[0.06] text-gray-300">
+<!-- Categoria: Inteligência Artificial -->
+<tr class="bg-white/[0.015]">
+<td class="px-5 py-2.5 text-[11px] font-mono uppercase tracking-wider text-brand-neon font-bold" colspan="4">
+                  Motor de Inteligência Artificial &amp; Modelos
+                </td>
+</tr>
+<tr>
+<td class="p-4 sm:px-5">Créditos de IA Mensais</td>
+<td class="p-4 text-center font-mono-code">20</td>
+<td class="p-4 text-center font-mono-code font-bold text-brand-neon bg-brand-neon/[0.03]">200</td>
+<td class="p-4 text-center font-mono-code font-bold text-white">2.500</td>
+</tr>
+<tr>
+<td class="p-4 sm:px-5">Modelos Suportados</td>
+<td class="p-4 text-center text-gray-400">Gemini Flash Básico</td>
+<td class="p-4 text-center text-white bg-brand-neon/[0.03]">Gemini 1.5 Pro &amp; Claude 3.5 Sonnet</td>
+<td class="p-4 text-center text-white">Acesso Total + Modelos Customizados</td>
+</tr>
+<tr>
+<td class="p-4 sm:px-5">Consistência de Personagens &amp; Seeds</td>
+<td class="p-4 text-center text-gray-500">—</td>
+<td class="p-4 text-center text-brand-neon bg-brand-neon/[0.03]">✓ Incluso</td>
+<td class="p-4 text-center text-brand-neon">✓ Prioritário + LoRAs</td>
+</tr>
+<!-- Categoria: Pipeline Audiovisual -->
+<tr class="bg-white/[0.015]">
+<td class="px-5 py-2.5 text-[11px] font-mono uppercase tracking-wider text-brand-neon font-bold" colspan="4">
+                  Pipeline &amp; Exportações Cinematográficas
+                </td>
+</tr>
+<tr>
+<td class="p-4 sm:px-5">Exportação Runway Gen-3 / Midjourney</td>
+<td class="p-4 text-center text-gray-500">—</td>
+<td class="p-4 text-center text-brand-neon bg-brand-neon/[0.03]">✓ Sim</td>
+<td class="p-4 text-center text-brand-neon">✓ Sim (Com Presets de Câmera)</td>
+</tr>
+<tr>
+<td class="p-4 sm:px-5">Geração de Beat Sheets &amp; Decupagem</td>
+<td class="p-4 text-center text-gray-400">Básico (1 ato)</td>
+<td class="p-4 text-center text-white bg-brand-neon/[0.03]">Completo (3 atos + plots)</td>
+<td class="p-4 text-center text-white">Completo + Storyboard Batch</td>
+</tr>
+<tr>
+<td class="p-4 sm:px-5">Histórico de Versões de Prompts</td>
+<td class="p-4 text-center text-gray-400">7 dias</td>
+<td class="p-4 text-center text-white bg-brand-neon/[0.03]">90 dias</td>
+<td class="p-4 text-center text-white">Ilimitado</td>
+</tr>
+<!-- Categoria: Organização & Estúdio -->
+<tr class="bg-white/[0.015]">
+<td class="px-5 py-2.5 text-[11px] font-mono uppercase tracking-wider text-brand-neon font-bold" colspan="4">
+                  Colaboração &amp; Infraestrutura
+                </td>
+</tr>
+<tr>
+<td class="p-4 sm:px-5">Assentos de Colaboradores</td>
+<td class="p-4 text-center font-mono-code">1</td>
+<td class="p-4 text-center font-mono-code font-bold text-white bg-brand-neon/[0.03]">5</td>
+<td class="p-4 text-center font-mono-code font-bold text-brand-neon">10 inclusos (expansível)</td>
+</tr>
+<tr>
+<td class="p-4 sm:px-5">Suporte Técnico</td>
+<td class="p-4 text-center text-gray-400">Comunitário</td>
+<td class="p-4 text-center text-white bg-brand-neon/[0.03]">Prioritário (Discord / Whats)</td>
+<td class="p-4 text-center text-white">Gerente de Conta + Slack Direto</td>
+</tr>
+</tbody>
+</table>
+</div>
+</section>
+<!-- END: FeatureComparisonTable -->
+<!-- BEGIN: FAQSection -->
+<section class="max-w-3xl mx-auto mb-20" data-purpose="faq-section">
+<div class="text-center mb-10">
+<h2 class="font-display font-bold text-2xl sm:text-3xl text-white tracking-tight mb-2">
+            Perguntas Frequentes
+          </h2>
+<p class="text-gray-400 text-xs sm:text-sm">
+            Tudo o que você precisa saber sobre o faturamento, créditos de IA e cancelamento.
+          </p>
+</div>
+<div class="space-y-3.5" id="faq-accordion">
+<!-- FAQ Item 1 -->
+<div class="rounded-xl border border-white/[0.08] bg-[#0d1218] overflow-hidden transition">
+<button class="w-full py-4 px-5 text-left flex justify-between items-center text-sm font-semibold text-white hover:text-brand-neon transition" onclick="toggleFaq(this)" type="button">
+<span>Como funcionam os créditos de geração de IA?</span>
+<svg class="w-4 h-4 text-gray-400 transform transition-transform duration-200" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path d="M19 9l-7 7-7-7" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>
+</button>
+<div class="px-5 pb-4 text-xs text-gray-400 leading-relaxed hidden">
+              Cada geração de parâmetros avançados, decupagem ou bíblia de câmera consome uma quantidade específica de créditos dependendo do modelo selecionado (ex: Gemini Flash consome 1 crédito, enquanto Gemini 1.5 Pro consome 3 créditos por prompt profundo).
+            </div>
+</div>
+<!-- FAQ Item 2 -->
+<div class="rounded-xl border border-white/[0.08] bg-[#0d1218] overflow-hidden transition">
+<button class="w-full py-4 px-5 text-left flex justify-between items-center text-sm font-semibold text-white hover:text-brand-neon transition" onclick="toggleFaq(this)" type="button">
+<span>Posso fazer upgrade ou downgrade a qualquer momento?</span>
+<svg class="w-4 h-4 text-gray-400 transform transition-transform duration-200" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path d="M19 9l-7 7-7-7" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>
+</button>
+<div class="px-5 pb-4 text-xs text-gray-400 leading-relaxed hidden">
+              Sim! Ao mudar para um plano superior, o valor residual do mês atual é deduzido instantaneamente. Em casos de downgrade, a alteração passará a valer a partir do próximo ciclo de renovação.
+            </div>
+</div>
+<!-- FAQ Item 3 -->
+<div class="rounded-xl border border-white/[0.08] bg-[#0d1218] overflow-hidden transition">
+<button class="w-full py-4 px-5 text-left flex justify-between items-center text-sm font-semibold text-white hover:text-brand-neon transition" onclick="toggleFaq(this)" type="button">
+<span>Os prompts e bíblias gerados são de minha propriedade?</span>
+<svg class="w-4 h-4 text-gray-400 transform transition-transform duration-200" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path d="M19 9l-7 7-7-7" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>
+</button>
+<div class="px-5 pb-4 text-xs text-gray-400 leading-relaxed hidden">
+              Totalmente. Você retém 100% dos direitos autorais de todos os roteiros, prompts gerados, parâmetros de iluminação e bíblias visuais criadas através do Tomadix.
+            </div>
+</div>
+<!-- FAQ Item 4 -->
+<div class="rounded-xl border border-white/[0.08] bg-[#0d1218] overflow-hidden transition">
+<button class="w-full py-4 px-5 text-left flex justify-between items-center text-sm font-semibold text-white hover:text-brand-neon transition" onclick="toggleFaq(this)" type="button">
+<span>Quais métodos de pagamento são aceitos no Brasil?</span>
+<svg class="w-4 h-4 text-gray-400 transform transition-transform duration-200" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path d="M19 9l-7 7-7-7" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>
+</button>
+<div class="px-5 pb-4 text-xs text-gray-400 leading-relaxed hidden">
+              Aceitamos cartões de crédito nacionais e internacionais (Visa, Mastercard, Elo, Amex) com cobrança direta em Real (BRL), além de PIX instantâneo com ativação imediata dos limites.
+            </div>
+</div>
+</div>
+</section>
+<!-- END: FAQSection -->
+</div>
+</main>
+<!-- END: MainContent -->
+<!-- BEGIN: PlatformFooter -->
+<footer class="border-t border-white/[0.08] bg-[#06080b] py-6 px-4 sm:px-6 lg:px-8 text-xs text-gray-400">
+<div class="max-w-[1600px] mx-auto flex flex-col md:flex-row items-center justify-between gap-4">
+<!-- System Identity & Version -->
+<div class="flex items-center gap-3">
+<div class="w-2 h-2 rounded-full bg-brand-neon shadow-[0_0_8px_#00f59b]"></div>
+<span class="font-mono-code font-semibold tracking-wide text-gray-300">
+          TOMADIX CINEMATIC AI V2.4
+        </span>
+<span class="text-gray-600 hidden sm:inline">•</span>
+<span class="text-gray-400 hidden sm:inline">Hub de Pré-produção Audiovisual</span>
+</div>
+<!-- Engine Status & Latency -->
+<div class="flex items-center gap-6 font-mono-code text-[11px]">
+<div class="flex items-center gap-2">
+<span class="text-gray-400">Latência do Motor:</span>
+<span class="text-brand-neon font-bold">18ms</span>
+</div>
+<div class="flex items-center gap-2">
+<span class="text-gray-400">Status:</span>
+<span class="text-brand-neon font-bold tracking-wider">ONLINE</span>
+</div>
+</div>
+<!-- Copyright -->
+<div class="text-gray-400 text-[11px]">
+        © 2025 Tomadix Inc. Todos os direitos reservados.
+      </div>
+</div>
+</footer>
+<!-- END: PlatformFooter -->
+<!-- BEGIN: ClientInteractivityScript -->
+<script data-purpose="pricing-switcher-and-accordion">
+    // Interactive Billing Frequency Switcher
+    const billingToggle = document.getElementById('billing-toggle');
+    const billingKnob = document.getElementById('billing-knob');
+    const monthlyLabel = document.getElementById('monthly-label');
+    const annualLabel = document.getElementById('annual-label');
+
+    const pricePro = document.getElementById('price-pro');
+    const periodPro = document.getElementById('period-pro');
+    const subtextPro = document.getElementById('subtext-pro');
+
+    const priceTeam = document.getElementById('price-team');
+    const periodTeam = document.getElementById('period-team');
+    const subtextTeam = document.getElementById('subtext-team');
+
+    let isAnnual = false;
+
+    function updatePricingDisplay() {
+      if (isAnnual) {
+        // Toggle knob position and active colors
+        billingKnob.style.transform = 'translateX(26px)';
+        billingToggle.classList.add('bg-brand-neon');
+        billingKnob.classList.remove('bg-brand-neon');
+        billingKnob.classList.add('bg-black');
+        
+        monthlyLabel.classList.remove('text-white', 'font-semibold');
+        monthlyLabel.classList.add('text-gray-400');
+        
+        annualLabel.classList.add('text-white', 'font-bold');
+        annualLabel.classList.remove('text-gray-400');
+
+        // Discounted Annual Pricing (2 months free / ~17% off)
+        pricePro.textContent = 'R$ 107,00';
+        periodPro.textContent = '/mês no plano anual';
+        subtextPro.textContent = 'R$ 1.284,00 faturados anualmente (Economia de R$ 264)';
+
+        priceTeam.textContent = 'R$ 207,00';
+        periodTeam.textContent = '/mês no plano anual';
+        subtextTeam.textContent = 'R$ 2.484,00 faturados anualmente (Economia de R$ 504)';
+      } else {
+        // Return to monthly defaults
+        billingKnob.style.transform = 'translateX(2px)';
+        billingToggle.classList.remove('bg-brand-neon');
+        billingKnob.classList.add('bg-brand-neon');
+        billingKnob.classList.remove('bg-black');
+
+        monthlyLabel.classList.add('text-white', 'font-semibold');
+        monthlyLabel.classList.remove('text-gray-400');
+
+        annualLabel.classList.remove('text-white', 'font-bold');
+        annualLabel.classList.add('text-gray-400');
+
+        pricePro.textContent = 'R$ 129,00';
+        periodPro.textContent = '/mês';
+        subtextPro.textContent = 'Cobrado mensalmente • Cancele quando quiser';
+
+        priceTeam.textContent = 'R$ 249,00';
+        periodTeam.textContent = '/mês';
+        subtextTeam.textContent = 'Faturamento flexível corporativo';
+      }
+    }
+
+    billingToggle.addEventListener('click', () => {
+      isAnnual = !isAnnual;
+      updatePricingDisplay();
+    });
+
+    monthlyLabel.addEventListener('click', () => {
+      if (isAnnual) {
+        isAnnual = false;
+        updatePricingDisplay();
+      }
+    });
+
+    annualLabel.addEventListener('click', () => {
+      if (!isAnnual) {
+        isAnnual = true;
+        updatePricingDisplay();
+      }
+    });
+
+    // Accordion Toggle Behavior
+    function toggleFaq(buttonElement) {
+      const content = buttonElement.nextElementSibling;
+      const chevron = buttonElement.querySelector('svg');
+      
+      const isOpen = !content.classList.contains('hidden');
+      
+      if (isOpen) {
+        content.classList.add('hidden');
+        chevron.classList.remove('rotate-180', 'text-brand-neon');
+      } else {
+        content.classList.remove('hidden');
+        chevron.classList.add('rotate-180', 'text-brand-neon');
+      }
+    }
+  </script>
+<!-- END: ClientInteractivityScript -->
+</body></html>

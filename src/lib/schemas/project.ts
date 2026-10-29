@@ -40,6 +40,8 @@ export const listProjectsQuerySchema = z.object({
     .enum(["updatedAt_desc", "updatedAt_asc", "title_asc", "title_desc", "createdAt_desc"])
     .default("updatedAt_desc"),
   genre: z.string().optional(),
+  page: z.coerce.number().int().positive().optional(),
+  limit: z.coerce.number().int().positive().max(100).optional(),
 });
 
 export type ProjectConfiguration = z.infer<typeof projectConfigurationSchema>;

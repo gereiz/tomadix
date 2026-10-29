@@ -4,7 +4,7 @@ import { VisualCoverageDashboard } from "@/components/visual-library/visual-cove
 
 export default function AdminVisualLibraryPage() {
   return (
-    <div className="p-6 max-w-7xl mx-auto space-y-6">
+    <div className="w-full space-y-6">
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-white/10 pb-5">
         <div>
           <div className="flex items-center gap-2 mb-1">

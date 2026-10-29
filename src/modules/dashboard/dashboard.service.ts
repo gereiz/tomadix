@@ -1,5 +1,8 @@
 import { db } from "@/lib/db";
 import { EntitlementService } from "@/modules/billing/entitlement.service";
+import { getPlanConfig } from "@/modules/billing/plans.config";
+import { SubscriptionStatus, WorkspaceUsageSummary } from "@/modules/billing/billing.types";
+import { STARTER_TEMPLATES } from "@/modules/onboarding/onboarding.service";
 import { NotFoundError } from "@/lib/auth";
 
 export interface ContextualAlert {
@@ -11,23 +14,51 @@ export interface ContextualAlert {
   ctaHref?: string;
 }
 
+export interface PreloadedDashboardUser {
+  id: string;
+  email: string;
+  displayName?: string | null;
+  emailConfirmed: boolean;
+  onboardingCompleted: boolean;
+  onboardingStep: number;
+  preferences?: any;
+}
+
 export class DashboardService {
   /**
-   * Coleta todos os dados reais do workspace ativo e do usuário logado para o Dashboard.
+   * Coleta todos os dados reais do workspace ativo e do usuário logado para o Dashboard
+   * em um único lote paralelo otimizado.
    */
-  static async getDashboardData(userId: string, workspaceId: string) {
-    const [user, workspace] = await Promise.all([
-      db.user.findUnique({
-        where: { id: userId },
-        select: {
-          id: true,
-          email: true,
-          displayName: true,
-          emailConfirmed: true,
-          onboardingCompleted: true,
-          onboardingStep: true,
-        },
-      }),
+  static async getDashboardData(
+    userId: string,
+    workspaceId: string,
+    preloadedUser?: PreloadedDashboardUser
+  ) {
+    const userPromise = preloadedUser
+      ? Promise.resolve(preloadedUser)
+      : db.user.findUnique({
+          where: { id: userId },
+          select: {
+            id: true,
+            email: true,
+            displayName: true,
+            emailConfirmed: true,
+            onboardingCompleted: true,
+            onboardingStep: true,
+            preferences: true,
+          },
+        });
+
+    const [
+      user,
+      workspace,
+      recentProjects,
+      recentGenerationRows,
+      recentCreditTransactions,
+      countsRows,
+      pendingInvitesPreloaded,
+    ] = await Promise.all([
+      userPromise,
       db.workspace.findUnique({
         where: { id: workspaceId },
         include: {
@@ -42,124 +73,215 @@ export class DashboardService {
           },
         },
       }),
+      db.project.findMany({
+        where: { workspaceId, isArchived: false },
+        orderBy: { updatedAt: "desc" },
+        take: 4,
+        select: {
+          id: true,
+          title: true,
+          description: true,
+          genre: true,
+          updatedAt: true,
+          createdAt: true,
+          _count: {
+            select: {
+              characters: true,
+              scenes: true,
+              environments: true,
+            },
+          },
+        },
+      }),
+      db.$queryRaw<
+        Array<{
+          id: string;
+          projectId: string;
+          templateKey: string;
+          targetTool: string;
+          modelName: string;
+          outputText: string | null;
+          createdAt: Date;
+          sceneTitle: string | null;
+          sceneOrder: number | null;
+        }>
+      >`
+        SELECT
+          pv.id,
+          pv."projectId",
+          pv."templateKey",
+          pv."targetTool",
+          pv."modelName",
+          pv."outputText",
+          pv."createdAt",
+          s.title AS "sceneTitle",
+          s."order" AS "sceneOrder"
+        FROM "PromptVersion" pv
+        INNER JOIN "Project" p ON pv."projectId" = p.id
+        LEFT JOIN "Scene" s ON pv."sceneId" = s.id
+        WHERE p."workspaceId" = ${workspaceId}
+        ORDER BY pv."createdAt" DESC
+        LIMIT 5
+      `,
+      db.creditLedger.findMany({
+        where: { workspaceId },
+        orderBy: { createdAt: "desc" },
+        take: 5,
+        select: {
+          id: true,
+          amount: true,
+          balanceAfter: true,
+          reason: true,
+          createdAt: true,
+        },
+      }),
+      db.$queryRaw<
+        Array<{
+          totalScenes: number;
+          totalCharacters: number;
+          totalEnvironments: number;
+          totalPromptsCount: number;
+        }>
+      >`
+        SELECT
+          (SELECT COUNT(*)::int FROM "Scene" s INNER JOIN "Project" p ON s."projectId" = p.id WHERE p."workspaceId" = ${workspaceId}) AS "totalScenes",
+          (SELECT COUNT(*)::int FROM "Character" c INNER JOIN "Project" p ON c."projectId" = p.id WHERE p."workspaceId" = ${workspaceId}) AS "totalCharacters",
+          (SELECT COUNT(*)::int FROM "Environment" e INNER JOIN "Project" p ON e."projectId" = p.id WHERE p."workspaceId" = ${workspaceId}) AS "totalEnvironments",
+          (SELECT COUNT(*)::int FROM "PromptVersion" pv INNER JOIN "Project" p ON pv."projectId" = p.id WHERE p."workspaceId" = ${workspaceId}) AS "totalPromptsCount"
+      `,
+      preloadedUser?.email
+        ? db.workspaceInvite.findMany({
+            where: {
+              email: preloadedUser.email,
+              status: "PENDING",
+              expiresAt: { gt: new Date() },
+            },
+            include: {
+              workspace: {
+                select: {
+                  id: true,
+                  name: true,
+                  slug: true,
+                },
+              },
+              invitedBy: {
+                select: {
+                  displayName: true,
+                  email: true,
+                },
+              },
+            },
+          })
+        : Promise.resolve(null),
     ]);
 
     if (!user) throw new NotFoundError("Usuário não encontrado.");
     if (!workspace) throw new NotFoundError("Workspace não encontrado.");
 
-    // Resumo de Entitlements & Assinatura
-    const usageSummary = await EntitlementService.getWorkspaceUsageSummary(workspaceId);
-
-    // Projetos Recentes do Workspace
-    const recentProjects = await db.project.findMany({
-      where: { workspaceId, isArchived: false },
-      orderBy: { updatedAt: "desc" },
-      take: 4,
-      select: {
-        id: true,
-        title: true,
-        description: true,
-        genre: true,
-        updatedAt: true,
-        createdAt: true,
-        configuration: true,
-        _count: {
-          select: {
-            characters: true,
-            scenes: true,
-            environments: true,
-          },
+    const pendingInvites =
+      pendingInvitesPreloaded ??
+      (await db.workspaceInvite.findMany({
+        where: {
+          email: user.email,
+          status: "PENDING",
+          expiresAt: { gt: new Date() },
         },
-      },
-    });
-
-    // Buscar IDs de todos os projetos do workspace para agregar estatísticas e gerações
-    const allWorkspaceProjects = await db.project.findMany({
-      where: { workspaceId },
-      select: { id: true },
-    });
-    const projectIds = allWorkspaceProjects.map((p) => p.id);
-
-    // Últimas gerações de prompts do workspace
-    const recentGenerations =
-      projectIds.length > 0
-        ? await db.promptVersion.findMany({
-            where: { projectId: { in: projectIds } },
-            orderBy: { createdAt: "desc" },
-            take: 5,
+        include: {
+          workspace: {
             select: {
               id: true,
-              projectId: true,
-              templateKey: true,
-              targetTool: true,
-              modelName: true,
-              outputText: true,
-              outputJson: true,
-              createdAt: true,
-              scene: {
-                select: {
-                  title: true,
-                  order: true,
-                },
-              },
+              name: true,
+              slug: true,
             },
-          })
-        : [];
-
-    // Últimos movimentos de crédito no razão contábil
-    const recentCreditTransactions = await db.creditLedger.findMany({
-      where: { workspaceId },
-      orderBy: { createdAt: "desc" },
-      take: 5,
-      select: {
-        id: true,
-        amount: true,
-        balanceAfter: true,
-        reason: true,
-        createdAt: true,
-      },
-    });
-
-    // Convites pendentes recebidos pelo e-mail do usuário em qualquer workspace
-    const pendingInvites = await db.workspaceInvite.findMany({
-      where: {
-        email: user.email,
-        status: "PENDING",
-        expiresAt: { gt: new Date() },
-      },
-      include: {
-        workspace: {
-          select: {
-            id: true,
-            name: true,
-            slug: true,
+          },
+          invitedBy: {
+            select: {
+              displayName: true,
+              email: true,
+            },
           },
         },
-        invitedBy: {
-          select: {
-            displayName: true,
-            email: true,
-          },
-        },
-      },
-    });
+      }));
 
-    // Estatísticas reais agregadas
-    const [totalScenes, totalCharacters, totalEnvironments, totalPromptsCount] =
-      await Promise.all([
-        projectIds.length > 0
-          ? db.scene.count({ where: { projectId: { in: projectIds } } })
-          : 0,
-        projectIds.length > 0
-          ? db.character.count({ where: { projectId: { in: projectIds } } })
-          : 0,
-        projectIds.length > 0
-          ? db.environment.count({ where: { projectId: { in: projectIds } } })
-          : 0,
-        projectIds.length > 0
-          ? db.promptVersion.count({ where: { projectId: { in: projectIds } } })
-          : 0,
-      ]);
+    // Computar resumo de Entitlements & Assinatura a partir do workspace já carregado
+    const sub =
+      workspace.subscription || (await EntitlementService.getWorkspaceSubscription(workspaceId));
+    const planConfig = sub.plan || getPlanConfig(sub.planTier);
+    const grandfathered = (sub.metadata as any)?.grandfatheredContract;
+
+    const maxProjects =
+      grandfathered?.previousMaxProjects !== undefined
+        ? grandfathered.previousMaxProjects
+        : planConfig.unlimitedProjects || planConfig.maxProjects === -1
+        ? -1
+        : planConfig.maxProjects;
+
+    const maxMembers =
+      grandfathered?.previousMaxMembers !== undefined
+        ? grandfathered.previousMaxMembers
+        : planConfig.unlimitedMembers || planConfig.maxMembers === -1
+        ? -1
+        : planConfig.maxMembers;
+
+    const projectsCount = workspace._count.projects;
+    const membersCount = workspace._count.memberships;
+    const creditsBalance = workspace.creditsBalance;
+
+    const isUnlimitedProjects = maxProjects === -1 || !!planConfig.unlimitedProjects;
+    const isUnlimitedMembers = maxMembers === -1 || !!planConfig.unlimitedMembers;
+
+    const usageSummary: WorkspaceUsageSummary = {
+      workspaceId: workspace.id,
+      workspaceName: workspace.name,
+      planTier: sub.planTier,
+      planName: planConfig.name,
+      status: sub.status as SubscriptionStatus,
+      interval: sub.interval as any,
+      currentPeriodEnd: sub.currentPeriodEnd,
+      cancelAtPeriodEnd: sub.cancelAtPeriodEnd,
+      projectsCount,
+      maxProjects,
+      membersCount,
+      maxMembers,
+      creditsBalance,
+      monthlyCredits: grandfathered?.previousMonthlyCredits ?? planConfig.monthlyCredits,
+      canCreateProject:
+        sub.status === SubscriptionStatus.ACTIVE &&
+        (isUnlimitedProjects || projectsCount < maxProjects),
+      canAddMember:
+        sub.status === SubscriptionStatus.ACTIVE &&
+        (isUnlimitedMembers || membersCount < maxMembers),
+      features: (planConfig.features as any) || [],
+    };
+
+    const agg = countsRows?.[0] || {
+      totalScenes: 0,
+      totalCharacters: 0,
+      totalEnvironments: 0,
+      totalPromptsCount: 0,
+    };
+    const totalScenes = Number(agg.totalScenes || 0);
+    const totalCharacters = Number(agg.totalCharacters || 0);
+    const totalEnvironments = Number(agg.totalEnvironments || 0);
+    const totalPromptsCount = Number(agg.totalPromptsCount || 0);
+
+    const recentGenerations = (recentGenerationRows || []).map((row) => ({
+      id: row.id,
+      projectId: row.projectId,
+      templateKey: row.templateKey,
+      targetTool: row.targetTool,
+      modelName: row.modelName,
+      outputText: row.outputText,
+      outputJson: null,
+      createdAt: row.createdAt,
+      scene:
+        row.sceneTitle !== null
+          ? {
+              title: row.sceneTitle,
+              order: Number(row.sceneOrder || 1),
+            }
+          : null,
+    }));
 
     // Avisos Contextuais
     const alerts: ContextualAlert[] = [];
@@ -248,6 +370,31 @@ export class DashboardService {
       recentCreditTransactions,
       pendingInvites,
       alerts,
+      onboardingState: {
+        userId: user.id,
+        displayName: user.displayName || user.email.split("@")[0],
+        email: user.email,
+        emailConfirmed: user.emailConfirmed,
+        onboardingCompleted: user.onboardingCompleted,
+        onboardingStep: user.onboardingStep,
+        preferences: ((user as any).preferences as Record<string, any>) || {},
+        activeWorkspace: {
+          id: workspace.id,
+          name: workspace.name,
+          slug: workspace.slug,
+          planName: usageSummary.planName || "Plano Gratuito",
+          projectsCount: workspace._count.projects,
+          hasProjects: workspace._count.projects > 0,
+        },
+        starterTemplates: STARTER_TEMPLATES.map((t) => ({
+          key: t.key,
+          title: t.title,
+          genre: t.genre,
+          description: t.description,
+          targetPlatform: t.targetPlatform,
+          aspectRatio: t.aspectRatio,
+        })),
+      },
     };
   }
 }

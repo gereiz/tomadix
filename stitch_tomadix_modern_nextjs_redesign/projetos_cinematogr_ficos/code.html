@@ -1,0 +1,655 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="pt-BR"><head><meta charset="utf-8"/><meta content="width=device-width, initial-scale=1.0" name="viewport"/><meta content="web_standard" name="shell-type"/><title>Tomadix</title><link href="https://fonts.googleapis.com" rel="preconnect"/><link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&amp;family=JetBrains+Mono:wght@500&amp;family=Plus+Jakarta+Sans:wght@600;700&amp;display=swap" rel="stylesheet"/><link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/><style>@layer base{html,body{margin:0;padding:0;}body{overscroll-behavior:none;}main>:first-child{margin-top:0!important;}main>:last-child{margin-bottom:0!important;}}::-webkit-scrollbar{display:none;}</style><script src="https://cdn.tailwindcss.com"></script><script id="tailwind-config">tailwind.config={darkMode:"class",theme:{extend:{colors:{"surface-container-lowest":"#0b0f13","on-secondary-fixed-variant":"#0b513d","secondary-fixed-dim":"#95d3ba","on-tertiary-fixed-variant":"#00513a","inverse-surface":"#e0e3e8","on-secondary-fixed":"#002117","surface-container-low":"#181c20","inverse-on-surface":"#2d3135","primary":"#4edea3","inverse-primary":"#006c49","error":"#ffb4ab","surface":"#101418","surface-bright":"#363a3e","secondary-container":"#0b513d","primary-fixed":"#6ffbbe","on-primary-container":"#00422b","tertiary-fixed-dim":"#62dcad","on-surface":"#e0e3e8","on-secondary":"#003829","error-container":"#93000a","background":"#101418","on-background":"#e0e3e8","on-tertiary-fixed":"#002115","outline":"#86948a","secondary-fixed":"#b0f0d6","on-tertiary":"#003827","surface-container-high":"#262a2f","on-primary":"#003824","secondary":"#95d3ba","on-primary-fixed":"#002113","surface-container":"#1c2024","surface-dim":"#101418","outline-variant":"#3c4a42","on-surface-variant":"#bbcabf","primary-fixed-dim":"#4edea3","tertiary":"#62dcad","surface-tint":"#4edea3","tertiary-container":"#37b78a","surface-container-highest":"#31353a","on-primary-fixed-variant":"#005236","on-error":"#690005","surface-variant":"#31353a","tertiary-fixed":"#80f9c8","on-secondary-container":"#83c2a9","primary-container":"#10b981","on-tertiary-container":"#00422e","on-error-container":"#ffdad6"},borderRadius:{"DEFAULT":"0.25rem","lg":"0.5rem","xl":"0.75rem","full":"9999px"},spacing:{"space-xl":"2.25rem","space-lg":"1.5rem","margin-desktop":"3rem","space-xs":"0.25rem","space-md":"0.875rem","margin":"1.5rem","gutter":"1.25rem","space-sm":"0.5rem","space-2xl":"3.5rem","gutter-lg":"1.75rem"},fontFamily:{"headline-lg":["Plus Jakarta Sans"],"display-hero":["Plus Jakarta Sans"],"display-hero-mobile":["Plus Jakarta Sans"],"body-md":["Inter"],"label-caps":["Plus Jakarta Sans"],"body-lg":["Inter"],"body-sm":["Inter"],"headline-md":["Plus Jakarta Sans"],"label-code":["JetBrains Mono"],"headline-sm":["Plus Jakarta Sans"]},fontSize:{"headline-lg":["28px",{"lineHeight":"36px","letterSpacing":"-0.02em","fontWeight":"600"}],"display-hero":["40px",{"lineHeight":"48px","letterSpacing":"-0.03em","fontWeight":"700"}],"display-hero-mobile":["28px",{"lineHeight":"36px","letterSpacing":"-0.02em","fontWeight":"700"}],"body-md":["13px",{"lineHeight":"20px","letterSpacing":"-0.005em","fontWeight":"400"}],"label-caps":["11px",{"lineHeight":"14px","letterSpacing":"0.08em","fontWeight":"700"}],"body-lg":["15px",{"lineHeight":"24px","letterSpacing":"-0.01em","fontWeight":"400"}],"body-sm":["12px",{"lineHeight":"18px","letterSpacing":"0em","fontWeight":"400"}],"headline-md":["20px",{"lineHeight":"28px","letterSpacing":"-0.015em","fontWeight":"600"}],"label-code":["11px",{"lineHeight":"16px","letterSpacing":"0.04em","fontWeight":"500"}],"headline-sm":["16px",{"lineHeight":"24px","letterSpacing":"-0.01em","fontWeight":"600"}]}}}};</script></head><body class="bg-surface font-body-md text-on-surface antialiased min-h-screen"><header class="fixed top-0 left-0 right-0 z-50 bg-surface/80 backdrop-blur-xl border-b border-outline-variant/30"><div class="h-16 w-full px-gutter-lg flex items-center justify-between gap-space-lg"><div class="flex items-center gap-space-xl"><div class="flex items-center gap-space-sm"><img alt="Tomadix Logo" class="h-8 w-auto object-contain" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAaOZP8qODzhUC32LvwijZMOFOAivo4pCQqQ9wLaGwnr3wUXMCBJqbW7zv_T_Ycw922-bllvbUxPzvPIqmhxqCa4GtCWbOJo90uyPjjUJp1LczRHGVjyutTMrZuZT-UGzqvVFybFr-J6NErxK0N9Mp2w3reBs0w1O_5XlPMRqHYEePSoamKryWRcyQ_gGz2vKmG32bz4tsQSgypDQ6u_nJea2RYhDXOKS-LVOlJBhve"/><span class="font-headline-sm text-headline-sm tracking-wider uppercase text-on-surface">TOMADIX</span></div><div class="hidden xl:flex items-center gap-space-xs pl-space-md py-space-xs bg-surface-container-low rounded-lg border border-outline-variant/40"><div class="flex items-center gap-space-xs px-space-xs"><span class="material-symbols-outlined text-primary text-[18px]">movie_filter</span><span class="font-body-sm text-body-sm text-on-surface font-semibold">ibitWeb Studio</span><span class="font-label-caps text-label-caps bg-secondary-container text-on-secondary-container px-space-xs py-0.5 rounded-full uppercase">OWNER</span></div><button class="p-1 text-on-surface-variant hover:text-on-surface flex items-center"><span class="material-symbols-outlined text-[16px]">expand_more</span></button></div></div><nav class="hidden md:flex items-center gap-space-xs p-1 bg-surface-container-lowest/60 rounded-xl border border-outline-variant/20" data-active-classes="bg-surface-container-high text-primary font-semibold rounded-lg shadow-[0_0_12px_rgba(78,222,163,0.15)]"><a class="px-space-md py-space-xs font-body-sm text-body-sm text-on-surface-variant hover:text-on-surface transition-colors" data-path="estudio" href="#">Estúdio</a><a aria-current="page" class="px-space-md py-space-xs transition-colors bg-surface-container-high text-primary font-semibold rounded-lg shadow-[0_0_12px_rgba(78,222,163,0.15)]" data-path="projetos" href="#">Projetos</a><a class="px-space-md py-space-xs font-body-sm text-body-sm text-on-surface-variant hover:text-on-surface transition-colors" data-path="parametros" href="#">Parâmetros</a><a class="px-space-md py-space-xs font-body-sm text-body-sm text-on-surface-variant hover:text-on-surface transition-colors" data-path="dashboard" href="#">Dashboard</a><a class="px-space-md py-space-xs font-body-sm text-body-sm text-on-surface-variant hover:text-on-surface transition-colors" data-path="planos" href="#">Planos</a></nav><div class="flex items-center gap-space-md"><div class="hidden lg:flex items-center gap-space-xs"><a class="px-space-sm py-1 font-body-sm text-body-sm text-on-surface-variant hover:text-on-surface transition-colors" data-path="equipe" href="#">Equipe</a><a class="px-space-sm py-1 font-body-sm text-body-sm text-on-surface-variant hover:text-on-surface transition-colors" data-path="assinatura" href="#">Assinatura</a><a class="px-space-sm py-1 font-body-sm text-body-sm text-on-surface-variant hover:text-on-surface transition-colors" data-path="perfil-estudio" href="#">Perfil &amp; Estúdio</a></div><div class="h-4 w-[1px] bg-outline-variant/40 hidden lg:block"></div><div class="relative flex items-center gap-space-sm"><div class="w-8 h-8 rounded-full bg-primary flex items-center justify-center"><span class="material-symbols-outlined text-on-primary text-[18px]">person</span></div><span class="absolute top-0 right-0 w-2.5 h-2.5 rounded-full bg-primary ring-2 ring-surface"></span></div><button class="p-1.5 text-on-surface-variant hover:text-error hover:bg-surface-container-high rounded-lg transition-colors" title="Sair do estúdio"><span class="material-symbols-outlined text-[20px]">logout</span></button></div></div></header><main class="w-full pt-16 bg-surface min-h-[calc(100vh-4rem)]"><div class="flex flex-col w-full">
+<div class="relative w-full overflow-hidden px-gutter lg:px-gutter-lg pb-space-2xl pt-space-lg">
+<div class="pointer-events-none absolute -top-40 left-1/2 -translate-x-1/2 w-[780px] h-[360px] bg-gradient-to-b from-primary/10 via-tertiary-container/5 to-transparent blur-3xl opacity-70"></div>
+<div class="pointer-events-none absolute top-28 right-12 w-72 h-72 bg-secondary-container/15 rounded-full blur-2xl"></div>
+<div class="relative max-w-7xl mx-auto flex flex-col gap-space-xl">
+<div class="flex flex-col lg:flex-row lg:items-end justify-between gap-space-lg">
+<div class="flex flex-col gap-space-xs max-w-3xl">
+<div class="flex items-center gap-space-sm">
+<span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-surface-container-high/80 backdrop-blur-md shadow-sm">
+<span class="w-1.5 h-1.5 rounded-full bg-primary animate-pulse"></span>
+<span class="font-label-caps text-label-caps text-primary tracking-widest uppercase">Pré-Produção Audiovisual</span>
+</span>
+<span class="px-2 py-0.5 rounded-full bg-surface-container-highest/60 font-label-code text-label-code text-on-surface-variant">
+              4 projetos ativos
+            </span>
+<span class="hidden sm:inline-flex items-center gap-1 font-label-code text-label-code text-secondary-fixed-dim bg-secondary-container/40 px-2 py-0.5 rounded-full">
+<span class="material-symbols-outlined text-[14px]">bolt</span> Engine v2.4
+            </span>
+</div>
+<h1 class="font-display-hero text-display-hero text-on-surface tracking-tight mt-1">
+            Projetos Cinematográficos
+          </h1>
+<p class="font-body-lg text-body-lg text-on-surface-variant">
+            Gerencie contêineres de universo, consistência visual, personagens, cenas e prompts cinematográficos com IA generativa de alta fidelidade.
+          </p>
+</div>
+<div class="flex items-center gap-space-sm self-start lg:self-auto">
+<button class="px-space-md py-2.5 rounded-xl bg-surface-container-high/70 hover:bg-surface-container-highest text-on-surface font-body-sm text-body-sm transition-all flex items-center gap-2 shadow-sm" id="quickTourBtn">
+<span class="material-symbols-outlined text-[18px] text-secondary">tune</span>
+<span>Presets Rápidos</span>
+</button>
+<button class="group relative px-space-lg py-2.5 rounded-xl bg-primary hover:bg-primary-fixed text-on-primary font-headline-sm text-headline-sm transition-all duration-200 flex items-center gap-2 shadow-lg shadow-primary/20 hover:shadow-primary/35" id="openNewProjectModal">
+<span class="material-symbols-outlined text-[20px] transition-transform group-hover:rotate-90 duration-300">add</span>
+<span>Novo Projeto</span>
+<span class="ml-1 px-1.5 py-0.5 rounded bg-on-primary/15 font-label-code text-label-code text-on-primary">N</span>
+</button>
+</div>
+</div>
+<div class="p-2 sm:p-2.5 rounded-2xl bg-surface-container-low/70 backdrop-blur-xl shadow-md flex flex-col md:flex-row items-stretch md:items-center justify-between gap-space-md">
+<div class="relative flex-1 group">
+<span class="material-symbols-outlined absolute left-3.5 top-1/2 -translate-y-1/2 text-[18px] text-on-surface-variant group-focus-within:text-primary transition-colors">
+            search
+          </span>
+<input class="w-full pl-10 pr-16 py-2 rounded-xl bg-surface-container-lowest/80 text-on-surface placeholder:text-outline font-body-sm text-body-sm focus:outline-none focus:bg-surface-container-lowest transition-all" id="searchInput" placeholder="Buscar por nome, tag, estilo ou sinopse..." type="text"/>
+<div class="absolute right-3 top-1/2 -translate-y-1/2 flex items-center gap-1 pointer-events-none">
+<kbd class="px-1.5 py-0.5 rounded bg-surface-container-highest/70 font-label-code text-label-code text-on-surface-variant">⌘K</kbd>
+</div>
+</div>
+<div class="flex items-center flex-wrap sm:flex-nowrap gap-2 sm:gap-3">
+<div class="flex items-center p-1 rounded-xl bg-surface-container-lowest/70" role="tablist">
+<button class="filter-tab active px-3 py-1.5 rounded-lg bg-surface-container-high text-primary font-body-sm text-body-sm font-semibold transition-all shadow-sm" data-filter="all">
+              Todos <span class="ml-1 opacity-70 font-label-code text-label-code">4</span>
+</button>
+<button class="filter-tab px-3 py-1.5 rounded-lg text-on-surface-variant hover:text-on-surface font-body-sm text-body-sm transition-all" data-filter="active">
+              Ativos <span class="ml-1 opacity-70 font-label-code text-label-code">3</span>
+</button>
+<button class="filter-tab px-3 py-1.5 rounded-lg text-on-surface-variant hover:text-on-surface font-body-sm text-body-sm transition-all" data-filter="archived">
+              Arquivados <span class="ml-1 opacity-70 font-label-code text-label-code">1</span>
+</button>
+</div>
+<div class="h-5 w-[1px] bg-outline-variant/30 hidden sm:block"></div>
+<div class="relative">
+<button class="px-3 py-2 rounded-xl bg-surface-container-lowest/70 hover:bg-surface-container-high text-on-surface-variant hover:text-on-surface font-body-sm text-body-sm flex items-center gap-2 transition-all" id="sortDropdownTrigger">
+<span class="material-symbols-outlined text-[16px]">sort</span>
+<span id="sortLabel">Mais recentes</span>
+<span class="material-symbols-outlined text-[16px]">expand_more</span>
+</button>
+<div class="hidden absolute right-0 mt-2 w-48 rounded-xl bg-surface-container-high shadow-xl p-1 z-30 flex-col" id="sortMenu">
+<button class="sort-option w-full text-left px-3 py-2 rounded-lg font-body-sm text-body-sm text-primary bg-surface-container-highest" data-sort="recent">Mais recentes</button>
+<button class="sort-option w-full text-left px-3 py-2 rounded-lg font-body-sm text-body-sm text-on-surface-variant hover:text-on-surface hover:bg-surface-container-highest" data-sort="modified">Modificados hoje</button>
+<button class="sort-option w-full text-left px-3 py-2 rounded-lg font-body-sm text-body-sm text-on-surface-variant hover:text-on-surface hover:bg-surface-container-highest" data-sort="alpha">Alfabético (A-Z)</button>
+</div>
+</div>
+<div class="flex items-center p-1 rounded-xl bg-surface-container-lowest/70">
+<button class="p-1.5 rounded-lg bg-surface-container-high text-primary shadow-sm" id="viewGridBtn" title="Visualização em Grade">
+<span class="material-symbols-outlined text-[18px]">grid_view</span>
+</button>
+<button class="p-1.5 rounded-lg text-on-surface-variant hover:text-on-surface" id="viewListBtn" title="Visualização em Lista">
+<span class="material-symbols-outlined text-[18px]">view_agenda</span>
+</button>
+</div>
+</div>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-space-lg" id="projectsGrid">
+<article class="project-card group relative flex flex-col justify-between rounded-2xl bg-surface-container/60 hover:bg-surface-container/85 backdrop-blur-xl transition-all duration-300 shadow-md hover:shadow-xl hover:-translate-y-1 overflow-hidden" data-status="active" data-title="Comercial Tomadix">
+<div class="relative w-full aspect-[16/9] overflow-hidden bg-surface-container-lowest">
+<img class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" data-alt="Futuristic cinematic cybernetic studio scene with glowing neon emerald and cyan illumination, anamorphic lens flares, moody dark atmosphere, high-end film production equipment and holographic displays, ultra-photorealistic 8k octane render." src="https://lh3.googleusercontent.com/aida-public/AB6AXuC1Kryf-YwdsNt9OnJm42wpUC_Cq55NmIKvwapKheyIWRgqz42UBI9c-qAzuVZ6MVWirfNHdcUifExXfZ9LfUQff1RzQD9HEmwfDUTgo-_N-1dAGCuBVUobDJ6MNo5wxlNclfEeguz3scewm6Y0XRsfWDW4TcfRADF61Z5MdbX3TpfAisnSiwgsIqMdlW8qJVeaCtQ4uQAVOjdoX3ksXpK8Dqp1mg5DxKemcbrjy2I9"/>
+<div class="absolute inset-0 bg-gradient-to-t from-surface-container via-surface-container/30 to-transparent"></div>
+<div class="absolute top-3 left-3 right-3 flex items-center justify-between pointer-events-none">
+<div class="flex items-center gap-1.5">
+<span class="px-2.5 py-1 rounded-md bg-secondary-container/80 backdrop-blur-md font-label-caps text-label-caps text-secondary-fixed tracking-wide uppercase shadow-sm">
+                  Cyberpunk
+                </span>
+<span class="px-2 py-0.5 rounded-md bg-surface-container-lowest/80 backdrop-blur-md font-label-code text-label-code text-on-surface-variant">
+                  9:16
+                </span>
+</div>
+<span class="px-2 py-0.5 rounded-md bg-surface-container-lowest/80 backdrop-blur-md font-label-code text-label-code text-primary flex items-center gap-1">
+<span class="w-1.5 h-1.5 rounded-full bg-primary"></span> Google Flow
+              </span>
+</div>
+<div class="absolute bottom-3 right-3">
+<span class="px-2 py-0.5 rounded-full bg-surface-container-lowest/90 font-label-code text-label-code text-on-surface flex items-center gap-1">
+<span class="material-symbols-outlined text-[13px] text-tertiary">timer</span> 30s est.
+              </span>
+</div>
+</div>
+<div class="p-space-lg flex flex-col flex-1 justify-between gap-space-md">
+<div>
+<div class="flex items-center justify-between mb-1">
+<h2 class="font-headline-md text-headline-md text-on-surface group-hover:text-primary transition-colors">
+                  Comercial Tomadix
+                </h2>
+<span class="p-1 rounded text-on-surface-variant hover:text-on-surface cursor-pointer">
+<span class="material-symbols-outlined text-[18px]">star</span>
+</span>
+</div>
+<p class="font-body-sm text-body-sm text-on-surface-variant line-clamp-2">
+                Comercial de alta octanagem para mostrar o pipeline da plataforma Tomadix, controle de iluminação volumétrica e retenção de atores sintéticos.
+              </p>
+</div>
+<div class="grid grid-cols-4 gap-1.5 p-2 rounded-xl bg-surface-container-lowest/70 text-center font-label-code text-label-code">
+<div class="flex flex-col py-1">
+<span class="text-on-surface font-semibold text-headline-sm">1</span>
+<span class="text-on-surface-variant text-[10px] uppercase">Persona</span>
+</div>
+<div class="flex flex-col py-1">
+<span class="text-on-surface font-semibold text-headline-sm">1</span>
+<span class="text-on-surface-variant text-[10px] uppercase">Ambiente</span>
+</div>
+<div class="flex flex-col py-1">
+<span class="text-on-surface font-semibold text-headline-sm">1</span>
+<span class="text-on-surface-variant text-[10px] uppercase">Cena</span>
+</div>
+<div class="flex flex-col py-1">
+<span class="text-primary font-semibold text-headline-sm">24</span>
+<span class="text-on-surface-variant text-[10px] uppercase">Parâmetros</span>
+</div>
+</div>
+<div class="flex flex-col gap-space-sm pt-2">
+<div class="flex items-center justify-between font-label-code text-label-code text-outline">
+<span class="flex items-center gap-1">
+<span class="material-symbols-outlined text-[14px]">schedule</span> Atualizado há 2h
+                </span>
+<span class="text-primary">Pronto para render</span>
+</div>
+<div class="flex items-center justify-between gap-2 pt-1">
+<button class="flex-1 py-2 px-3 rounded-xl bg-primary/10 hover:bg-primary text-primary hover:text-on-primary font-headline-sm text-headline-sm flex items-center justify-center gap-1.5 transition-all shadow-sm">
+<span>Abrir Módulos</span>
+<span class="material-symbols-outlined text-[16px]">arrow_forward</span>
+</button>
+<div class="flex items-center gap-1">
+<button class="p-2 rounded-xl bg-surface-container-high/60 hover:bg-surface-container-high text-on-surface-variant hover:text-on-surface transition-colors" title="Editar configurações">
+<span class="material-symbols-outlined text-[16px]">edit</span>
+</button>
+<button class="p-2 rounded-xl bg-surface-container-high/60 hover:bg-surface-container-high text-on-surface-variant hover:text-on-surface transition-colors" title="Duplicar projeto">
+<span class="material-symbols-outlined text-[16px]">content_copy</span>
+</button>
+<button class="p-2 rounded-xl bg-surface-container-high/60 hover:bg-surface-container-high text-on-surface-variant hover:text-on-surface transition-colors" title="Mais opções">
+<span class="material-symbols-outlined text-[16px]">more_vert</span>
+</button>
+</div>
+</div>
+</div>
+</div>
+</article>
+<article class="project-card group relative flex flex-col justify-between rounded-2xl bg-surface-container/60 hover:bg-surface-container/85 backdrop-blur-xl transition-all duration-300 shadow-md hover:shadow-xl hover:-translate-y-1 overflow-hidden" data-status="active" data-title="Crônicas de Neo-Tóquio 2099">
+<div class="relative w-full aspect-[16/9] overflow-hidden bg-surface-container-lowest">
+<img class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" data-alt="Dystopian Neo-Tokyo megalopolis at twilight with rain-slicked asphalt reflecting towering holographic advertisements in emerald and violet hues, flying vehicles casting rim lighting, cinematic grain and master film composition." src="https://lh3.googleusercontent.com/aida-public/AB6AXuC2Q2l8Doy22J5Fcp8WyoPQE998NZ92nQl9dnijAE4_Xssm0qbsQYbwcILhEyq3Cqmjzagd7z0Q-vOf_ZD1EV3RQ_V5hDdFIpkIazcWd2CrWWpyRzAwnRltS05Y_Uxjbil4TF50jv2c9IqfgJbgF6b8bXM86aeWxoIsX959weO2hDiWIc6krynMxM7c9KDe0RQ0eGXXaA7SgDH-pk3bcG5e-jKlt2ps20Hs_7rQHu6n"/>
+<div class="absolute inset-0 bg-gradient-to-t from-surface-container via-surface-container/30 to-transparent"></div>
+<div class="absolute top-3 left-3 right-3 flex items-center justify-between pointer-events-none">
+<div class="flex items-center gap-1.5">
+<span class="px-2.5 py-1 rounded-md bg-secondary-container/80 backdrop-blur-md font-label-caps text-label-caps text-secondary-fixed tracking-wide uppercase shadow-sm">
+                  Sci-Fi / Anime
+                </span>
+<span class="px-2 py-0.5 rounded-md bg-surface-container-lowest/80 backdrop-blur-md font-label-code text-label-code text-on-surface-variant">
+                  16:9
+                </span>
+</div>
+<span class="px-2 py-0.5 rounded-md bg-surface-container-lowest/80 backdrop-blur-md font-label-code text-label-code text-tertiary-fixed-dim flex items-center gap-1">
+                Midjourney v6 + Runway Gen-3
+              </span>
+</div>
+<div class="absolute bottom-3 right-3">
+<span class="px-2 py-0.5 rounded-full bg-surface-container-lowest/90 font-label-code text-label-code text-on-surface flex items-center gap-1">
+<span class="material-symbols-outlined text-[13px] text-tertiary">timer</span> 2m 15s
+              </span>
+</div>
+</div>
+<div class="p-space-lg flex flex-col flex-1 justify-between gap-space-md">
+<div>
+<div class="flex items-center justify-between mb-1">
+<h2 class="font-headline-md text-headline-md text-on-surface group-hover:text-primary transition-colors">
+                  Crônicas de Neo-Tóquio 2099
+                </h2>
+<span class="p-1 rounded text-primary hover:text-on-surface cursor-pointer">
+<span class="material-symbols-outlined text-[18px]" style="font-variation-settings: 'FILL' 1;">star</span>
+</span>
+</div>
+<p class="font-body-sm text-body-sm text-on-surface-variant line-clamp-2">
+                Minissérie conceitual explorando a perda de identidade humana em um centro financeiro automatizado por redes neurais profundas.
+              </p>
+</div>
+<div class="grid grid-cols-4 gap-1.5 p-2 rounded-xl bg-surface-container-lowest/70 text-center font-label-code text-label-code">
+<div class="flex flex-col py-1">
+<span class="text-on-surface font-semibold text-headline-sm">4</span>
+<span class="text-on-surface-variant text-[10px] uppercase">Personas</span>
+</div>
+<div class="flex flex-col py-1">
+<span class="text-on-surface font-semibold text-headline-sm">3</span>
+<span class="text-on-surface-variant text-[10px] uppercase">Ambientes</span>
+</div>
+<div class="flex flex-col py-1">
+<span class="text-on-surface font-semibold text-headline-sm">8</span>
+<span class="text-on-surface-variant text-[10px] uppercase">Cenas</span>
+</div>
+<div class="flex flex-col py-1">
+<span class="text-primary font-semibold text-headline-sm">56</span>
+<span class="text-on-surface-variant text-[10px] uppercase">Parâmetros</span>
+</div>
+</div>
+<div class="flex flex-col gap-space-sm pt-2">
+<div class="flex items-center justify-between font-label-code text-label-code text-outline">
+<span class="flex items-center gap-1">
+<span class="material-symbols-outlined text-[14px]">schedule</span> Ontem às 22:40
+                </span>
+<span class="text-secondary-fixed flex items-center gap-1">
+<span class="w-1.5 h-1.5 rounded-full bg-secondary animate-ping"></span> Renderizando 62%
+                </span>
+</div>
+<div class="flex items-center justify-between gap-2 pt-1">
+<button class="flex-1 py-2 px-3 rounded-xl bg-primary/10 hover:bg-primary text-primary hover:text-on-primary font-headline-sm text-headline-sm flex items-center justify-center gap-1.5 transition-all shadow-sm">
+<span>Abrir Módulos</span>
+<span class="material-symbols-outlined text-[16px]">arrow_forward</span>
+</button>
+<div class="flex items-center gap-1">
+<button class="p-2 rounded-xl bg-surface-container-high/60 hover:bg-surface-container-high text-on-surface-variant hover:text-on-surface transition-colors" title="Editar configurações">
+<span class="material-symbols-outlined text-[16px]">edit</span>
+</button>
+<button class="p-2 rounded-xl bg-surface-container-high/60 hover:bg-surface-container-high text-on-surface-variant hover:text-on-surface transition-colors" title="Duplicar projeto">
+<span class="material-symbols-outlined text-[16px]">content_copy</span>
+</button>
+<button class="p-2 rounded-xl bg-surface-container-high/60 hover:bg-surface-container-high text-on-surface-variant hover:text-on-surface transition-colors" title="Mais opções">
+<span class="material-symbols-outlined text-[16px]">more_vert</span>
+</button>
+</div>
+</div>
+</div>
+</div>
+</article>
+<article class="project-card group relative flex flex-col justify-between rounded-2xl bg-surface-container/60 hover:bg-surface-container/85 backdrop-blur-xl transition-all duration-300 shadow-md hover:shadow-xl hover:-translate-y-1 overflow-hidden" data-status="active" data-title="O Segredo das Araucárias">
+<div class="relative w-full aspect-[16/9] overflow-hidden bg-surface-container-lowest">
+<img class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" data-alt="Misty pine forest in Southern Brazil at sunrise with towering prehistoric Araucaria trees, golden volumetric light streaming through dense fog, authentic 35mm film photography grain, cinematic melancholic drama atmosphere." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDLHwRo5y-yvEgUdQ4v1_rfBLvJjaO9uYpVwKokv8CPtSmfr04QjkvdutO2scgUFtwc9Rv10e-JcYozcSKmQ40d8bPtV-t15sOzG2sG0GihPqlxP0XHv_j8gkHlSknE_dvrBLILR_iKSmnL3cFoGSrOkb523LmtMAzvtINme3OMNkA2sKxZ7-ysKnyjVTmVBdAt7wK3BlyhCf4g1Npw0DTz4Fm6YRWq7VmyMmwp0Awm"/>
+<div class="absolute inset-0 bg-gradient-to-t from-surface-container via-surface-container/30 to-transparent"></div>
+<div class="absolute top-3 left-3 right-3 flex items-center justify-between pointer-events-none">
+<div class="flex items-center gap-1.5">
+<span class="px-2.5 py-1 rounded-md bg-secondary-container/80 backdrop-blur-md font-label-caps text-label-caps text-secondary-fixed tracking-wide uppercase shadow-sm">
+                  Drama / Realismo
+                </span>
+<span class="px-2 py-0.5 rounded-md bg-surface-container-lowest/80 backdrop-blur-md font-label-code text-label-code text-on-surface-variant">
+                  2.39:1 Anamórfico
+                </span>
+</div>
+<span class="px-2 py-0.5 rounded-md bg-surface-container-lowest/80 backdrop-blur-md font-label-code text-label-code text-primary flex items-center gap-1">
+                OpenAI Sora
+              </span>
+</div>
+<div class="absolute bottom-3 right-3">
+<span class="px-2 py-0.5 rounded-full bg-surface-container-lowest/90 font-label-code text-label-code text-on-surface flex items-center gap-1">
+<span class="material-symbols-outlined text-[13px] text-tertiary">timer</span> 1m 45s
+              </span>
+</div>
+</div>
+<div class="p-space-lg flex flex-col flex-1 justify-between gap-space-md">
+<div>
+<div class="flex items-center justify-between mb-1">
+<h2 class="font-headline-md text-headline-md text-on-surface group-hover:text-primary transition-colors">
+                  O Segredo das Araucárias
+                </h2>
+<span class="p-1 rounded text-on-surface-variant hover:text-on-surface cursor-pointer">
+<span class="material-symbols-outlined text-[18px]">star</span>
+</span>
+</div>
+<p class="font-body-sm text-body-sm text-on-surface-variant line-clamp-2">
+                Narrativa sensorial no interior do Paraná explorando memória familiar e preservação ambiental com lentes vintages e paleta terrosa.
+              </p>
+</div>
+<div class="grid grid-cols-4 gap-1.5 p-2 rounded-xl bg-surface-container-lowest/70 text-center font-label-code text-label-code">
+<div class="flex flex-col py-1">
+<span class="text-on-surface font-semibold text-headline-sm">2</span>
+<span class="text-on-surface-variant text-[10px] uppercase">Personas</span>
+</div>
+<div class="flex flex-col py-1">
+<span class="text-on-surface font-semibold text-headline-sm">4</span>
+<span class="text-on-surface-variant text-[10px] uppercase">Ambientes</span>
+</div>
+<div class="flex flex-col py-1">
+<span class="text-on-surface font-semibold text-headline-sm">5</span>
+<span class="text-on-surface-variant text-[10px] uppercase">Cenas</span>
+</div>
+<div class="flex flex-col py-1">
+<span class="text-primary font-semibold text-headline-sm">32</span>
+<span class="text-on-surface-variant text-[10px] uppercase">Parâmetros</span>
+</div>
+</div>
+<div class="flex flex-col gap-space-sm pt-2">
+<div class="flex items-center justify-between font-label-code text-label-code text-outline">
+<span class="flex items-center gap-1">
+<span class="material-symbols-outlined text-[14px]">schedule</span> 26 Out, 2026
+                </span>
+<span class="text-secondary">Roteirizado</span>
+</div>
+<div class="flex items-center justify-between gap-2 pt-1">
+<button class="flex-1 py-2 px-3 rounded-xl bg-primary/10 hover:bg-primary text-primary hover:text-on-primary font-headline-sm text-headline-sm flex items-center justify-center gap-1.5 transition-all shadow-sm">
+<span>Abrir Módulos</span>
+<span class="material-symbols-outlined text-[16px]">arrow_forward</span>
+</button>
+<div class="flex items-center gap-1">
+<button class="p-2 rounded-xl bg-surface-container-high/60 hover:bg-surface-container-high text-on-surface-variant hover:text-on-surface transition-colors" title="Editar configurações">
+<span class="material-symbols-outlined text-[16px]">edit</span>
+</button>
+<button class="p-2 rounded-xl bg-surface-container-high/60 hover:bg-surface-container-high text-on-surface-variant hover:text-on-surface transition-colors" title="Duplicar projeto">
+<span class="material-symbols-outlined text-[16px]">content_copy</span>
+</button>
+<button class="p-2 rounded-xl bg-surface-container-high/60 hover:bg-surface-container-high text-on-surface-variant hover:text-on-surface transition-colors" title="Mais opções">
+<span class="material-symbols-outlined text-[16px]">more_vert</span>
+</button>
+</div>
+</div>
+</div>
+</div>
+</article>
+<article class="project-card group relative flex flex-col justify-between rounded-2xl bg-surface-container/40 hover:bg-surface-container/70 backdrop-blur-xl transition-all duration-300 shadow-md hover:shadow-xl hover:-translate-y-1 overflow-hidden opacity-85 hover:opacity-100" data-status="archived" data-title="Protocolo Orbital Mars-IV">
+<div class="relative w-full aspect-[16/9] overflow-hidden bg-surface-container-lowest">
+<img class="w-full h-full object-cover grayscale transition-transform duration-700 group-hover:scale-105 group-hover:grayscale-0" data-alt="Deep space orbital station hovering over the rust-red atmosphere of Mars, harsh sunlight high contrast lighting, hard-surface sci-fi exterior architecture, photorealistic NASA style cinematic wide shot." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAiEIciJnexeN1lR6gAfnth1fyne9TnEiO8yHx5JVMK0U1uKt3KCoDYsz2Lq6ZflaMfgsS54d-OxABs1XMmb-E9aDpTgKDn8eWWKqKcDmc2g6WAuVV4yHvsiZjsx6pWDJWrFVzzR5jvF451KkuaKzh3OAPcipuXFa78q8ot9KGijbQYcX-yuKuJye-CqQNgf8r1hd2ndlMlSffue_E_SqlH9qNozv5vIPsSNmM3H16w"/>
+<div class="absolute inset-0 bg-gradient-to-t from-surface-container via-surface-container/30 to-transparent"></div>
+<div class="absolute top-3 left-3 right-3 flex items-center justify-between pointer-events-none">
+<div class="flex items-center gap-1.5">
+<span class="px-2.5 py-1 rounded-md bg-surface-container-highest/90 backdrop-blur-md font-label-caps text-label-caps text-on-surface-variant tracking-wide uppercase shadow-sm">
+                  Hard Sci-Fi
+                </span>
+<span class="px-2 py-0.5 rounded-md bg-surface-container-lowest/80 backdrop-blur-md font-label-code text-label-code text-on-surface-variant">
+                  21:9
+                </span>
+</div>
+<span class="px-2 py-0.5 rounded-md bg-surface-container-lowest/90 backdrop-blur-md font-label-code text-label-code text-outline flex items-center gap-1">
+                Arquivado
+              </span>
+</div>
+<div class="absolute bottom-3 right-3">
+<span class="px-2 py-0.5 rounded-full bg-surface-container-lowest/90 font-label-code text-label-code text-on-surface flex items-center gap-1">
+<span class="material-symbols-outlined text-[13px] text-outline">timer</span> 4m 00s
+              </span>
+</div>
+</div>
+<div class="p-space-lg flex flex-col flex-1 justify-between gap-space-md">
+<div>
+<div class="flex items-center justify-between mb-1">
+<h2 class="font-headline-md text-headline-md text-on-surface/90 group-hover:text-primary transition-colors">
+                  Protocolo Orbital Mars-IV
+                </h2>
+<span class="p-1 rounded text-outline hover:text-on-surface cursor-pointer">
+<span class="material-symbols-outlined text-[18px]">inventory_2</span>
+</span>
+</div>
+<p class="font-body-sm text-body-sm text-on-surface-variant line-clamp-2">
+                Conceito de teaser e documentário ficcional baseado no primeiro ano de habitação autônoma na órbita marciana.
+              </p>
+</div>
+<div class="grid grid-cols-4 gap-1.5 p-2 rounded-xl bg-surface-container-lowest/70 text-center font-label-code text-label-code">
+<div class="flex flex-col py-1">
+<span class="text-on-surface font-semibold text-headline-sm">6</span>
+<span class="text-on-surface-variant text-[10px] uppercase">Personas</span>
+</div>
+<div class="flex flex-col py-1">
+<span class="text-on-surface font-semibold text-headline-sm">5</span>
+<span class="text-on-surface-variant text-[10px] uppercase">Ambientes</span>
+</div>
+<div class="flex flex-col py-1">
+<span class="text-on-surface font-semibold text-headline-sm">12</span>
+<span class="text-on-surface-variant text-[10px] uppercase">Cenas</span>
+</div>
+<div class="flex flex-col py-1">
+<span class="text-on-surface font-semibold text-headline-sm">74</span>
+<span class="text-on-surface-variant text-[10px] uppercase">Parâmetros</span>
+</div>
+</div>
+<div class="flex flex-col gap-space-sm pt-2">
+<div class="flex items-center justify-between font-label-code text-label-code text-outline">
+<span class="flex items-center gap-1">
+<span class="material-symbols-outlined text-[14px]">schedule</span> 14 Set, 2026
+                </span>
+<span>Armazenamento Frio</span>
+</div>
+<div class="flex items-center justify-between gap-2 pt-1">
+<button class="flex-1 py-2 px-3 rounded-xl bg-surface-container-highest hover:bg-surface-bright text-on-surface font-headline-sm text-headline-sm flex items-center justify-center gap-1.5 transition-all shadow-sm">
+<span>Desarquivar &amp; Abrir</span>
+<span class="material-symbols-outlined text-[16px]">unarchive</span>
+</button>
+<div class="flex items-center gap-1">
+<button class="p-2 rounded-xl bg-surface-container-high/60 hover:bg-error-container text-on-surface-variant hover:text-error transition-colors" title="Excluir definitivamente">
+<span class="material-symbols-outlined text-[16px]">delete</span>
+</button>
+</div>
+</div>
+</div>
+</div>
+</article>
+</div>
+<div class="relative overflow-hidden rounded-2xl bg-surface-container-low/60 backdrop-blur-md p-space-lg shadow-sm">
+<div class="flex flex-col md:flex-row items-start md:items-center justify-between gap-space-md">
+<div class="flex items-center gap-space-md">
+<div class="w-10 h-10 rounded-xl bg-primary/10 text-primary flex items-center justify-center">
+<span class="material-symbols-outlined text-[24px]">auto_awesome</span>
+</div>
+<div>
+<h3 class="font-headline-sm text-headline-sm text-on-surface">Assistente Criativo Tomadix Core</h3>
+<p class="font-body-sm text-body-sm text-on-surface-variant">Deseja criar um projeto novo a partir de um roteiro em PDF, tratamento de arte ou referências visuais?</p>
+</div>
+</div>
+<div class="flex items-center gap-space-sm w-full md:w-auto">
+<button class="w-full md:w-auto px-space-md py-2 rounded-xl bg-surface-container-high hover:bg-surface-container-highest text-on-surface font-body-sm text-body-sm transition-colors flex items-center justify-center gap-2">
+<span class="material-symbols-outlined text-[18px]">upload_file</span>
+<span>Importar Roteiro</span>
+</button>
+<button class="w-full md:w-auto px-space-md py-2 rounded-xl bg-secondary-container hover:bg-secondary-container/80 text-on-secondary-container font-body-sm text-body-sm font-semibold transition-colors flex items-center justify-center gap-2">
+<span class="material-symbols-outlined text-[18px]">psychology</span>
+<span>Gerar via Prompt Diretor</span>
+</button>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="fixed inset-0 z-50 hidden items-center justify-center p-4 bg-background/80 backdrop-blur-xl" id="newProjectModal">
+<div class="w-full max-w-lg rounded-2xl bg-surface-container-high/95 p-space-lg shadow-2xl flex flex-col gap-space-md">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-2">
+<div class="w-8 h-8 rounded-lg bg-primary/10 text-primary flex items-center justify-center">
+<span class="material-symbols-outlined text-[20px]">movie_filter</span>
+</div>
+<h2 class="font-headline-md text-headline-md text-on-surface">Criar Novo Universo Cinematográfico</h2>
+</div>
+<button class="p-1 rounded-lg text-on-surface-variant hover:text-on-surface" id="closeModalBtn">
+<span class="material-symbols-outlined text-[20px]">close</span>
+</button>
+</div>
+<p class="font-body-sm text-body-sm text-on-surface-variant -mt-2">
+        Defina os parâmetros base para sincronizar seeds, iluminação e visual consistency dos seus modelos.
+      </p>
+<form class="flex flex-col gap-space-md" id="newProjectForm">
+<div class="flex flex-col gap-1">
+<label class="font-label-caps text-label-caps text-on-surface uppercase tracking-wider">Título da Obra / Peça</label>
+<input class="w-full px-3.5 py-2.5 rounded-xl bg-surface-container-lowest text-on-surface font-body-sm text-body-sm focus:outline-none" placeholder="ex: Cidade Espelho: Prelúdio" required="" type="text"/>
+</div>
+<div class="grid grid-cols-2 gap-3">
+<div class="flex flex-col gap-1">
+<label class="font-label-caps text-label-caps text-on-surface uppercase tracking-wider">Aspect Ratio</label>
+<select class="w-full px-3 py-2.5 rounded-xl bg-surface-container-lowest text-on-surface font-body-sm text-body-sm focus:outline-none">
+<option value="16:9">16:9 Cinema / TV</option>
+<option value="9:16">9:16 Vertical / Reels</option>
+<option value="2.39:1">2.39:1 Anamórfico Scope</option>
+<option value="1:1">1:1 Quadrado Editorial</option>
+</select>
+</div>
+<div class="flex flex-col gap-1">
+<label class="font-label-caps text-label-caps text-on-surface uppercase tracking-wider">Engine AI Primária</label>
+<select class="w-full px-3 py-2.5 rounded-xl bg-surface-container-lowest text-on-surface font-body-sm text-body-sm focus:outline-none">
+<option value="flow">Google Flow Video</option>
+<option value="runway">Runway Gen-3 Alpha</option>
+<option value="sora">OpenAI Sora</option>
+<option value="midjourney">Midjourney v6.1</option>
+</select>
+</div>
+</div>
+<div class="flex flex-col gap-1">
+<label class="font-label-caps text-label-caps text-on-surface uppercase tracking-wider">Gênero / Estilo Visual</label>
+<input class="w-full px-3.5 py-2.5 rounded-xl bg-surface-container-lowest text-on-surface font-body-sm text-body-sm focus:outline-none" placeholder="ex: Cyberpunk, Neon Noir, Film Noir 35mm..." type="text"/>
+</div>
+<div class="flex flex-col gap-1">
+<label class="font-label-caps text-label-caps text-on-surface uppercase tracking-wider">Sinopse Breve ou Intenção de Direção</label>
+<textarea class="w-full px-3.5 py-2 rounded-xl bg-surface-container-lowest text-on-surface font-body-sm text-body-sm focus:outline-none resize-none" placeholder="Descreva a atmosfera central, tom fotográfico, paleta de cores e conflito..." rows="3"></textarea>
+</div>
+<div class="flex items-center justify-end gap-space-sm pt-2">
+<button class="px-space-md py-2 rounded-xl bg-surface-container-highest hover:bg-surface-bright text-on-surface font-body-sm text-body-sm transition-colors" id="cancelModalBtn" type="button">
+            Cancelar
+          </button>
+<button class="px-space-lg py-2 rounded-xl bg-primary hover:bg-primary-fixed text-on-primary font-headline-sm text-headline-sm transition-all shadow-md shadow-primary/20" type="submit">
+            Criar e Configurar Módulos
+          </button>
+</div>
+</form>
+</div>
+</div>
+<div class="fixed bottom-6 right-6 z-50 transform translate-y-20 opacity-0 transition-all duration-300 pointer-events-none rounded-xl bg-surface-container-highest px-4 py-3 shadow-2xl flex items-center gap-3" id="toastNotification">
+<span class="material-symbols-outlined text-primary text-[20px]">check_circle</span>
+<span class="font-body-sm text-body-sm text-on-surface" id="toastMessage">Operação concluída com sucesso!</span>
+</div>
+<script>
+    (function initProjectsApp() {
+      const searchInput = document.getElementById('searchInput');
+      const projectCards = document.querySelectorAll('.project-card');
+      const filterTabs = document.querySelectorAll('.filter-tab');
+      const sortTrigger = document.getElementById('sortDropdownTrigger');
+      const sortMenu = document.getElementById('sortMenu');
+      const sortLabel = document.getElementById('sortLabel');
+      const sortOptions = document.querySelectorAll('.sort-option');
+      const gridViewBtn = document.getElementById('viewGridBtn');
+      const listViewBtn = document.getElementById('viewListBtn');
+      const projectsGrid = document.getElementById('projectsGrid');
+      const modal = document.getElementById('newProjectModal');
+      const openModalBtn = document.getElementById('openNewProjectModal');
+      const closeModalBtn = document.getElementById('closeModalBtn');
+      const cancelModalBtn = document.getElementById('cancelModalBtn');
+      const newProjectForm = document.getElementById('newProjectForm');
+      const toast = document.getElementById('toastNotification');
+      const toastMsg = document.getElementById('toastMessage');
+
+      function showToast(msg) {
+        if (!toast || !toastMsg) return;
+        toastMsg.textContent = msg;
+        toast.classList.remove('translate-y-20', 'opacity-0');
+        setTimeout(() => {
+          toast.classList.add('translate-y-20', 'opacity-0');
+        }, 3200);
+      }
+
+      function filterProjects() {
+        const query = (searchInput?.value || '').toLowerCase().trim();
+        const activeTab = document.querySelector('.filter-tab.active');
+        const filterType = activeTab ? activeTab.getAttribute('data-filter') : 'all';
+
+        projectCards.forEach(card => {
+          const title = card.getAttribute('data-title')?.toLowerCase() || '';
+          const status = card.getAttribute('data-status') || '';
+          const cardText = card.textContent?.toLowerCase() || '';
+
+          const matchesQuery = !query || title.includes(query) || cardText.includes(query);
+          const matchesStatus = filterType === 'all' || 
+                                (filterType === 'active' && status === 'active') || 
+                                (filterType === 'archived' && status === 'archived');
+
+          if (matchesQuery && matchesStatus) {
+            card.classList.remove('hidden');
+          } else {
+            card.classList.add('hidden');
+          }
+        });
+      }
+
+      if (searchInput) {
+        searchInput.addEventListener('input', filterProjects);
+      }
+
+      window.addEventListener('keydown', (e) => {
+        if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'k') {
+          e.preventDefault();
+          searchInput?.focus();
+        }
+        if (e.key === 'n' && !['INPUT', 'TEXTAREA'].includes(document.activeElement?.tagName)) {
+          e.preventDefault();
+          modal?.classList.remove('hidden');
+          modal?.classList.add('flex');
+        }
+        if (e.key === 'Escape' && modal && !modal.classList.contains('hidden')) {
+          modal.classList.add('hidden');
+          modal.classList.remove('flex');
+        }
+      });
+
+      filterTabs.forEach(tab => {
+        tab.addEventListener('click', () => {
+          filterTabs.forEach(t => {
+            t.classList.remove('active', 'bg-surface-container-high', 'text-primary', 'font-semibold', 'shadow-sm');
+            t.classList.add('text-on-surface-variant');
+          });
+          tab.classList.add('active', 'bg-surface-container-high', 'text-primary', 'font-semibold', 'shadow-sm');
+          tab.classList.remove('text-on-surface-variant');
+          filterProjects();
+        });
+      });
+
+      if (sortTrigger && sortMenu) {
+        sortTrigger.addEventListener('click', (e) => {
+          e.stopPropagation();
+          sortMenu.classList.toggle('hidden');
+          sortMenu.classList.toggle('flex');
+        });
+
+        document.addEventListener('click', () => {
+          sortMenu.classList.add('hidden');
+          sortMenu.classList.remove('flex');
+        });
+
+        sortOptions.forEach(opt => {
+          opt.addEventListener('click', () => {
+            if (sortLabel) sortLabel.textContent = opt.textContent;
+            showToast('Ordenação atualizada: ' + opt.textContent);
+          });
+        });
+      }
+
+      if (gridViewBtn && listViewBtn && projectsGrid) {
+        gridViewBtn.addEventListener('click', () => {
+          projectsGrid.className = 'grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-space-lg';
+          gridViewBtn.classList.add('bg-surface-container-high', 'text-primary', 'shadow-sm');
+          gridViewBtn.classList.remove('text-on-surface-variant');
+          listViewBtn.classList.remove('bg-surface-container-high', 'text-primary', 'shadow-sm');
+          listViewBtn.classList.add('text-on-surface-variant');
+        });
+
+        listViewBtn.addEventListener('click', () => {
+          projectsGrid.className = 'grid grid-cols-1 gap-space-md';
+          listViewBtn.classList.add('bg-surface-container-high', 'text-primary', 'shadow-sm');
+          listViewBtn.classList.remove('text-on-surface-variant');
+          gridViewBtn.classList.remove('bg-surface-container-high', 'text-primary', 'shadow-sm');
+          gridViewBtn.classList.add('text-on-surface-variant');
+        });
+      }
+
+      function openModal() {
+        if (!modal) return;
+        modal.classList.remove('hidden');
+        modal.classList.add('flex');
+      }
+
+      function closeModal() {
+        if (!modal) return;
+        modal.classList.add('hidden');
+        modal.classList.remove('flex');
+      }
+
+      openModalBtn?.addEventListener('click', openModal);
+      closeModalBtn?.addEventListener('click', closeModal);
+      cancelModalBtn?.addEventListener('click', closeModal);
+
+      modal?.addEventListener('click', (e) => {
+        if (e.target === modal) closeModal();
+      });
+
+      newProjectForm?.addEventListener('submit', (e) => {
+        e.preventDefault();
+        closeModal();
+        showToast('Novo projeto cinematográfico criado com sucesso!');
+      });
+
+      document.getElementById('quickTourBtn')?.addEventListener('click', () => {
+        showToast('Presets de estilo aplicados para produção rápida.');
+      });
+    })();
+  </script>
+</div></main><footer class="w-full bg-surface-container-lowest border-t border-outline-variant/30 py-space-lg"><div class="w-full px-gutter-lg flex flex-col md:flex-row items-center justify-between gap-space-md font-body-sm text-body-sm text-on-surface-variant"><div class="flex items-center gap-space-sm"><span class="font-label-code text-label-code text-primary uppercase">TOMADIX CINEMATIC AI v2.4</span><span class="text-outline">•</span><span>Hub de Pré-produção Audiovisual</span></div><div class="flex items-center gap-space-lg"><span>Latência do Motor: <strong class="text-secondary font-label-code text-label-code">18ms</strong></span><span>Status: <strong class="text-primary font-label-code text-label-code">ONLINE</strong></span><span class="text-on-surface-variant/80">© 2025 Tomadix Inc.</span></div></div></footer></body></html>

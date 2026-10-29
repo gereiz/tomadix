@@ -141,7 +141,7 @@ export default function PricingPage() {
         <div className="absolute -top-40 left-1/2 -translate-x-1/2 w-[900px] h-[500px] bg-gradient-to-b from-emerald-500/10 via-emerald-600/5 to-transparent blur-3xl" />
       </div>
 
-      <div className="relative mx-auto max-w-7xl px-6 py-16 sm:py-24">
+      <div className="relative w-full px-4 sm:px-6 lg:px-8 py-16 sm:py-24">
         {/* Header */}
         <div className="text-center max-w-3xl mx-auto space-y-4">
           <div className="inline-flex items-center gap-2 rounded-full border border-emerald-400/30 bg-emerald-400/10 px-3 py-1 text-xs font-semibold text-emerald-300">

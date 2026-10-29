@@ -307,7 +307,7 @@ export default function ProfilePage() {
 
   return (
     <div className="min-h-screen bg-[#0b0d12] text-white">
-      <main className="mx-auto max-w-6xl px-6 py-10">
+      <main className="w-full px-4 sm:px-6 lg:px-8 py-10">
         {/* Cabeçalho do Perfil */}
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-6 border-b border-white/10 pb-8">
           <div className="flex items-center gap-4">
@@ -589,7 +589,7 @@ export default function ProfilePage() {
 
           {/* Aba 3: Notificações */}
           {activeTab === "notifications" && (
-            <div className="rounded-3xl border border-white/10 bg-white/[0.02] p-6 backdrop-blur-md max-w-3xl">
+            <div className="rounded-3xl border border-white/10 bg-white/[0.02] p-6 backdrop-blur-md w-full">
               <h3 className="text-base font-bold text-white">Canais de Notificação</h3>
               <p className="text-xs text-white/50 mt-1">Escolha quais comunicações você deseja receber.</p>
 
@@ -728,7 +728,7 @@ export default function ProfilePage() {
 
           {/* Aba 5: Privacidade & LGPD */}
           {activeTab === "privacy" && (
-            <div className="space-y-8 max-w-4xl">
+            <div className="space-y-8 w-full">
               {/* Exportação de Dados Pessoais */}
               <div className="rounded-3xl border border-white/10 bg-white/[0.02] p-6 backdrop-blur-md">
                 <div className="flex items-start gap-4">

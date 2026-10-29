@@ -457,6 +457,7 @@ model Character {
 
   @@index([projectId, name])
   @@index([projectId, isArchived])
+  @@index([projectId, isArchived, updatedAt(sort: Desc)])
 }
 
 model Environment {
@@ -474,6 +475,7 @@ model Environment {
 
   @@index([projectId, name])
   @@index([projectId, isArchived])
+  @@index([projectId, isArchived, updatedAt(sort: Desc)])
 }
 
 model Scene {
@@ -493,6 +495,7 @@ model Scene {
 
   @@unique([projectId, order])
   @@index([projectId, order])
+  @@index([projectId, updatedAt(sort: Desc)])
 }
 
 model SceneCharacter {
@@ -503,6 +506,7 @@ model SceneCharacter {
   character     Character @relation(fields: [characterId], references: [id], onDelete: Cascade)
 
   @@id([sceneId, characterId])
+  @@index([characterId])
 }
 
 model SceneEnvironment {
@@ -513,6 +517,7 @@ model SceneEnvironment {
   environment   Environment @relation(fields: [environmentId], references: [id], onDelete: Cascade)
 
   @@id([sceneId, environmentId])
+  @@index([environmentId])
 }
 
 model PromptTemplate {
@@ -545,7 +550,7 @@ model PromptVersion {
   createdAt            DateTime @default(now())
   scene                Scene?  @relation(fields: [sceneId], references: [id], onDelete: SetNull)
 
-  @@index([projectId, createdAt])
+  @@index([projectId, createdAt(sort: Desc)])
   @@index([sceneId, createdAt])
 }
 

@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getCurrentWorkspace, AuthorizationError } from "@/lib/auth";
+import { getCurrentWorkspace, requirePlatformAdmin, AuthorizationError, AuthenticationError } from "@/lib/auth";
 import { ParameterService } from "@/modules/parameters/parameter.service";
 
 type RouteParams = {
@@ -8,8 +8,9 @@ type RouteParams = {
 
 export async function POST(_request: NextRequest, { params }: RouteParams) {
   try {
+    await requirePlatformAdmin();
     const { id } = await params;
-    const { workspace } = await getCurrentWorkspace();
+    const { workspace } = await getCurrentWorkspace(null, "parameters:read");
 
     const updated = await ParameterService.toggleParameter(id, workspace.id);
 
@@ -18,6 +19,9 @@ export async function POST(_request: NextRequest, { params }: RouteParams) {
       data: updated,
     });
   } catch (error) {
+    if (error instanceof AuthenticationError) {
+      return NextResponse.json({ error: error.message }, { status: 401 });
+    }
     if (error instanceof AuthorizationError) {
       return NextResponse.json({ error: error.message }, { status: 403 });
     }
