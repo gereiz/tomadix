@@ -131,7 +131,7 @@ function getGenreVisual(genre: string | null) {
       gradient: "from-emerald-950/70 via-slate-900 to-[#0b0f13]",
       border: "border-primary/30",
       accent: "text-primary",
-      badge: "bg-secondary-container/80 text-secondary-fixed",
+      badge: "bg-[var(--brand-badge-bg,var(--color-primary))] text-[var(--brand-badge-text,#ffffff)] font-bold shadow-sm",
       glowColor: "rgba(78, 222, 163, 0.25)",
       bgPattern: "radial-gradient(circle at 80% 20%, rgba(78, 222, 163, 0.15) 0%, transparent 60%)",
     };
@@ -141,7 +141,7 @@ function getGenreVisual(genre: string | null) {
       gradient: "from-amber-950/70 via-slate-900 to-[#0b0f13]",
       border: "border-amber-400/30",
       accent: "text-amber-400",
-      badge: "bg-amber-500/20 text-amber-300",
+      badge: "bg-amber-500/80 text-[var(--brand-badge-text,#ffffff)] font-bold shadow-sm",
       glowColor: "rgba(245, 158, 11, 0.25)",
       bgPattern: "radial-gradient(circle at 20% 80%, rgba(245, 158, 11, 0.15) 0%, transparent 60%)",
     };
@@ -151,7 +151,7 @@ function getGenreVisual(genre: string | null) {
       gradient: "from-purple-950/70 via-slate-900 to-[#0b0f13]",
       border: "border-purple-400/30",
       accent: "text-purple-400",
-      badge: "bg-purple-500/20 text-purple-300",
+      badge: "bg-purple-600/80 text-[var(--brand-badge-text,#ffffff)] font-bold shadow-sm",
       glowColor: "rgba(192, 132, 252, 0.25)",
       bgPattern: "radial-gradient(circle at 50% 30%, rgba(192, 132, 252, 0.15) 0%, transparent 60%)",
     };
@@ -160,7 +160,7 @@ function getGenreVisual(genre: string | null) {
     gradient: "from-slate-900 via-slate-950 to-[#0b0f13]",
     border: "border-outline-variant/30",
     accent: "text-secondary",
-    badge: "bg-surface-container-high text-on-surface",
+    badge: "bg-[var(--brand-badge-bg,var(--color-primary))] text-[var(--brand-badge-text,#ffffff)] font-bold shadow-sm",
     glowColor: "rgba(149, 211, 186, 0.2)",
     bgPattern: "radial-gradient(circle at 50% 50%, rgba(149, 211, 186, 0.1) 0%, transparent 60%)",
   };

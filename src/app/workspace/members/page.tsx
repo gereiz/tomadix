@@ -372,7 +372,7 @@ export default function WorkspaceMembersPage() {
                 setShowInviteModal(true);
                 setGeneratedInviteUrl(null);
               }}
-              className="rounded-xl bg-emerald-400 px-4 py-2 text-xs font-bold text-black transition hover:bg-emerald-300"
+              className="rounded-xl bg-primary px-4 py-2 text-xs font-bold text-on-primary transition hover:opacity-90 shadow-md shadow-primary/20"
             >
               ➕ Convidar Membro
             </button>
@@ -681,7 +681,7 @@ export default function WorkspaceMembersPage() {
                     <button
                       type="submit"
                       disabled={actionLoading || !inviteEmail.trim()}
-                      className="rounded-xl bg-emerald-400 px-4 py-2 text-xs font-bold text-black transition hover:bg-emerald-300 disabled:opacity-50"
+                      className="rounded-xl bg-primary px-4 py-2 text-xs font-bold text-on-primary transition hover:opacity-90 shadow-md shadow-primary/20 disabled:opacity-50"
                     >
                       {actionLoading ? "Gerando..." : "Gerar Convite"}
                     </button>

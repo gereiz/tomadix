@@ -2,7 +2,9 @@ import type { Metadata, Viewport } from "next";
 import "./globals.css";
 import { CookieConsentBanner } from "@/components/privacy/cookie-consent-banner";
 import { Navbar } from "@/components/navigation/navbar";
-
+import { PlatformSettingsService } from "@/modules/admin/platform-settings.service";
+import { ThemeInjector } from "@/components/theme/theme-injector";
+import { generateThemeCss } from "@/lib/theme-utils";
 import { BRAND } from "@/config/brand";
 
 export const viewport: Viewport = {
@@ -20,7 +22,11 @@ export const metadata: Metadata = {
   description: BRAND.description,
 };
 
-export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
+export default async function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
+  const customization = await PlatformSettingsService.getCustomization().catch(() => null);
+
+  const themeCss = customization ? generateThemeCss(customization) : "";
+
   return (
     <html lang="pt-BR" suppressHydrationWarning className="dark">
       <head>
@@ -34,8 +40,18 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
           href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200"
           rel="stylesheet"
         />
+        {customization?.faviconUrl && (
+          <link rel="icon" href={customization.faviconUrl} />
+        )}
+        {themeCss && (
+          <style
+            id="tomadix-custom-theme"
+            dangerouslySetInnerHTML={{ __html: themeCss }}
+          />
+        )}
       </head>
       <body suppressHydrationWarning className="overflow-x-hidden min-h-screen bg-surface font-body-md text-on-surface antialiased selection:bg-primary selection:text-on-primary">
+        {customization && <ThemeInjector initialCustomization={customization} />}
         <Navbar />
         {children}
         <CookieConsentBanner />

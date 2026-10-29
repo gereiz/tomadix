@@ -1,31 +1,31 @@
 @import "tailwindcss";
 
 @theme {
-  --color-surface: #101418;
-  --color-surface-dim: #101418;
+  --color-surface: var(--brand-surface, #101418);
+  --color-surface-dim: var(--brand-surface, #101418);
   --color-surface-bright: #363a3e;
   --color-surface-container-lowest: #0b0f13;
-  --color-surface-container-low: #181c20;
-  --color-surface-container: #1c2024;
-  --color-surface-container-high: #262a2f;
+  --color-surface-container-low: var(--brand-card, #181c20);
+  --color-surface-container: var(--brand-card, #1c2024);
+  --color-surface-container-high: var(--brand-card, #262a2f);
   --color-surface-container-highest: #31353a;
-  --color-on-surface: #e0e3e8;
-  --color-on-surface-variant: #bbcabf;
+  --color-on-surface: var(--brand-text-primary, #e0e3e8);
+  --color-on-surface-variant: var(--brand-text-secondary, #bbcabf);
   --color-inverse-surface: #e0e3e8;
   --color-inverse-on-surface: #2d3135;
-  --color-outline: #86948a;
-  --color-outline-variant: #3c4a42;
-  --color-surface-tint: #4edea3;
-  --color-primary: #4edea3;
-  --color-on-primary: #003824;
-  --color-primary-container: #10b981;
+  --color-outline: var(--brand-border, #86948a);
+  --color-outline-variant: var(--brand-border, #3c4a42);
+  --color-surface-tint: var(--brand-primary, #4edea3);
+  --color-primary: var(--brand-primary, #4edea3);
+  --color-on-primary: var(--brand-on-primary, #003824);
+  --color-primary-container: var(--brand-primary, #10b981);
   --color-on-primary-container: #00422b;
   --color-inverse-primary: #006c49;
-  --color-secondary: #95d3ba;
-  --color-on-secondary: #003829;
+  --color-secondary: var(--brand-secondary, #95d3ba);
+  --color-on-secondary: var(--brand-on-secondary, #003829);
   --color-secondary-container: #0b513d;
   --color-on-secondary-container: #83c2a9;
-  --color-tertiary: #62dcad;
+  --color-tertiary: var(--brand-accent, #62dcad);
   --color-on-tertiary: #003827;
   --color-tertiary-container: #37b78a;
   --color-on-tertiary-container: #00422e;
@@ -33,14 +33,16 @@
   --color-on-error: #690005;
   --color-error-container: #93000a;
   --color-on-error-container: #ffdad6;
-  --color-primary-fixed: #6ffbbe;
-  --color-primary-fixed-dim: #4edea3;
-  --color-secondary-fixed: #b0f0d6;
-  --color-secondary-fixed-dim: #95d3ba;
-  --color-tertiary-fixed: #80f9c8;
-  --color-tertiary-fixed-dim: #62dcad;
-  --color-background: #101418;
-  --color-on-background: #e0e3e8;
+  --color-primary-fixed: var(--brand-primary, #6ffbbe);
+  --color-primary-fixed-dim: var(--brand-primary, #4edea3);
+  --color-secondary-fixed: var(--brand-secondary, #b0f0d6);
+  --color-secondary-fixed-dim: var(--brand-secondary, #95d3ba);
+  --color-tertiary-fixed: var(--brand-accent, #80f9c8);
+  --color-tertiary-fixed-dim: var(--brand-accent, #62dcad);
+  --color-badge-text: var(--brand-badge-text, #ffffff);
+  --color-badge-bg: var(--brand-badge-bg, var(--color-primary));
+  --color-background: var(--brand-background, #101418);
+  --color-on-background: var(--brand-text-primary, #e0e3e8);
   --color-surface-variant: #31353a;
 
   --font-display-hero: "Plus Jakarta Sans", sans-serif;
@@ -56,6 +58,19 @@
 
 :root {
   color-scheme: dark;
+  --brand-primary: #4edea3;
+  --brand-on-primary: #003824;
+  --brand-secondary: #95d3ba;
+  --brand-on-secondary: #003829;
+  --brand-accent: #f59e0b;
+  --brand-background: #0b0d12;
+  --brand-surface: #101418;
+  --brand-card: #181c20;
+  --brand-text-primary: #e0e3e8;
+  --brand-text-secondary: #bbcabf;
+  --brand-border: #3c4a42;
+  --brand-badge-text: #ffffff;
+  --brand-badge-bg: #2563eb;
 }
 
 * {
@@ -75,7 +90,8 @@ html {
 
 body {
   margin: 0;
-  background: #0b0d12;
+  background: var(--brand-background, #0b0d12);
+  color: var(--brand-text-primary, #e0e3e8);
   font-family: Arial, Helvetica, sans-serif;
   -webkit-font-smoothing: antialiased;
 }

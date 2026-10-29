@@ -70,7 +70,7 @@ export default function Home() {
               <div className="flex flex-wrap items-center gap-3 pt-2">
                 <Link
                   href="/studio"
-                  className="inline-flex items-center gap-2 px-5 py-3 rounded-xl bg-primary hover:bg-primary-fixed-dim text-on-primary font-headline-sm font-semibold transition-all shadow-[0_0_24px_rgba(78,222,163,0.35)] active:scale-[0.98]"
+                  className="inline-flex items-center gap-2 px-5 py-3 rounded-xl bg-primary hover:bg-primary-fixed-dim text-on-primary font-headline-sm font-semibold transition-all shadow-lg shadow-primary/35 active:scale-[0.98]"
                 >
                   <span className="material-symbols-outlined text-[18px]">camera</span>
                   <span>Análise Cinematográfica</span>

@@ -200,6 +200,7 @@ export class AdminBillingService {
             metadata: {
               ...((sub.metadata as any) || {}),
               grandfatheredContract: {
+                previousPlanTier: existingPlan.tier,
                 previousPriceMonthly: existingGrandfathered?.previousPriceMonthly ?? existingPlan.priceMonthly,
                 previousPriceYearly: existingGrandfathered?.previousPriceYearly ?? existingPlan.priceYearly,
                 previousMonthlyCredits: existingGrandfathered?.previousMonthlyCredits ?? existingPlan.monthlyCredits,
@@ -207,6 +208,7 @@ export class AdminBillingService {
                 previousMaxMembers: existingGrandfathered?.previousMaxMembers ?? existingPlan.maxMembers,
                 unlimitedProjects: existingPlan.unlimitedProjects,
                 snapshotDate: new Date().toISOString(),
+                note: "Contrato preservado conforme política comercial (grandparenting).",
               },
             },
           },

@@ -47,11 +47,11 @@ export default function RegisterPage() {
   };
 
   return (
-    <main className="flex min-h-screen items-center justify-center bg-[#0b0d12] px-6 py-12">
+    <main className="flex min-h-screen items-center justify-center bg-background px-6 py-12">
       <div className="w-full max-w-md rounded-3xl border border-white/10 bg-[#0f1219]/90 p-8 shadow-2xl backdrop-blur-xl">
         <div className="mb-8 text-center">
           <Link href="/" className="inline-block text-lg font-bold tracking-tight">
-            <span className="text-emerald-400">TOMA</span>DIX
+            <span className="text-primary font-black">TOMA</span>DIX
           </Link>
           <h1 className="mt-4 text-2xl font-semibold tracking-tight text-white">Criar novo estúdio</h1>
           <p className="mt-2 text-sm text-white/50">Comece a estruturar produções com consistência.</p>
@@ -72,7 +72,7 @@ export default function RegisterPage() {
               value={displayName}
               onChange={(e) => setDisplayName(e.target.value)}
               placeholder="Ex: Sofia Coppola ou Diretora de Fotografia"
-              className="mt-1.5 w-full rounded-xl border border-white/10 bg-black/30 px-3.5 py-2.5 text-sm text-white placeholder-white/20 transition focus:border-emerald-400 focus:outline-none focus:ring-1 focus:ring-emerald-400"
+              className="mt-1.5 w-full rounded-xl border border-white/10 bg-black/30 px-3.5 py-2.5 text-sm text-white placeholder-white/20 transition focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
             />
           </div>
 
@@ -83,7 +83,7 @@ export default function RegisterPage() {
               value={workspaceName}
               onChange={(e) => setWorkspaceName(e.target.value)}
               placeholder="Ex: Cinema Novo Lab"
-              className="mt-1.5 w-full rounded-xl border border-white/10 bg-black/30 px-3.5 py-2.5 text-sm text-white placeholder-white/20 transition focus:border-emerald-400 focus:outline-none focus:ring-1 focus:ring-emerald-400"
+              className="mt-1.5 w-full rounded-xl border border-white/10 bg-black/30 px-3.5 py-2.5 text-sm text-white placeholder-white/20 transition focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
             />
           </div>
 
@@ -95,7 +95,7 @@ export default function RegisterPage() {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               placeholder="diretor@cineprompt.ai"
-              className="mt-1.5 w-full rounded-xl border border-white/10 bg-black/30 px-3.5 py-2.5 text-sm text-white placeholder-white/20 transition focus:border-emerald-400 focus:outline-none focus:ring-1 focus:ring-emerald-400"
+              className="mt-1.5 w-full rounded-xl border border-white/10 bg-black/30 px-3.5 py-2.5 text-sm text-white placeholder-white/20 transition focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
             />
           </div>
 
@@ -107,14 +107,14 @@ export default function RegisterPage() {
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               placeholder="••••••••"
-              className="mt-1.5 w-full rounded-xl border border-white/10 bg-black/30 px-3.5 py-2.5 text-sm text-white placeholder-white/20 transition focus:border-emerald-400 focus:outline-none focus:ring-1 focus:ring-emerald-400"
+              className="mt-1.5 w-full rounded-xl border border-white/10 bg-black/30 px-3.5 py-2.5 text-sm text-white placeholder-white/20 transition focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
             />
           </div>
 
           <button
             type="submit"
             disabled={loading}
-            className="mt-2 w-full rounded-xl bg-emerald-400 py-3 text-sm font-semibold text-black transition hover:bg-emerald-300 disabled:opacity-50"
+            className="mt-2 w-full rounded-xl bg-primary py-3 text-sm font-semibold text-on-primary transition hover:opacity-90 shadow-md shadow-primary/20 disabled:opacity-50"
           >
             {loading ? "Criando estúdio..." : "Criar estúdio e começar"}
           </button>
@@ -122,7 +122,7 @@ export default function RegisterPage() {
 
         <div className="mt-8 border-t border-white/10 pt-6 text-center text-xs text-white/50">
           Já possui uma conta?{" "}
-          <Link href="/login" className="font-semibold text-emerald-400 transition hover:text-emerald-300">
+          <Link href="/login" className="font-semibold text-primary transition hover:opacity-80">
             Fazer login
           </Link>
         </div>

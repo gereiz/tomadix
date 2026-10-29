@@ -161,7 +161,7 @@ export default function WorkspaceBillingPage() {
           <div className="flex items-center gap-3">
             <Link
               href="/pricing"
-              className="rounded-xl bg-emerald-400 px-4 py-2 text-xs font-bold text-black transition hover:bg-emerald-300"
+              className="rounded-xl bg-primary px-4 py-2 text-xs font-bold text-on-primary transition hover:opacity-90 shadow-md shadow-primary/20"
             >
               Fazer Upgrade / Mudar Plano
             </Link>

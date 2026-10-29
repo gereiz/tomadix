@@ -51,7 +51,7 @@ export default function WorkspacePage() {
             </Link>
             <Link
               href="/studio"
-              className="px-3 py-1.5 rounded-lg text-emerald-400 hover:bg-emerald-500/10 border border-emerald-500/20 font-medium transition flex items-center gap-1.5"
+              className="px-3 py-1.5 rounded-lg text-primary hover:bg-primary/10 border border-primary/20 font-medium transition flex items-center gap-1.5"
               title="Ir para a ferramenta de Análise Cinematográfica"
             >
               <span>🎞️</span>

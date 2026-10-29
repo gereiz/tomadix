@@ -10,7 +10,9 @@ export type PlatformAdminPermission =
   | "gateways:manage"
   | "credentials:manage"
   | "webhooks:reprocess"
-  | "audit:read";
+  | "audit:read"
+  | "customization:manage"
+  | "settings:manage";
 
 export interface PermissionDefinition {
   id: PlatformAdminPermission;
@@ -79,6 +81,18 @@ export const PLATFORM_PERMISSION_DEFINITIONS: PermissionDefinition[] = [
     label: "Visualização de Auditoria",
     category: "Governança",
     description: "Acessar o log imutável de todas as ações administrativas realizadas.",
+  },
+  {
+    id: "customization:manage",
+    label: "Personalização Visual",
+    category: "Operações",
+    description: "Gerenciar logotipo, cores, tipografia e temas da plataforma.",
+  },
+  {
+    id: "settings:manage",
+    label: "Configurações Gerais & Limpeza",
+    category: "Operações",
+    description: "Gerenciar modo de manutenção, anúncios globais e limpeza de dados.",
   },
 ];
 

@@ -2,7 +2,8 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { usePathname, useRouter } from "next/navigation";
+import { AdminSidebar } from "@/components/admin/admin-sidebar";
+import { AdminHeader } from "@/components/admin/admin-header";
 
 interface AdminUser {
   id: string;
@@ -13,13 +14,21 @@ interface AdminUser {
 }
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
-  const pathname = usePathname();
-  const router = useRouter();
   const [admin, setAdmin] = useState<AdminUser | null>(null);
   const [loading, setLoading] = useState(true);
   const [accessDenied, setAccessDenied] = useState(false);
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+  const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
 
   useEffect(() => {
+    // Carregar preferência de sidebar salva no localStorage
+    try {
+      const savedCollapse = localStorage.getItem("tomadix_admin_sidebar_collapsed");
+      if (savedCollapse === "true") {
+        setSidebarCollapsed(true);
+      }
+    } catch {}
+
     fetch("/api/auth/me")
       .then((res) => (res.ok ? res.json() : null))
       .then((data) => {
@@ -33,16 +42,15 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
       .finally(() => setLoading(false));
   }, []);
 
-  const navTabs = [
-    { href: "/admin", label: "Visão Geral", icon: "📊" },
-    { href: "/admin/parameters", label: "Parâmetros Cinematográficos", icon: "⚙️" },
-    { href: "/admin/users", label: "Usuários", icon: "👥" },
-    { href: "/admin/projects", label: "Projetos", icon: "🎬" },
-    { href: "/admin/billing", label: "Comercial & Planos", icon: "💳" },
-    { href: "/admin/usage", label: "Consumo & Custos IA", icon: "⚡" },
-    { href: "/admin/visual-library", label: "Biblioteca Visual", icon: "🎨" },
-    { href: "/admin/audit", label: "Auditoria", icon: "🛡️" },
-  ];
+  const handleToggleCollapse = () => {
+    setSidebarCollapsed((prev) => {
+      const next = !prev;
+      try {
+        localStorage.setItem("tomadix_admin_sidebar_collapsed", String(next));
+      } catch {}
+      return next;
+    });
+  };
 
   if (loading) {
     return (
@@ -83,79 +91,26 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
 
   return (
     <div className="min-h-screen bg-[#07090e] text-white flex flex-col">
-      {/* Top Admin Header */}
-      <header className="border-b border-amber-500/20 bg-[#0b0e17]/90 backdrop-blur-md sticky top-[57px] z-30">
-        <div className="w-full flex items-center justify-between px-4 sm:px-6 lg:px-8 py-3.5">
-          <div className="flex items-center gap-4">
-            <Link href="/admin" className="flex items-center gap-2.5">
-              <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-amber-400 font-mono text-xs font-black text-black">
-                TM
-              </span>
-              <div>
-                <span className="text-sm font-bold tracking-tight text-white flex items-center gap-2">
-                  <span>Tomadix</span>
-                  <span className="rounded bg-amber-500/20 border border-amber-500/40 px-1.5 py-0.5 font-mono text-[10px] font-bold text-amber-300">
-                    CONSOLE ADMIN
-                  </span>
-                </span>
-              </div>
-            </Link>
+      {/* Sub Header for Breadcrumbs & Quick Context */}
+      <AdminHeader
+        admin={admin}
+        onOpenMobileSidebar={() => setMobileSidebarOpen(true)}
+      />
 
-            <span className="h-4 w-[1px] bg-white/10 hidden sm:inline" />
+      {/* Main Admin Workspace with Sidebar */}
+      <div className="flex-1 flex w-full">
+        <AdminSidebar
+          collapsed={sidebarCollapsed}
+          onToggleCollapse={handleToggleCollapse}
+          mobileOpen={mobileSidebarOpen}
+          onCloseMobile={() => setMobileSidebarOpen(false)}
+        />
 
-            <span className="hidden sm:inline-flex items-center gap-1.5 rounded-full border border-emerald-500/20 bg-emerald-500/10 px-2.5 py-0.5 text-[11px] font-medium text-emerald-400">
-              <span className="h-1.5 w-1.5 rounded-full bg-emerald-400 animate-pulse" />
-              SaaS Online
-            </span>
-          </div>
-
-          <div className="flex items-center gap-4">
-            <div className="hidden md:flex flex-col text-right">
-              <span className="text-xs font-semibold text-white">{admin.displayName || admin.email}</span>
-              <span className="text-[10px] font-mono text-amber-400/80 uppercase">
-                {admin.platformRole}
-              </span>
-            </div>
-
-            <Link
-              href="/dashboard"
-              className="rounded-lg border border-white/15 bg-white/5 px-3 py-1.5 text-xs font-medium text-white/80 transition hover:bg-white/10 hover:text-white"
-            >
-              Ir para o Estúdio ➔
-            </Link>
-          </div>
-        </div>
-
-        {/* Sub Navigation Bar */}
-        <div className="w-full px-4 sm:px-6 lg:px-8">
-          <nav className="flex gap-1 overflow-x-auto py-2 no-scrollbar">
-            {navTabs.map((tab) => {
-              const isActive =
-                tab.href === "/admin"
-                  ? pathname === "/admin"
-                  : pathname.startsWith(tab.href);
-
-              return (
-                <Link
-                  key={tab.href}
-                  href={tab.href}
-                  className={`flex items-center gap-2 rounded-lg px-3.5 py-2 text-xs font-medium transition whitespace-nowrap ${
-                    isActive
-                      ? "bg-amber-500/15 text-amber-300 border border-amber-500/30 font-semibold"
-                      : "text-white/60 hover:bg-white/5 hover:text-white"
-                  }`}
-                >
-                  <span>{tab.icon}</span>
-                  <span>{tab.label}</span>
-                </Link>
-              );
-            })}
-          </nav>
-        </div>
-      </header>
-
-      {/* Main Admin Content */}
-      <main className="flex-1 w-full px-4 sm:px-6 lg:px-8 py-6">{children}</main>
+        {/* Content Area */}
+        <main className="flex-1 w-full min-w-0 px-4 sm:px-6 lg:px-8 py-6">
+          {children}
+        </main>
+      </div>
     </div>
   );
 }

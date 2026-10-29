@@ -46,14 +46,14 @@ function LoginForm() {
     <div className="w-full max-w-md rounded-3xl border border-white/10 bg-[#0f1219]/90 p-8 shadow-2xl backdrop-blur-xl">
       <div className="mb-8 text-center">
         <Link href="/" className="inline-block text-lg font-bold tracking-tight">
-          <span className="text-emerald-400">TOMA</span>DIX
+          <span className="text-primary font-black">TOMA</span>DIX
         </Link>
         <h1 className="mt-4 text-2xl font-semibold tracking-tight text-white">Acesse seu estúdio</h1>
         <p className="mt-2 text-sm text-white/50">Entre com suas credenciais cinematográficas.</p>
       </div>
 
       {message && (
-        <div className="mb-5 rounded-xl border border-emerald-400/30 bg-emerald-400/10 p-3.5 text-xs text-emerald-300">
+        <div className="mb-5 rounded-xl border border-primary/30 bg-primary/10 p-3.5 text-xs text-primary">
           {message}
         </div>
       )}
@@ -73,7 +73,7 @@ function LoginForm() {
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             placeholder="diretor@estudio.com"
-            className="mt-1.5 w-full rounded-xl border border-white/10 bg-black/30 px-3.5 py-2.5 text-sm text-white placeholder-white/20 transition focus:border-emerald-400 focus:outline-none focus:ring-1 focus:ring-emerald-400"
+            className="mt-1.5 w-full rounded-xl border border-white/10 bg-black/30 px-3.5 py-2.5 text-sm text-white placeholder-white/20 transition focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
           />
         </div>
 
@@ -82,7 +82,7 @@ function LoginForm() {
             <label className="block text-xs font-medium text-white/70">Senha de acesso</label>
             <Link
               href="/forgot-password"
-              className="text-xs text-emerald-400 transition hover:text-emerald-300"
+              className="text-xs text-primary transition hover:opacity-80"
             >
               Esqueceu a senha?
             </Link>
@@ -93,14 +93,14 @@ function LoginForm() {
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             placeholder="••••••••"
-            className="mt-1.5 w-full rounded-xl border border-white/10 bg-black/30 px-3.5 py-2.5 text-sm text-white placeholder-white/20 transition focus:border-emerald-400 focus:outline-none focus:ring-1 focus:ring-emerald-400"
+            className="mt-1.5 w-full rounded-xl border border-white/10 bg-black/30 px-3.5 py-2.5 text-sm text-white placeholder-white/20 transition focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
           />
         </div>
 
         <button
           type="submit"
           disabled={loading}
-          className="mt-2 w-full rounded-xl bg-emerald-400 py-3 text-sm font-semibold text-black transition hover:bg-emerald-300 disabled:opacity-50"
+          className="mt-2 w-full rounded-xl bg-primary py-3 text-sm font-semibold text-on-primary transition hover:opacity-90 shadow-md shadow-primary/20 disabled:opacity-50"
         >
           {loading ? "Autenticando..." : "Entrar no estúdio"}
         </button>
@@ -108,7 +108,7 @@ function LoginForm() {
 
       <div className="mt-8 border-t border-white/10 pt-6 text-center text-xs text-white/50">
         Não possui uma conta?{" "}
-        <Link href="/register" className="font-semibold text-emerald-400 transition hover:text-emerald-300">
+        <Link href="/register" className="font-semibold text-primary transition hover:opacity-80">
           Criar novo estúdio
         </Link>
       </div>
@@ -118,7 +118,7 @@ function LoginForm() {
 
 export default function LoginPage() {
   return (
-    <main className="flex min-h-screen items-center justify-center bg-[#0b0d12] px-6 py-12">
+    <main className="flex min-h-screen items-center justify-center bg-background px-6 py-12">
       <Suspense fallback={<div className="text-white/50">Carregando formulário...</div>}>
         <LoginForm />
       </Suspense>

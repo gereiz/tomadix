@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach } from "vitest";
+import { describe, it, expect, beforeEach, afterAll } from "vitest";
 import { db } from "@/lib/db";
 import bcrypt from "bcryptjs";
 import { PlatformRole, WorkspaceRole, PlanTier, GenerationStatus } from "@prisma/client";
@@ -82,6 +82,20 @@ describe("Painel Administrativo da Plataforma (SaaS Console)", () => {
       },
     });
     superAdminUserId = superUser.id;
+
+    // Garante que o plano PRO esteja com os termos padrão antes de cada teste
+    await db.plan.update({
+      where: { tier: PlanTier.PRO },
+      data: {
+        name: "Tomadix Pro",
+        priceMonthly: 8900,
+        priceYearly: 89000,
+        maxProjects: 20,
+        maxMembers: 3,
+        monthlyCredits: 500,
+        isActive: true,
+      },
+    }).catch(() => {});
   });
 
   describe("1. Autorização Administrativa no Servidor", () => {
@@ -381,5 +395,21 @@ describe("Painel Administrativo da Plataforma (SaaS Console)", () => {
       expect(result.logs[0].action).toBe(uniqueAction);
       expect(result.logs[0].adminUser.id).toBe(adminUserId);
     });
+  });
+
+  afterAll(async () => {
+    // Restaura o plano PRO aos valores padrão oficiais
+    await db.plan.update({
+      where: { tier: PlanTier.PRO },
+      data: {
+        name: "Tomadix Pro",
+        priceMonthly: 8900,
+        priceYearly: 89000,
+        maxProjects: 20,
+        maxMembers: 3,
+        monthlyCredits: 500,
+        isActive: true,
+      },
+    }).catch(() => {});
   });
 });

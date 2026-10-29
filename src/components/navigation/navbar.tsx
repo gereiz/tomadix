@@ -69,7 +69,7 @@ export function Navbar() {
             href="/"
             className="flex items-center gap-2.5 text-base font-bold tracking-tight text-on-surface transition hover:opacity-90 flex-shrink-0"
           >
-            <span className="flex h-8 w-8 items-center justify-center rounded-xl bg-primary font-mono text-sm font-extrabold text-on-primary shadow-[0_0_15px_rgba(78,222,163,0.35)]">
+            <span className="flex h-8 w-8 items-center justify-center rounded-xl bg-primary font-mono text-sm font-extrabold text-on-primary shadow-md shadow-primary/35">
               T
             </span>
             <span className="tracking-wider font-headline-sm text-headline-sm uppercase text-on-surface">
@@ -86,7 +86,7 @@ export function Navbar() {
                   key={link.href}
                   href={link.href}
                   className={`rounded-lg px-3 py-1.5 text-xs font-medium transition ${isActive
-                    ? "bg-surface-container-high text-primary font-semibold shadow-[0_0_12px_rgba(78,222,163,0.15)]"
+                    ? "bg-surface-container-high text-primary font-semibold shadow-sm shadow-primary/20"
                     : "text-on-surface-variant hover:bg-surface-container-low hover:text-on-surface"
                     }`}
                 >
