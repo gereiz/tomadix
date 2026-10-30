@@ -3,6 +3,16 @@
 import { useEffect, useState } from "react";
 import { CustomizationSettings, DEFAULT_CUSTOMIZATION } from "@/modules/admin/platform-settings.service";
 
+function toValidHex(val: string | undefined | null, fallback = "#000000"): string {
+  if (!val) return fallback;
+  const trimmed = val.trim();
+  if (/^#[0-9a-fA-F]{6}$/.test(trimmed)) return trimmed;
+  if (/^#[0-9a-fA-F]{3}$/.test(trimmed)) {
+    return `#${trimmed[1]}${trimmed[1]}${trimmed[2]}${trimmed[2]}${trimmed[3]}${trimmed[3]}`;
+  }
+  return fallback;
+}
+
 export default function AdminCustomizationPage() {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -364,10 +374,18 @@ export default function AdminCustomizationPage() {
                 <div className="rounded-xl border border-white/10 bg-black/30 p-3.5 space-y-2">
                   <div className="flex items-center justify-between">
                     <label className="text-xs font-semibold text-white">Cor Primária (Brand)</label>
-                    <div
-                      className="h-5 w-5 rounded-md border border-white/20 shadow-sm"
+                    <label
+                      className="relative flex h-6 w-6 cursor-pointer items-center justify-center rounded-md border border-white/20 shadow-sm transition hover:scale-110 hover:border-white focus-within:ring-2 focus-within:ring-amber-400"
                       style={{ backgroundColor: settings.primaryColor }}
-                    />
+                      title="Clique no quadro para abrir o seletor de cor"
+                    >
+                      <input
+                        type="color"
+                        value={toValidHex(settings.primaryColor, "#4edea3")}
+                        onChange={(e) => handleChange("primaryColor", e.target.value)}
+                        className="absolute inset-0 h-full w-full cursor-pointer opacity-0"
+                      />
+                    </label>
                   </div>
                   <input
                     type="text"
@@ -382,10 +400,18 @@ export default function AdminCustomizationPage() {
                 <div className="rounded-xl border border-white/10 bg-black/30 p-3.5 space-y-2">
                   <div className="flex items-center justify-between">
                     <label className="text-xs font-semibold text-white">Cor Secundária</label>
-                    <div
-                      className="h-5 w-5 rounded-md border border-white/20 shadow-sm"
+                    <label
+                      className="relative flex h-6 w-6 cursor-pointer items-center justify-center rounded-md border border-white/20 shadow-sm transition hover:scale-110 hover:border-white focus-within:ring-2 focus-within:ring-amber-400"
                       style={{ backgroundColor: settings.secondaryColor }}
-                    />
+                      title="Clique no quadro para abrir o seletor de cor"
+                    >
+                      <input
+                        type="color"
+                        value={toValidHex(settings.secondaryColor, "#95d3ba")}
+                        onChange={(e) => handleChange("secondaryColor", e.target.value)}
+                        className="absolute inset-0 h-full w-full cursor-pointer opacity-0"
+                      />
+                    </label>
                   </div>
                   <input
                     type="text"
@@ -400,10 +426,18 @@ export default function AdminCustomizationPage() {
                 <div className="rounded-xl border border-white/10 bg-black/30 p-3.5 space-y-2">
                   <div className="flex items-center justify-between">
                     <label className="text-xs font-semibold text-white">Cor de Destaque (Accent)</label>
-                    <div
-                      className="h-5 w-5 rounded-md border border-white/20 shadow-sm"
+                    <label
+                      className="relative flex h-6 w-6 cursor-pointer items-center justify-center rounded-md border border-white/20 shadow-sm transition hover:scale-110 hover:border-white focus-within:ring-2 focus-within:ring-amber-400"
                       style={{ backgroundColor: settings.accentColor }}
-                    />
+                      title="Clique no quadro para abrir o seletor de cor"
+                    >
+                      <input
+                        type="color"
+                        value={toValidHex(settings.accentColor, "#f59e0b")}
+                        onChange={(e) => handleChange("accentColor", e.target.value)}
+                        className="absolute inset-0 h-full w-full cursor-pointer opacity-0"
+                      />
+                    </label>
                   </div>
                   <input
                     type="text"
@@ -418,10 +452,18 @@ export default function AdminCustomizationPage() {
                 <div className="rounded-xl border border-white/10 bg-black/30 p-3.5 space-y-2">
                   <div className="flex items-center justify-between">
                     <label className="text-xs font-semibold text-white">Cor de Bordas</label>
-                    <div
-                      className="h-5 w-5 rounded-md border border-white/20 shadow-sm"
+                    <label
+                      className="relative flex h-6 w-6 cursor-pointer items-center justify-center rounded-md border border-white/20 shadow-sm transition hover:scale-110 hover:border-white focus-within:ring-2 focus-within:ring-amber-400"
                       style={{ backgroundColor: settings.borderColor }}
-                    />
+                      title="Clique no quadro para abrir o seletor de cor"
+                    >
+                      <input
+                        type="color"
+                        value={toValidHex(settings.borderColor, "#ffffff")}
+                        onChange={(e) => handleChange("borderColor", e.target.value)}
+                        className="absolute inset-0 h-full w-full cursor-pointer opacity-0"
+                      />
+                    </label>
                   </div>
                   <input
                     type="text"
@@ -436,10 +478,18 @@ export default function AdminCustomizationPage() {
                 <div className="rounded-xl border border-white/10 bg-black/30 p-3.5 space-y-2">
                   <div className="flex items-center justify-between">
                     <label className="text-xs font-semibold text-white">Fundo Principal</label>
-                    <div
-                      className="h-5 w-5 rounded-md border border-white/20 shadow-sm"
+                    <label
+                      className="relative flex h-6 w-6 cursor-pointer items-center justify-center rounded-md border border-white/20 shadow-sm transition hover:scale-110 hover:border-white focus-within:ring-2 focus-within:ring-amber-400"
                       style={{ backgroundColor: settings.backgroundColor }}
-                    />
+                      title="Clique no quadro para abrir o seletor de cor"
+                    >
+                      <input
+                        type="color"
+                        value={toValidHex(settings.backgroundColor, "#07090e")}
+                        onChange={(e) => handleChange("backgroundColor", e.target.value)}
+                        className="absolute inset-0 h-full w-full cursor-pointer opacity-0"
+                      />
+                    </label>
                   </div>
                   <input
                     type="text"
@@ -454,10 +504,18 @@ export default function AdminCustomizationPage() {
                 <div className="rounded-xl border border-white/10 bg-black/30 p-3.5 space-y-2">
                   <div className="flex items-center justify-between">
                     <label className="text-xs font-semibold text-white">Superfície / Cards</label>
-                    <div
-                      className="h-5 w-5 rounded-md border border-white/20 shadow-sm"
+                    <label
+                      className="relative flex h-6 w-6 cursor-pointer items-center justify-center rounded-md border border-white/20 shadow-sm transition hover:scale-110 hover:border-white focus-within:ring-2 focus-within:ring-amber-400"
                       style={{ backgroundColor: settings.surfaceColor }}
-                    />
+                      title="Clique no quadro para abrir o seletor de cor"
+                    >
+                      <input
+                        type="color"
+                        value={toValidHex(settings.surfaceColor, "#0d111c")}
+                        onChange={(e) => handleChange("surfaceColor", e.target.value)}
+                        className="absolute inset-0 h-full w-full cursor-pointer opacity-0"
+                      />
+                    </label>
                   </div>
                   <input
                     type="text"
@@ -472,10 +530,18 @@ export default function AdminCustomizationPage() {
                 <div className="rounded-xl border border-white/10 bg-black/30 p-3.5 space-y-2">
                   <div className="flex items-center justify-between">
                     <label className="text-xs font-semibold text-white">Texto Primário</label>
-                    <div
-                      className="h-5 w-5 rounded-md border border-white/20 shadow-sm"
+                    <label
+                      className="relative flex h-6 w-6 cursor-pointer items-center justify-center rounded-md border border-white/20 shadow-sm transition hover:scale-110 hover:border-white focus-within:ring-2 focus-within:ring-amber-400"
                       style={{ backgroundColor: settings.textPrimaryColor }}
-                    />
+                      title="Clique no quadro para abrir o seletor de cor"
+                    >
+                      <input
+                        type="color"
+                        value={toValidHex(settings.textPrimaryColor, "#ffffff")}
+                        onChange={(e) => handleChange("textPrimaryColor", e.target.value)}
+                        className="absolute inset-0 h-full w-full cursor-pointer opacity-0"
+                      />
+                    </label>
                   </div>
                   <input
                     type="text"
@@ -490,10 +556,18 @@ export default function AdminCustomizationPage() {
                 <div className="rounded-xl border border-white/10 bg-black/30 p-3.5 space-y-2">
                   <div className="flex items-center justify-between">
                     <label className="text-xs font-semibold text-white">Texto Secundário</label>
-                    <div
-                      className="h-5 w-5 rounded-md border border-white/20 shadow-sm"
+                    <label
+                      className="relative flex h-6 w-6 cursor-pointer items-center justify-center rounded-md border border-white/20 shadow-sm transition hover:scale-110 hover:border-white focus-within:ring-2 focus-within:ring-amber-400"
                       style={{ backgroundColor: settings.textSecondaryColor }}
-                    />
+                      title="Clique no quadro para abrir o seletor de cor"
+                    >
+                      <input
+                        type="color"
+                        value={toValidHex(settings.textSecondaryColor, "#94a3b8")}
+                        onChange={(e) => handleChange("textSecondaryColor", e.target.value)}
+                        className="absolute inset-0 h-full w-full cursor-pointer opacity-0"
+                      />
+                    </label>
                   </div>
                   <input
                     type="text"
@@ -508,19 +582,18 @@ export default function AdminCustomizationPage() {
                 <div className="rounded-xl border border-white/10 bg-black/30 p-3.5 space-y-2">
                   <div className="flex items-center justify-between">
                     <label className="text-xs font-semibold text-white">Texto dos Badges</label>
-                    <div className="flex items-center gap-1.5">
+                    <label
+                      className="relative flex h-6 w-6 cursor-pointer items-center justify-center rounded-md border border-white/20 shadow-sm transition hover:scale-110 hover:border-white focus-within:ring-2 focus-within:ring-amber-400"
+                      style={{ backgroundColor: settings.badgeTextColor || "#ffffff" }}
+                      title="Clique no quadro para abrir o seletor de cor"
+                    >
                       <input
                         type="color"
-                        value={settings.badgeTextColor && settings.badgeTextColor.startsWith("#") ? settings.badgeTextColor : "#ffffff"}
+                        value={toValidHex(settings.badgeTextColor, "#ffffff")}
                         onChange={(e) => handleChange("badgeTextColor", e.target.value)}
-                        className="h-5 w-5 rounded cursor-pointer border-0 bg-transparent p-0"
-                        title="Seletor de cor"
+                        className="absolute inset-0 h-full w-full cursor-pointer opacity-0"
                       />
-                      <div
-                        className="h-5 w-5 rounded-md border border-white/20 shadow-sm"
-                        style={{ backgroundColor: settings.badgeTextColor || "#ffffff" }}
-                      />
-                    </div>
+                    </label>
                   </div>
                   <input
                     type="text"
@@ -535,19 +608,18 @@ export default function AdminCustomizationPage() {
                 <div className="rounded-xl border border-white/10 bg-black/30 p-3.5 space-y-2">
                   <div className="flex items-center justify-between">
                     <label className="text-xs font-semibold text-white">Fundo dos Badges</label>
-                    <div className="flex items-center gap-1.5">
+                    <label
+                      className="relative flex h-6 w-6 cursor-pointer items-center justify-center rounded-md border border-white/20 shadow-sm transition hover:scale-110 hover:border-white focus-within:ring-2 focus-within:ring-amber-400"
+                      style={{ backgroundColor: settings.badgeBgColor || settings.primaryColor }}
+                      title="Clique no quadro para abrir o seletor de cor"
+                    >
                       <input
                         type="color"
-                        value={settings.badgeBgColor && settings.badgeBgColor.startsWith("#") ? settings.badgeBgColor : settings.primaryColor}
+                        value={toValidHex(settings.badgeBgColor || settings.primaryColor, "#2563eb")}
                         onChange={(e) => handleChange("badgeBgColor", e.target.value)}
-                        className="h-5 w-5 rounded cursor-pointer border-0 bg-transparent p-0"
-                        title="Seletor de cor"
+                        className="absolute inset-0 h-full w-full cursor-pointer opacity-0"
                       />
-                      <div
-                        className="h-5 w-5 rounded-md border border-white/20 shadow-sm"
-                        style={{ backgroundColor: settings.badgeBgColor || settings.primaryColor }}
-                      />
-                    </div>
+                    </label>
                   </div>
                   <input
                     type="text"
