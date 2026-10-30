@@ -27,10 +27,38 @@ O `ContinuityService` inspeciona a sequência cronológica de cenas do projeto e
 
 ---
 
-## 3. Endpoints da API de Cenas (`/api/projects/[id]/scenes`)
+## 3. Criação e Decupagem Cinematográfica com Inteligência Artificial
+
+A plataforma conta com funcionalidades nativas de IA que atuam diretamente no módulo de cenas, debitando créditos conforme a tabela configurável de operações:
+
+### 3.1. Expansão de Cena (`EXPAND_SCENE`)
+Disponível no card de cada cena na lista (`ScenesTab`), permite que o diretor desdobre uma cena base em 2 a 4 sub-planos cinematográficos ou variações de ângulo:
+- **Sub-Planos Clássicos (`SUB_SHOTS`)**: Progressão de Plano Geral (estabelecimento) para Plano Médio e Plano Próximo/Reação.
+- **Variações de Ângulo (`CAMERA_ANGLES`)**: Desdobramento em contra-campos, eixos alternativos, plongée e contra-plongée.
+- **Planos Detalhe e Inserts (`DETAIL_SHOTS`)**: Planos fechados focados em objetos dramáticos, mãos, reações sutis ou iluminação.
+- **Micro-Ações (`MICRO_ACTIONS`)**: Decomposição temporal de batidas cênicas consecutivas.
+- As novas cenas são inseridas imediatamente após a cena pai na linha do tempo, com reordenação atômica transacional no banco e herança dos personagens e ambientes vinculados.
+
+### 3.2. Geração de Sequência Contínua de Cenas (`GEN_SCENE_SEQUENCE`)
+Acessível na barra superior de cenas através do botão **"✨ Sequência com IA"**:
+- O diretor informa a premissa dramática da sequência, o número de cenas desejadas (2 a 8), o ritmo cinematográfico (*Equilibrado*, *Ação Intensa*, *Slow Burn*, *Acelerado*) e os personagens/ambientes a serem vinculados.
+- O motor Gemini concebe a sequência inteira encadeada com continuidade dramática, ações físicas e transições de corte, inserindo as cenas automaticamente na produção.
+
+### 3.3. Geração de Roteiro Cinematográfico Completo (`GEN_SCRIPT`)
+Acessível na barra superior através do botão **"🎬 Roteiro com IA"**:
+- Converte a premissa em um roteiro profissional no padrão internacional *Master Scene Format* (Sluglines INT./EXT., rubricas de direção e diálogos com subtexto).
+- Disponibiliza visualizador com syntax de roteiro e botão de cópia rápida.
+- Com a opção "Instanciar automaticamente", extrai cada cena do roteiro e as cadastra como tomadas sequenciais no projeto.
+
+---
+
+## 4. Endpoints da API de Cenas e Criação Cinematográfica
 
 - `GET /api/projects/[id]/scenes`: Lista todas as cenas ordenadas por `order` ascendente.
-- `POST /api/projects/[id]/scenes`: Criação de cena com decupagem e vínculos de entidades.
+- `POST /api/projects/[id]/scenes`: Criação manual de cena com decupagem e vínculos.
+- `POST /api/projects/[id]/scenes/[sceneId]/expand`: Expansão da cena com IA (`EXPAND_SCENE`).
+- `POST /api/projects/[id]/scenes/generate-sequence`: Geração de sequência encadeada de cenas com IA (`GEN_SCENE_SEQUENCE`).
+- `POST /api/projects/[id]/script/generate`: Geração de roteiro cinematográfico completo com IA (`GEN_SCRIPT`).
 - `GET /api/projects/[id]/scenes/[sceneId]`: Detalhes completos da cena e seus vínculos.
 - `PUT /api/projects/[id]/scenes/[sceneId]`: Atualização técnica da decupagem.
 - `POST /api/projects/[id]/scenes/[sceneId]/duplicate`: Duplicação de cena com preservação de vínculos.

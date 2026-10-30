@@ -206,6 +206,13 @@ export const generatePromptRequestSchema = z.object({
   model: z.string().optional(),
   parentVersionId: z.string().optional(),
   outputFormat: z.enum(["json", "text"]).optional().default("json"),
+  references: z
+    .object({
+      characterIds: z.array(z.string()).optional(),
+      environmentIds: z.array(z.string()).optional(),
+      sceneIds: z.array(z.string()).optional(),
+    })
+    .optional(),
 });
 
 export type GeneratePromptRequest = z.input<typeof generatePromptRequestSchema>;

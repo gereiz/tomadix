@@ -48,3 +48,21 @@ O fluxo de convite por e-mail garante segurança e rastreabilidade:
 - `POST /api/invites/[token]/accept`: Aceite de convite e criação da membership.
 - `POST /api/invites/[token]/decline`: Recusa formal do convite.
 - `POST /api/workspaces/[id]/transfer-ownership`: Transferência formal da titularidade.
+
+---
+
+## 5. Governança e Cotas de Workspaces por Usuário
+
+A criação de múltiplos workspaces é governada pelo plano comercial mais alto que o usuário detém (seja em seu workspace pessoal, por assinaturas ativas ou por concessões administrativas `UserEntitlementOverride`):
+
+| Plano Contratado | Cota de Workspaces / Estúdios | Herança de Plano em Novos Estúdios |
+| :---: | :---: | :---: |
+| **FREE** | 1 workspace | `FREE` (2 projetos, 20 créditos) |
+| **PRO** | até 3 workspaces | `PRO` (20 projetos, 500 créditos) |
+| **TEAM** | até 10 workspaces | `TEAM` (projetos ilimitados, 2.500 créditos) |
+| **ENTERPRISE** | **Ilimitados (`-1`)** | `ENTERPRISE` (projetos ilimitados, 10.000 créditos) |
+
+### Regras de Negócio Implementadas:
+1. **Validação Pré-Criação (`assertCanCreateWorkspace`)**: Antes de inserir o workspace no banco de dados, o `EntitlementService` verifica se a contagem de estúdios que o usuário é proprietário (`OWNER`) não excede sua cota máxima. Caso exceda, retorna status `403` com código `WORKSPACE_LIMIT_REACHED`.
+2. **Herança do Plano Superior**: Quando um assinante PRO, TEAM ou ENTERPRISE cria um novo estúdio, a assinatura inicial do novo workspace já é provisionada com o mesmo `planTier` superior, em vez de rebaixar o novo estúdio para `FREE`.
+3. **Alternância Instantânea**: Ao criar o estúdio no modal de navegação superior (`WorkspaceSelector`), o sistema alterna a sessão imediatamente para o novo ambiente, atualizando cookies, estado global e menu contextual.

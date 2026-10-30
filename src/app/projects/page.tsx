@@ -1321,7 +1321,7 @@ export default function ProjectsPage() {
           <div className="relative max-h-[90vh] w-full max-w-2xl overflow-y-auto rounded-3xl border border-white/10 bg-[#12161f] p-6 shadow-2xl md:p-8">
             <div className="flex items-center justify-between border-b border-white/10 pb-4">
               <div>
-                <span className="text-xs uppercase tracking-[0.2em] text-emerald-400">
+                <span className="text-xs uppercase tracking-[0.2em] text-primary">
                   {editingProject ? "Edição de Projeto" : "Nova Produção"}
                 </span>
                 <h2 className="mt-1 text-2xl font-bold">
@@ -1405,7 +1405,7 @@ export default function ProjectsPage() {
               {/* Nome */}
               <div>
                 <label className="block text-xs font-semibold uppercase tracking-wider text-white/70">
-                  Nome do Projeto <span className="text-emerald-400">*</span>
+                  Nome do Projeto <span className="text-primary">*</span>
                 </label>
                 <input
                   type="text"
@@ -1485,7 +1485,7 @@ export default function ProjectsPage() {
 
               {/* Seção de Configurações Técnicas Cinematográficas */}
               <div className="rounded-2xl border border-white/10 bg-black/30 p-4">
-                <h4 className="text-xs font-bold uppercase tracking-[0.15em] text-emerald-400 mb-3">
+                <h4 className="text-xs font-bold uppercase tracking-[0.15em] text-primary mb-3">
                   Configurações Técnicas de Destino
                 </h4>
                 <div className="grid gap-4 sm:grid-cols-2">
@@ -1494,7 +1494,7 @@ export default function ProjectsPage() {
                     <select
                       value={formData.targetPlatform}
                       onChange={(e) => setFormData({ ...formData, targetPlatform: e.target.value })}
-                      className="mt-1.5 w-full rounded-xl border border-white/10 bg-black/40 px-3 py-2 text-xs text-white focus:border-emerald-400 focus:outline-none"
+                      className="mt-1.5 w-full rounded-xl border border-white/10 bg-black/40 px-3 py-2 text-xs text-white focus:border-primary focus:outline-none"
                     >
                       {PLATFORM_OPTIONS.map((p) => (
                         <option key={p} value={p}>
@@ -1509,7 +1509,7 @@ export default function ProjectsPage() {
                     <select
                       value={formData.aspectRatio}
                       onChange={(e) => setFormData({ ...formData, aspectRatio: e.target.value })}
-                      className="mt-1.5 w-full rounded-xl border border-white/10 bg-black/40 px-3 py-2 text-xs text-white focus:border-emerald-400 focus:outline-none"
+                      className="mt-1.5 w-full rounded-xl border border-white/10 bg-black/40 px-3 py-2 text-xs text-white focus:border-primary focus:outline-none"
                     >
                       {ASPECT_RATIO_OPTIONS.map((ar) => (
                         <option key={ar} value={ar}>
@@ -1526,7 +1526,7 @@ export default function ProjectsPage() {
                       placeholder="Ex: Kodachrome 64, Bleach Bypass, Teal & Orange..."
                       value={formData.colorGrade}
                       onChange={(e) => setFormData({ ...formData, colorGrade: e.target.value })}
-                      className="mt-1.5 w-full rounded-xl border border-white/10 bg-black/40 px-3 py-2 text-xs text-white focus:border-emerald-400 focus:outline-none"
+                      className="mt-1.5 w-full rounded-xl border border-white/10 bg-black/40 px-3 py-2 text-xs text-white focus:border-primary focus:outline-none"
                     />
                   </div>
 
@@ -1537,7 +1537,7 @@ export default function ProjectsPage() {
                       placeholder="Ex: Contemplativo, Rápido com cortes secos..."
                       value={formData.pacing}
                       onChange={(e) => setFormData({ ...formData, pacing: e.target.value })}
-                      className="mt-1.5 w-full rounded-xl border border-white/10 bg-black/40 px-3 py-2 text-xs text-white focus:border-emerald-400 focus:outline-none"
+                      className="mt-1.5 w-full rounded-xl border border-white/10 bg-black/40 px-3 py-2 text-xs text-white focus:border-primary focus:outline-none"
                     />
                   </div>
                 </div>
@@ -1545,13 +1545,13 @@ export default function ProjectsPage() {
 
               {/* Parâmetros Cinematográficos Globais */}
               {globalParams.length > 0 && (
-                <div className="rounded-2xl border border-emerald-500/20 bg-emerald-950/10 p-4">
+                <div className="rounded-2xl border border-primary/20 bg-primary/5 p-4">
                   <div className="flex items-center gap-2 mb-3">
-                    <span className="h-2 w-2 rounded-full bg-emerald-400 animate-pulse" />
-                    <h4 className="text-xs font-bold uppercase tracking-[0.15em] text-emerald-400">
+                    <span className="h-2 w-2 rounded-full bg-primary animate-pulse" />
+                    <h4 className="text-xs font-bold uppercase tracking-[0.15em] text-primary">
                       Parâmetros Cinematográficos Globais
                     </h4>
-                    <span className="rounded-full bg-emerald-400/20 px-2 py-0.5 text-[10px] font-semibold text-emerald-300">
+                    <span className="rounded-full bg-primary/20 px-2 py-0.5 text-[10px] font-semibold text-primary">
                       {globalParams.length}
                     </span>
                   </div>
@@ -1560,7 +1560,7 @@ export default function ProjectsPage() {
                       <div key={param.id} className="space-y-1">
                         <label className="block text-xs text-white/80 font-medium">
                           {param.label}
-                          {param.required && <span className="text-emerald-400 ml-1 font-bold">*</span>}
+                          {param.required && <span className="text-primary ml-1 font-bold">*</span>}
                         </label>
                         {param.description && (
                           <p className="text-[10px] text-white/50">{param.description}</p>
@@ -1571,7 +1571,7 @@ export default function ProjectsPage() {
                             onChange={(e) =>
                               setParamValues({ ...paramValues, [param.id]: e.target.value })
                             }
-                            className="mt-1 w-full rounded-xl border border-white/10 bg-black/60 px-3 py-2 text-xs text-white focus:border-emerald-400 focus:outline-none cursor-pointer"
+                            className="mt-1 w-full rounded-xl border border-white/10 bg-black/60 px-3 py-2 text-xs text-white focus:border-primary focus:outline-none cursor-pointer"
                           >
                             <option value="">Selecione uma opção...</option>
                             {(param.options || []).map((opt: any) => (
@@ -1587,7 +1587,7 @@ export default function ProjectsPage() {
                             onChange={(e) =>
                               setParamValues({ ...paramValues, [param.id]: e.target.value })
                             }
-                            className="mt-1 w-full rounded-xl border border-white/10 bg-black/60 px-3 py-2 text-xs text-white focus:border-emerald-400 focus:outline-none"
+                            className="mt-1 w-full rounded-xl border border-white/10 bg-black/60 px-3 py-2 text-xs text-white focus:border-primary focus:outline-none"
                           />
                         )}
                       </div>
@@ -1611,7 +1611,7 @@ export default function ProjectsPage() {
                 <button
                   type="submit"
                   disabled={submitting}
-                  className="rounded-xl bg-emerald-400 px-6 py-2.5 text-xs font-semibold text-black transition hover:bg-emerald-300 disabled:opacity-50"
+                  className="rounded-xl bg-primary px-6 py-2.5 text-xs font-semibold text-on-primary transition hover:bg-primary-fixed disabled:opacity-50"
                 >
                   {submitting
                     ? "Salvando..."

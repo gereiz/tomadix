@@ -21,6 +21,7 @@ A interface administrativa é dividida em:
   - `Usuários`: Consulta, suspensão/reativação, papéis (`USER`, `ADMIN`, `SUPER_ADMIN`), confirmação de e-mail e detalhamento.
   - `Projetos`: Auditoria de projetos de todos os estúdios e ferramenta de transferência entre usuários.
   - `Planos & Assinaturas`: Gestão comercial de assinaturas, catálogo de tiers e limites.
+  - `Tabela de Créditos`: Configuração direta dos custos em créditos de cada tipo de criação (prompts, cenas, personagens, ambientes, análise multimodal e estúdio), com regras por plano e simulador ao vivo.
   - `Consumo & Custos IA`: Gráficos de tokens e telemetria de chamadas Gemini.
   - `Parâmetros Dinâmicos`: Catálogo de parâmetros cinematográficos do sistema e sincronização de defaults.
 - **Plataforma:**

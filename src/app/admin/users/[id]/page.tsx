@@ -68,6 +68,13 @@ export default function AdminUserDetailsPage({ params }: { params: Promise<{ id:
   const [overrideReason, setOverrideReason] = useState("");
   const [savingOverride, setSavingOverride] = useState(false);
 
+  // Alteração Efetiva de Plano (Definitivo)
+  const [changePlanModalOpen, setChangePlanModalOpen] = useState(false);
+  const [targetPlanTier, setTargetPlanTier] = useState("PRO");
+  const [grantPlanCredits, setGrantPlanCredits] = useState(true);
+  const [changePlanReason, setChangePlanReason] = useState("");
+  const [changingPlan, setChangingPlan] = useState(false);
+
   // Project Transfer Modal
   const [transferProjectTarget, setTransferProjectTarget] = useState<any>(null);
   const [transferTargetWs, setTransferTargetWs] = useState("");
@@ -255,6 +262,34 @@ export default function AdminUserDetailsPage({ params }: { params: Promise<{ id:
       setNotification({ type: "error", message: err.message });
     } finally {
       setSavingOverride(false);
+    }
+  };
+
+  const handleChangePlan = async () => {
+    if (!selectedWorkspaceId || !changePlanReason.trim()) return;
+    setChangingPlan(true);
+    try {
+      const res = await fetch(`/api/admin/users/${userId}/change-plan`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          workspaceId: selectedWorkspaceId,
+          planTier: targetPlanTier,
+          grantCredits: grantPlanCredits,
+          reason: changePlanReason,
+        }),
+      });
+      const resData = await res.json();
+      if (!res.ok) throw new Error(resData.error);
+
+      setNotification({ type: "success", message: resData.message });
+      setChangePlanModalOpen(false);
+      setChangePlanReason("");
+      loadUserDetails();
+    } catch (err: any) {
+      setNotification({ type: "error", message: err.message });
+    } finally {
+      setChangingPlan(false);
     }
   };
 
@@ -575,12 +610,24 @@ export default function AdminUserDetailsPage({ params }: { params: Promise<{ id:
                 <h3 className="text-sm font-bold text-white">Contrato e Plano Ativo</h3>
                 <p className="text-white/40">Visualização de termos contratados e concessões temporárias de cortesia.</p>
               </div>
-              <button
-                onClick={() => setOverrideModalOpen(true)}
-                className="rounded-xl border border-indigo-500/30 bg-indigo-500/10 px-3.5 py-2 font-bold text-indigo-300 hover:bg-indigo-500/20 transition flex items-center gap-1.5"
-              >
-                <span>🎁</span> Conceder Acesso / Plano Temporário
-              </button>
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={() => {
+                    setTargetPlanTier(primarySubscription?.planTier || "PRO");
+                    setChangePlanModalOpen(true);
+                  }}
+                  className="rounded-xl border border-emerald-500/40 bg-emerald-500/15 px-3.5 py-2 font-bold text-emerald-300 hover:bg-emerald-500/25 transition flex items-center gap-1.5"
+                  title="Alterar definitivamente o plano contratado do estúdio"
+                >
+                  <span>🔄</span> Alterar Plano Efetivo
+                </button>
+                <button
+                  onClick={() => setOverrideModalOpen(true)}
+                  className="rounded-xl border border-indigo-500/30 bg-indigo-500/10 px-3.5 py-2 font-bold text-indigo-300 hover:bg-indigo-500/20 transition flex items-center gap-1.5"
+                >
+                  <span>🎁</span> Conceder Acesso / Plano Temporário
+                </button>
+              </div>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-4 gap-3">
@@ -1074,6 +1121,72 @@ export default function AdminUserDetailsPage({ params }: { params: Promise<{ id:
                 className="rounded-xl bg-emerald-500 px-4 py-2 text-xs font-bold text-black hover:bg-emerald-400 disabled:opacity-40"
               >
                 {adjustingCredit ? "Processando..." : "Confirmar Ajuste"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* MODAL: ALTERAÇÃO DEFINITIVA DE PLANO */}
+      {changePlanModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4">
+          <div className="max-w-md w-full rounded-2xl border border-emerald-500/40 bg-[#0c141c] p-6 space-y-4">
+            <h3 className="text-base font-bold text-emerald-300">Alterar Plano Contratado do Estúdio</h3>
+            <p className="text-xs text-white/70 leading-relaxed">
+              Atualiza efetivamente o plano contratado do workspace, aplicando imediatamente as novas cotas de workspaces, projetos, membros e recursos.
+            </p>
+
+            <div>
+              <label className="text-[11px] font-semibold text-white/70 block mb-1">Selecione o Novo Plano</label>
+              <select
+                value={targetPlanTier}
+                onChange={(e) => setTargetPlanTier(e.target.value)}
+                className="w-full rounded-xl border border-white/10 bg-[#16202e] p-2.5 text-xs text-white focus:outline-none focus:border-emerald-400"
+              >
+                <option value="FREE">FREE — Plano Gratuito (2 Projetos, 1 Membro)</option>
+                <option value="PRO">PRO — Tomadix Pro (20 Projetos, 3 Membros, 500 cr/mês)</option>
+                <option value="TEAM">TEAM — Tomadix Studio Team (Projetos Ilimitados, 10 Membros, 2.500 cr/mês)</option>
+                <option value="ENTERPRISE">ENTERPRISE — Tomadix Enterprise (Ilimitado, 10.000 cr/mês)</option>
+              </select>
+            </div>
+
+            <div className="flex items-center gap-2 pt-1">
+              <input
+                type="checkbox"
+                id="grantPlanCreditsCheck"
+                checked={grantPlanCredits}
+                onChange={(e) => setGrantPlanCredits(e.target.checked)}
+                className="h-4 w-4 rounded border-white/20 bg-white/5 text-emerald-400 focus:ring-emerald-400/50"
+              />
+              <label htmlFor="grantPlanCreditsCheck" className="text-xs text-white/80 cursor-pointer">
+                Conceder créditos mensais do novo plano imediatamente
+              </label>
+            </div>
+
+            <div>
+              <label className="text-[11px] font-semibold text-white/70 block mb-1">Justificativa Formal da Alteração *</label>
+              <input
+                type="text"
+                placeholder="Ex: Upgrade comercial autorizado, migração de plano, cortesia contratual..."
+                value={changePlanReason}
+                onChange={(e) => setChangePlanReason(e.target.value)}
+                className="w-full rounded-xl border border-white/10 bg-white/5 p-2.5 text-xs text-white placeholder-white/30 focus:outline-none focus:border-emerald-400"
+              />
+            </div>
+
+            <div className="flex gap-2 justify-end pt-2">
+              <button
+                onClick={() => setChangePlanModalOpen(false)}
+                className="rounded-xl border border-white/10 px-4 py-2 text-xs font-semibold text-white/70 hover:bg-white/5"
+              >
+                Cancelar
+              </button>
+              <button
+                disabled={changingPlan || !changePlanReason.trim()}
+                onClick={handleChangePlan}
+                className="rounded-xl bg-emerald-500 px-4 py-2 text-xs font-bold text-black hover:bg-emerald-400 disabled:opacity-40 transition"
+              >
+                {changingPlan ? "Salvando..." : "Confirmar Alteração de Plano"}
               </button>
             </div>
           </div>

@@ -28,6 +28,7 @@ export const ADMIN_NAV_GROUPS: NavGroup[] = [
       { href: "/admin/users", label: "Usuários", icon: "👥" },
       { href: "/admin/projects", label: "Projetos", icon: "🎬" },
       { href: "/admin/billing", label: "Planos & Assinaturas", icon: "💳" },
+      { href: "/admin/credits", label: "Tabela de Créditos", icon: "🪙" },
       { href: "/admin/usage", label: "Consumo & Custos IA", icon: "⚡" },
       { href: "/admin/parameters", label: "Parâmetros Dinâmicos", icon: "⚙️" },
     ],

@@ -82,6 +82,20 @@ export const SEED_CREDIT_OPERATIONS: DefaultOperationSeed[] = [
     category: "BATCH",
     defaultCreditCost: 20,
   },
+  {
+    code: "CINEMATIC_ANALYSIS",
+    name: "Análise Cinematográfica Multimodal",
+    description: "Inspeção técnica e engenharia reversa de imagens com Gemini Multimodal.",
+    category: "ANALYSIS",
+    defaultCreditCost: 2,
+  },
+  {
+    code: "QUICK_CREATION",
+    name: "Criação Rápida no Estúdio",
+    description: "Geração instantânea e contextual de elementos via linguagem natural.",
+    category: "CREATION",
+    defaultCreditCost: 1,
+  },
 ];
 
 export class CreditPricingService {

@@ -58,3 +58,25 @@ O pipeline de geração segue um fluxo determinístico de enriquecimento:
 - `GET /api/projects/[id]/prompts/jobs/[jobId]`: Consulta de status do processamento assíncrono.
 - `POST /api/projects/[id]/prompts/compare`: Comparação lado a lado entre duas versões geradas.
 - `GET /api/projects/[id]/prompts/export-sequence`: Exportação da sequência decupada em TXT ou JSON.
+
+---
+
+## 5. Menções Estruturadas e Barra de Criação Instantânea
+
+Para agilizar o fluxo de ideação e decupagem contínua sem que o diretor precise alternar entre abas, a plataforma conta com a **Barra de Criação Instantânea**:
+
+1. **Atalhos de Menção de Continuidade**:
+   - `@` para personagens (`@Sofia`, `@Marcus`) — carrega atributos fisionômicos, idade, figurino e arcos dramáticos.
+   - `#` para ambientes (`#Laboratório Neon`, `#Beco Subterrâneo`) — carrega iluminação base, paleta e arquitetura.
+   - `$` para cenas (`$Cena 01`, `$Sequência Inicial`) — carrega enquadramentos, decupagem prévia e movimentação de câmera.
+2. **Autocomplete Inteligente Flutuante**:
+   - Detecção em tempo real conforme o usuário digita no campo de texto multilinha.
+   - Navegação facilitada com teclado (`Seta Cima`, `Seta Baixo`, `Enter`, `Tab`, `Esc`).
+   - Resolução das entidades através do endpoint otimizado `/api/projects/[id]/entities`.
+3. **Resolução Semântica Estruturada no Servidor**:
+   - Em vez de enviar o texto cru `@Nome` para a IA, o servidor consulta os IDs vinculados no banco de dados e injeta na instrução os atributos visuais e dados de continuidade completos.
+4. **Sincronização em Tempo Real (`tomadix:entities-updated`)**:
+   - Sempre que uma entidade é criada ou alterada (seja via formulário completo, decupagem multimodal ou barra rápida), um evento de barramento revalida os seletores da aba de prompts e listas do estúdio sem requerer reload manual (F5).
+5. **Ergonomia e Redimensionamento**:
+   - Alça superior de arraste (*drag handle*) permitindo ajustar livremente a altura da área de digitação (120px a 380px) para acomodar descrições longas.
+   - Controle de minimizar/expandir com persistência da preferência no navegador (`localStorage`).

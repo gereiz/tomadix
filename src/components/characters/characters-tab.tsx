@@ -74,6 +74,56 @@ export function CharactersTab({ projectId, onStatsUpdate }: CharactersTabProps) 
   const [characterToDelete, setCharacterToDelete] = useState<CharacterItem | null>(null);
   const [deleteLoading, setDeleteLoading] = useState(false);
 
+  // Modal de Geração com IA (GEN_CHARACTER)
+  const [aiModalOpen, setAiModalOpen] = useState(false);
+  const [aiPrompt, setAiPrompt] = useState("");
+  const [aiArchetype, setAiArchetype] = useState("");
+  const [aiRole, setAiRole] = useState("");
+  const [aiLoading, setAiLoading] = useState(false);
+  const [aiError, setAiError] = useState<string | null>(null);
+
+  const handleOpenAiModal = () => {
+    setAiPrompt("");
+    setAiArchetype("");
+    setAiRole("");
+    setAiError(null);
+    setAiModalOpen(true);
+  };
+
+  const handleSubmitAiGenerate = async () => {
+    if (!aiPrompt.trim()) {
+      setAiError("Por favor informe a descrição ou briefing do personagem.");
+      return;
+    }
+    try {
+      setAiLoading(true);
+      setAiError(null);
+      const res = await fetch(`/api/projects/${projectId}/characters/generate`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          prompt: aiPrompt,
+          archetype: aiArchetype,
+          role: aiRole,
+        }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || "Falha ao conceber personagem com IA.");
+
+      if (typeof window !== "undefined") {
+        window.dispatchEvent(new CustomEvent("tomadix:credits-updated", { detail: { newBalance: data.newBalance } }));
+        window.dispatchEvent(new CustomEvent("tomadix:entities-updated", { detail: { type: "characters", projectId } }));
+      }
+      setAiModalOpen(false);
+      await fetchCharacters();
+      onStatsUpdate?.();
+    } catch (err: any) {
+      setAiError(err.message || "Erro ao gerar personagem com IA.");
+    } finally {
+      setAiLoading(false);
+    }
+  };
+
   // Carregar personagens da API
   const fetchCharacters = useCallback(async () => {
     try {
@@ -336,16 +386,27 @@ export function CharactersTab({ projectId, onStatsUpdate }: CharactersTabProps) 
           </div>
         </div>
 
-        {/* Botão de Criação */}
-        <button
-          onClick={handleOpenCreate}
-          className="flex items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-600 px-4 py-2.5 text-xs font-semibold text-white shadow-lg shadow-emerald-500/20 hover:from-emerald-400 hover:to-teal-500 transition"
-        >
-          <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-          </svg>
-          Novo Personagem
-        </button>
+        {/* Botões de Criação */}
+        <div className="flex items-center gap-2">
+          <button
+            onClick={handleOpenAiModal}
+            className="flex items-center justify-center gap-2 rounded-xl border border-primary/30 bg-primary/10 px-4 py-2.5 text-xs font-semibold text-primary hover:bg-primary/20 transition shadow-sm"
+            title="Conceber personagem cinematográfico tridimensional com IA (GEN_CHARACTER)"
+          >
+            <span>✨</span>
+            Gerar com IA
+          </button>
+
+          <button
+            onClick={handleOpenCreate}
+            className="flex items-center justify-center gap-2 rounded-xl bg-primary px-4 py-2.5 text-xs font-semibold text-primary-foreground shadow-lg hover:opacity-90 transition"
+          >
+            <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+            </svg>
+            Novo Personagem
+          </button>
+        </div>
       </div>
 
       {/* Conteúdo Principal / Grid de Cards */}
@@ -802,7 +863,101 @@ export function CharactersTab({ projectId, onStatsUpdate }: CharactersTabProps) 
         </div>
       )}
 
-      {/* MODAL: Exclusão com Confirmação */}
+      {/* MODAL: Geração de Personagem com IA (GEN_CHARACTER) */}
+      {aiModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4 backdrop-blur-sm">
+          <div className="relative w-full max-w-lg rounded-3xl border border-white/10 bg-[#0f1218] p-6 shadow-2xl">
+            <div className="flex items-center justify-between border-b border-white/10 pb-4">
+              <div>
+                <h3 className="text-base font-bold text-white flex items-center gap-2">
+                  <span className="text-primary">✨</span> Gerar Personagem com IA
+                </h3>
+                <p className="mt-1 text-xs text-white/50">
+                  Concepção dramática tridimensional com arquétipo, figurino e traços visuais.
+                </p>
+              </div>
+              <button
+                onClick={() => setAiModalOpen(false)}
+                className="rounded-xl p-1.5 text-white/50 hover:bg-white/10 hover:text-white transition"
+              >
+                ✕
+              </button>
+            </div>
+
+            <div className="mt-5 space-y-4">
+              <div>
+                <label className="block text-xs font-medium text-white/70 mb-1.5">
+                  Briefing / Conceito do Personagem *
+                </label>
+                <textarea
+                  value={aiPrompt}
+                  onChange={(e) => setAiPrompt(e.target.value)}
+                  placeholder="Ex: Detetive experiente de 45 anos, olhos cansados, sobretudo de lã cinza, postura vigilante, voz rouca e reflexiva..."
+                  rows={3}
+                  className="w-full rounded-xl border border-white/10 bg-white/5 p-3 text-xs text-white placeholder-white/30 focus:border-primary focus:outline-none resize-none"
+                />
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-xs font-medium text-white/70 mb-1.5">
+                    Arquétipo Dramático (Opcional)
+                  </label>
+                  <input
+                    type="text"
+                    value={aiArchetype}
+                    onChange={(e) => setAiArchetype(e.target.value)}
+                    placeholder="Ex: O Rebelde, O Mentor, O Sombra..."
+                    className="w-full rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-xs text-white placeholder-white/30 focus:border-primary focus:outline-none"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-xs font-medium text-white/70 mb-1.5">
+                    Papel na Narrativa (Opcional)
+                  </label>
+                  <input
+                    type="text"
+                    value={aiRole}
+                    onChange={(e) => setAiRole(e.target.value)}
+                    placeholder="Ex: Protagonista, Antagonista..."
+                    className="w-full rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-xs text-white placeholder-white/30 focus:border-primary focus:outline-none"
+                  />
+                </div>
+              </div>
+
+              {aiError && (
+                <div className="rounded-xl border border-red-500/30 bg-red-500/10 p-3 text-xs text-red-300">
+                  {aiError}
+                </div>
+              )}
+            </div>
+
+            <div className="mt-6 flex items-center justify-between border-t border-white/10 pt-4">
+              <span className="text-xs text-white/50 flex items-center gap-1.5">
+                <span className="text-primary font-bold">🪙 GEN_CHARACTER</span> • Tabela de créditos
+              </span>
+              <div className="flex gap-2">
+                <button
+                  type="button"
+                  onClick={() => setAiModalOpen(false)}
+                  className="rounded-xl px-4 py-2 text-xs font-medium text-white/70 hover:bg-white/10 transition"
+                >
+                  Cancelar
+                </button>
+                <button
+                  type="button"
+                  onClick={handleSubmitAiGenerate}
+                  disabled={aiLoading}
+                  className="rounded-xl bg-primary px-4 py-2 text-xs font-semibold text-primary-foreground shadow-lg hover:opacity-90 disabled:opacity-50 transition"
+                >
+                  {aiLoading ? "Concebendo Personagem..." : "Gerar Personagem"}
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
       {deleteModalOpen && characterToDelete && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4 backdrop-blur-sm">
           <div className="relative w-full max-w-md rounded-3xl border border-red-500/20 bg-[#0f1218] p-6 shadow-2xl">

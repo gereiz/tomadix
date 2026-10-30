@@ -657,6 +657,15 @@ export class AdminBillingService {
     if (data.planTier && data.planTier !== subscription.planTier) {
       updatePayload.plan = { connect: { tier: data.planTier } };
 
+      // Limpar explicitamente qualquer snapshot anterior de grandfatheredContract
+      const currentMeta = (subscription.metadata as any) || {};
+      const { grandfatheredContract, ...cleanMeta } = currentMeta;
+      updatePayload.metadata = {
+        ...cleanMeta,
+        planChangedAt: new Date().toISOString(),
+        previousPlanTier: subscription.planTier,
+      };
+
       // Se solicitado concessão de créditos do novo plano
       if (data.grantCredits) {
         const targetPlan = await db.plan.findUnique({ where: { tier: data.planTier } });

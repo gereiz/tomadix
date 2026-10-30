@@ -39,7 +39,8 @@ export class WorkspaceService {
     userId: string,
     name: string,
     isPersonal = false,
-    settings: Record<string, any> = {}
+    settings: Record<string, any> = {},
+    initialPlanTier: PlanTier = PlanTier.FREE
   ) {
     const baseSlug = name
       .toLowerCase()
@@ -64,7 +65,7 @@ export class WorkspaceService {
         },
         subscription: {
           create: {
-            planTier: PlanTier.FREE,
+            planTier: initialPlanTier,
             status: SubscriptionStatus.ACTIVE,
             interval: BillingInterval.MONTHLY,
             currentPeriodStart: new Date(),

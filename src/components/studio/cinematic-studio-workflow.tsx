@@ -714,7 +714,7 @@ export function CinematicStudioWorkflow() {
       <div className="border-b border-white/5 bg-[#11151a]">
         <div className="flex w-full flex-col gap-4 px-4 py-6 sm:px-6 lg:px-8 md:flex-row md:items-end md:justify-between">
           <div>
-            <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-emerald-400">Estúdio · IA Multimodal</p>
+            <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-primary">Estúdio · IA Multimodal</p>
             <h1 className="mt-1 text-2xl font-extrabold tracking-tight text-white sm:text-3xl">
               Análise Cinematográfica
             </h1>
@@ -738,7 +738,7 @@ export function CinematicStudioWorkflow() {
                     setSessionResults([]);
                     setSelectedResultId(null);
                   }}
-                  className="min-w-[220px] rounded-xl border border-white/10 bg-[#181c21] px-3 py-2 text-sm font-semibold text-white focus:border-emerald-400 focus:outline-none"
+                  className="min-w-[220px] rounded-xl border border-white/10 bg-[#181c21] px-3 py-2 text-sm font-semibold text-white focus:border-primary focus:outline-none"
                 >
                   <option value="">Sem projeto (não salva histórico)</option>
                   {projects.map((p) => (
@@ -750,7 +750,7 @@ export function CinematicStudioWorkflow() {
                 <button
                   type="button"
                   onClick={() => setProjectConfirmed(false)}
-                  className="rounded-xl border border-emerald-400/30 bg-emerald-400/10 px-3 py-2 text-xs font-bold text-emerald-300 transition hover:bg-emerald-400/20"
+                  className="rounded-xl border border-primary/30 bg-primary/10 px-3 py-2 text-xs font-bold text-primary transition hover:bg-primary/20"
                   title="Criar novo projeto de destino ou alterar contexto"
                 >
                   + Novo / Trocar projeto
@@ -762,7 +762,7 @@ export function CinematicStudioWorkflow() {
                     </span>
                     <Link
                       href={`/projects/${selectedProject.id}`}
-                      className="rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-xs font-semibold text-white/80 transition hover:border-emerald-400/40 hover:text-white"
+                      className="rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-xs font-semibold text-white/80 transition hover:border-primary/40 hover:text-white"
                     >
                       Abrir ↗
                     </Link>
@@ -778,7 +778,7 @@ export function CinematicStudioWorkflow() {
         <div className="w-full px-4 pt-8 sm:px-6 lg:px-8">
           <div className="rounded-3xl border border-white/10 bg-[#12161b] p-6 sm:p-8 shadow-2xl">
             <div className="flex flex-col gap-2 border-b border-white/5 pb-6">
-              <div className="inline-flex items-center gap-2 self-start rounded-full border border-emerald-400/30 bg-emerald-400/10 px-3 py-1 text-[11px] font-bold uppercase tracking-wider text-emerald-300">
+              <div className="inline-flex items-center gap-2 self-start rounded-full border border-primary/30 bg-primary/10 px-3 py-1 text-[11px] font-bold uppercase tracking-wider text-primary">
                 <span>🎬</span>
                 <span>Etapa Inicial · Defina o Projeto de Destino</span>
               </div>
@@ -892,12 +892,12 @@ export function CinematicStudioWorkflow() {
               </div>
 
               {/* Coluna 2: Criar Novo Projeto de Destino */}
-              <div className="rounded-2xl border border-emerald-400/25 bg-gradient-to-b from-emerald-950/20 to-[#151a20] p-5 lg:col-span-5">
+              <div className="rounded-2xl border border-primary/25 bg-gradient-to-b from-primary/10 to-[#151a20] p-5 lg:col-span-5">
                 <div className="flex items-center gap-2">
-                  <span className="flex h-6 w-6 items-center justify-center rounded-lg bg-emerald-400/20 text-xs text-emerald-300">
+                  <span className="flex h-6 w-6 items-center justify-center rounded-lg bg-primary/20 text-xs text-primary">
                     ✨
                   </span>
-                  <h3 className="text-sm font-bold uppercase tracking-wider text-emerald-300">
+                  <h3 className="text-sm font-bold uppercase tracking-wider text-primary">
                     2. Criar Novo Projeto de Destino
                   </h3>
                 </div>
@@ -973,7 +973,7 @@ export function CinematicStudioWorkflow() {
                   <button
                     type="submit"
                     disabled={isCreatingProject || !newProjectTitle.trim()}
-                    className="flex w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-emerald-400 to-lime-400 px-4 py-3 text-xs font-extrabold text-black shadow-lg shadow-emerald-500/15 transition hover:brightness-105 disabled:opacity-50"
+                    className="flex w-full items-center justify-center gap-2 rounded-xl bg-primary px-4 py-3 text-xs font-extrabold text-on-primary shadow-lg shadow-primary/20 transition hover:brightness-105 disabled:opacity-50"
                   >
                     {isCreatingProject ? (
                       <>

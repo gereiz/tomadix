@@ -35,6 +35,11 @@ export interface CompositionContext {
     description: string;
     attributes: any;
   };
+  contextualReferences?: {
+    characters?: Array<{ id: string; name: string; description: string; attributes: any }>;
+    environments?: Array<{ id: string; name: string; description: string; attributes: any }>;
+    scenes?: Array<{ id: string; title: string; order: number; description: string; configuration: any }>;
+  };
   customInstructions?: string;
 }
 
@@ -42,7 +47,7 @@ export function composePromptInstructions(ctx: CompositionContext): {
   systemInstruction: string;
   userPrompt: string;
 } {
-  const { project, toolProfile, template, resolvedParameters, scene, character, environment, customInstructions } = ctx;
+  const { project, toolProfile, template, resolvedParameters, scene, character, environment, contextualReferences, customInstructions } = ctx;
 
   const systemInstruction = [
     template.systemInstructions,
@@ -139,7 +144,56 @@ ${scene.environments.map((e) => `- ${e.environment.name}: ${e.environment.descri
     );
   }
 
-  // 6. Instruções Customizadas do Usuário
+  // 6. Referências Estruturadas Contextuais Mencionadas (@, #, $)
+  if (contextualReferences) {
+    const refParts: string[] = [];
+
+    if (contextualReferences.characters && contextualReferences.characters.length > 0) {
+      refParts.push(
+        "Personagens de Referência Vinculados (@): \n" +
+          contextualReferences.characters
+            .map(
+              (c) =>
+                `- @${c.name} (ID: ${c.id}): ${c.description || "Sem descrição"}. Atributos físicos e vestimenta: ${JSON.stringify(c.attributes || {})}`
+            )
+            .join("\n")
+      );
+    }
+
+    if (contextualReferences.environments && contextualReferences.environments.length > 0) {
+      refParts.push(
+        "Ambientes / Locações de Referência Vinculados (#): \n" +
+          contextualReferences.environments
+            .map(
+              (e) =>
+                `- #${e.name} (ID: ${e.id}): ${e.description || "Sem descrição"}. Look visual e iluminação: ${JSON.stringify(e.attributes || {})}`
+            )
+            .join("\n")
+      );
+    }
+
+    if (contextualReferences.scenes && contextualReferences.scenes.length > 0) {
+      refParts.push(
+        "Cenas de Referência Vinculadas ($): \n" +
+          contextualReferences.scenes
+            .map(
+              (s) =>
+                `- $${s.title} (Cena #${s.order}, ID: ${s.id}): ${s.description || "Sem descrição"}. Configurações técnicas: ${JSON.stringify(s.configuration || {})}`
+            )
+            .join("\n")
+      );
+    }
+
+    if (refParts.length > 0) {
+      promptSections.push(
+        `### REFERÊNCIAS CONTEXTUAIS VINCULADAS DO PROJETO:
+Você DEVE utilizar obrigatoriamente os atributos e parâmetros cinematográficos dos elementos referenciados abaixo para manter estrita consistência narrativa e estética:
+${refParts.join("\n\n")}`
+      );
+    }
+  }
+
+  // 7. Instruções Customizadas do Usuário
   if (customInstructions && customInstructions.trim()) {
     promptSections.push(
       `### DIRETRIZES ESPECÍFICAS ADICIONADAS PELO DIRETOR:
@@ -147,7 +201,7 @@ ${scene.environments.map((e) => `- ${e.environment.name}: ${e.environment.descri
     );
   }
 
-  // 7. Contrato Estrutural Obrigatório do JSON
+  // 8. Contrato Estrutural Obrigatório do JSON
   const skeleton = getTemplateJsonSkeleton(
     template.key,
     project,

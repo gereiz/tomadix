@@ -36,7 +36,7 @@ Para solucionar problemas de legibilidade quando temas com cores personalizadas 
 
 - **Texto dos Badges (`badgeTextColor`):** Define a cor exata da fonte de todos os badges e tags da plataforma. Padrão: `#ffffff` (branco nítido para máximo contraste).
 - **Fundo dos Badges (`badgeBgColor`):** Define o preenchimento padrão dos selos e etiquetas de categoria.
-- **Seletores Visuais:** Cada controle conta com seletor visual nativo (color picker) integrado ao campo de código HEX.
+- **Seletores Visuais Interativos:** Cada campo de cor possui um seletor visual nativo (color picker) acoplado diretamente ao quadrado (swatch) de exibição da cor. Ao clicar no quadrado, o seletor nativo de cores do navegador é aberto instantaneamente, atualizando o valor hexadecimal e o live preview sem a necessidade de digitação manual de código HEX.
 - **Aplicação Global:** As variáveis `--brand-badge-text` e `--brand-badge-bg` alimentam automaticamente os cards de projetos em `/projects`, presets cinematográficos e selos de metadados.
 
 ---

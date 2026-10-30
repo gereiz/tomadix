@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import Link from "next/link";
 import { GatewaysTab } from "./components/gateways-tab";
 import { WebhooksTab } from "./components/webhooks-tab";
 import { SubscriptionsTab } from "./components/subscriptions-tab";
@@ -240,13 +241,21 @@ export default function AdminBillingPage() {
           </p>
         </div>
 
-        <button
-          onClick={loadData}
-          disabled={loading}
-          className="rounded-xl border border-white/10 bg-white/5 px-3 py-1.5 text-xs font-semibold text-white/80 hover:bg-white/10 hover:text-white transition flex items-center gap-1.5 self-start"
-        >
-          <span>🔄</span> {loading ? "Atualizando..." : "Recarregar Dados"}
-        </button>
+        <div className="flex items-center gap-2 self-start">
+          <Link
+            href="/admin/credits"
+            className="rounded-xl bg-amber-500/20 border border-amber-500/40 px-3 py-1.5 text-xs font-semibold text-amber-300 hover:bg-amber-500/30 transition flex items-center gap-1.5"
+          >
+            <span>🪙</span> Custos por Tipo de Criação ↗
+          </Link>
+          <button
+            onClick={loadData}
+            disabled={loading}
+            className="rounded-xl border border-white/10 bg-white/5 px-3 py-1.5 text-xs font-semibold text-white/80 hover:bg-white/10 hover:text-white transition flex items-center gap-1.5"
+          >
+            <span>🔄</span> {loading ? "Atualizando..." : "Recarregar Dados"}
+          </button>
+        </div>
       </div>
 
       {/* Barra de Navegação das 8 Seções */}

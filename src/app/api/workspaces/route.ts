@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { requireCurrentUser } from "@/lib/auth";
 import { WorkspaceService } from "@/modules/workspaces/workspace.service";
+import { EntitlementService, EntitlementError } from "@/modules/billing/entitlement.service";
 import { createWorkspaceSchema } from "@/modules/auth/auth.schema";
 import { ZodError } from "zod";
 
@@ -28,7 +29,8 @@ export async function POST(request: NextRequest) {
     const body = await request.json();
     const validated = createWorkspaceSchema.parse(body);
 
-    const workspace = await WorkspaceService.createWorkspace(user.id, validated.name);
+    const initialPlanTier = await EntitlementService.assertCanCreateWorkspace(user.id);
+    const workspace = await WorkspaceService.createWorkspace(user.id, validated.name, false, {}, initialPlanTier);
 
     return NextResponse.json(
       {
@@ -40,6 +42,9 @@ export async function POST(request: NextRequest) {
   } catch (error: any) {
     if (error.statusCode === 401) {
       return NextResponse.json({ error: error.message }, { status: 401 });
+    }
+    if (error instanceof EntitlementError) {
+      return NextResponse.json({ error: error.message, code: error.code }, { status: error.statusCode });
     }
     if (error instanceof ZodError) {
       return NextResponse.json(

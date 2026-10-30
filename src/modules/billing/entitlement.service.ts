@@ -1,6 +1,7 @@
 import { db } from "@/lib/db";
 import { getPlanConfig } from "./plans.config";
 import { PlanTier, SubscriptionStatus, BillingInterval, WorkspaceUsageSummary } from "./billing.types";
+import { WorkspaceRole } from "@prisma/client";
 
 export class EntitlementError extends Error {
   statusCode: number;
@@ -65,14 +66,50 @@ export class EntitlementService {
     }
 
     const sub = workspace.subscription || (await this.getWorkspaceSubscription(workspaceId));
-    const dbPlan = sub.plan || (await db.plan.findUnique({ where: { tier: sub.planTier } }));
-    const planConfig = dbPlan || getPlanConfig(sub.planTier);
+
+    // 1. Identificar se há concessão administrativa (Override) ativa
+    const activeOverride = await db.userEntitlementOverride.findFirst({
+      where: {
+        OR: [
+          { workspaceId },
+          {
+            workspace: {
+              memberships: {
+                some: {
+                  workspaceId,
+                  role: WorkspaceRole.OWNER,
+                },
+              },
+            },
+          },
+        ],
+        isActive: true,
+        AND: [
+          {
+            OR: [
+              { expiresAt: null },
+              { expiresAt: { gt: new Date() } },
+            ],
+          },
+        ],
+      },
+      orderBy: { createdAt: "desc" },
+    });
+
+    const effectiveTier = activeOverride?.grantedPlanTier || sub.planTier;
+    const dbPlan = await db.plan.findUnique({ where: { tier: effectiveTier } });
+    const planConfig = dbPlan || getPlanConfig(effectiveTier);
 
     let grandfathered = (sub.metadata as any)?.grandfatheredContract;
 
+    // Se o plano atual mudou e difere do snapshot grandfathered, o contrato anterior não se aplica
+    if (grandfathered && grandfathered.previousPlanTier && grandfathered.previousPlanTier !== effectiveTier) {
+      grandfathered = null;
+    }
+
     if (!grandfathered) {
       const snapshot = await db.commercialSnapshot.findFirst({
-        where: { workspaceId, planTier: sub.planTier },
+        where: { workspaceId, planTier: effectiveTier },
         orderBy: { acceptedAt: "desc" },
       });
 
@@ -88,20 +125,37 @@ export class EntitlementService {
       }
     }
 
-    const maxProjects = grandfathered?.previousMaxProjects !== undefined
-      ? grandfathered.previousMaxProjects
-      : (planConfig.unlimitedProjects || planConfig.maxProjects === -1 ? -1 : planConfig.maxProjects);
+    // Validação de Ilimitado para Planos Superiores
+    const isPlanUnlimitedProjects =
+      effectiveTier === PlanTier.ENTERPRISE ||
+      !!planConfig.unlimitedProjects ||
+      planConfig.maxProjects === -1 ||
+      planConfig.maxProjects === 0;
 
-    const maxMembers = grandfathered?.previousMaxMembers !== undefined
+    const isPlanUnlimitedMembers =
+      effectiveTier === PlanTier.ENTERPRISE ||
+      !!planConfig.unlimitedMembers ||
+      planConfig.maxMembers === -1 ||
+      planConfig.maxMembers === 0;
+
+    const maxProjects = isPlanUnlimitedProjects
+      ? -1
+      : grandfathered?.previousMaxProjects !== undefined
+      ? grandfathered.previousMaxProjects
+      : planConfig.maxProjects;
+
+    const maxMembers = isPlanUnlimitedMembers
+      ? -1
+      : grandfathered?.previousMaxMembers !== undefined
       ? grandfathered.previousMaxMembers
-      : (planConfig.unlimitedMembers || planConfig.maxMembers === -1 ? -1 : planConfig.maxMembers);
+      : planConfig.maxMembers;
 
     const projectsCount = workspace._count.projects;
     const membersCount = workspace._count.memberships;
     const creditsBalance = workspace.creditsBalance;
 
-    const isUnlimitedProjects = maxProjects === -1 || !!planConfig.unlimitedProjects;
-    const isUnlimitedMembers = maxMembers === -1 || !!planConfig.unlimitedMembers;
+    const isUnlimitedProjects = maxProjects === -1;
+    const isUnlimitedMembers = maxMembers === -1;
 
     const canCreateProject =
       sub.status === SubscriptionStatus.ACTIVE &&
@@ -114,7 +168,7 @@ export class EntitlementService {
     return {
       workspaceId: workspace.id,
       workspaceName: workspace.name,
-      planTier: sub.planTier,
+      planTier: effectiveTier,
       planName: planConfig.name,
       status: sub.status,
       interval: sub.interval,
@@ -184,6 +238,99 @@ export class EntitlementService {
         403
       );
     }
+  }
+
+  /**
+   * Obtém a cota de workspaces/estúdios permitidos para o usuário com base no plano mais alto de suas assinaturas ou concessões.
+   */
+  static async getUserWorkspaceQuota(userId: string): Promise<{
+    currentCount: number;
+    maxWorkspaces: number;
+    highestPlanTier: PlanTier;
+    canCreate: boolean;
+  }> {
+    const memberships = await db.membership.findMany({
+      where: { userId, role: WorkspaceRole.OWNER },
+      include: {
+        workspace: {
+          include: {
+            subscription: true,
+          },
+        },
+      },
+    });
+
+    const activeOverrides = await db.userEntitlementOverride.findMany({
+      where: {
+        userId,
+        isActive: true,
+        AND: [
+          {
+            OR: [
+              { expiresAt: null },
+              { expiresAt: { gt: new Date() } },
+            ],
+          },
+        ],
+      },
+      orderBy: { createdAt: "desc" },
+    });
+
+    let highestPlanTier: PlanTier = PlanTier.FREE;
+    const tierPriority: Record<PlanTier, number> = {
+      FREE: 1,
+      PRO: 2,
+      TEAM: 3,
+      ENTERPRISE: 4,
+    };
+
+    for (const m of memberships) {
+      const subTier = m.workspace.subscription?.planTier || PlanTier.FREE;
+      if (tierPriority[subTier] > tierPriority[highestPlanTier]) {
+        highestPlanTier = subTier;
+      }
+    }
+
+    for (const ov of activeOverrides) {
+      if (ov.grantedPlanTier && tierPriority[ov.grantedPlanTier] > tierPriority[highestPlanTier]) {
+        highestPlanTier = ov.grantedPlanTier;
+      }
+    }
+
+    const quotaMap: Record<PlanTier, number> = {
+      FREE: 1,
+      PRO: 3,
+      TEAM: 10,
+      ENTERPRISE: -1,
+    };
+
+    const maxWorkspaces = quotaMap[highestPlanTier] ?? 1;
+    const currentCount = memberships.length;
+    const canCreate = maxWorkspaces === -1 || currentCount < maxWorkspaces;
+
+    return {
+      currentCount,
+      maxWorkspaces,
+      highestPlanTier,
+      canCreate,
+    };
+  }
+
+  /**
+   * Valida se o usuário tem cota contratual para criar um novo workspace.
+   */
+  static async assertCanCreateWorkspace(userId: string): Promise<PlanTier> {
+    const quota = await this.getUserWorkspaceQuota(userId);
+
+    if (!quota.canCreate) {
+      throw new EntitlementError(
+        `Limite de estúdios atingido (${quota.currentCount}/${quota.maxWorkspaces}) para o plano ${quota.highestPlanTier}. Faça upgrade de plano para criar workspaces adicionais.`,
+        "WORKSPACE_LIMIT_REACHED",
+        403
+      );
+    }
+
+    return quota.highestPlanTier;
   }
 
   /**

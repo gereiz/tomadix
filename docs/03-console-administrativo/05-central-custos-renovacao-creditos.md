@@ -27,22 +27,65 @@ model CreditOperation {
 }
 ```
 
-### Operações Padrão Pré-Carregadas (Seed)
+### Operações Pré-Carregadas e Localização na Interface do Estúdio
 
-| Código da Operação | Nome de Apresentação | Categoria | Custo Padrão | Descrição |
-| :--- | :--- | :--- | :---: | :--- |
-| `GEN_CHARACTER` | Geração de Personagem | `CHARACTERS` | 5 cr | Criação de ficha e perfil cinematográfico de atuação |
-| `GEN_ENVIRONMENT` | Geração de Ambiente | `ENVIRONMENTS` | 3 cr | Concepção de iluminação visual e espaço cênico |
-| `GEN_VISUAL_BIBLE` | Geração de Bíblia Visual | `PREMIUM` | 10 cr | Compilação estética completa com direção de arte |
-| `GEN_IMAGE_PROMPT` | Geração de Prompt de Imagem | `PROMPTS` | 2 cr | Prompt estruturado para Midjourney, Flux, SD |
-| `GEN_VIDEO_PROMPT` | Geração de Prompt de Vídeo | `PROMPTS` | 8 cr | Instruções para Runway Gen-3, Kling, Sora, Luma |
-| `GEN_SCENE_SEQUENCE` | Geração de Sequência de Cenas| `SCENES` | 12 cr | Estruturação seriada de cenas e enquadramentos contínuos |
-| `GEN_SCRIPT` | Geração de Roteiro Completo | `SCENES` | 15 cr | Roteiro técnico com diálogos e rubricas de direção |
-| `REWRITE_ENHANCE` | Aprimoramento de Prompt | `EXPANSIONS` | 2 cr | Otimização de lente, iluminação e atmosfera |
-| `EXPAND_SCENE` | Expansão de Cena | `EXPANSIONS` | 4 cr | Desdobramento de sub-planos e variação de ângulo |
-| `BATCH_GENERATION` | Geração em Lote | `BATCH` | 20 cr | Processamento paralelo simultâneo de múltiplos prompts |
+Todas as operações configuráveis na tabela de créditos estão ativas e implementadas ponta a ponta na plataforma:
+
+| Código da Operação | Nome de Apresentação | Custo Padrão | Localização na Interface do Estúdio | Endpoint de API |
+| :--- | :--- | :---: | :--- | :--- |
+| `EXPAND_SCENE` | Expansão de Cena | 4 cr | Card individual da cena em **Cenas** (`ScenesTab` - Ícone de expansão) | `POST /api/projects/[id]/scenes/[sceneId]/expand` |
+| `GEN_SCENE_SEQUENCE` | Geração de Sequência de Cenas | 12 cr | Botão **"✨ Sequência com IA"** no topo da aba de **Cenas** | `POST /api/projects/[id]/scenes/generate-sequence` |
+| `GEN_SCRIPT` | Geração de Roteiro Completo | 15 cr | Botão **"🎬 Roteiro com IA"** no topo da aba de **Cenas** | `POST /api/projects/[id]/script/generate` |
+| `GEN_CHARACTER` | Geração de Personagem com IA | 5 cr | Botão **"✨ Gerar com IA"** na aba de **Personagens** (`CharactersTab`) | `POST /api/projects/[id]/characters/generate` |
+| `GEN_ENVIRONMENT` | Geração de Ambiente com IA | 3 cr | Botão **"✨ Gerar com IA"** na aba de **Ambientes** (`EnvironmentsTab`) | `POST /api/projects/[id]/environments/generate` |
+| `GEN_VISUAL_BIBLE` | Geração de Bíblia Visual | 10 cr | Card **"Bíblia Visual"** na aba **Visão Geral** do projeto | `POST /api/projects/[id]/visual-bible/generate` |
+| `GEN_IMAGE_PROMPT` | Geração de Prompt de Imagem | 2 cr | Botão **"Gerar Prompt"** no Motor de Prompts | `POST /api/projects/[id]/prompts/generate` |
+| `GEN_VIDEO_PROMPT` | Geração de Prompt de Vídeo | 8 cr | Botão **"Gerar Prompt"** no Motor de Prompts | `POST /api/projects/[id]/prompts/generate` |
+| `REWRITE_ENHANCE` | Aprimoramento de Prompt | 2 cr | Botão **"✨ Aprimorar com IA"** nas diretrizes do Motor de Prompts | `POST /api/projects/[id]/prompts/enhance` |
+| `BATCH_GENERATION` | Geração em Lote | 20 cr | API de processamento paralelo em lote de prompts de cenas | `POST /api/projects/[id]/prompts/batch` |
+| `CINEMATIC_ANALYSIS`| Análise Cinematográfica Multimodal | 2 cr | Módulo de **Análise Cinematográfica** (`/analysis`) | `POST /api/cinematic-analysis` |
+| `QUICK_CREATION` | Criação Rápida no Estúdio | 1 cr | Barra inferior de **Criação Rápida** com menções (`@`, `#`, `$`) | `POST /api/studio/quick-create` |
 
 Novas operações podem ser cadastradas a qualquer momento diretamente pelo painel administrativo.
+
+---
+
+## 2. Serviço Centralizado de Execução com Créditos (`CreditExecutionService`)
+
+Para garantir que nenhuma rota da aplicação consuma recursos sem a devida cobrança atômica e proteção contra falhas, foi introduzido o `CreditExecutionService.executeWithCredits`:
+
+1. **Validação e Preço Pré-Execução**:
+   - Resolve dinamicamente o custo da operação com base no plano atual do workspace (`CreditPricingService.resolveCost`).
+   - Verifica se o estúdio possui saldo disponível suficiente (`EntitlementService.assertCanConsumeCredits`).
+2. **Dedução Atômica em Transação de Banco**:
+   - Executa `workspace.update` com decremento de créditos e registra entrada detalhada no `CreditLedger`.
+3. **Execução Segura da Tarefa de IA**:
+   - Executa a função de trabalho (geração de prompt, chamada à Gemini API, decupagem ou análise de imagem).
+4. **Estorno Automático em Falhas (`CREDIT_REFUND_ON_FAILURE`)**:
+   - Caso a chamada externa à IA falhe (timeout, erro de API, bloqueio de segurança), o valor integral dos créditos deduzidos é estornado automaticamente para o workspace (`workspace.update` incrementando saldo) e registrado no `CreditLedger` com justificativa do erro.
+5. **Sincronização em Tempo Real na Interface**:
+   - Dispara evento `tomadix:credits-updated` com o novo saldo retornado pela transação, garantindo que o componente `CreditBadge` no cabeçalho exiba o valor atualizado imediatamente sem recarregar a página (F5).
+
+---
+
+## 3. Tela Dedicada de Configuração de Custos por Tipo de Criação (`/admin/credits`)
+
+Para que a administração da plataforma possa redefinir os custos de execução de cada tipo de criação sem alterar código, foi disponibilizada a página dedicada **"Custos de Execução em Créditos por Tipo de Criação"** (`/admin/credits`), acessível diretamente no menu lateral sob a seção **Gestão**:
+
+- **Filtros por Tipo de Criação**:
+  - `Prompts de IA`: Prompts de imagem, vídeo, bíblia visual e aprimoramento.
+  - `Cenas & Roteiro`: Sequências, roteiro completo e expansão de cenas.
+  - `Personagens & Ambientes`: Criação de personas e cenários cênicos.
+  - `Multimodal & Estúdio`: Análise cinematográfica computacional e barra de criação rápida.
+  - `Processamento & Lote`: Execuções em lote e renderizações paralelas.
+- **Edição Direta de Valores**:
+  - Campo numérico para ajustar o custo em créditos com salvamento imediato no banco de dados.
+  - Toggle para isenção total (`isFree`).
+  - Toggle para suspensão/ativação da operação (`isActive`).
+- **Regras Customizadas por Plano**:
+  - Permite conceder gratuidade ou valores reduzidos para planos específicos (`FREE`, `PRO`, `TEAM`, `ENTERPRISE`).
+- **Simulador Interativo de Cobrança ao Vivo**:
+  - Testa na hora o cálculo exato resolvido pelo motor para qualquer combinação de operação e plano contratado.
 
 ---
 

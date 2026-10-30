@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { getCurrentWorkspace, AuthenticationError, AuthorizationError } from "@/lib/auth";
 import { CinematicAnalysisService } from "@/modules/cinematic-analysis/cinematic-analysis.service";
 import { CinematicAnalysisInputSchema } from "@/modules/cinematic-analysis/cinematic-analysis.schema";
+import { CreditExecutionService } from "@/modules/billing/credit-execution.service";
 import { db } from "@/lib/db";
 
 export async function POST(request: NextRequest) {
@@ -17,11 +18,27 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const result = await CinematicAnalysisService.analyze(parsed.data, workspace.id);
+    const execution = await CreditExecutionService.executeWithCredits(
+      {
+        workspaceId: workspace.id,
+        operationCode: "CINEMATIC_ANALYSIS",
+        description: `Análise Cinematográfica Multimodal (${parsed.data.mode})`,
+        projectId: parsed.data.projectId,
+        metadata: {
+          mode: parsed.data.mode,
+          referenceTitle: parsed.data.referenceTitle,
+        },
+      },
+      async () => {
+        return await CinematicAnalysisService.analyze(parsed.data, workspace.id);
+      }
+    );
 
     return NextResponse.json({
       success: true,
-      data: result,
+      data: execution.result,
+      creditCost: execution.creditCost,
+      newBalance: execution.newBalance,
     });
   } catch (error: any) {
     if (error instanceof AuthenticationError) {

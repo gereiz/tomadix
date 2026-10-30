@@ -103,6 +103,64 @@ export class PromptEngineService {
       if (!environmentData) throw new Error(`Ambiente (${req.environmentId}) não encontrado.`);
     }
 
+    // Carregar referências contextuais estruturadas (@personagens, #ambientes, $cenas)
+    let contextualReferences: {
+      characters?: Array<{ id: string; name: string; description: string; attributes: any }>;
+      environments?: Array<{ id: string; name: string; description: string; attributes: any }>;
+      scenes?: Array<{ id: string; title: string; order: number; description: string; configuration: any }>;
+    } | undefined = undefined;
+
+    if (req.references) {
+      const charIds = (req.references.characterIds || []).filter(Boolean);
+      const envIds = (req.references.environmentIds || []).filter(Boolean);
+      const sceneIds = (req.references.sceneIds || []).filter(Boolean);
+
+      if (charIds.length > 0 || envIds.length > 0 || sceneIds.length > 0) {
+        const [refChars, refEnvs, refScenes] = await Promise.all([
+          charIds.length > 0
+            ? db.character.findMany({
+                where: { id: { in: charIds }, projectId },
+                select: { id: true, name: true, description: true, attributes: true },
+              })
+            : [],
+          envIds.length > 0
+            ? db.environment.findMany({
+                where: { id: { in: envIds }, projectId },
+                select: { id: true, name: true, description: true, attributes: true },
+              })
+            : [],
+          sceneIds.length > 0
+            ? db.scene.findMany({
+                where: { id: { in: sceneIds }, projectId },
+                select: { id: true, title: true, order: true, description: true, configuration: true },
+              })
+            : [],
+        ]);
+
+        contextualReferences = {
+          characters: refChars.map((c) => ({
+            id: c.id,
+            name: c.name,
+            description: c.description || "",
+            attributes: c.attributes,
+          })),
+          environments: refEnvs.map((e) => ({
+            id: e.id,
+            name: e.name,
+            description: e.description || "",
+            attributes: e.attributes,
+          })),
+          scenes: refScenes.map((s) => ({
+            id: s.id,
+            title: s.title,
+            order: s.order,
+            description: s.description || "",
+            configuration: s.configuration,
+          })),
+        };
+      }
+    }
+
     // 5. Carregar e resolver parâmetros cinematográficos do projeto e do contexto específico (Etapa 5)
     const targetContext = req.sceneId
       ? { type: "SCENE" as const, id: req.sceneId }
@@ -136,6 +194,7 @@ export class PromptEngineService {
       scene: sceneData || undefined,
       character: characterData || undefined,
       environment: environmentData || undefined,
+      contextualReferences,
       customInstructions: req.customInstructions,
     });
 

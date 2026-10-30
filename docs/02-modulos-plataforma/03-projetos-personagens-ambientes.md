@@ -39,14 +39,19 @@ O modelo `Project` centraliza a narrativa do estúdio:
 
 ### Personagens (`/api/projects/[id]/characters`)
 - `GET /api/projects/[id]/characters`: Lista personagens do projeto.
-- `POST /api/projects/[id]/characters`: Cadastro de personagem com atributos permanentes.
+- `POST /api/projects/[id]/characters`: Cadastro manual de personagem com atributos permanentes.
+- `POST /api/projects/[id]/characters/generate`: Concepção tridimensional completa de personagem com IA a partir de briefing/arquétipo (`GEN_CHARACTER`).
 - `PUT /api/projects/[id]/characters/[characterId]`: Atualização de dados físicos/estéticos.
 - `POST /api/projects/[id]/characters/[characterId]/duplicate`: Duplicação de personagem.
 - `POST /api/projects/[id]/characters/[characterId]/archive`: Arquivamento controlado.
 
 ### Ambientes (`/api/projects/[id]/environments`)
 - `GET /api/projects/[id]/environments`: Lista cenários do projeto.
-- `POST /api/projects/[id]/environments`: Cadastro de ambiente com atmosfera e iluminação.
+- `POST /api/projects/[id]/environments`: Cadastro manual de ambiente com atmosfera e iluminação.
+- `POST /api/projects/[id]/environments/generate`: Concepção cenográfica completa de ambiente cênico com IA a partir de briefing e tipo de locação (`GEN_ENVIRONMENT`).
 - `PUT /api/projects/[id]/environments/[environmentId]`: Atualização do ambiente.
+
+### Bíblia Visual (`/api/projects/[id]/visual-bible`)
+- `POST /api/projects/[id]/visual-bible/generate`: Compilação e síntese estética completa da Bíblia Visual com IA (`GEN_VISUAL_BIBLE`), gerando conceito de direção de arte, paleta cromática, fotografia e lentes recomendadas.
 - `POST /api/projects/[id]/environments/[environmentId]/duplicate`: Duplicação de ambiente.
 - `POST /api/projects/[id]/environments/[environmentId]/archive`: Arquivamento controlado.

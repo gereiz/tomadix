@@ -86,6 +86,7 @@ export function PromptsTab({ projectId, initialSceneId, onStatsUpdate }: Prompts
   const [currentResult, setCurrentResult] = useState<PromptVersionItem | null>(null);
   const [activeViewTab, setActiveViewTab] = useState<"json" | "text" | "details">("json");
   const [copySuccess, setCopySuccess] = useState<string | null>(null);
+  const [enhancingPrompt, setEnhancingPrompt] = useState(false);
 
   // Modal State: Regeneração
   const [regeneratingVersion, setRegeneratingVersion] = useState<PromptVersionItem | null>(null);
@@ -195,7 +196,46 @@ export function PromptsTab({ projectId, initialSceneId, onStatsUpdate }: Prompts
 
   useEffect(() => {
     loadData();
+
+    // Sincronização automática em tempo real quando personagens, ambientes ou cenas mudam
+    const handleSyncEntities = () => {
+      loadData();
+    };
+
+    window.addEventListener("tomadix:entities-updated", handleSyncEntities);
+    return () => {
+      window.removeEventListener("tomadix:entities-updated", handleSyncEntities);
+    };
   }, [loadData]);
+
+  // Aprimorar Prompt com IA (REWRITE_ENHANCE)
+  const handleEnhancePrompt = async () => {
+    if (!customInstructions.trim()) return;
+    try {
+      setEnhancingPrompt(true);
+      const res = await fetch(`/api/projects/${projectId}/prompts/enhance`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          prompt: customInstructions,
+          targetGenerator: selectedTool?.includes("midjourney") ? "MIDJOURNEY" : "RUNWAY_GEN3",
+          enhancementFocus: "ALL_CINEMATIC",
+        }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || "Falha ao aprimorar prompt.");
+      if (data.data?.enhancedPrompt) {
+        setCustomInstructions(data.data.enhancedPrompt);
+      }
+      if (typeof window !== "undefined") {
+        window.dispatchEvent(new CustomEvent("tomadix:credits-updated", { detail: { newBalance: data.newBalance } }));
+      }
+    } catch (err: any) {
+      alert(err.message || "Erro ao aprimorar prompt com IA.");
+    } finally {
+      setEnhancingPrompt(false);
+    }
+  };
 
   // Submeter Geração de Prompt via Gemini
   const handleGenerate = async () => {
@@ -598,15 +638,27 @@ export function PromptsTab({ projectId, initialSceneId, onStatsUpdate }: Prompts
 
             {/* Diretrizes Adicionais do Diretor */}
             <div>
-              <label className="block text-xs font-semibold text-white/80 mb-1.5">
-                Diretrizes Adicionais do Diretor (Opcional)
-              </label>
+              <div className="flex items-center justify-between mb-1.5">
+                <label className="block text-xs font-semibold text-white/80">
+                  Diretrizes Adicionais do Diretor (Opcional)
+                </label>
+                <button
+                  type="button"
+                  onClick={handleEnhancePrompt}
+                  disabled={enhancingPrompt || !customInstructions.trim()}
+                  className="text-[11px] font-semibold text-primary hover:underline flex items-center gap-1 disabled:opacity-40 transition"
+                  title="Aprimorar diretrizes e iluminação com IA cinematográfica (REWRITE_ENHANCE)"
+                >
+                  <span>✨</span>
+                  {enhancingPrompt ? "Aprimorando..." : "Aprimorar com IA"}
+                </button>
+              </div>
               <textarea
                 value={customInstructions}
                 onChange={(e) => setCustomInstructions(e.target.value)}
                 placeholder="Ex: Enfatizar luz volumétrica de néon, atmosfera de chuva densa, granulação 35mm..."
                 rows={3}
-                className="w-full rounded-xl border border-white/10 bg-[#0f1218] p-3 text-xs text-white placeholder-white/30 focus:border-lime-500 focus:outline-none resize-none"
+                className="w-full rounded-xl border border-white/10 bg-[#0f1218] p-3 text-xs text-white placeholder-white/30 focus:border-primary focus:outline-none resize-none"
               />
             </div>
 

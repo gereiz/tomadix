@@ -60,7 +60,7 @@ docs/
 | [**02-gestao-de-usuarios-e-permissoes.md**](./03-console-administrativo/02-gestao-de-usuarios-e-permissoes.md) | Prontuário 360°, suspensão/reativação, papéis (`USER`, `ADMIN`, `SUPER_ADMIN`) e ajuste de créditos. |
 | [**03-transferencia-administracao-projetos.md**](./03-console-administrativo/03-transferencia-administracao-projetos.md) | Transferência individual e em lote de projetos entre usuários sem quebra de integridade. |
 | [**04-central-comercial-planos-politicas.md**](./03-console-administrativo/04-central-comercial-planos-politicas.md) | Gestão de planos com versionamento, prazos de carência e grandfathering de assinantes. |
-| [**05-central-custos-renovacao-creditos.md**](./03-console-administrativo/05-central-custos-renovacao-creditos.md) | Catálogo de custos de operações de IA, regras de desconto por plano e job de renovação. |
+| [**05-central-custos-renovacao-creditos.md**](./03-console-administrativo/05-central-custos-renovacao-creditos.md) | Catálogo e tela dedicada de custos de criação em créditos (`/admin/credits`), regras por plano, simulador em tempo real e job de renovação periódica. |
 | [**06-gestao-gateways-pagamento.md**](./03-console-administrativo/06-gestao-gateways-pagamento.md) | Abstração multiprovedor (Stripe, Mercado Pago, Sandbox) e testes de conectividade. |
 | [**07-integracao-comercial-checkout-auditoria.md**](./03-console-administrativo/07-integracao-comercial-checkout-auditoria.md) | Checkout seguro no servidor, integridade referencial e auditoria de compras. |
 | [**08-personalizacao-visual-e-temas.md**](./03-console-administrativo/08-personalizacao-visual-e-temas.md) ⭐ **Novo** | Gestão de marca, logotipo, paleta de cores dinâmica, controle dedicado de cores dos Badges/Selos (`badgeTextColor` e `badgeBgColor`), live preview e injeção de CSS em tempo real. |
@@ -85,5 +85,6 @@ docs/
 
 | Documento | Etapa / Versão |
 | :--- | :--- |
-| [**2026-10-29-implantacoes-estudio-admin-database.md**](./05-historico-de-entregas/2026-10-29-implantacoes-estudio-admin-database.md) ⭐ **Novo** | Relatório de implantação: Estúdio Multimodal, Personalização Visual, Badges Legíveis, Limpeza Segura de Testes e Gestão Completa de Banco de Dados. |
+| [**2026-10-30-correcoes-creditos-planos-identidade-e-estudio.md**](./05-historico-de-entregas/2026-10-30-correcoes-creditos-planos-identidade-e-estudio.md) ⭐ **Novo** | Relatório de entrega: Exibição de Créditos no Header, Dedução Atômica Centralizada com Estorno em Falhas, Troca Efetiva de Planos pelo Admin, Sincronização em Tempo Real de Entidades sem F5 e Barra de Criação Instantânea com Menções Estruturadas (@, #, $) e Redimensionamento. |
+| [**2026-10-29-implantacoes-estudio-admin-database.md**](./05-historico-de-entregas/2026-10-29-implantacoes-estudio-admin-database.md) | Relatório de implantação: Estúdio Multimodal, Personalização Visual, Badges Legíveis, Limpeza Segura de Testes e Gestão Completa de Banco de Dados. |
 | [**ETAPA-0 a ETAPA-7**](./05-historico-de-entregas/) | Relatórios de auditoria, correções de segurança, performance e entregas anteriores do projeto. |

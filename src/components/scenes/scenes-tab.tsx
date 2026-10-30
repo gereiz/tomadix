@@ -122,6 +122,36 @@ export function ScenesTab({ projectId, onStatsUpdate, onOpenPromptEngine }: Scen
   const [sceneToDelete, setSceneToDelete] = useState<SceneItem | null>(null);
   const [deleteLoading, setDeleteLoading] = useState(false);
 
+  // Modal Expansão de Cena (EXPAND_SCENE)
+  const [expandModalOpen, setExpandModalOpen] = useState(false);
+  const [sceneToExpand, setSceneToExpand] = useState<SceneItem | null>(null);
+  const [expandType, setExpandType] = useState<"SUB_SHOTS" | "CAMERA_ANGLES" | "MICRO_ACTIONS" | "DETAIL_SHOTS">("SUB_SHOTS");
+  const [expandCount, setExpandCount] = useState<number>(3);
+  const [expandDirectives, setExpandDirectives] = useState<string>("");
+  const [expandLoading, setExpandLoading] = useState(false);
+  const [expandError, setExpandError] = useState<string | null>(null);
+
+  // Modal Sequência de Cenas (GEN_SCENE_SEQUENCE)
+  const [sequenceModalOpen, setSequenceModalOpen] = useState(false);
+  const [sequencePremise, setSequencePremise] = useState("");
+  const [sequenceCount, setSequenceCount] = useState<number>(4);
+  const [sequencePacing, setSequencePacing] = useState<"SLOW_BURN" | "BALANCED" | "FAST_PACED" | "ACTION_INTENSE">("BALANCED");
+  const [sequenceMood, setSequenceMood] = useState("");
+  const [sequenceSelectedChars, setSequenceSelectedChars] = useState<string[]>([]);
+  const [sequenceSelectedEnvs, setSequenceSelectedEnvs] = useState<string[]>([]);
+  const [sequenceLoading, setSequenceLoading] = useState(false);
+  const [sequenceError, setSequenceError] = useState<string | null>(null);
+
+  // Modal Roteiro Completo (GEN_SCRIPT)
+  const [scriptModalOpen, setScriptModalOpen] = useState(false);
+  const [scriptPremise, setScriptPremise] = useState("");
+  const [scriptFormat, setScriptFormat] = useState<"SHORT_FILM" | "SCENE_SEQUENCE" | "COMMERCIAL" | "TRAILER">("SHORT_FILM");
+  const [scriptTone, setScriptTone] = useState("");
+  const [scriptCreateScenes, setScriptCreateScenes] = useState(true);
+  const [scriptLoading, setScriptLoading] = useState(false);
+  const [scriptResult, setScriptResult] = useState<any>(null);
+  const [scriptError, setScriptError] = useState<string | null>(null);
+
   // Carregar cenas e entidades
   const fetchScenes = useCallback(async () => {
     try {
@@ -424,6 +454,145 @@ export function ScenesTab({ projectId, onStatsUpdate, onOpenPromptEngine }: Scen
     }
   };
 
+  // Abrir Modal de Expansão de Cena
+  const handleOpenExpand = (scene: SceneItem) => {
+    setSceneToExpand(scene);
+    setExpandType("SUB_SHOTS");
+    setExpandCount(3);
+    setExpandDirectives("");
+    setExpandError(null);
+    setExpandModalOpen(true);
+  };
+
+  // Submeter Expansão de Cena (EXPAND_SCENE)
+  const handleSubmitExpand = async () => {
+    if (!sceneToExpand) return;
+    try {
+      setExpandLoading(true);
+      setExpandError(null);
+      const res = await fetch(`/api/projects/${projectId}/scenes/${sceneToExpand.id}/expand`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          expansionType: expandType,
+          count: expandCount,
+          directives: expandDirectives,
+        }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || "Falha ao expandir cena.");
+
+      if (typeof window !== "undefined") {
+        window.dispatchEvent(new CustomEvent("tomadix:credits-updated", { detail: { newBalance: data.newBalance } }));
+        window.dispatchEvent(new CustomEvent("tomadix:entities-updated", { detail: { type: "scenes", projectId } }));
+      }
+      setExpandModalOpen(false);
+      await fetchScenes();
+      onStatsUpdate?.();
+    } catch (err: any) {
+      setExpandError(err.message || "Erro ao expandir cena.");
+    } finally {
+      setExpandLoading(false);
+    }
+  };
+
+  // Abrir Modal de Sequência de Cenas
+  const handleOpenSequence = () => {
+    setSequencePremise("");
+    setSequenceCount(4);
+    setSequencePacing("BALANCED");
+    setSequenceMood("");
+    setSequenceSelectedChars([]);
+    setSequenceSelectedEnvs([]);
+    setSequenceError(null);
+    setSequenceModalOpen(true);
+  };
+
+  // Submeter Sequência de Cenas (GEN_SCENE_SEQUENCE)
+  const handleSubmitSequence = async () => {
+    if (!sequencePremise.trim()) {
+      setSequenceError("Por favor informe a premissa da sequência.");
+      return;
+    }
+    try {
+      setSequenceLoading(true);
+      setSequenceError(null);
+      const res = await fetch(`/api/projects/${projectId}/scenes/generate-sequence`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          premise: sequencePremise,
+          sceneCount: sequenceCount,
+          pacing: sequencePacing,
+          mood: sequenceMood,
+          characterIds: sequenceSelectedChars,
+          environmentIds: sequenceSelectedEnvs,
+        }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || "Falha ao gerar sequência de cenas.");
+
+      if (typeof window !== "undefined") {
+        window.dispatchEvent(new CustomEvent("tomadix:credits-updated", { detail: { newBalance: data.newBalance } }));
+        window.dispatchEvent(new CustomEvent("tomadix:entities-updated", { detail: { type: "scenes", projectId } }));
+      }
+      setSequenceModalOpen(false);
+      await fetchScenes();
+      onStatsUpdate?.();
+    } catch (err: any) {
+      setSequenceError(err.message || "Erro ao gerar sequência.");
+    } finally {
+      setSequenceLoading(false);
+    }
+  };
+
+  // Abrir Modal de Roteiro
+  const handleOpenScript = () => {
+    setScriptPremise("");
+    setScriptFormat("SHORT_FILM");
+    setScriptTone("");
+    setScriptCreateScenes(true);
+    setScriptResult(null);
+    setScriptError(null);
+    setScriptModalOpen(true);
+  };
+
+  // Submeter Geração de Roteiro (GEN_SCRIPT)
+  const handleSubmitScript = async () => {
+    if (!scriptPremise.trim()) {
+      setScriptError("Por favor informe a premissa dramática do roteiro.");
+      return;
+    }
+    try {
+      setScriptLoading(true);
+      setScriptError(null);
+      const res = await fetch(`/api/projects/${projectId}/script/generate`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          premise: scriptPremise,
+          format: scriptFormat,
+          tone: scriptTone,
+          generateScenesImmediately: scriptCreateScenes,
+        }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || "Falha ao gerar roteiro.");
+
+      setScriptResult(data.data);
+      if (typeof window !== "undefined") {
+        window.dispatchEvent(new CustomEvent("tomadix:credits-updated", { detail: { newBalance: data.newBalance } }));
+        window.dispatchEvent(new CustomEvent("tomadix:entities-updated", { detail: { type: "scenes", projectId } }));
+      }
+      await fetchScenes();
+      onStatsUpdate?.();
+    } catch (err: any) {
+      setScriptError(err.message || "Erro ao gerar roteiro.");
+    } finally {
+      setScriptLoading(false);
+    }
+  };
+
   // Filtragem
   const filteredScenes = scenes.filter((scene) => {
     const { isReady } = checkSceneReadiness(scene);
@@ -461,19 +630,39 @@ export function ScenesTab({ projectId, onStatsUpdate, onOpenPromptEngine }: Scen
           {/* Botão de Análise de Continuidade */}
           <button
             onClick={handleRunContinuityCheck}
-            className="flex items-center gap-1.5 rounded-xl border border-purple-500/30 bg-purple-500/10 px-3.5 py-2 text-xs font-semibold text-purple-300 hover:bg-purple-500/20 transition shadow-sm"
+            className="flex items-center gap-1.5 rounded-xl border border-purple-500/30 bg-purple-500/10 px-3 py-2 text-xs font-semibold text-purple-300 hover:bg-purple-500/20 transition shadow-sm"
           >
             <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
             </svg>
             Análise de Continuidade
           </button>
+
+          {/* Botão Sequência com IA */}
+          <button
+            onClick={handleOpenSequence}
+            className="flex items-center gap-1.5 rounded-xl border border-primary/30 bg-primary/10 px-3 py-2 text-xs font-semibold text-primary hover:bg-primary/20 transition shadow-sm"
+            title="Gerar sequência contínua de cenas com IA (GEN_SCENE_SEQUENCE)"
+          >
+            <span>✨</span>
+            Sequência com IA
+          </button>
+
+          {/* Botão Roteiro com IA */}
+          <button
+            onClick={handleOpenScript}
+            className="flex items-center gap-1.5 rounded-xl border border-amber-500/30 bg-amber-500/10 px-3 py-2 text-xs font-semibold text-amber-300 hover:bg-amber-500/20 transition shadow-sm"
+            title="Gerar roteiro cinematográfico completo com IA (GEN_SCRIPT)"
+          >
+            <span>🎬</span>
+            Roteiro com IA
+          </button>
         </div>
 
         {/* Botão Nova Cena */}
         <button
           onClick={handleOpenCreate}
-          className="flex items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-600 px-4 py-2.5 text-xs font-semibold text-white shadow-lg shadow-emerald-500/20 hover:from-emerald-400 hover:to-teal-500 transition"
+          className="flex items-center justify-center gap-2 rounded-xl bg-primary px-4 py-2.5 text-xs font-semibold text-primary-foreground shadow-lg hover:opacity-90 transition"
         >
           <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
@@ -660,6 +849,17 @@ export function ScenesTab({ projectId, onStatsUpdate, onOpenPromptEngine }: Scen
                   </button>
 
                   <div className="flex items-center gap-1 w-full justify-end">
+                    {/* Botão Expandir com IA (EXPAND_SCENE) */}
+                    <button
+                      onClick={() => handleOpenExpand(scene)}
+                      className="rounded-lg p-1.5 text-white/60 hover:text-primary hover:bg-primary/10 transition"
+                      title="Expandir cena com IA (sub-planos, ângulos e detalhes)"
+                    >
+                      <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4" />
+                      </svg>
+                    </button>
+
                     {/* Botão Editar */}
                     <button
                       onClick={() => handleOpenEdit(scene)}
@@ -1254,6 +1454,418 @@ export function ScenesTab({ projectId, onStatsUpdate, onOpenPromptEngine }: Scen
                   </div>
                 </div>
               )}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* MODAL: Expansão de Cena com IA (EXPAND_SCENE) */}
+      {expandModalOpen && sceneToExpand && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4 backdrop-blur-sm">
+          <div className="relative w-full max-w-lg rounded-3xl border border-white/10 bg-[#0f1218] p-6 shadow-2xl">
+            <div className="flex items-center justify-between border-b border-white/10 pb-4">
+              <div>
+                <h3 className="text-base font-bold text-white flex items-center gap-2">
+                  <span className="text-primary">✨</span> Expandir Cena com IA
+                </h3>
+                <p className="mt-1 text-xs text-white/50">
+                  Desdobre &quot;{sceneToExpand.title}&quot; em sub-planos, planos detalhe ou variações de ângulo.
+                </p>
+              </div>
+              <button
+                onClick={() => setExpandModalOpen(false)}
+                className="rounded-xl p-1.5 text-white/50 hover:bg-white/10 hover:text-white transition"
+              >
+                ✕
+              </button>
+            </div>
+
+            <div className="mt-5 space-y-4">
+              <div>
+                <label className="block text-xs font-medium text-white/70 mb-1.5">
+                  Tipo de Desdobramento Cinematográfico
+                </label>
+                <div className="grid grid-cols-2 gap-2">
+                  {[
+                    { id: "SUB_SHOTS", label: "Sub-Planos (Geral → Médio → Detalhe)" },
+                    { id: "CAMERA_ANGLES", label: "Variações de Ângulo & Contra-Campo" },
+                    { id: "DETAIL_SHOTS", label: "Planos Detalhe e Inserts" },
+                    { id: "MICRO_ACTIONS", label: "Micro-Ações e Batidas Dramáticas" },
+                  ].map((t) => (
+                    <button
+                      key={t.id}
+                      type="button"
+                      onClick={() => setExpandType(t.id as any)}
+                      className={`rounded-xl border p-2.5 text-left text-xs transition ${
+                        expandType === t.id
+                          ? "border-primary bg-primary/10 text-primary font-semibold"
+                          : "border-white/10 bg-white/5 text-white/70 hover:bg-white/10"
+                      }`}
+                    >
+                      {t.label}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-xs font-medium text-white/70 mb-1.5">
+                  Quantidade de Sub-Planos Derivados ({expandCount})
+                </label>
+                <input
+                  type="range"
+                  min="2"
+                  max="4"
+                  value={expandCount}
+                  onChange={(e) => setExpandCount(parseInt(e.target.value, 10))}
+                  className="w-full accent-primary cursor-pointer"
+                />
+                <div className="flex justify-between text-[11px] text-white/40 mt-1">
+                  <span>2 planos</span>
+                  <span>3 planos (Recomendado)</span>
+                  <span>4 planos</span>
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-xs font-medium text-white/70 mb-1.5">
+                  Diretivas Adicionais do Diretor (Opcional)
+                </label>
+                <textarea
+                  value={expandDirectives}
+                  onChange={(e) => setExpandDirectives(e.target.value)}
+                  placeholder="Ex: Enfatizar o olhar de desconfiança do personagem principal antes do disparo..."
+                  rows={2}
+                  className="w-full rounded-xl border border-white/10 bg-white/5 p-3 text-xs text-white placeholder-white/30 focus:border-primary focus:outline-none resize-none"
+                />
+              </div>
+
+              {expandError && (
+                <div className="rounded-xl border border-red-500/30 bg-red-500/10 p-3 text-xs text-red-300">
+                  {expandError}
+                </div>
+              )}
+            </div>
+
+            <div className="mt-6 flex items-center justify-between border-t border-white/10 pt-4">
+              <span className="text-xs text-white/50 flex items-center gap-1.5">
+                <span className="text-primary font-bold">🪙 EXPAND_SCENE</span> • Cobrado via tabela de créditos
+              </span>
+              <div className="flex gap-2">
+                <button
+                  type="button"
+                  onClick={() => setExpandModalOpen(false)}
+                  className="rounded-xl px-4 py-2 text-xs font-medium text-white/70 hover:bg-white/10 transition"
+                >
+                  Cancelar
+                </button>
+                <button
+                  type="button"
+                  onClick={handleSubmitExpand}
+                  disabled={expandLoading}
+                  className="rounded-xl bg-primary px-4 py-2 text-xs font-semibold text-primary-foreground shadow-lg hover:opacity-90 disabled:opacity-50 transition"
+                >
+                  {expandLoading ? "Decupando com IA..." : "Expandir com IA"}
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* MODAL: Geração de Sequência de Cenas (GEN_SCENE_SEQUENCE) */}
+      {sequenceModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4 backdrop-blur-sm">
+          <div className="relative w-full max-w-xl rounded-3xl border border-white/10 bg-[#0f1218] p-6 shadow-2xl">
+            <div className="flex items-center justify-between border-b border-white/10 pb-4">
+              <div>
+                <h3 className="text-base font-bold text-white flex items-center gap-2">
+                  <span className="text-primary">✨</span> Gerar Sequência de Cenas com IA
+                </h3>
+                <p className="mt-1 text-xs text-white/50">
+                  Estruturação seriada e contínua de planos encadeados para seu projeto cinematográfico.
+                </p>
+              </div>
+              <button
+                onClick={() => setSequenceModalOpen(false)}
+                className="rounded-xl p-1.5 text-white/50 hover:bg-white/10 hover:text-white transition"
+              >
+                ✕
+              </button>
+            </div>
+
+            <div className="mt-5 space-y-4">
+              <div>
+                <label className="block text-xs font-medium text-white/70 mb-1.5">
+                  Premissa Dramática da Sequência *
+                </label>
+                <textarea
+                  value={sequencePremise}
+                  onChange={(e) => setSequencePremise(e.target.value)}
+                  placeholder="Ex: Fuga noturna pelos telhados de paralelepípedo, começando com a perda de cobertura e terminando no salto para o caminhão em movimento..."
+                  rows={3}
+                  className="w-full rounded-xl border border-white/10 bg-white/5 p-3 text-xs text-white placeholder-white/30 focus:border-primary focus:outline-none resize-none"
+                />
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-xs font-medium text-white/70 mb-1.5">
+                    Número de Cenas ({sequenceCount})
+                  </label>
+                  <input
+                    type="range"
+                    min="2"
+                    max="8"
+                    value={sequenceCount}
+                    onChange={(e) => setSequenceCount(parseInt(e.target.value, 10))}
+                    className="w-full accent-primary cursor-pointer"
+                  />
+                  <div className="flex justify-between text-[11px] text-white/40 mt-1">
+                    <span>2 cenas</span>
+                    <span>4 cenas (Padrão)</span>
+                    <span>8 cenas</span>
+                  </div>
+                </div>
+
+                <div>
+                  <label className="block text-xs font-medium text-white/70 mb-1.5">
+                    Ritmo Dramático
+                  </label>
+                  <select
+                    value={sequencePacing}
+                    onChange={(e) => setSequencePacing(e.target.value as any)}
+                    className="w-full rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-xs text-white focus:border-primary focus:outline-none"
+                  >
+                    <option value="BALANCED" className="bg-[#0f1218]">Equilibrado (Clássico)</option>
+                    <option value="ACTION_INTENSE" className="bg-[#0f1218]">Ação Intensa / Dinâmico</option>
+                    <option value="SLOW_BURN" className="bg-[#0f1218]">Slow Burn / Atmosférico</option>
+                    <option value="FAST_PACED" className="bg-[#0f1218]">Ritmo Acelerado</option>
+                  </select>
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-xs font-medium text-white/70 mb-1.5">
+                  Clima / Atmosfera Visual (Opcional)
+                </label>
+                <input
+                  type="text"
+                  value={sequenceMood}
+                  onChange={(e) => setSequenceMood(e.target.value)}
+                  placeholder="Ex: Iluminação chiaroscuro, chuva volumétrica, névoa densa..."
+                  className="w-full rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-xs text-white placeholder-white/30 focus:border-primary focus:outline-none"
+                />
+              </div>
+
+              {availableCharacters.length > 0 && (
+                <div>
+                  <label className="block text-xs font-medium text-white/70 mb-1.5">
+                    Vincular Personagens Presentes
+                  </label>
+                  <div className="flex flex-wrap gap-1.5">
+                    {availableCharacters.map((char) => {
+                      const isSelected = sequenceSelectedChars.includes(char.id);
+                      return (
+                        <button
+                          key={char.id}
+                          type="button"
+                          onClick={() => {
+                            setSequenceSelectedChars((prev) =>
+                              isSelected ? prev.filter((id) => id !== char.id) : [...prev, char.id]
+                            );
+                          }}
+                          className={`rounded-lg px-2.5 py-1 text-xs transition border ${
+                            isSelected
+                              ? "bg-primary/20 border-primary text-primary font-semibold"
+                              : "bg-white/5 border-white/10 text-white/60 hover:text-white"
+                          }`}
+                        >
+                          👤 {char.name}
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+              )}
+
+              {sequenceError && (
+                <div className="rounded-xl border border-red-500/30 bg-red-500/10 p-3 text-xs text-red-300">
+                  {sequenceError}
+                </div>
+              )}
+            </div>
+
+            <div className="mt-6 flex items-center justify-between border-t border-white/10 pt-4">
+              <span className="text-xs text-white/50 flex items-center gap-1.5">
+                <span className="text-primary font-bold">🪙 GEN_SCENE_SEQUENCE</span> • Conforme tabela
+              </span>
+              <div className="flex gap-2">
+                <button
+                  type="button"
+                  onClick={() => setSequenceModalOpen(false)}
+                  className="rounded-xl px-4 py-2 text-xs font-medium text-white/70 hover:bg-white/10 transition"
+                >
+                  Cancelar
+                </button>
+                <button
+                  type="button"
+                  onClick={handleSubmitSequence}
+                  disabled={sequenceLoading}
+                  className="rounded-xl bg-primary px-4 py-2 text-xs font-semibold text-primary-foreground shadow-lg hover:opacity-90 disabled:opacity-50 transition"
+                >
+                  {sequenceLoading ? "Estruturando Sequência..." : "Gerar Sequência"}
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* MODAL: Geração de Roteiro Completo com IA (GEN_SCRIPT) */}
+      {scriptModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4 backdrop-blur-sm">
+          <div className="relative w-full max-w-2xl max-h-[90vh] flex flex-col rounded-3xl border border-white/10 bg-[#0f1218] p-6 shadow-2xl">
+            <div className="flex items-center justify-between border-b border-white/10 pb-4">
+              <div>
+                <h3 className="text-base font-bold text-white flex items-center gap-2">
+                  <span className="text-amber-400">🎬</span> Gerar Roteiro Cinematográfico com IA
+                </h3>
+                <p className="mt-1 text-xs text-white/50">
+                  Criação de roteiro técnico com diálogos e rubricas de direção no padrão Master Scene.
+                </p>
+              </div>
+              <button
+                onClick={() => setScriptModalOpen(false)}
+                className="rounded-xl p-1.5 text-white/50 hover:bg-white/10 hover:text-white transition"
+              >
+                ✕
+              </button>
+            </div>
+
+            <div className="mt-5 space-y-4 overflow-y-auto flex-1 pr-1">
+              {!scriptResult ? (
+                <>
+                  <div>
+                    <label className="block text-xs font-medium text-white/70 mb-1.5">
+                      Premissa Dramática do Roteiro *
+                    </label>
+                    <textarea
+                      value={scriptPremise}
+                      onChange={(e) => setScriptPremise(e.target.value)}
+                      placeholder="Ex: Em uma metrópole futurista, um restaurador de memórias descobre um fragmento corrompido que revela a identidade do fundador corporativo..."
+                      rows={3}
+                      className="w-full rounded-xl border border-white/10 bg-white/5 p-3 text-xs text-white placeholder-white/30 focus:border-amber-400 focus:outline-none resize-none"
+                    />
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-xs font-medium text-white/70 mb-1.5">
+                        Formato
+                      </label>
+                      <select
+                        value={scriptFormat}
+                        onChange={(e) => setScriptFormat(e.target.value as any)}
+                        className="w-full rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-xs text-white focus:border-amber-400 focus:outline-none"
+                      >
+                        <option value="SHORT_FILM" className="bg-[#0f1218]">Curta-Metragem (Narrativo)</option>
+                        <option value="COMMERCIAL" className="bg-[#0f1218]">Comercial / Publicidade</option>
+                        <option value="SCENE_SEQUENCE" className="bg-[#0f1218]">Sequência Dramática</option>
+                        <option value="TRAILER" className="bg-[#0f1218]">Teaser / Trailer Promocional</option>
+                      </select>
+                    </div>
+
+                    <div>
+                      <label className="block text-xs font-medium text-white/70 mb-1.5">
+                        Tom Narrativo
+                      </label>
+                      <input
+                        type="text"
+                        value={scriptTone}
+                        onChange={(e) => setScriptTone(e.target.value)}
+                        placeholder="Ex: Neo-noir, tenso, lírico..."
+                        className="w-full rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-xs text-white placeholder-white/30 focus:border-amber-400 focus:outline-none"
+                      />
+                    </div>
+                  </div>
+
+                  <div className="flex items-center gap-2 pt-2">
+                    <input
+                      type="checkbox"
+                      id="createScenes"
+                      checked={scriptCreateScenes}
+                      onChange={(e) => setScriptCreateScenes(e.target.checked)}
+                      className="rounded border-white/20 bg-white/5 text-amber-500 focus:ring-amber-500 h-4 w-4"
+                    />
+                    <label htmlFor="createScenes" className="text-xs text-white/80 cursor-pointer">
+                      Instanciar automaticamente as cenas no projeto após gerar o roteiro
+                    </label>
+                  </div>
+                </>
+              ) : (
+                <div className="space-y-4">
+                  <div className="rounded-2xl border border-amber-500/30 bg-amber-500/10 p-4">
+                    <h4 className="text-sm font-bold text-amber-300">{scriptResult.title}</h4>
+                    <p className="mt-1 text-xs text-white/70">{scriptResult.logline}</p>
+                    <p className="mt-2 text-[11px] text-amber-200/80">
+                      ✓ {scriptResult.scenesCount} cena(s) identificada(s) e inserida(s) no projeto.
+                    </p>
+                  </div>
+
+                  <div>
+                    <div className="flex items-center justify-between mb-2">
+                      <label className="text-xs font-semibold text-white/80">
+                        Texto do Roteiro (Master Scene Format):
+                      </label>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          navigator.clipboard.writeText(scriptResult.fullScreenplayText);
+                          alert("Roteiro copiado para a área de transferência!");
+                        }}
+                        className="text-[11px] text-amber-300 hover:underline"
+                      >
+                        Copiar Roteiro
+                      </button>
+                    </div>
+                    <pre className="w-full rounded-2xl border border-white/10 bg-black/50 p-4 text-xs font-mono text-white/90 whitespace-pre-wrap max-h-80 overflow-y-auto leading-relaxed">
+                      {scriptResult.fullScreenplayText}
+                    </pre>
+                  </div>
+                </div>
+              )}
+
+              {scriptError && (
+                <div className="rounded-xl border border-red-500/30 bg-red-500/10 p-3 text-xs text-red-300">
+                  {scriptError}
+                </div>
+              )}
+            </div>
+
+            <div className="mt-6 flex items-center justify-between border-t border-white/10 pt-4">
+              <span className="text-xs text-white/50 flex items-center gap-1.5">
+                <span className="text-amber-400 font-bold">🪙 GEN_SCRIPT</span> • Tabela de créditos
+              </span>
+              <div className="flex gap-2">
+                <button
+                  type="button"
+                  onClick={() => setScriptModalOpen(false)}
+                  className="rounded-xl px-4 py-2 text-xs font-medium text-white/70 hover:bg-white/10 transition"
+                >
+                  {scriptResult ? "Concluir" : "Cancelar"}
+                </button>
+                {!scriptResult && (
+                  <button
+                    type="button"
+                    onClick={handleSubmitScript}
+                    disabled={scriptLoading}
+                    className="rounded-xl bg-amber-500 px-4 py-2 text-xs font-semibold text-black shadow-lg hover:bg-amber-400 disabled:opacity-50 transition"
+                  >
+                    {scriptLoading ? "Escrevendo Roteiro..." : "Escrever Roteiro com IA"}
+                  </button>
+                )}
+              </div>
             </div>
           </div>
         </div>

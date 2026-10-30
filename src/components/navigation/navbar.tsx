@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { WorkspaceSelector } from "./workspace-selector";
+import { CreditBadge } from "./credit-badge";
 
 interface AuthUser {
   id: string;
@@ -103,6 +104,7 @@ export function Navbar() {
           {user ? (
             <>
               <WorkspaceSelector />
+              <CreditBadge />
 
               {/*<Link
                 href="/workspace"
@@ -183,9 +185,12 @@ export function Navbar() {
         {/* Lado Direito Mobile (< md) */}
         <div className="flex md:hidden items-center gap-2">
           {user && (
-            <div className="max-w-[130px] sm:max-w-[160px] truncate">
-              <WorkspaceSelector />
-            </div>
+            <>
+              <div className="max-w-[110px] sm:max-w-[140px] truncate">
+                <WorkspaceSelector />
+              </div>
+              <CreditBadge showAddButton={false} />
+            </>
           )}
 
           {!user && (

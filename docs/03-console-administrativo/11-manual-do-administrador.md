@@ -53,7 +53,17 @@ O acesso ao painel administrativo (`/admin`) é restrito a contas que possuam `p
   2. Selecione o plano concedido e defina a data de expiração.
   3. Insira o motivo formal e confirme. Ao expirar o prazo, o sistema reverterá automaticamente o acesso ao plano contratado.
 
-### 2.5. Suspensão e Desconexão Forçada de Conta
+### 2.5. Alteração Efetiva de Plano do Estúdio (Definitivo)
+- **Quando usar**: Upgrade ou downgrade comercial de longo prazo acordado com o cliente, sem necessidade de depender de concessões temporárias com data de expiração.
+- **Passo a passo**:
+  1. No prontuário do usuário (`/admin/users/[id]`), acesse a aba **"Plano & Concessões"**.
+  2. Clique no botão **"Alterar Plano Efetivo"**.
+  3. Selecione o novo plano pretendido (`FREE`, `PRO`, `TEAM` ou `ENTERPRISE`).
+  4. Marque a opção de **conceder os créditos mensais do novo plano imediatamente** caso acordado comercialmente.
+  5. Insira a justificativa formal obrigatória e confirme.
+  6. O sistema limpa automaticamente qualquer snapshot restritivo anterior (*grandfathered contract*), libera as quotas do novo plano (inclusive quotas ilimitadas de projetos e membros) e atualiza a assinatura real.
+
+### 2.6. Suspensão e Desconexão Forçada de Conta
 - **Quando usar**: Violação grave dos termos de serviço, fraude ou requisições maliciosas.
 - **Passo a passo**:
   1. Clique em **"Suspender Conta"**.
@@ -83,16 +93,24 @@ O acesso ao painel administrativo (`/admin`) é restrito a contas que possuam `p
 
 ---
 
-## 4. Guia de Operação: Limites, Custos e Renovação de Créditos (`/admin/billing`)
+## 4. Guia de Operação: Limites, Custos e Renovação de Créditos (`/admin/credits` e `/admin/billing`)
 
-### 4.1. Configuração de Custos por Operação
-1. Acesse `/admin/billing` e clique na aba **"4. Limites, Recursos & Custos"**.
-2. Na tabela de operações, clique em **"+ Regra por Plano"** na operação desejada.
-3. Configure se a operação terá um custo diferenciado em créditos ou se será gratuita para assinantes daquele plano.
-4. Salve a regra. A alteração passa a valer imediatamente no motor de IA sem necessidade de reiniciar servidores.
+### 4.1. Configuração de Custos por Tipo de Criação (`/admin/credits`)
+1. Acesse o menu lateral na seção **Gestão** e clique em **"Tabela de Créditos"** (`/admin/credits`).
+2. Utilize os filtros de categoria para navegar entre:
+   - `Prompts de IA` (imagens, vídeos, bíblia visual e aprimoramento).
+   - `Cenas & Roteiro` (decupagens, roteiros e expansões).
+   - `Personagens & Ambientes` (perfis dramáticos e locações).
+   - `Multimodal & Estúdio` (análise cinematográfica computacional e barra de criação rápida).
+   - `Processamento & Lote` (gerações simultâneas).
+3. Para cada operação:
+   - Clique em **"Editar Custo"** para alterar o valor padrão em créditos consumido pelo estúdio.
+   - Ative a opção **"Operação Gratuita"** para isentar todos os usuários daquela cobrança.
+   - Clique em **"Regras por Plano"** para definir valores específicos ou gratuidades para assinantes `FREE`, `PRO`, `TEAM` ou `ENTERPRISE`.
+4. Salve as alterações. O motor de execução em créditos passa a cobrar o novo valor imediatamente.
 
-### 4.2. Simulador de Custos
-- Utilize o widget do simulador no painel para testar qualquer combinação de Operação e Plano de Assinatura, garantindo que o custo calculado no servidor seja exatamente o pretendido antes de anunciar a precificação.
+### 4.2. Simulador de Custos em Tempo Real
+- Na parte inferior de `/admin/credits` ou em `/admin/billing`, utilize o simulador interativo para testar o custo final de qualquer operação antes de confirmar alterações comerciais.
 
 ### 4.3. Criação de Políticas de Renovação Automática
 1. Na seção *Sistema Configurável de Renovação de Créditos*, clique em **"+ Nova Política"**.

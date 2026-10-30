@@ -5,6 +5,7 @@ import { CharacterService } from "@/modules/characters/character.service";
 import { EnvironmentService } from "@/modules/environments/environment.service";
 import { SceneService } from "@/modules/scenes/scene.service";
 import { PromptEngineService } from "@/modules/prompt-engine/prompt-engine.service";
+import { CreditExecutionService } from "@/modules/billing/credit-execution.service";
 import { db } from "@/lib/db";
 import { z } from "zod";
 
@@ -13,6 +14,13 @@ const quickCreateSchema = z.object({
   prompt: z.string().trim().min(2, "Informe uma descrição para criar o conteúdo.").max(3000),
   projectId: z.string().optional().nullable(),
   title: z.string().trim().max(120).optional(),
+  references: z
+    .object({
+      characterIds: z.array(z.string()).optional(),
+      environmentIds: z.array(z.string()).optional(),
+      sceneIds: z.array(z.string()).optional(),
+    })
+    .optional(),
 });
 
 export async function POST(request: NextRequest) {
@@ -84,19 +92,31 @@ export async function POST(request: NextRequest) {
           .trim() ||
         "Novo Personagem";
 
-      const character = await CharacterService.createCharacter(
-        effectiveProjectId!,
-        workspace.id,
+      const execution = await CreditExecutionService.executeWithCredits(
         {
-          name,
-          description: validated.prompt,
-          attributes: {
-            apparentAge: "Indefinida",
-            visualIdentity: validated.prompt.slice(0, 300),
-            basePrompt: validated.prompt,
-          },
+          workspaceId: workspace.id,
+          operationCode: "GEN_CHARACTER",
+          description: `Criação Rápida de Personagem (${name})`,
+          projectId: effectiveProjectId || undefined,
+        },
+        async () => {
+          return await CharacterService.createCharacter(
+            effectiveProjectId!,
+            workspace.id,
+            {
+              name,
+              description: validated.prompt,
+              attributes: {
+                apparentAge: "Indefinida",
+                visualIdentity: validated.prompt.slice(0, 300),
+                basePrompt: validated.prompt,
+              },
+            }
+          );
         }
       );
+
+      const character = execution.result;
 
       return NextResponse.json(
         {
@@ -107,6 +127,8 @@ export async function POST(request: NextRequest) {
             title: character.name,
             href: `/projects/${effectiveProjectId}?tab=characters`,
           },
+          creditCost: execution.creditCost,
+          newBalance: execution.newBalance,
         },
         { status: 201 }
       );
@@ -122,19 +144,31 @@ export async function POST(request: NextRequest) {
           .trim() ||
         "Novo Cenário";
 
-      const environment = await EnvironmentService.createEnvironment(
-        effectiveProjectId!,
-        workspace.id,
+      const execution = await CreditExecutionService.executeWithCredits(
         {
-          name,
-          description: validated.prompt,
-          attributes: {
-            locationContext: "Cinematográfico",
-            visualStyle: validated.prompt.slice(0, 300),
-            basePrompt: validated.prompt,
-          },
+          workspaceId: workspace.id,
+          operationCode: "GEN_ENVIRONMENT",
+          description: `Criação Rápida de Ambiente (${name})`,
+          projectId: effectiveProjectId || undefined,
+        },
+        async () => {
+          return await EnvironmentService.createEnvironment(
+            effectiveProjectId!,
+            workspace.id,
+            {
+              name,
+              description: validated.prompt,
+              attributes: {
+                locationContext: "Cinematográfico",
+                visualStyle: validated.prompt.slice(0, 300),
+                basePrompt: validated.prompt,
+              },
+            }
+          );
         }
       );
+
+      const environment = execution.result;
 
       return NextResponse.json(
         {
@@ -145,6 +179,8 @@ export async function POST(request: NextRequest) {
             title: environment.name,
             href: `/projects/${effectiveProjectId}?tab=environments`,
           },
+          creditCost: execution.creditCost,
+          newBalance: execution.newBalance,
         },
         { status: 201 }
       );
@@ -160,17 +196,29 @@ export async function POST(request: NextRequest) {
           .trim() ||
         "Nova Cena";
 
-      const scene = await SceneService.createScene(
-        effectiveProjectId!,
-        workspace.id,
+      const execution = await CreditExecutionService.executeWithCredits(
         {
-          title,
-          description: validated.prompt,
-          characterIds: [],
-          environmentIds: [],
-          durationSeconds: 10,
+          workspaceId: workspace.id,
+          operationCode: "GEN_SCENE_SEQUENCE",
+          description: `Criação Rápida de Cena (${title})`,
+          projectId: effectiveProjectId || undefined,
+        },
+        async () => {
+          return await SceneService.createScene(
+            effectiveProjectId!,
+            workspace.id,
+            {
+              title,
+              description: validated.prompt,
+              characterIds: validated.references?.characterIds || [],
+              environmentIds: validated.references?.environmentIds || [],
+              durationSeconds: 10,
+            }
+          );
         }
       );
+
+      const scene = execution.result;
 
       if (!scene) {
         throw new Error("Não foi possível gerar a cena.");
@@ -185,6 +233,8 @@ export async function POST(request: NextRequest) {
             title: scene.title,
             href: `/projects/${effectiveProjectId}?tab=scenes`,
           },
+          creditCost: execution.creditCost,
+          newBalance: execution.newBalance,
         },
         { status: 201 }
       );
@@ -199,6 +249,7 @@ export async function POST(request: NextRequest) {
           targetTool: "google_flow",
           templateKey: "visual_bible",
           customInstructions: validated.prompt,
+          references: validated.references,
         }
       );
 

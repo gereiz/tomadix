@@ -62,6 +62,7 @@ interface ProjectDetail {
     soundDesign?: string;
     customNotes?: string;
   };
+  visualBible?: any;
   isArchived: boolean;
   archivedAt: string | null;
   createdAt: string;
@@ -90,6 +91,40 @@ export default function ProjectDetailPage({ params }: { params: Promise<{ id: st
   const [visitedTabs, setVisitedTabs] = useState<Record<string, boolean>>({ overview: true });
   const [actionLoading, setActionLoading] = useState(false);
   const [refreshKey, setRefreshKey] = useState(0);
+
+  // Modal de Bíblia Visual com IA (GEN_VISUAL_BIBLE)
+  const [vbModalOpen, setVbModalOpen] = useState(false);
+  const [vbReference, setVbReference] = useState("");
+  const [vbDirectives, setVbDirectives] = useState("");
+  const [vbLoading, setVbLoading] = useState(false);
+  const [vbError, setVbError] = useState<string | null>(null);
+
+  const handleSubmitVisualBible = async () => {
+    try {
+      setVbLoading(true);
+      setVbError(null);
+      const res = await fetch(`/api/projects/${resolvedParams.id}/visual-bible/generate`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          cinematographerReference: vbReference,
+          artDirectives: vbDirectives,
+        }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || "Falha ao gerar Bíblia Visual.");
+
+      if (typeof window !== "undefined") {
+        window.dispatchEvent(new CustomEvent("tomadix:credits-updated", { detail: { newBalance: data.newBalance } }));
+      }
+      setVbModalOpen(false);
+      await loadProject(true);
+    } catch (err: any) {
+      setVbError(err.message || "Erro ao gerar Bíblia Visual.");
+    } finally {
+      setVbLoading(false);
+    }
+  };
 
   useEffect(() => {
     setVisitedTabs((prev) => ({ ...prev, [activeTab]: true }));
@@ -122,6 +157,7 @@ export default function ProjectDetailPage({ params }: { params: Promise<{ id: st
     (createdItem?: any) => {
       loadProject(true);
       setRefreshKey((prev) => prev + 1);
+      window.dispatchEvent(new CustomEvent("tomadix:entities-updated", { detail: { projectId: resolvedParams.id } }));
       if (createdItem?.type === "CHARACTER") {
         setVisitedTabs((prev) => ({ ...prev, characters: true }));
         setActiveTab("characters");
@@ -136,7 +172,7 @@ export default function ProjectDetailPage({ params }: { params: Promise<{ id: st
         setActiveTab("prompts");
       }
     },
-    [loadProject]
+    [loadProject, resolvedParams.id]
   );
 
   useEffect(() => {
@@ -448,19 +484,117 @@ export default function ProjectDetailPage({ params }: { params: Promise<{ id: st
                 </div>
               </div>
             </div>
+
+            {/* Bíblia Visual & Direção de Arte Estética (GEN_VISUAL_BIBLE) */}
+            <div className="rounded-3xl border border-white/10 bg-white/[0.02] p-6 md:p-8">
+              <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-white/10 pb-5">
+                <div>
+                  <h3 className="text-base font-bold text-white flex items-center gap-2">
+                    <span className="text-primary">✨</span> Bíblia Visual & Direção de Arte Estética
+                  </h3>
+                  <p className="mt-1 text-xs text-white/50">
+                    Guia mestre de fotografia, paleta cromática, enquadramento e textura cinematográfica.
+                  </p>
+                </div>
+                <button
+                  onClick={() => setVbModalOpen(true)}
+                  className="flex items-center gap-2 rounded-xl border border-primary/30 bg-primary/10 px-4 py-2 text-xs font-semibold text-primary hover:bg-primary/20 transition shadow-sm self-start md:self-auto"
+                >
+                  <span>✨</span>
+                  {project.visualBible ? "Atualizar com IA" : "Gerar Bíblia Visual com IA"}
+                </button>
+              </div>
+
+              {project.visualBible ? (
+                <div className="mt-6 space-y-6">
+                  {/* Conceito de Direção de Arte */}
+                  <div className="rounded-2xl border border-white/5 bg-black/30 p-4">
+                    <span className="text-[10px] font-semibold uppercase tracking-wider text-primary">Conceito de Direção de Arte</span>
+                    <p className="mt-2 text-xs text-white/80 leading-relaxed">
+                      {project.visualBible.artDirectionConcept}
+                    </p>
+                  </div>
+
+                  <div className="grid gap-4 sm:grid-cols-3">
+                    {/* Paleta de Cores */}
+                    <div className="rounded-2xl border border-white/5 bg-black/30 p-4">
+                      <span className="text-[10px] font-semibold uppercase tracking-wider text-white/40">Paleta Cromática</span>
+                      <div className="mt-3 space-y-1.5 text-xs">
+                        <div className="text-white/80"><span className="text-white/40">Dominante:</span> {project.visualBible.colorPalette?.dominant}</div>
+                        <div className="text-white/80"><span className="text-white/40">Secundária:</span> {project.visualBible.colorPalette?.secondary}</div>
+                        <div className="text-white/80"><span className="text-white/40">Destaque:</span> {project.visualBible.colorPalette?.accent}</div>
+                        <p className="mt-2 text-[11px] text-white/50">{project.visualBible.colorPalette?.gradingNotes}</p>
+                      </div>
+                    </div>
+
+                    {/* Cinematografia & Lentes */}
+                    <div className="rounded-2xl border border-white/5 bg-black/30 p-4">
+                      <span className="text-[10px] font-semibold uppercase tracking-wider text-white/40">Câmeras & Lentes</span>
+                      <div className="mt-3 space-y-1.5 text-xs text-white/80">
+                        <div><span className="text-white/40">Lentes:</span> {project.visualBible.cinematography?.recommendedLenses}</div>
+                        <div><span className="text-white/40">Movimento:</span> {project.visualBible.cinematography?.cameraMovementStyle}</div>
+                        <div><span className="text-white/40">Textura:</span> {project.visualBible.cinematography?.grainAndTexture}</div>
+                      </div>
+                    </div>
+
+                    {/* Filosofia de Iluminação */}
+                    <div className="rounded-2xl border border-white/5 bg-black/30 p-4">
+                      <span className="text-[10px] font-semibold uppercase tracking-wider text-white/40">Iluminação & Contraste</span>
+                      <div className="mt-3 space-y-1.5 text-xs text-white/80">
+                        <div><span className="text-white/40">Ratio:</span> {project.visualBible.lightingPhilosophy?.contrastRatio}</div>
+                        <div><span className="text-white/40">Luz Principal:</span> {project.visualBible.lightingPhilosophy?.keyLightStyle}</div>
+                        <div><span className="text-white/40">Sombras:</span> {project.visualBible.lightingPhilosophy?.shadowTreatment}</div>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Diretrizes Visuais */}
+                  {project.visualBible.visualDirectives?.length > 0 && (
+                    <div className="rounded-2xl border border-white/5 bg-black/30 p-4">
+                      <span className="text-[10px] font-semibold uppercase tracking-wider text-white/40">Diretrizes Estéticas Oficiais</span>
+                      <ul className="mt-2 space-y-1 text-xs text-white/70 list-disc list-inside">
+                        {project.visualBible.visualDirectives.map((d: string, idx: number) => (
+                          <li key={idx}>{d}</li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
+                </div>
+              ) : (
+                <div className="mt-6 rounded-2xl border border-dashed border-white/10 bg-white/[0.01] p-8 text-center">
+                  <p className="text-xs text-white/50">
+                    Nenhuma Bíblia Visual compilada para este projeto ainda. Gere agora com a IA para direcionar o estilo cinematográfico de todas as gerações.
+                  </p>
+                </div>
+              )}
+            </div>
           </div>
         </div>
 
         {/* Conteúdo das Abas dos Módulos Internos com Cache em Memória */}
         {visitedTabs["characters"] && (
           <div className={activeTab === "characters" ? "block" : "hidden"}>
-            <CharactersTab key={`char-${refreshKey}`} projectId={project.id} onStatsUpdate={() => loadProject(true)} />
+            <CharactersTab
+              key={`char-${refreshKey}`}
+              projectId={project.id}
+              onStatsUpdate={() => {
+                loadProject(true);
+                window.dispatchEvent(new CustomEvent("tomadix:entities-updated", { detail: { projectId: project.id } }));
+              }}
+            />
           </div>
         )}
 
         {visitedTabs["environments"] && (
           <div className={activeTab === "environments" ? "block" : "hidden"}>
-            <EnvironmentsTab key={`env-${refreshKey}`} projectId={project.id} onStatsUpdate={() => loadProject(true)} />
+            <EnvironmentsTab
+              key={`env-${refreshKey}`}
+              projectId={project.id}
+              onStatsUpdate={() => {
+                loadProject(true);
+                window.dispatchEvent(new CustomEvent("tomadix:entities-updated", { detail: { projectId: project.id } }));
+              }}
+            />
           </div>
         )}
 
@@ -469,7 +603,10 @@ export default function ProjectDetailPage({ params }: { params: Promise<{ id: st
             <ScenesTab
               key={`scene-${refreshKey}`}
               projectId={project.id}
-              onStatsUpdate={() => loadProject(true)}
+              onStatsUpdate={() => {
+                loadProject(true);
+                window.dispatchEvent(new CustomEvent("tomadix:entities-updated", { detail: { projectId: project.id } }));
+              }}
               onOpenPromptEngine={() => setActiveTab("prompts")}
             />
           </div>
@@ -484,6 +621,87 @@ export default function ProjectDetailPage({ params }: { params: Promise<{ id: st
         {visitedTabs["prompts"] && (
           <div className={activeTab === "prompts" ? "block" : "hidden"}>
             <PromptsTab key={`prompt-${refreshKey}`} projectId={project.id} onStatsUpdate={() => loadProject(true)} />
+          </div>
+        )}
+
+        {/* MODAL: Geração de Bíblia Visual com IA (GEN_VISUAL_BIBLE) */}
+        {vbModalOpen && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4 backdrop-blur-sm">
+            <div className="relative w-full max-w-lg rounded-3xl border border-white/10 bg-[#0f1218] p-6 shadow-2xl">
+              <div className="flex items-center justify-between border-b border-white/10 pb-4">
+                <div>
+                  <h3 className="text-base font-bold text-white flex items-center gap-2">
+                    <span className="text-primary">✨</span> Compilar Bíblia Visual com IA
+                  </h3>
+                  <p className="mt-1 text-xs text-white/50">
+                    Defina diretrizes fotográficas e direção de arte para orientar todas as gerações.
+                  </p>
+                </div>
+                <button
+                  onClick={() => setVbModalOpen(false)}
+                  className="rounded-xl p-1.5 text-white/50 hover:bg-white/10 hover:text-white transition"
+                >
+                  ✕
+                </button>
+              </div>
+
+              <div className="mt-5 space-y-4">
+                <div>
+                  <label className="block text-xs font-medium text-white/70 mb-1.5">
+                    Referência Cinematográfica / Diretor de Fotografia (Opcional)
+                  </label>
+                  <input
+                    type="text"
+                    value={vbReference}
+                    onChange={(e) => setVbReference(e.target.value)}
+                    placeholder="Ex: Roger Deakins (Blade Runner 2049), Gordon Willis, Hoyte van Hoytema..."
+                    className="w-full rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-xs text-white placeholder-white/30 focus:border-primary focus:outline-none"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-xs font-medium text-white/70 mb-1.5">
+                    Diretivas Adicionais de Arte (Opcional)
+                  </label>
+                  <textarea
+                    value={vbDirectives}
+                    onChange={(e) => setVbDirectives(e.target.value)}
+                    placeholder="Ex: Paleta fria de azul e âmbar, luz difusa em névoa, granulação de filme 35mm marcante..."
+                    rows={3}
+                    className="w-full rounded-xl border border-white/10 bg-white/5 p-3 text-xs text-white placeholder-white/30 focus:border-primary focus:outline-none resize-none"
+                  />
+                </div>
+
+                {vbError && (
+                  <div className="rounded-xl border border-red-500/30 bg-red-500/10 p-3 text-xs text-red-300">
+                    {vbError}
+                  </div>
+                )}
+              </div>
+
+              <div className="mt-6 flex items-center justify-between border-t border-white/10 pt-4">
+                <span className="text-xs text-white/50 flex items-center gap-1.5">
+                  <span className="text-primary font-bold">🪙 GEN_VISUAL_BIBLE</span> • Tabela de créditos
+                </span>
+                <div className="flex gap-2">
+                  <button
+                    type="button"
+                    onClick={() => setVbModalOpen(false)}
+                    className="rounded-xl px-4 py-2 text-xs font-medium text-white/70 hover:bg-white/10 transition"
+                  >
+                    Cancelar
+                  </button>
+                  <button
+                    type="button"
+                    onClick={handleSubmitVisualBible}
+                    disabled={vbLoading}
+                    className="rounded-xl bg-primary px-4 py-2 text-xs font-semibold text-primary-foreground shadow-lg hover:opacity-90 disabled:opacity-50 transition"
+                  >
+                    {vbLoading ? "Compilando Bíblia..." : "Compilar com IA"}
+                  </button>
+                </div>
+              </div>
+            </div>
           </div>
         )}
 

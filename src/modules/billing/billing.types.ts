@@ -10,7 +10,9 @@ export interface PlanConfig {
   priceYearly: number;  // em centavos (ex: 89000 = R$ 890,00)
   currency: string;
   maxProjects: number;  // -1 para ilimitado
+  unlimitedProjects?: boolean;
   maxMembers: number;
+  unlimitedMembers?: boolean;
   monthlyCredits: number;
   features: string[];
   enabledTemplates: string[]; // ["*"] para todos

@@ -72,6 +72,7 @@ export function WorkspaceSelector() {
         const target = workspaces.find((w) => w.id === workspaceId);
         if (target) setActiveWorkspace(target);
         setIsOpen(false);
+        window.dispatchEvent(new CustomEvent("tomadix:workspace-switched", { detail: { workspaceId } }));
         router.refresh();
         window.location.reload();
       }
@@ -184,7 +185,7 @@ export function WorkspaceSelector() {
                 setIsOpen(false);
                 setShowCreateModal(true);
               }}
-              className="flex w-full items-center gap-2 rounded-xl px-3 py-2 text-xs font-semibold text-emerald-400 hover:bg-emerald-400/10 transition"
+              className="flex w-full items-center gap-2 rounded-xl px-3 py-2 text-xs font-semibold text-primary hover:bg-primary/10 transition"
             >
               <span>➕</span> Criar Novo Workspace
             </button>
@@ -236,7 +237,7 @@ export function WorkspaceSelector() {
                   placeholder="Ex: Solaris Filmes"
                   value={newWorkspaceName}
                   onChange={(e) => setNewWorkspaceName(e.target.value)}
-                  className="w-full rounded-xl border border-white/15 bg-white/5 px-3.5 py-2.5 text-xs text-white placeholder-white/30 focus:border-emerald-400 focus:outline-none"
+                  className="w-full rounded-xl border border-white/15 bg-white/5 px-3.5 py-2.5 text-xs text-white placeholder-white/30 focus:border-primary focus:outline-none"
                 />
               </div>
 
@@ -251,7 +252,7 @@ export function WorkspaceSelector() {
                 <button
                   type="submit"
                   disabled={loading || !newWorkspaceName.trim()}
-                  className="rounded-xl bg-emerald-400 px-4 py-2 text-xs font-bold text-black transition hover:bg-emerald-300 disabled:opacity-50"
+                  className="rounded-xl bg-primary px-4 py-2 text-xs font-bold text-primary-foreground transition hover:opacity-90 disabled:opacity-50"
                 >
                   {loading ? "Criando..." : "Criar Estúdio"}
                 </button>
