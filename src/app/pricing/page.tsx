@@ -20,6 +20,10 @@ interface PlanItem {
   maxMembers: number;
   unlimitedMembers?: boolean;
   monthlyCredits: number;
+  adhesionCredits?: number;
+  dailyCredits?: number;
+  dailyCreditsAccumulative?: boolean;
+  isFreePlan?: boolean;
   annualDiscountPercent?: number;
   features: string[];
   enabledTemplates: string[];
@@ -40,6 +44,8 @@ export default function PricingPage() {
   const router = useRouter();
   const [plans, setPlans] = useState<PlanItem[]>([]);
   const [currentSub, setCurrentSub] = useState<CurrentSubscription | null>(null);
+  const [simulations, setSimulations] = useState<Record<string, any>>({});
+  const [expandedCapacityTier, setExpandedCapacityTier] = useState<string | null>(null);
   const [interval, setInterval] = useState<"MONTHLY" | "YEARLY">("MONTHLY");
   const [loading, setLoading] = useState(true);
   const [checkoutLoading, setCheckoutLoading] = useState<string | null>(null);
@@ -48,14 +54,26 @@ export default function PricingPage() {
   useEffect(() => {
     async function loadData() {
       try {
-        const [plansRes, subRes] = await Promise.all([
+        const [plansRes, subRes, simRes] = await Promise.all([
           fetch("/api/billing/plans"),
           fetch("/api/billing/subscription"),
+          fetch("/api/billing/plans/usage-simulation"),
         ]);
 
         if (plansRes.ok) {
           const plansData = await plansRes.json();
           setPlans(plansData.data || []);
+        }
+
+        if (simRes.ok) {
+          const simData = await simRes.json();
+          if (Array.isArray(simData.data)) {
+            const map: Record<string, any> = {};
+            simData.data.forEach((s: any) => {
+              map[s.planTier] = s;
+            });
+            setSimulations(map);
+          }
         }
 
         if (subRes.ok) {
@@ -279,13 +297,81 @@ export default function PricingPage() {
                           {plan.unlimitedMembers || plan.maxMembers === -1 ? "Ilimitados" : plan.maxMembers}
                         </span>
                       </div>
+                      {(plan.adhesionCredits || 0) > 0 && (
+                        <div className="flex items-center justify-between">
+                          <span className="text-sky-300">Créditos de Adesão:</span>
+                          <span className="font-bold font-mono text-sky-300">
+                            +{plan.adhesionCredits} cr (única vez)
+                          </span>
+                        </div>
+                      )}
                       <div className="flex items-center justify-between">
-                        <span className="text-white/50">Créditos de IA / mês:</span>
-                        <span className="font-semibold text-emerald-400">
-                          {plan.monthlyCredits} créditos
+                        <span className="text-white/50">Créditos Mensais:</span>
+                        <span className="font-semibold text-white font-mono">
+                          +{plan.monthlyCredits} cr/mês
                         </span>
                       </div>
+                      {(plan.dailyCredits || 0) > 0 && (
+                        <div className="flex items-center justify-between">
+                          <span className="text-emerald-400">Cota Diária de Créditos:</span>
+                          <span className="font-semibold text-emerald-400 font-mono">
+                            +{plan.dailyCredits} cr/dia
+                            <span className="text-[10px] text-white/40 block text-right font-normal">
+                              {plan.dailyCreditsAccumulative ? "acumulativo" : "expira às 23:59"}
+                            </span>
+                          </span>
+                        </div>
+                      )}
                     </div>
+
+                    {/* Botão e Gaveta: O que você pode criar com este plano? */}
+                    {simulations[plan.tier]?.services && (
+                      <div className="mt-4 pt-3 border-t border-white/10">
+                        <button
+                          type="button"
+                          onClick={() =>
+                            setExpandedCapacityTier(
+                              expandedCapacityTier === plan.tier ? null : plan.tier
+                            )
+                          }
+                          className="w-full text-left flex items-center justify-between text-xs font-semibold text-amber-300 hover:text-amber-200 transition p-2 rounded-lg bg-amber-500/10 border border-amber-500/20"
+                        >
+                          <span className="flex items-center gap-1.5">
+                            <span>🎬</span>
+                            <span>O que posso criar com este plano?</span>
+                          </span>
+                          <span className="text-xs">
+                            {expandedCapacityTier === plan.tier ? "▲" : "▼"}
+                          </span>
+                        </button>
+
+                        {expandedCapacityTier === plan.tier && (
+                          <div className="mt-2.5 p-3 rounded-xl bg-black/40 border border-white/10 space-y-2 text-[11px]">
+                            <div className="text-white/50 text-[10px] pb-1 border-b border-white/5">
+                              Capacidade estimada com base nos custos reais vigentes:
+                            </div>
+                            <div className="space-y-1.5">
+                              {simulations[plan.tier].services.map((svc: any) => (
+                                <div
+                                  key={svc.operationCode}
+                                  className="flex items-center justify-between py-1 border-b border-white/5 last:border-b-0"
+                                >
+                                  <span className="text-white/80">{svc.operationName}</span>
+                                  <span className="font-mono font-bold text-amber-300">
+                                    {svc.isFree
+                                      ? "Ilimitado"
+                                      : `${svc.totalMonthlyEstimatedUses} gerações/mês`}
+                                  </span>
+                                </div>
+                              ))}
+                            </div>
+                            <div className="text-[9px] text-white/40 pt-1">
+                              * Estimativa considerando ciclo de 30 dias com cotas utilizadas.
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                    )}
 
                     {/* Features list */}
                     <ul className="mt-6 space-y-3 text-sm text-white/70">
@@ -376,10 +462,28 @@ export default function PricingPage() {
                   <td className="px-6 py-4 text-center font-bold text-emerald-400">Até 10 membros</td>
                 </tr>
                 <tr>
-                  <td className="px-6 py-4 font-medium text-white">Créditos de IA Mensais</td>
+                  <td className="px-6 py-4 font-medium text-white">Créditos de Adesão (Boas-vindas)</td>
+                  <td className="px-6 py-4 text-center text-white/40">0 cr</td>
+                  <td className="px-6 py-4 text-center text-sky-300 font-bold">100 cr</td>
+                  <td className="px-6 py-4 text-center font-bold text-sky-400">500 cr</td>
+                </tr>
+                <tr>
+                  <td className="px-6 py-4 font-medium text-white">Créditos de IA Mensais de Ciclo</td>
                   <td className="px-6 py-4 text-center">20 créditos</td>
                   <td className="px-6 py-4 text-center">500 créditos</td>
                   <td className="px-6 py-4 text-center font-bold text-emerald-400">2.500 créditos</td>
+                </tr>
+                <tr>
+                  <td className="px-6 py-4 font-medium text-white">Cota Diária de Créditos</td>
+                  <td className="px-6 py-4 text-center text-white/40">0 cr/dia</td>
+                  <td className="px-6 py-4 text-center text-emerald-400">10 cr/dia</td>
+                  <td className="px-6 py-4 text-center font-bold text-emerald-400">50 cr/dia</td>
+                </tr>
+                <tr>
+                  <td className="px-6 py-4 font-medium text-white">Acúmulo de Cota Diária</td>
+                  <td className="px-6 py-4 text-center text-white/40">—</td>
+                  <td className="px-6 py-4 text-center text-emerald-400">Acumulativo</td>
+                  <td className="px-6 py-4 text-center font-bold text-emerald-400">Acumulativo</td>
                 </tr>
                 <tr>
                   <td className="px-6 py-4 font-medium text-white">Templates Cinematográficos</td>

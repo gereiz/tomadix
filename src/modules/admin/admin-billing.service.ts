@@ -38,6 +38,10 @@ export interface PlanInput {
   maxScenes?: number | null;
   unlimitedScenes?: boolean;
   monthlyCredits: number;
+  adhesionCredits?: number;
+  dailyCredits?: number;
+  dailyCreditsAccumulative?: boolean;
+  isFreePlan?: boolean;
   maxConcurrentJobs?: number;
   rateLimitPerMin?: number;
   maxInputChars?: number;
@@ -110,6 +114,10 @@ export class AdminBillingService {
             maxMembers: defaultPlan.maxMembers,
             unlimitedMembers: defaultPlan.maxMembers >= 50,
             monthlyCredits: defaultPlan.monthlyCredits,
+            adhesionCredits: defaultPlan.adhesionCredits || 0,
+            dailyCredits: defaultPlan.dailyCredits || 0,
+            dailyCreditsAccumulative: defaultPlan.dailyCreditsAccumulative || false,
+            isFreePlan: defaultPlan.isFreePlan || defaultPlan.tier === PlanTier.FREE,
             features: defaultPlan.features,
             enabledTemplates: defaultPlan.enabledTemplates,
             exportAllowed: defaultPlan.exportAllowed,
@@ -247,7 +255,11 @@ export class AdminBillingService {
       unlimitedEnvironments: data.unlimitedEnvironments ?? true,
       maxScenes: data.maxScenes || null,
       unlimitedScenes: data.unlimitedScenes ?? true,
-      monthlyCredits: data.monthlyCredits,
+      monthlyCredits: Math.max(0, data.monthlyCredits ?? 0),
+      adhesionCredits: Math.max(0, data.adhesionCredits ?? existingPlan?.adhesionCredits ?? 0),
+      dailyCredits: Math.max(0, data.dailyCredits ?? existingPlan?.dailyCredits ?? 0),
+      dailyCreditsAccumulative: data.dailyCreditsAccumulative ?? existingPlan?.dailyCreditsAccumulative ?? false,
+      isFreePlan: data.isFreePlan ?? (data.priceMonthly === 0 && data.tier === PlanTier.FREE),
       maxConcurrentJobs: data.maxConcurrentJobs ?? 1,
       rateLimitPerMin: data.rateLimitPerMin ?? 30,
       maxInputChars: data.maxInputChars ?? 10000,
@@ -289,7 +301,11 @@ export class AdminBillingService {
         name: data.name,
         priceMonthly: data.priceMonthly,
         priceYearly: data.priceYearly,
-        monthlyCredits: data.monthlyCredits,
+        monthlyCredits: Math.max(0, data.monthlyCredits ?? 0),
+      adhesionCredits: Math.max(0, data.adhesionCredits ?? existingPlan?.adhesionCredits ?? 0),
+      dailyCredits: Math.max(0, data.dailyCredits ?? existingPlan?.dailyCredits ?? 0),
+      dailyCreditsAccumulative: data.dailyCreditsAccumulative ?? existingPlan?.dailyCreditsAccumulative ?? false,
+      isFreePlan: data.isFreePlan ?? (data.priceMonthly === 0 && data.tier === PlanTier.FREE),
         isTermsChanged: !!isTermsChanged,
         preserveExistingContracts: data.preserveExistingContracts !== false,
       },

@@ -1,6 +1,6 @@
-import { PlanTier, SubscriptionStatus, BillingInterval } from "@prisma/client";
+import { PlanTier, SubscriptionStatus, BillingInterval, CreditOrigin, CreditLotStatus } from "@prisma/client";
 
-export { PlanTier, SubscriptionStatus, BillingInterval };
+export { PlanTier, SubscriptionStatus, BillingInterval, CreditOrigin, CreditLotStatus };
 
 export interface PlanConfig {
   tier: PlanTier;
@@ -14,6 +14,10 @@ export interface PlanConfig {
   maxMembers: number;
   unlimitedMembers?: boolean;
   monthlyCredits: number;
+  adhesionCredits?: number;
+  dailyCredits?: number;
+  dailyCreditsAccumulative?: boolean;
+  isFreePlan?: boolean;
   features: string[];
   enabledTemplates: string[]; // ["*"] para todos
   exportAllowed: boolean;
@@ -35,6 +39,9 @@ export interface WorkspaceUsageSummary {
   maxMembers: number;
   creditsBalance: number;
   monthlyCredits: number;
+  adhesionCredits?: number;
+  dailyCredits?: number;
+  dailyCreditsAccumulative?: boolean;
   canCreateProject: boolean;
   canAddMember: boolean;
   features: string[];

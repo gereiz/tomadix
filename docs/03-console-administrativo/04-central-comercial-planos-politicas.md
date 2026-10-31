@@ -8,7 +8,15 @@ A **Central de Gestão Comercial** do painel administrativo (`/admin/billing`) p
 
 Diferente de implementações estáticas em código, os planos são persistidos no banco de dados com versionamento e controle de estado:
 - **`commercialStatus`**: `ACTIVE`, `DRAFT`, `ARCHIVED`. Planos em rascunho ou arquivados não aparecem no catálogo público e não aceitam novos checkouts.
-- **Preços em Centavos**: `priceMonthly` e `priceYearly` armazenados como números inteiros em centavos, prevenindo discrepâncias por ponto flutuante.
+- **Preços em Centavos**: `priceMonthly` e `priceYearly` armazenados como números inteiros em centavos, prevenindo discrepâncias por ponto flutuante. O preço mensal independe da quantidade de créditos concedidos.
+- **Estrutura e Concessão de Créditos**:
+  - `adhesionCredits`: Créditos de adesão (boas-vindas) creditados **uma única vez** no momento da primeira contratação ou upgrade para o plano.
+  - `monthlyCredits`: Créditos de ciclo renovados a cada período de faturamento mensal.
+  - `dailyCredits`: Cota de créditos concedida diariamente aos assinantes ativos.
+  - `dailyCreditsAccumulative`: Booleano que define se a cota diária acumula indefinidamente ou se expira no final do dia (23:59:59.999).
+  - `isFreePlan`: Identificador do plano gratuito padrão da plataforma.
+- **Simulação Dinâmica de Capacidade de Utilização ("O que você pode criar com este plano?")**:
+  - Exibição de tabela interativa no modal administrativo e na página pública de planos calculando a capacidade máxima por divisão inteira (`Math.floor(créditos / custo_unitário)`), consultando exclusivamente as regras oficiais de `CreditOperation` e `CreditPricingRule`.
 - **Limites e Cotas por Plano**:
   - `maxProjects`: Teto de projetos cinematográficos (-1 para ilimitado).
   - `maxMembers`: Teto de colaboradores no estúdio (-1 para ilimitado).
@@ -16,7 +24,6 @@ Diferente de implementações estáticas em código, os planos são persistidos 
   - `maxConcurrentJobs`: Número de gerações simultâneas de IA permitidas (ex: 1x, 3x, 5x).
   - `rateLimitPerMin`: Taxa máxima de requisições por minuto ao motor de IA.
   - `hasPremiumTemplates`: Liberação de templates avançados de direção de fotografia.
-  - `monthlyCredits`: Créditos de IA renovados a cada ciclo de faturamento.
 
 ---
 
@@ -63,23 +70,29 @@ A aba **"4. Limites, Recursos & Custos"** unifica:
 
 ---
 
-## 6. Alteração Efetiva de Plano pelo Detalhe do Usuário (`/admin/users/[id]`)
+## 7. Seção 12: Ordem Global de Consumo de Créditos (`CreditConsumptionOrderService`)
 
-Na tela de gerenciamento de usuário no Console Administrativo, foi disponibilizada a funcionalidade **"Alterar Plano Efetivo"**:
-- **Alteração Real da Assinatura**: Modifica o plano base (`Subscription.planTier`) do estúdio selecionado entre `FREE`, `STARTER`, `PRO` e `ENTERPRISE`.
-- **Limpeza de Snapshots Legados (*Grandfathered*)**: Ao alterar o plano de um workspace, o sistema limpa automaticamente qualquer contrato congelado anterior (`metadata.grandfatheredContract`), garantindo que quotas restritivas do plano antigo (ex: limite de 2 projetos do plano gratuito) não continuem bloqueando a conta após a migração para planos superiores como PRO ou ENTERPRISE.
-- **Ajuste Proporcional e Quotas Ilimitadas**: O `EntitlementService` reconhece planos com projetos ilimitados (`maxProjects: -1`), permitindo criação sem travas e removendo qualquer banner de limite atingido da interface de projetos.
-- **Governança de Criação de Workspaces por Usuário**:
-  - `FREE`: 1 estúdio ativo.
-  - `PRO`: até 3 estúdios ativos.
-  - `TEAM`: até 10 estúdios ativos.
-  - `ENTERPRISE`: estúdios ilimitados (`-1`).
-  - Ao criar novos estúdios via `POST /api/workspaces`, o estúdio provisionado herda o plano superior ativo do proprietário.
-- **Opção de Injeção Imediata de Saldo**: Permite adicionar imediatamente a diferença de créditos ao saldo do usuário (`Workspace.creditsBalance`), registrando formalmente no ledger financeiro.
-- **Auditoria Completa**: Toda troca gera registro formal de auditoria com justificativa administrativa e rastreabilidade do operador responsável.
-- `POST /api/admin/billing/plans/[tier]/archive`: Arquivamento controlado de plano comercial.
-- `POST /api/admin/billing/plans/[tier]/toggle`: Ativação ou desativação de plano.
-- `POST /api/admin/billing/plans/[tier]/duplicate`: Duplicação de plano existente em estado Rascunho.
-- `GET /api/admin/billing/policies`: Consulta de todas as políticas comerciais (requer `policies:manage`).
-- `PATCH /api/admin/billing/policies`: Atualização de política declarativa com justificativa auditável.
-- `GET /api/admin/billing/snapshots`: Histórico de snapshots contratuais vigentes (requer `audit:read`).
+A aba **"12. Ordem de Consumo"** permite que operadores configurem a ordem em que diferentes categorias de créditos são consumidas:
+- **Hierarquia de Prioridades**:
+  1. `DAILY_NON_ACCUMULATIVE`: Créditos diários que expiram no fim do dia (consumidos primeiro para evitar perdas do cliente).
+  2. `PROMOTIONAL`: Bônus promocionais com prazo determinado.
+  3. `DAILY_ACCUMULATIVE`: Cotas diárias acumulativas.
+  4. `MONTHLY_RENEWAL`: Créditos de renovação mensal do plano.
+  5. `ADHESION`: Créditos de boas-vindas concedidos na entrada.
+  6. `PURCHASED`: Pacotes avulsos comprados pelo usuário.
+  7. `ADMIN_OVERRIDE`: Cortesias e créditos manuais.
+  8. `REFUND`: Estornos concedidos.
+  9. `LEGACY`: Saldos migrados pré-existentes.
+- **Critério FEFO (First Expired, First Out)**: Dentro da mesma categoria, lotes com validade mais próxima de expirar são liquidados primeiro.
+- **Categorias Protegidas**: Opção de travar categorias para que não sejam debitadas automaticamente.
+- **Versionamento**: Toda alteração incrementa a versão da configuração com histórico de autoria.
+
+---
+
+## 8. Seção 13: Lotes & Conciliação Financeira (`CreditLotService`)
+
+A aba **"13. Lotes & Conciliação"** fornece visibilidade e integridade total:
+- **Listagem de Lotes**: Consulta de todos os lotes concedidos com saldo inicial, saldo disponível, saldo consumido, status e motivo.
+- **Diagnóstico em Tempo Real**: Compara o saldo em cache do workspace (`creditsBalance`) com o somatório dos lotes ativos e o saldo líquido do livro-razão (`CreditLedger`), alertando sobre discrepâncias.
+- **Migração de Legado**: Rotina de um clique que converte saldos pré-existentes sem lote em lotes `LEGACY` auditáveis com registro no ledger.
+- **Manutenção Diária**: Disparo manual ou automatizado via cron (`/api/cron/credits-maintenance`) que concede cotas diárias com chave de idempotência (`daily_${workspaceId}_${yyyy-mm-dd}`) e expira lotes vencidos.

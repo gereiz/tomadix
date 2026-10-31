@@ -6,6 +6,8 @@ import { GatewaysTab } from "./components/gateways-tab";
 import { WebhooksTab } from "./components/webhooks-tab";
 import { SubscriptionsTab } from "./components/subscriptions-tab";
 import { CreditPricingTab } from "./components/credit-pricing-tab";
+import { ConsumptionOrderTab } from "./components/consumption-order-tab";
+import { CreditLotsTab } from "./components/credit-lots-tab";
 
 type SectionTab =
   | "overview"
@@ -18,7 +20,9 @@ type SectionTab =
   | "general_settings"
   | "history"
   | "gateways"
-  | "webhooks";
+  | "webhooks"
+  | "consumption_order"
+  | "credit_lots";
 
 export default function AdminBillingPage() {
   const [activeTab, setActiveTab] = useState<SectionTab>("overview");
@@ -39,6 +43,54 @@ export default function AdminBillingPage() {
   const [policyEditModal, setPolicyEditModal] = useState<{ key: string; label: string; value: any; dataType: string; justification: string } | null>(null);
 
   const [notification, setNotification] = useState<{ type: "success" | "error"; message: string } | null>(null);
+
+  // Simulação de Capacidade de Utilização do Plano
+  const [planSimulation, setPlanSimulation] = useState<any>(null);
+  const [loadingSimulation, setLoadingSimulation] = useState(false);
+
+  useEffect(() => {
+    if (!editingPlan) {
+      setPlanSimulation(null);
+      return;
+    }
+
+    const timer = setTimeout(async () => {
+      setLoadingSimulation(true);
+      try {
+        const res = await fetch("/api/billing/plans/usage-simulation", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            tier: editingPlan.tier,
+            name: editingPlan.name,
+            priceMonthly: editingPlan.priceMonthly,
+            isFreePlan: editingPlan.isFreePlan,
+            adhesionCredits: editingPlan.adhesionCredits || 0,
+            monthlyCredits: editingPlan.monthlyCredits || 0,
+            dailyCredits: editingPlan.dailyCredits || 0,
+            dailyCreditsAccumulative: editingPlan.dailyCreditsAccumulative,
+          }),
+        });
+        if (res.ok) {
+          const d = await res.json();
+          setPlanSimulation(d.simulation || null);
+        }
+      } catch (e) {
+        console.error("Erro ao simular capacidade do plano:", e);
+      } finally {
+        setLoadingSimulation(false);
+      }
+    }, 250);
+
+    return () => clearTimeout(timer);
+  }, [
+    editingPlan?.tier,
+    editingPlan?.adhesionCredits,
+    editingPlan?.monthlyCredits,
+    editingPlan?.dailyCredits,
+    editingPlan?.dailyCreditsAccumulative,
+    editingPlan?.isFreePlan,
+  ]);
 
   // Carregamento inicial
   const loadData = async () => {
@@ -272,6 +324,8 @@ export default function AdminBillingPage() {
           { id: "history", label: "9. Auditoria & Snapshots", icon: "🛡️" },
           { id: "gateways", label: "10. Gateways de Pagamento", icon: "🌐" },
           { id: "webhooks", label: "11. Webhooks & Eventos", icon: "📡" },
+          { id: "consumption_order", label: "12. Ordem de Consumo", icon: "⚡" },
+          { id: "credit_lots", label: "13. Lotes & Conciliação", icon: "📦" },
         ].map((tab) => (
           <button
             key={tab.id}
@@ -418,8 +472,21 @@ export default function AdminBillingPage() {
 
                   <div className="mt-4 space-y-1.5 text-xs text-white/70">
                     <div className="flex justify-between">
-                      <span className="text-white/40">Créditos / mês:</span>
-                      <strong className="text-white font-mono">{p.monthlyCredits}</strong>
+                      <span className="text-white/40">Créditos de Adesão:</span>
+                      <strong className="text-sky-300 font-mono">+{p.adhesionCredits || 0} cr</strong>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-white/40">Créditos Mensais:</span>
+                      <strong className="text-white font-mono">+{p.monthlyCredits || 0} cr/mês</strong>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-white/40">Cota Diária:</span>
+                      <strong className="text-emerald-400 font-mono">
+                        +{p.dailyCredits || 0} cr/dia
+                        <span className="text-[10px] text-white/40 font-normal ml-1">
+                          ({p.dailyCreditsAccumulative ? "acumulativo" : "não-acum."})
+                        </span>
+                      </strong>
                     </div>
                     <div className="flex justify-between">
                       <span className="text-white/40">Projetos:</span>
@@ -865,14 +932,24 @@ export default function AdminBillingPage() {
         <WebhooksTab onNotify={(type, msg) => setNotification({ type, message: msg })} />
       )}
 
+      {/* SEÇÃO 12: ORDEM GLOBAL DE CONSUMO DE CRÉDITOS */}
+      {activeTab === "consumption_order" && (
+        <ConsumptionOrderTab />
+      )}
+
+      {/* SEÇÃO 13: ARQUITETURA DE LOTES & CONCILIAÇÃO FINANCEIRA */}
+      {activeTab === "credit_lots" && (
+        <CreditLotsTab />
+      )}
+
       {/* MODAL 1: EDITAR / CONFIGURAR PLANO COMPLETO */}
       {editingPlan && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4 backdrop-blur-sm overflow-y-auto">
-          <div className="max-w-2xl w-full rounded-2xl border border-white/10 bg-[#0d111c] p-6 space-y-5 my-8">
+          <div className="max-w-4xl w-full rounded-2xl border border-white/10 bg-[#0d111c] p-6 space-y-5 my-8">
             <div className="flex items-center justify-between border-b border-white/10 pb-4">
               <div>
                 <h3 className="text-base font-bold text-white">Configurar Plano Comercial ({editingPlan.tier})</h3>
-                <p className="text-xs text-white/50">Edição de identificação, precificação em centavos e limites de uso.</p>
+                <p className="text-xs text-white/50">Edição de identificação, precificação em centavos, concessões de créditos e limites de uso.</p>
               </div>
               <button onClick={() => setEditingPlan(null)} className="text-white/40 hover:text-white">
                 ✕
@@ -914,10 +991,10 @@ export default function AdminBillingPage() {
                 />
               </div>
 
-              {/* Preços */}
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 p-4 rounded-xl border border-white/5 bg-white/[0.02]">
+              {/* Preços e Valores Fixos */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 p-4 rounded-xl border border-white/5 bg-white/[0.02]">
                 <div>
-                  <label className="text-white/60 block mb-1">Preço Mensal (Centavos)</label>
+                  <label className="text-white/60 block mb-1">Preço Mensal Fixo (Centavos)</label>
                   <input
                     type="number"
                     min="0"
@@ -927,7 +1004,7 @@ export default function AdminBillingPage() {
                     className="w-full rounded-xl border border-white/10 bg-white/5 p-2.5 text-white font-mono"
                   />
                   <span className="text-[10px] text-white/40 mt-1 block">
-                    Equivalente: {formatBrl(editingPlan.priceMonthly)}
+                    Equivalente: {formatBrl(editingPlan.priceMonthly)} / mês
                   </span>
                 </div>
                 <div>
@@ -941,20 +1018,147 @@ export default function AdminBillingPage() {
                     className="w-full rounded-xl border border-white/10 bg-white/5 p-2.5 text-white font-mono"
                   />
                   <span className="text-[10px] text-white/40 mt-1 block">
-                    Equivalente: {formatBrl(editingPlan.priceYearly)}
+                    Equivalente: {formatBrl(editingPlan.priceYearly)} / ano
                   </span>
                 </div>
-                <div>
-                  <label className="text-white/60 block mb-1">Créditos de IA / Mês</label>
-                  <input
-                    type="number"
-                    min="0"
-                    required
-                    value={editingPlan.monthlyCredits}
-                    onChange={(e) => setEditingPlan({ ...editingPlan, monthlyCredits: parseInt(e.target.value || "0") })}
-                    className="w-full rounded-xl border border-white/10 bg-white/5 p-2.5 text-white font-mono"
-                  />
+              </div>
+
+              {/* Estrutura de Concessão de Créditos de IA */}
+              <div className="rounded-xl border border-amber-500/20 bg-amber-500/[0.03] p-4 space-y-4">
+                <div className="flex items-center justify-between">
+                  <h4 className="text-xs font-bold text-amber-300 uppercase tracking-wider flex items-center gap-1.5">
+                    <span>🪙</span> Estrutura de Concessão de Créditos
+                  </h4>
+                  <label className="flex items-center gap-2 cursor-pointer text-xs text-white/70">
+                    <input
+                      type="checkbox"
+                      checked={editingPlan.isFreePlan ?? false}
+                      onChange={(e) => setEditingPlan({ ...editingPlan, isFreePlan: e.target.checked })}
+                    />
+                    <span>Identificar como Plano Gratuito (Free)</span>
+                  </label>
                 </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                  <div>
+                    <label className="text-white/60 block mb-1">Créditos de Adesão (Boas-vindas)</label>
+                    <input
+                      type="number"
+                      min="0"
+                      value={editingPlan.adhesionCredits || 0}
+                      onChange={(e) => setEditingPlan({ ...editingPlan, adhesionCredits: parseInt(e.target.value || "0") })}
+                      className="w-full rounded-xl border border-white/10 bg-white/5 p-2.5 text-sky-300 font-mono font-bold"
+                    />
+                    <span className="text-[10px] text-white/40 mt-1 block">
+                      Concedidos uma única vez na entrada no plano.
+                    </span>
+                  </div>
+
+                  <div>
+                    <label className="text-white/60 block mb-1">Créditos Mensais de Ciclo</label>
+                    <input
+                      type="number"
+                      min="0"
+                      required
+                      value={editingPlan.monthlyCredits}
+                      onChange={(e) => setEditingPlan({ ...editingPlan, monthlyCredits: parseInt(e.target.value || "0") })}
+                      className="w-full rounded-xl border border-white/10 bg-white/5 p-2.5 text-white font-mono font-bold"
+                    />
+                    <span className="text-[10px] text-white/40 mt-1 block">
+                      Recorrentes a cada renovação mensal da assinatura.
+                    </span>
+                  </div>
+
+                  <div>
+                    <div className="flex justify-between items-center mb-1">
+                      <label className="text-white/60">Cota Diária de Créditos</label>
+                      <label className="text-[10px] text-emerald-400 flex items-center gap-1 cursor-pointer">
+                        <input
+                          type="checkbox"
+                          checked={editingPlan.dailyCreditsAccumulative ?? true}
+                          onChange={(e) => setEditingPlan({ ...editingPlan, dailyCreditsAccumulative: e.target.checked })}
+                        />
+                        Acumulativo
+                      </label>
+                    </div>
+                    <input
+                      type="number"
+                      min="0"
+                      value={editingPlan.dailyCredits || 0}
+                      onChange={(e) => setEditingPlan({ ...editingPlan, dailyCredits: parseInt(e.target.value || "0") })}
+                      className="w-full rounded-xl border border-white/10 bg-white/5 p-2.5 text-emerald-300 font-mono font-bold"
+                    />
+                    <span className="text-[10px] text-white/40 mt-1 block">
+                      {editingPlan.dailyCreditsAccumulative
+                        ? "Acumulam sem expirar no final do dia."
+                        : "Expiram às 23:59 se não forem utilizados."}
+                    </span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Prévia da Capacidade de Utilização ("O que você pode criar com este plano?") */}
+              <div className="rounded-xl border border-white/10 bg-white/[0.02] p-4 space-y-3">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <h4 className="text-xs font-bold text-white flex items-center gap-1.5">
+                      <span>🎬</span> Capacidade de Utilização ("O que você pode criar com este plano?")
+                    </h4>
+                    <p className="text-[11px] text-white/40">
+                      Calculada por divisão inteira com base nos custos reais vigentes das funcionalidades no sistema.
+                    </p>
+                  </div>
+                  {loadingSimulation && (
+                    <span className="text-[10px] font-mono text-amber-400 animate-pulse">Recalculando...</span>
+                  )}
+                </div>
+
+                {planSimulation?.services ? (
+                  <div className="overflow-x-auto max-h-52 overflow-y-auto rounded-lg border border-white/5">
+                    <table className="w-full text-left text-xs">
+                      <thead className="bg-white/5 border-b border-white/10 text-white/50 sticky top-0 backdrop-blur-md">
+                        <tr>
+                          <th className="p-2.5">Funcionalidade</th>
+                          <th className="p-2.5 text-center">Custo Unitário</th>
+                          <th className="p-2.5 text-center text-sky-300">Com Adesão</th>
+                          <th className="p-2.5 text-center text-white">Por Mês</th>
+                          <th className="p-2.5 text-center text-emerald-300">Por Dia</th>
+                          <th className="p-2.5 text-center text-amber-300">Total Ciclo (30d)</th>
+                        </tr>
+                      </thead>
+                      <tbody className="divide-y divide-white/5 text-white/80">
+                        {planSimulation.services.map((svc: any) => (
+                          <tr key={svc.operationCode} className="hover:bg-white/[0.02]">
+                            <td className="p-2.5 font-medium text-white">{svc.operationName}</td>
+                            <td className="p-2.5 text-center font-mono">
+                              {svc.isFree ? (
+                                <span className="text-emerald-400 font-bold">Grátis</span>
+                              ) : (
+                                `${svc.costInCredits} cr`
+                              )}
+                            </td>
+                            <td className="p-2.5 text-center font-mono text-sky-300">
+                              {svc.isFree ? "Ilimitado" : `${svc.adhesionPossibleUses} un`}
+                            </td>
+                            <td className="p-2.5 text-center font-mono text-white">
+                              {svc.isFree ? "Ilimitado" : `${svc.monthlyPossibleUses} un`}
+                            </td>
+                            <td className="p-2.5 text-center font-mono text-emerald-400">
+                              {svc.isFree ? "Ilimitado" : `${svc.dailyPossibleUses} un`}
+                            </td>
+                            <td className="p-2.5 text-center font-mono font-bold text-amber-300">
+                              {svc.isFree ? "Ilimitado" : `${svc.totalMonthlyEstimatedUses} un`}
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                ) : (
+                  <div className="p-4 text-center text-white/40 text-[11px]">
+                    Carregando simulação de capacidade...
+                  </div>
+                )}
               </div>
 
               {/* Limites de Entidades */}

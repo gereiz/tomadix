@@ -79,6 +79,24 @@ enum PlatformRole {
   SUPER_ADMIN
 }
 
+enum CreditOrigin {
+  ADHESION
+  MONTHLY_RENEWAL
+  DAILY_RENEWAL
+  PROMOTIONAL
+  PURCHASED
+  ADMIN_OVERRIDE
+  REFUND
+  LEGACY
+}
+
+enum CreditLotStatus {
+  ACTIVE
+  EXHAUSTED
+  EXPIRED
+  CANCELLED
+}
+
 model User {
   id                          String             @id @default(cuid())
   authSubject                 String             @unique
@@ -105,6 +123,7 @@ model User {
   consents                    ConsentRecord[]
   dataSubjectRequests         DataSubjectRequest[]
   entitlementOverrides        UserEntitlementOverride[]
+  creditLots                  CreditLot[]
   createdAt                   DateTime             @default(now())
   updatedAt                   DateTime             @updatedAt
 
@@ -205,6 +224,7 @@ model Workspace {
   subscription                Subscription?
   invoices                    Invoice[]
   creditLedgers               CreditLedger[]
+  creditLots                  CreditLot[]
   entitlementOverrides        UserEntitlementOverride[]
   transfersFrom               ProjectOwnershipTransfer[] @relation("TransfersFrom")
   transfersTo                 ProjectOwnershipTransfer[] @relation("TransfersTo")
@@ -248,6 +268,10 @@ model Plan {
   maxScenes             Int?
   unlimitedScenes       Boolean        @default(true)
   monthlyCredits        Int            @default(20)
+  adhesionCredits       Int            @default(0)
+  dailyCredits          Int            @default(0)
+  dailyCreditsAccumulative Boolean     @default(false)
+  isFreePlan            Boolean        @default(false)
   maxConcurrentJobs     Int            @default(1)
   rateLimitPerMin       Int            @default(30)
   maxInputChars         Int            @default(10000)
@@ -320,16 +344,66 @@ model Invoice {
 }
 
 model CreditLedger {
-  id           String    @id @default(cuid())
-  workspaceId  String
-  amount       Int
-  balanceAfter Int
-  reason       String
-  metadata     Json?
-  createdAt    DateTime  @default(now())
-  workspace    Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  id             String        @id @default(cuid())
+  workspaceId    String
+  amount         Int
+  balanceAfter   Int
+  reason         String
+  lotId          String?
+  origin         CreditOrigin?
+  operationCode  String?
+  idempotencyKey String?
+  userId         String?
+  metadata       Json?
+  createdAt      DateTime      @default(now())
+  workspace      Workspace     @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  lot            CreditLot?    @relation(fields: [lotId], references: [id], onDelete: SetNull)
 
   @@index([workspaceId, createdAt])
+  @@index([lotId])
+  @@index([idempotencyKey])
+}
+
+model CreditLot {
+  id              String          @id @default(cuid())
+  workspaceId     String
+  userId          String?
+  origin          CreditOrigin
+  amountGranted   Int
+  amountAvailable Int
+  amountConsumed  Int             @default(0)
+  status          CreditLotStatus @default(ACTIVE)
+  isAccumulative  Boolean         @default(true)
+  validFrom       DateTime        @default(now())
+  expiresAt       DateTime?
+  planTier        PlanTier?
+  subscriptionId  String?
+  eventId         String?
+  reason          String?
+  metadata        Json?
+  createdAt       DateTime        @default(now())
+  updatedAt       DateTime        @updatedAt
+
+  workspace       Workspace       @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  user            User?           @relation(fields: [userId], references: [id], onDelete: SetNull)
+  creditLedgers   CreditLedger[]
+
+  @@index([workspaceId, status, expiresAt])
+  @@index([workspaceId, origin])
+  @@index([eventId])
+}
+
+model CreditConsumptionConfig {
+  id                  String   @id @default(cuid())
+  version             Int      @default(1)
+  categoryPriorities  Json     // Array ordenado: ["DAILY_NON_ACCUMULATIVE", "PROMOTIONAL", "DAILY_ACCUMULATIVE", "MONTHLY_RENEWAL", "ADHESION", "PURCHASED", "ADMIN_OVERRIDE", "REFUND", "LEGACY"]
+  protectedCategories Json     @default("[]") // Categorias protegidas contra consumo automático
+  description         String?
+  updatedByUserId     String?
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
+
+  @@index([version])
 }
 
 model ProcessedWebhookEvent {
