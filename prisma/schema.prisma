@@ -125,6 +125,7 @@ model User {
   entitlementOverrides        UserEntitlementOverride[]
   creditLots                  CreditLot[]
   geminiApiKeys               GeminiApiKey[]       @relation("CreatedGeminiKeys")
+  generatedImages             GeneratedImage[]
   createdAt                   DateTime             @default(now())
   updatedAt                   DateTime             @updatedAt
 
@@ -227,6 +228,7 @@ model Workspace {
   creditLedgers               CreditLedger[]
   creditLots                  CreditLot[]
   entitlementOverrides        UserEntitlementOverride[]
+  generatedImages             GeneratedImage[]
   transfersFrom               ProjectOwnershipTransfer[] @relation("TransfersFrom")
   transfersTo                 ProjectOwnershipTransfer[] @relation("TransfersTo")
   createdAt                   DateTime          @default(now())
@@ -287,6 +289,15 @@ model Plan {
   enabledTemplates      Json           @default("[]")
   exportAllowed         Boolean        @default(true)
   visualBibleAdvanced   Boolean        @default(false)
+  hasImageGeneration        Boolean        @default(false)
+  imageDailyLimit           Int?
+  imageMonthlyLimit         Int?
+  imageTotalLimit           Int?
+  imageDefaultCost          Int            @default(10)
+  imageAllowedModels        Json           @default("[]")
+  imageMaxBatchSize         Int            @default(1)
+  imageAllowedResolutions   Json           @default("[\"1024x1024\", \"1280x720\", \"720x1280\"]")
+  imageAllowReferenceImages Boolean        @default(false)
   customRules           Json?          @default("{}")
   gatewayProductId      String?
   gatewayPriceIdMonthly String?
@@ -467,6 +478,7 @@ model Project {
   scenes          Scene[]
   generations     GenerationJob[]
   transfers       ProjectOwnershipTransfer[]
+  generatedImages GeneratedImage[]
   createdAt       DateTime      @default(now())
   updatedAt       DateTime      @updatedAt
 
@@ -527,6 +539,7 @@ model Character {
   archivedAt  DateTime?
   project     Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
   sceneLinks  SceneCharacter[]
+  generatedImages GeneratedImage[]
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 
@@ -545,6 +558,7 @@ model Environment {
   archivedAt  DateTime?
   project     Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
   sceneLinks  SceneEnvironment[]
+  generatedImages GeneratedImage[]
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 
@@ -565,6 +579,7 @@ model Scene {
   characters      SceneCharacter[]
   environments    SceneEnvironment[]
   promptVersions  PromptVersion[]
+  generatedImages GeneratedImage[]
   createdAt       DateTime           @default(now())
   updatedAt       DateTime           @updatedAt
 
@@ -624,6 +639,7 @@ model PromptVersion {
   outputText           String?
   createdAt            DateTime @default(now())
   scene                Scene?  @relation(fields: [sceneId], references: [id], onDelete: SetNull)
+  generatedImages      GeneratedImage[]
 
   @@index([projectId, createdAt(sort: Desc)])
   @@index([sceneId, createdAt])
@@ -963,5 +979,148 @@ model GeminiOperationAttempt {
   createdAt      DateTime           @default(now())
 
   @@index([logId, attemptNumber])
+}
+
+// ----------------------------------------------------
+// ARQUITETURA DE PROVEDORES DE GERAÇÃO DE IMAGENS IA
+// ----------------------------------------------------
+
+enum ImageProviderStatus {
+  CONNECTED
+  UNCONFIGURED
+  INVALID_KEY
+  INSUFFICIENT_BALANCE
+  ERROR
+  UNREACHABLE
+}
+
+model ImageProviderConfig {
+  id               String              @id @default(cuid())
+  providerId       String              @unique // ex: "pollinations"
+  name             String              // ex: "Pollinations.ai"
+  apiKey           String              // Persistida exclusivamente com segurança no backend
+  maskedKey        String              // Versão mascarada para exibição no console admin (ex: sk_live...8831)
+  baseUrl          String              @default("https://gen.pollinations.ai")
+  isActive         Boolean             @default(true)
+  defaultModel     String?             // ex: "flux"
+  connectionStatus ImageProviderStatus @default(UNCONFIGURED)
+  lastTestedAt     DateTime?
+  lastTestMessage  String?
+  lastUsedAt       DateTime?
+  
+  requestsCount    Int                 @default(0)
+  successCount     Int                 @default(0)
+  failuresCount    Int                 @default(0)
+  
+  customConfig     Json?               @default("{}")
+  createdAt        DateTime            @default(now())
+  updatedAt        DateTime            @updatedAt
+
+  models           ImageModelConfig[]
+  operationLogs    ImageOperationLog[]
+
+  @@index([providerId, isActive])
+}
+
+model ImageModelConfig {
+  id                     String              @id @default(cuid())
+  providerConfigId       String
+  modelId                String              // ex: "flux", "turbo", "flux-realism"
+  name                   String
+  publisher              String?
+  description            String?
+  capabilities           Json                @default("[\"TEXT_TO_IMAGE\"]")
+  supportedSizes         Json                @default("[\"1024x1024\", \"1280x720\", \"720x1280\"]")
+  supportsReferenceImage Boolean             @default(false)
+  supportsImageEditing   Boolean             @default(false)
+  pricingInfo            Json?               @default("{}")
+  
+  isAvailable            Boolean             @default(true) // Retornado no catálogo da API
+  isEnabled              Boolean             @default(true) // Habilitado pelo admin
+  isDefault              Boolean             @default(false)
+  defaultCreditCost      Int?                // Custo customizado em créditos do Tomadix
+  displayOrder           Int                 @default(0)
+  lastSyncedAt           DateTime            @default(now())
+  createdAt              DateTime            @default(now())
+  updatedAt              DateTime            @updatedAt
+
+  providerConfig         ImageProviderConfig @relation(fields: [providerConfigId], references: [id], onDelete: Cascade)
+
+  @@unique([providerConfigId, modelId])
+  @@index([providerConfigId, isEnabled, isAvailable])
+}
+
+model GeneratedImage {
+  id               String          @id @default(cuid())
+  userId           String
+  workspaceId      String
+  projectId        String?
+  characterId      String?
+  environmentId    String?
+  sceneId          String?
+  promptVersionId  String?
+  
+  providerId       String          // ex: "pollinations"
+  modelId          String          // ex: "flux"
+  prompt           String          // Prompt textual enviado para geração
+  revisedPrompt    String?         // Prompt revisado/retornado pela IA caso disponível
+  negativePrompt   String?
+  parameters       Json            @default("{}")
+  aspectRatio      String?         // "1:1", "16:9", "9:16", "21:9", etc.
+  resolution       String?         // "1024x1024", "1280x720", etc.
+  
+  imageUrl         String          // URL acessível ou caminho servível para a imagem gerada
+  storageKey       String?         // Chave interna / caminho relativo de persistência
+  creditCost       Int             @default(0)
+  externalCost     Float?          // Custo externo do provedor (se disponibilizado)
+  externalCostUnit String?         // ex: "pollen", "USD"
+  
+  status           String          @default("SUCCEEDED") // "PENDING", "PROCESSING", "SUCCEEDED", "FAILED"
+  errorMessage     String?
+  generationTimeMs Int             @default(0)
+  metadata         Json?           @default("{}")
+  
+  createdAt        DateTime        @default(now())
+  updatedAt        DateTime        @updatedAt
+
+  user             User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+  workspace        Workspace       @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  project          Project?        @relation(fields: [projectId], references: [id], onDelete: SetNull)
+  character        Character?      @relation(fields: [characterId], references: [id], onDelete: SetNull)
+  environment      Environment?    @relation(fields: [environmentId], references: [id], onDelete: SetNull)
+  scene            Scene?          @relation(fields: [sceneId], references: [id], onDelete: SetNull)
+  promptVersion    PromptVersion?  @relation(fields: [promptVersionId], references: [id], onDelete: SetNull)
+
+  @@index([workspaceId, createdAt(sort: Desc)])
+  @@index([userId, createdAt(sort: Desc)])
+  @@index([projectId, createdAt(sort: Desc)])
+  @@index([status, createdAt(sort: Desc)])
+}
+
+model ImageOperationLog {
+  id               String               @id @default(cuid())
+  operationId      String               @unique // UUID para idempotência e auditoria
+  providerId       String
+  modelId          String
+  workspaceId      String?
+  userId           String?
+  projectId        String?
+  
+  success          Boolean              @default(false)
+  statusCode       Int?
+  errorCode        String?
+  errorMessage     String?
+  durationMs       Int                  @default(0)
+  externalCost     Float?
+  externalCostUnit String?
+  creditCost       Int                  @default(0)
+  requestPayload   Json?                // Sanitizado sem chaves
+  
+  createdAt        DateTime             @default(now())
+
+  providerConfig   ImageProviderConfig? @relation(fields: [providerId], references: [providerId], onDelete: SetNull)
+
+  @@index([providerId, createdAt(sort: Desc)])
+  @@index([workspaceId, createdAt(sort: Desc)])
 }
 

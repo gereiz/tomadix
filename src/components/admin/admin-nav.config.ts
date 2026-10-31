@@ -35,6 +35,7 @@ export const ADMIN_NAV_GROUPS: NavGroup[] = [
       { href: "/admin/settings", label: "Configurações Gerais", icon: "🛠️" },
       { href: "/admin/settings/database", label: "Banco de Dados", icon: "🗄️" },
       { href: "/admin/settings/gemini", label: "APIs Gemini (Multi-Key)", icon: "✨" },
+      { href: "/admin/settings/image-providers", label: "APIs de Imagem (IA)", icon: "🎨" },
     ],
   },
   {

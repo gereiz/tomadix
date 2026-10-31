@@ -39,7 +39,8 @@ docs/
 | [**05-parametros-dinamicos.md**](./02-modulos-plataforma/02-parametros-dinamicos.md) | Tipos de parâmetros técnicos, escopos hierárquicos e motor de resolução. |
 | [**06-motor-prompts-ia-gemini.md**](./02-modulos-plataforma/05-motor-prompts-ia-gemini.md) | Templates determinísticos, SDK Google Gen AI, cobrança e estorno de créditos. |
 | [**07-onboarding-dashboard-saas.md**](./02-modulos-plataforma/07-onboarding-dashboard-saas.md) | Fluxo de onboarding, dashboard em tempo real, perfil e controle de sessões. |
-| [**08-estudio-e-analise-cinematografica.md**](./02-modulos-plataforma/08-estudio-e-analise-cinematografica.md) ⭐ **Novo** | Análise multimodal com upload múltiplo de imagens, definição de imagem Principal e atributos secundários, histórico com cards dinâmicos e pré-seleção de projetos. |
+| [**08-estudio-e-analise-cinematografica.md**](./02-modulos-plataforma/08-estudio-e-analise-cinematografica.md) | Análise multimodal com upload múltiplo de imagens, definição de imagem Principal e atributos secundários, histórico com cards dinâmicos e pré-seleção de projetos. |
+| [**09-geracao-direta-imagens-ia.md**](./02-modulos-plataforma/09-geracao-direta-imagens-ia.md) ⭐ **Novo** | Geração direta de imagens com IA (Pollinations.ai / Flux), alternância entre modalidades (Prompt vs Imagem), ação "Gerar imagem com este prompt", lightbox e galeria de assets. |
 
 ### Detalhes Técnicos de Implementação (`detalhes-tecnicos/`)
 - [auth-security.md](./02-modulos-plataforma/detalhes-tecnicos/auth-security.md): Mecanismos internos de criptografia e auditoria de autenticação.
@@ -67,6 +68,7 @@ docs/
 | [**09-configuracoes-gerais-e-limpeza-de-testes.md**](./03-console-administrativo/09-configuracoes-gerais-e-limpeza-de-testes.md) ⭐ **Novo** | Modo de manutenção, comunicados, feature flags globais e ferramenta de auditoria e limpeza cirúrgica de dados de teste de desenvolvimento. |
 | [**10-gestao-de-bancos-de-dados-e-setup.md**](./03-console-administrativo/10-gestao-de-bancos-de-dados-e-setup.md) ⭐ **Novo** | Teste de conexão ativa em tempo real (latência, versão PostgreSQL, contagem de tabelas), troca segura de banco (PostgreSQL/Supabase) com backup do `.env` e assistente guiado de inicialização (Setup Wizard com 35 tabelas, admin inicial e projeto tutorial). |
 | [**11-manual-do-administrador.md**](./03-console-administrativo/11-manual-do-administrador.md) | Manual prático de operação e FAQ para administradores e operadores da plataforma. |
+| [**12-integracoes-apis-imagem-pollinations.md**](./03-console-administrativo/12-integracoes-apis-imagem-pollinations.md) ⭐ **Novo** | Gestão de APIs de geração de imagens, provedor Pollinations.ai, credenciais seguras mascaradas, catálogo dinâmico de modelos, teste de conexão em tempo real e limites por plano. |
 
 ---
 

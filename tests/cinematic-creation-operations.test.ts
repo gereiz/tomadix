@@ -123,6 +123,10 @@ describe("Cinematic Creation Operations & AI Schemas", () => {
 
       vi.spyOn(EntitlementService, "assertCanConsumeCredits").mockResolvedValue();
       vi.spyOn(EntitlementService, "deductCredits").mockResolvedValue(96);
+      vi.spyOn(CreditExecutionService as any, "deductViaConsumptionOrder").mockResolvedValue({
+        newBalance: 96,
+        usedLots: [],
+      });
 
       const result = await CreditExecutionService.executeWithCredits(
         {

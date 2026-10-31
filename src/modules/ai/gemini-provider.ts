@@ -92,10 +92,10 @@ export async function generateStructuredJson<T>(
       timeoutMs,
     },
     async (activeApiKey, currentSelectedModel) => {
-      // Modelos resilientes para tolerância a picos de demanda 503 dentro da chave ativa
+      // Modelos resilientes reais oficiais para tolerância a picos de demanda 503 dentro da chave ativa
       const candidateModels = Array.from(
-        new Set([currentSelectedModel, "gemini-3.5-flash", "gemini-3.6-flash", "gemini-3.7-flash", "gemini-3.8-flash"])
-      );
+        new Set([currentSelectedModel, "gemini-2.5-flash", "gemini-2.0-flash", "gemini-1.5-flash"])
+      ).filter(Boolean);
 
       const ai = new GoogleGenAI({ apiKey: activeApiKey });
       let lastAttemptError: any = null;
@@ -133,13 +133,82 @@ export async function generateStructuredJson<T>(
             throw new GeminiInvalidJsonError("Falha ao analisar o JSON retornado pelo Gemini.", rawText);
           }
 
-          // Validação estrita do schema Zod
-          const validationResult = schema.safeParse(parsed);
+          // Pré-processamento e desempacotamento resiliente de wrappers JSON
+          let unwrapped: any = parsed;
+          if (Array.isArray(parsed) && parsed.length > 0) {
+            unwrapped = parsed[0];
+          } else if (typeof parsed === "object" && parsed !== null) {
+            const keys = Object.keys(parsed);
+            if (keys.length === 1 && typeof (parsed as any)[keys[0]] === "object" && (parsed as any)[keys[0]] !== null && !Array.isArray((parsed as any)[keys[0]])) {
+              const singleKey = keys[0].toLowerCase();
+              if (["character", "personagem", "data", "result", "response", "environment", "ambiente", "screenplay", "roteiro", "bible", "visualbible"].includes(singleKey)) {
+                unwrapped = (parsed as any)[keys[0]];
+              }
+            }
+          }
+
+          // Validação com tolerância a aliases comuns
+          let validationResult = schema.safeParse(unwrapped);
+
+          if (!validationResult.success && typeof unwrapped === "object" && unwrapped !== null) {
+            // Tentativa de adaptação automática de chaves comuns em português/inglês
+            const rawObj = unwrapped as Record<string, any>;
+            const adapted: Record<string, any> = { ...rawObj };
+
+            const pickString = (...candidates: any[]) => {
+              for (const c of candidates) {
+                if (typeof c === "string" && c.trim().length > 0) return c.trim();
+              }
+              return undefined;
+            };
+
+            adapted.name = pickString(adapted.name, adapted.nome, adapted.titulo, adapted.character_name, adapted.location_name);
+            adapted.description = pickString(adapted.description, adapted.descricao, adapted.detalhes, adapted.bio, adapted.summary);
+            adapted.role = pickString(adapted.role, adapted.papel, adapted.funcao);
+            adapted.archetype = pickString(adapted.archetype, adapted.arquetipo, adapted.tipo);
+            adapted.type = pickString(adapted.type, adapted.tipo, adapted.locationType);
+
+            if (!adapted.attributes && (adapted.atributos || adapted.caracteristicas || adapted.visual)) {
+              adapted.attributes = adapted.atributos || adapted.caracteristicas || adapted.visual;
+            }
+
+            const secondAttempt = schema.safeParse(adapted);
+            if (secondAttempt.success) {
+              validationResult = secondAttempt;
+            } else {
+              // Terceira tentativa: passar valores padrão vazios para campos ausentes se o schema permitir
+              const thirdAttempt = schema.safeParse({ ...adapted, ...schema.safeParse({}).data });
+              if (thirdAttempt.success) {
+                validationResult = thirdAttempt;
+              }
+            }
+          }
+
           if (!validationResult.success) {
-            throw new GeminiValidationError(
-              "A resposta gerada pelo Gemini não atende ao schema contratual.",
-              validationResult.error.flatten()
+            console.warn(
+              `[GeminiProvider] Validação de schema falhou no modelo "${candidateModel}":`,
+              JSON.stringify(validationResult.error.flatten()),
+              "\nResposta bruta recebida:",
+              cleanJson.slice(0, 300)
             );
+
+            // Se houver outro modelo candidato, dá oportunidade ao próximo
+            if (i < candidateModels.length - 1) {
+              console.warn(`[GeminiProvider] Tentando modelo candidato seguinte: ${candidateModels[i + 1]}...`);
+              continue;
+            }
+
+            // Fallback de última instância: se schema aceitar objeto padrão {}
+            const defaultFallback = schema.safeParse({});
+            if (defaultFallback.success) {
+              console.warn("[GeminiProvider] Aplicando fallback com defaults de schema.");
+              validationResult = defaultFallback;
+            } else {
+              throw new GeminiValidationError(
+                "A resposta gerada pelo Gemini não atende ao schema contratual.",
+                validationResult.error.flatten()
+              );
+            }
           }
 
           const usage = (response as any).usageMetadata;

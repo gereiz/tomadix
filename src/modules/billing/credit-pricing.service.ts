@@ -96,16 +96,20 @@ export const SEED_CREDIT_OPERATIONS: DefaultOperationSeed[] = [
     category: "CREATION",
     defaultCreditCost: 1,
   },
+  {
+    code: "GEN_IMAGE_DIRECT",
+    name: "Geração Direta de Imagem IA",
+    description: "Geração direta de imagem através de provedores integrados (Pollinations.ai).",
+    category: "IMAGES",
+    defaultCreditCost: 10,
+  },
 ];
 
 export class CreditPricingService {
   /**
-   * Garante a inicialização das operações padrão cobradas se a tabela estiver vazia.
+   * Garante a inicialização das operações padrão cobradas.
    */
   static async seedDefaultOperations() {
-    const count = await db.creditOperation.count();
-    if (count > 0) return;
-
     for (const op of SEED_CREDIT_OPERATIONS) {
       await db.creditOperation.upsert({
         where: { code: op.code },
@@ -115,9 +119,8 @@ export class CreditPricingService {
           description: op.description,
           category: op.category,
           defaultCreditCost: op.defaultCreditCost,
-          isFree: op.isFree || false,
+          isFree: op.isFree ?? false,
           isActive: true,
-          version: 1,
         },
         update: {},
       });

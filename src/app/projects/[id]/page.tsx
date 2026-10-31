@@ -968,7 +968,10 @@ export default function ProjectDetailPage({ params }: { params: Promise<{ id: st
 
               <div className="mt-6 flex items-center justify-between border-t border-white/10 pt-4">
                 <span className="text-xs text-white/50 flex items-center gap-1.5">
-                  <span className="text-primary font-bold">🪙 GEN_VISUAL_BIBLE</span> • Tabela de créditos
+                  <span className="text-amber-400 font-bold flex items-center gap-1">
+                    <span>🪙</span> 10 créditos
+                  </span>
+                  <span>• Tabela de créditos</span>
                 </span>
                 <div className="flex gap-2">
                   <button

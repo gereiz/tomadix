@@ -22,6 +22,15 @@ export interface PlanConfig {
   enabledTemplates: string[]; // ["*"] para todos
   exportAllowed: boolean;
   visualBibleAdvanced: boolean;
+  hasImageGeneration?: boolean;
+  imageDailyLimit?: number | null;
+  imageMonthlyLimit?: number | null;
+  imageTotalLimit?: number | null;
+  imageDefaultCost?: number;
+  imageAllowedModels?: string[];
+  imageMaxBatchSize?: number;
+  imageAllowedResolutions?: string[];
+  imageAllowReferenceImages?: boolean;
 }
 
 export interface WorkspaceUsageSummary {

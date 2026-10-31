@@ -460,6 +460,11 @@ export class GeminiKeyManagerService {
   static async recordKeyFailure(keyId: string, error: ClassifiedGeminiError, durationMs: number) {
     if (!keyId || keyId === "ENV_FALLBACK") return;
 
+    // Erros de schema ou validação de formato não são falhas da chave de API
+    if (error.errorCode === "SCHEMA_VALIDATION_ERROR" || error.errorCode === "INVALID_ARGUMENT") {
+      return;
+    }
+
     const settings = await this.getSettings();
     const key = await db.geminiApiKey.findUnique({ where: { id: keyId } });
     if (!key) return;

@@ -2,6 +2,8 @@
 
 import { useState, useEffect, useCallback } from "react";
 import { TemplateKey } from "@/modules/prompt-engine/prompt-engine.schema";
+import { DirectImageGenerator } from "@/components/image-generation/direct-image-generator";
+import { GeneratedImagesGallery } from "@/components/image-generation/generated-images-gallery";
 
 interface TemplateInfo {
   key: TemplateKey;
@@ -51,6 +53,27 @@ interface SceneOption {
   order: number;
 }
 
+function getTemplateCreditCost(templateKey: string): number {
+  switch (templateKey) {
+    case "image_prompt":
+      return 2;
+    case "video_prompt":
+      return 8;
+    case "visual_bible":
+      return 10;
+    case "character_definition":
+      return 5;
+    case "environment_definition":
+      return 3;
+    case "scene_sequence":
+      return 12;
+    case "individual_scene":
+      return 5;
+    default:
+      return 2;
+  }
+}
+
 interface PromptsTabProps {
   projectId: string;
   initialSceneId?: string;
@@ -65,6 +88,10 @@ export function PromptsTab({ projectId, initialSceneId, onStatsUpdate }: Prompts
   const [characters, setCharacters] = useState<EntityOption[]>([]);
   const [environments, setEnvironments] = useState<EntityOption[]>([]);
   const [loading, setLoading] = useState(true);
+
+  // Modalidade de Operação: Gerar Prompt vs Gerar Imagem vs Galeria
+  const [generationMode, setGenerationMode] = useState<"PROMPT" | "IMAGE" | "GALLERY">("PROMPT");
+  const [promptForImageGen, setPromptForImageGen] = useState<string>("");
 
   // Form State
   const [selectedTemplate, setSelectedTemplate] = useState<TemplateKey>("video_prompt");
@@ -446,7 +473,90 @@ export function PromptsTab({ projectId, initialSceneId, onStatsUpdate }: Prompts
 
   return (
     <div className="mt-8 space-y-8">
-      {/* Grade Principal: Painel de Configuração vs Painel de Saída */}
+      {/* Barra Superior de Modalidade (Gerar Prompt vs Gerar Imagem) */}
+      <div className="flex flex-wrap items-center justify-between gap-4 p-2.5 rounded-2xl bg-white/[0.03] border border-white/10 shadow-lg shadow-black/20">
+        <div className="flex items-center gap-1.5 p-1 rounded-xl bg-black/40 border border-white/5">
+          <button
+            type="button"
+            onClick={() => setGenerationMode("PROMPT")}
+            className={`flex items-center gap-2 px-4 py-2 rounded-lg text-xs font-bold transition ${
+              generationMode === "PROMPT"
+                ? "bg-primary text-black shadow-md shadow-primary/20"
+                : "text-white/60 hover:text-white hover:bg-white/5"
+            }`}
+          >
+            <span>✨</span>
+            <span>Gerar Prompt (Gemini)</span>
+          </button>
+
+          <button
+            type="button"
+            onClick={() => setGenerationMode("IMAGE")}
+            className={`flex items-center gap-2 px-4 py-2 rounded-lg text-xs font-bold transition ${
+              generationMode === "IMAGE"
+                ? "bg-amber-400 text-black shadow-md shadow-amber-500/20"
+                : "text-white/60 hover:text-white hover:bg-white/5"
+            }`}
+          >
+            <span>🖼️</span>
+            <span>Gerar Imagem (IA Direta)</span>
+          </button>
+        </div>
+
+        <div className="flex items-center gap-2">
+          <button
+            type="button"
+            onClick={() => setGenerationMode("GALLERY")}
+            className={`flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-semibold border transition ${
+              generationMode === "GALLERY"
+                ? "bg-white/15 text-white border-white/30"
+                : "bg-white/5 text-white/60 border-white/10 hover:text-white hover:bg-white/10"
+            }`}
+          >
+            <span>📸</span>
+            <span>Galeria de Imagens</span>
+          </button>
+        </div>
+      </div>
+
+      {/* Modalidade: Galeria de Imagens Geradas */}
+      {generationMode === "GALLERY" && (
+        <div className="rounded-3xl border border-white/10 bg-black/40 p-6">
+          <GeneratedImagesGallery
+            projectId={projectId}
+            sceneId={selectedSceneId || undefined}
+            characterId={selectedCharacterId || undefined}
+            environmentId={selectedEnvironmentId || undefined}
+          />
+        </div>
+      )}
+
+      {/* Modalidade: Geração Direta de Imagens com IA */}
+      {generationMode === "IMAGE" && (
+        <div className="space-y-6">
+          <DirectImageGenerator
+            projectId={projectId}
+            sceneId={selectedSceneId || undefined}
+            characterId={selectedCharacterId || undefined}
+            environmentId={selectedEnvironmentId || undefined}
+            initialPrompt={promptForImageGen}
+            onSwitchToPromptMode={() => setGenerationMode("PROMPT")}
+            onImageGenerated={() => {
+              if (onStatsUpdate) onStatsUpdate();
+            }}
+          />
+
+          <div className="rounded-3xl border border-white/10 bg-black/40 p-6">
+            <GeneratedImagesGallery
+              projectId={projectId}
+              sceneId={selectedSceneId || undefined}
+            />
+          </div>
+        </div>
+      )}
+
+      {/* Modalidade: Gerar Prompt com Gemini (Motor de Prompts Original) */}
+      {generationMode === "PROMPT" && (
       <div className="grid gap-8 lg:grid-cols-12">
         {/* Painel Esquerdo: Parâmetros de Geração (5 colunas) */}
         <div className="lg:col-span-5 space-y-6">
@@ -675,26 +785,38 @@ export function PromptsTab({ projectId, initialSceneId, onStatsUpdate }: Prompts
               </div>
             )}
 
-            {/* Botão de Geração */}
-            <button
-              onClick={handleGenerate}
-              disabled={generating}
-              className="w-full flex items-center justify-center gap-2 rounded-xl bg-primary px-4 py-3 text-xs font-bold text-on-primary shadow-lg shadow-primary/20 hover:opacity-90 transition disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              {generating ? (
-                <>
-                  <div className="h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent" />
-                  <span>Compondo e Consultando Gemini...</span>
-                </>
-              ) : (
-                <>
-                  <svg className="h-4 w-4 text-black" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z" />
-                  </svg>
-                  <span>Gerar Prompt Cinematográfico</span>
-                </>
-              )}
-            </button>
+            {/* Custo em Créditos e Botão de Geração */}
+            <div className="space-y-2 pt-1">
+              <div className="flex items-center justify-between text-xs px-1">
+                <span className="text-white/60 flex items-center gap-1.5">
+                  <span className="text-amber-400 font-bold flex items-center gap-1">
+                    <span>🪙</span> {getTemplateCreditCost(selectedTemplate)} créditos
+                  </span>
+                  <span>• Custo desta geração</span>
+                </span>
+                <span className="text-[10px] font-mono text-white/40">Tabela de créditos</span>
+              </div>
+
+              <button
+                onClick={handleGenerate}
+                disabled={generating}
+                className="w-full flex items-center justify-center gap-2 rounded-xl bg-primary px-4 py-3 text-xs font-bold text-on-primary shadow-lg shadow-primary/20 hover:opacity-90 transition disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {generating ? (
+                  <>
+                    <div className="h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent" />
+                    <span>Compondo e Consultando Gemini...</span>
+                  </>
+                ) : (
+                  <>
+                    <svg className="h-4 w-4 text-black" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z" />
+                    </svg>
+                    <span>Gerar Prompt Cinematográfico ({getTemplateCreditCost(selectedTemplate)} cr)</span>
+                  </>
+                )}
+              </button>
+            </div>
           </div>
 
           {/* Atalho de Exportação Sequencial */}
@@ -816,6 +938,18 @@ export function PromptsTab({ projectId, initialSceneId, onStatsUpdate }: Prompts
                         </svg>
                         Regenerar
                       </button>
+                      <button
+                        onClick={() => {
+                          const promptText = currentResult.outputText || JSON.stringify(currentResult.outputJson);
+                          setPromptForImageGen(promptText);
+                          setGenerationMode("IMAGE");
+                        }}
+                        className="flex items-center gap-1.5 rounded-xl border border-amber-400/40 bg-amber-400/10 px-3 py-2 text-xs font-bold text-amber-300 hover:bg-amber-400/20 transition"
+                        title="Gerar imagem diretamente com este prompt via IA"
+                      >
+                        <span>🖼️</span>
+                        Gerar Imagem
+                      </button>
                     </div>
                     <button
                       onClick={() =>
@@ -866,6 +1000,18 @@ export function PromptsTab({ projectId, initialSceneId, onStatsUpdate }: Prompts
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
                         </svg>
                         Regenerar
+                      </button>
+                      <button
+                        onClick={() => {
+                          const promptText = currentResult.outputText || JSON.stringify(currentResult.outputJson);
+                          setPromptForImageGen(promptText);
+                          setGenerationMode("IMAGE");
+                        }}
+                        className="flex items-center gap-1.5 rounded-xl border border-amber-400/40 bg-amber-400/10 px-3 py-2 text-xs font-bold text-amber-300 hover:bg-amber-400/20 transition"
+                        title="Gerar imagem diretamente com este prompt via IA"
+                      >
+                        <span>🖼️</span>
+                        Gerar Imagem
                       </button>
                     </div>
                     {currentResult.outputText && (
@@ -1112,6 +1258,17 @@ export function PromptsTab({ projectId, initialSceneId, onStatsUpdate }: Prompts
                               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
                             </svg>
                           </button>
+                          <button
+                            onClick={() => {
+                              const promptText = ver.outputText || JSON.stringify(ver.outputJson);
+                              setPromptForImageGen(promptText);
+                              setGenerationMode("IMAGE");
+                            }}
+                            title="Gerar imagem diretamente com este prompt"
+                            className="p-1.5 rounded-lg text-white/60 hover:text-amber-400 hover:bg-white/5 transition"
+                          >
+                            <span className="text-xs">🖼️</span>
+                          </button>
                         </>
                       ) : (
                         <div className="flex items-center gap-2">
@@ -1142,6 +1299,7 @@ export function PromptsTab({ projectId, initialSceneId, onStatsUpdate }: Prompts
           </div>
         </div>
       </div>
+      )}
 
       {/* Modal de Regeneração */}
       {regeneratingVersion && (
@@ -1170,29 +1328,37 @@ export function PromptsTab({ projectId, initialSceneId, onStatsUpdate }: Prompts
               />
             </div>
 
-            <div className="flex items-center justify-end gap-2 pt-2">
-              <button
-                type="button"
-                onClick={() => setRegeneratingVersion(null)}
-                className="rounded-xl px-4 py-2 text-xs font-medium text-white/70 hover:bg-white/10 transition"
-              >
-                Cancelar
-              </button>
-              <button
-                type="button"
-                onClick={handleRegenerateSubmit}
-                disabled={isRegenerating}
-                className="flex items-center gap-2 rounded-xl bg-primary px-4 py-2 text-xs font-bold text-on-primary hover:opacity-90 shadow-md shadow-primary/20 transition disabled:opacity-50"
-              >
-                {isRegenerating ? (
-                  <>
-                    <div className="h-3 w-3 animate-spin rounded-full border-2 border-white border-t-transparent" />
-                    <span>Regenerando...</span>
-                  </>
-                ) : (
-                  <span>Criar Nova Versão</span>
-                )}
-              </button>
+            <div className="flex items-center justify-between gap-2 pt-3 border-t border-white/10">
+              <span className="text-xs text-white/50 flex items-center gap-1.5">
+                <span className="text-amber-400 font-bold flex items-center gap-1">
+                  <span>🪙</span> {getTemplateCreditCost(regeneratingVersion.templateKey || selectedTemplate)} créditos
+                </span>
+                <span>• Nova versão</span>
+              </span>
+              <div className="flex items-center gap-2">
+                <button
+                  type="button"
+                  onClick={() => setRegeneratingVersion(null)}
+                  className="rounded-xl px-4 py-2 text-xs font-medium text-white/70 hover:bg-white/10 transition"
+                >
+                  Cancelar
+                </button>
+                <button
+                  type="button"
+                  onClick={handleRegenerateSubmit}
+                  disabled={isRegenerating}
+                  className="flex items-center gap-2 rounded-xl bg-primary px-4 py-2 text-xs font-bold text-on-primary hover:opacity-90 shadow-md shadow-primary/20 transition disabled:opacity-50"
+                >
+                  {isRegenerating ? (
+                    <>
+                      <div className="h-3 w-3 animate-spin rounded-full border-2 border-white border-t-transparent" />
+                      <span>Regenerando...</span>
+                    </>
+                  ) : (
+                    <span>Criar Nova Versão ({getTemplateCreditCost(regeneratingVersion.templateKey || selectedTemplate)} cr)</span>
+                  )}
+                </button>
+              </div>
             </div>
           </div>
         </div>

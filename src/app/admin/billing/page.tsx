@@ -1428,6 +1428,66 @@ export default function AdminBillingPage() {
                 </label>
               </div>
 
+              {/* Seção: Geração direta de imagens com IA */}
+              <div className="rounded-xl border border-amber-400/20 bg-amber-400/5 p-4 space-y-3">
+                <div className="flex items-center justify-between border-b border-white/10 pb-2">
+                  <div>
+                    <h4 className="font-bold text-white flex items-center gap-2">
+                      <span>🖼️</span> Geração direta de imagens com IA
+                    </h4>
+                    <p className="text-[11px] text-white/50">
+                      Configurações exclusivas para o provedor de imagens (Pollinations.ai / Flux)
+                    </p>
+                  </div>
+                  <label className="flex items-center gap-2 cursor-pointer">
+                    <input
+                      type="checkbox"
+                      checked={editingPlan.hasImageGeneration ?? false}
+                      onChange={(e) => setEditingPlan({ ...editingPlan, hasImageGeneration: e.target.checked })}
+                      className="h-4 w-4 accent-amber-400 cursor-pointer"
+                    />
+                    <span className="font-bold text-xs text-amber-300">Recurso Habilitado</span>
+                  </label>
+                </div>
+
+                {editingPlan.hasImageGeneration && (
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-3 pt-2">
+                    <div>
+                      <label className="text-white/60 block mb-1">Custo Padrão (Créditos)</label>
+                      <input
+                        type="number"
+                        min="0"
+                        value={editingPlan.imageDefaultCost ?? 10}
+                        onChange={(e) => setEditingPlan({ ...editingPlan, imageDefaultCost: parseInt(e.target.value || "10") })}
+                        className="w-full rounded-xl border border-white/10 bg-white/5 p-2 text-white font-mono"
+                      />
+                    </div>
+                    <div>
+                      <label className="text-white/60 block mb-1">Limite Diário (vazio = ilimitado)</label>
+                      <input
+                        type="number"
+                        min="0"
+                        value={editingPlan.imageDailyLimit ?? ""}
+                        onChange={(e) => setEditingPlan({ ...editingPlan, imageDailyLimit: e.target.value ? parseInt(e.target.value) : null })}
+                        placeholder="Ilimitado"
+                        className="w-full rounded-xl border border-white/10 bg-white/5 p-2 text-white font-mono"
+                      />
+                    </div>
+                    <div>
+                      <label className="text-white/60 block mb-1">Limite Mensal (vazio = ilimitado)</label>
+                      <input
+                        type="number"
+                        min="0"
+                        value={editingPlan.imageMonthlyLimit ?? ""}
+                        onChange={(e) => setEditingPlan({ ...editingPlan, imageMonthlyLimit: e.target.value ? parseInt(e.target.value) : null })}
+                        placeholder="Ilimitado"
+                        className="w-full rounded-xl border border-white/10 bg-white/5 p-2 text-white font-mono"
+                      />
+                    </div>
+                  </div>
+                )}
+              </div>
+
               {/* Checkbox de Grandfathering */}
               <div className="rounded-xl border border-amber-500/30 bg-amber-950/20 p-3.5 flex items-start gap-3">
                 <input

@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback } from "react";
 import { EntityParametersSection } from "@/components/parameters/entity-parameters-section";
+import { DirectEntityImageModal } from "@/components/image-generation/direct-entity-image-modal";
 
 export interface EnvironmentItem {
   id: string;
@@ -9,6 +10,7 @@ export interface EnvironmentItem {
   name: string;
   description: string;
   attributes: {
+    imageUrl?: string;
     locationContext?: string;
     architecture?: string;
     propsAndElements?: string;
@@ -80,6 +82,15 @@ export function EnvironmentsTab({ projectId, onStatsUpdate }: EnvironmentsTabPro
   const [aiLocationType, setAiLocationType] = useState<"INTERIOR" | "EXTERIOR" | "HYBRID" | "STUDIO">("INTERIOR");
   const [aiLoading, setAiLoading] = useState(false);
   const [aiError, setAiError] = useState<string | null>(null);
+
+  // Modal de Geração Direta de Imagem do Ambiente
+  const [imageModalOpen, setImageModalOpen] = useState(false);
+  const [selectedEnvForImage, setSelectedEnvForImage] = useState<EnvironmentItem | null>(null);
+
+  const handleOpenImageGen = (env: EnvironmentItem) => {
+    setSelectedEnvForImage(env);
+    setImageModalOpen(true);
+  };
 
   const handleOpenAiModal = () => {
     setAiPrompt("");
@@ -448,6 +459,25 @@ export function EnvironmentsTab({ projectId, onStatsUpdate }: EnvironmentsTabPro
                 }`}
               >
                 <div>
+                  {/* Imagem Panorâmica do Ambiente (se gerada) */}
+                  {attrs.imageUrl && (
+                    <div className="relative mb-3 h-36 w-full overflow-hidden rounded-xl border border-white/10 bg-black/60 group">
+                      <img
+                        src={attrs.imageUrl}
+                        alt={env.name}
+                        className="h-full w-full object-cover transition duration-300 group-hover:scale-105"
+                      />
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent" />
+                      <button
+                        type="button"
+                        onClick={() => handleOpenImageGen(env)}
+                        className="absolute bottom-2 right-2 rounded-lg bg-black/70 px-2 py-1 text-[10px] font-semibold text-amber-300 border border-amber-400/30 opacity-0 group-hover:opacity-100 transition"
+                      >
+                        🔄 Regenerar
+                      </button>
+                    </div>
+                  )}
+
                   {/* Cabeçalho do Card */}
                   <div className="flex items-start justify-between gap-2">
                     <div>
@@ -508,17 +538,29 @@ export function EnvironmentsTab({ projectId, onStatsUpdate }: EnvironmentsTabPro
 
                 {/* Barra de Ações Inferior */}
                 <div className="mt-5 pt-3 border-t border-white/10 flex items-center justify-between gap-1">
-                  {/* Botão Ver Prompt JSON */}
-                  <button
-                    onClick={() => handleViewPrompt(env)}
-                    className="flex items-center gap-1.5 rounded-lg bg-primary/10 px-2.5 py-1.5 text-[11px] font-semibold text-primary border border-primary/20 hover:bg-primary/20 transition"
-                    title="Visualizar e exportar prompt base estruturado em JSON"
-                  >
-                    <svg className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4" />
-                    </svg>
-                    Prompt JSON
-                  </button>
+                  <div className="flex items-center gap-1.5">
+                    {/* Botão Ver Prompt JSON */}
+                    <button
+                      onClick={() => handleViewPrompt(env)}
+                      className="flex items-center gap-1.5 rounded-lg bg-primary/10 px-2.5 py-1.5 text-[11px] font-semibold text-primary border border-primary/20 hover:bg-primary/20 transition"
+                      title="Visualizar e exportar prompt base estruturado em JSON"
+                    >
+                      <svg className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4" />
+                      </svg>
+                      Prompt JSON
+                    </button>
+
+                    {/* Botão Gerar Imagem com IA */}
+                    <button
+                      onClick={() => handleOpenImageGen(env)}
+                      className="flex items-center gap-1 rounded-lg bg-amber-400/15 px-2.5 py-1.5 text-[11px] font-bold text-amber-300 border border-amber-400/30 hover:bg-amber-400/25 transition shadow-sm shadow-amber-500/10"
+                      title="Gerar conceito visual cinematográfico com IA deste ambiente"
+                    >
+                      <span>🎨</span>
+                      <span>Gerar Imagem</span>
+                    </button>
+                  </div>
 
                   <div className="flex items-center gap-1">
                     {/* Botão Editar */}
@@ -895,7 +937,10 @@ export function EnvironmentsTab({ projectId, onStatsUpdate }: EnvironmentsTabPro
 
             <div className="mt-6 flex items-center justify-between border-t border-white/10 pt-4">
               <span className="text-xs text-white/50 flex items-center gap-1.5">
-                <span className="text-primary font-bold">🪙 GEN_ENVIRONMENT</span> • Tabela de créditos
+                <span className="text-amber-400 font-bold flex items-center gap-1">
+                  <span>🪙</span> 3 créditos
+                </span>
+                <span>• Tabela de créditos</span>
               </span>
               <div className="flex gap-2">
                 <button
@@ -949,6 +994,38 @@ export function EnvironmentsTab({ projectId, onStatsUpdate }: EnvironmentsTabPro
             </div>
           </div>
         </div>
+      )}
+      {/* MODAL: Geração Direta de Imagem do Ambiente */}
+      {selectedEnvForImage && (
+        <DirectEntityImageModal
+          isOpen={imageModalOpen}
+          onClose={() => {
+            setImageModalOpen(false);
+            setSelectedEnvForImage(null);
+          }}
+          title={`Gerar Imagem: ${selectedEnvForImage.name}`}
+          subtitle="Geração direta com IA e vinculação instantânea à locação do projeto"
+          entityType="ENVIRONMENT"
+          projectId={projectId}
+          environmentId={selectedEnvForImage.id}
+          currentImageUrl={selectedEnvForImage.attributes?.imageUrl}
+          defaultAspectRatio="16:9"
+          initialPrompt={`Plano geral cinematográfico fotorrealista da locação ${selectedEnvForImage.name}, ${selectedEnvForImage.description || ""}. ${
+            selectedEnvForImage.attributes?.locationContext ? `Contexto espacial: ${selectedEnvForImage.attributes.locationContext}. ` : ""
+          }${
+            selectedEnvForImage.attributes?.architecture ? `Arquitetura: ${selectedEnvForImage.attributes.architecture}. ` : ""
+          }${
+            selectedEnvForImage.attributes?.lighting ? `Iluminação: ${selectedEnvForImage.attributes.lighting}. ` : ""
+          }${
+            selectedEnvForImage.attributes?.weatherAndAtmosphere ? `Clima e atmosfera: ${selectedEnvForImage.attributes.weatherAndAtmosphere}. ` : ""
+          }Fotografia de cinema em lente grande angular, composição visual de estúdio, 8k.`}
+          onImageGenerated={() => {
+            fetchEnvironments();
+            if (typeof window !== "undefined") {
+              window.dispatchEvent(new CustomEvent("tomadix:entities-updated", { detail: { type: "environments", projectId } }));
+            }
+          }}
+        />
       )}
     </div>
   );

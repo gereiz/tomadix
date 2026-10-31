@@ -58,23 +58,32 @@ export class CinematicCreationService {
       throw new Error("Cena alvo não encontrada no projeto.");
     }
 
-    const outputSchema = z.object({
-      rationale: z.string(),
-      shots: z.array(
-        z.object({
-          title: z.string(),
-          description: z.string(),
-          durationSeconds: z.number().int().default(5),
-          framing: z.string(),
-          cameraMovement: z.string(),
-          mainAction: z.string(),
-          lighting: z.string(),
-          visualStyle: z.string(),
-          transitionIn: z.string().default("Corte Direto (Cut)"),
-          transitionOut: z.string().default("Corte Direto (Cut)"),
-        })
-      ),
-    });
+    const outputSchema = z.preprocess(
+      (val: any) => {
+        if (!val || typeof val !== "object") return {};
+        return {
+          rationale: val.rationale || val.justificativa || "",
+          shots: Array.isArray(val.shots || val.planos || val.subScenes) ? (val.shots || val.planos || val.subScenes) : [],
+        };
+      },
+      z.object({
+        rationale: z.string().default(""),
+        shots: z.array(
+          z.object({
+            title: z.string().default("Plano Complementar"),
+            description: z.string().default(""),
+            durationSeconds: z.number().int().default(5),
+            framing: z.string().default("Plano Médio"),
+            cameraMovement: z.string().default("Estática"),
+            mainAction: z.string().default(""),
+            lighting: z.string().default("Natural"),
+            visualStyle: z.string().default("Cinematográfico"),
+            transitionIn: z.string().default("Corte Direto (Cut)"),
+            transitionOut: z.string().default("Corte Direto (Cut)"),
+          })
+        ).default([]),
+      })
+    );
 
     return await CreditExecutionService.executeWithCredits(
       {
@@ -124,7 +133,7 @@ Gere exatamente ${input.count} planos complementares/sub-cenas decupadas.`;
           { systemInstruction: systemPrompt }
         );
 
-        const generatedShots = geminiResponse.data.shots;
+        const generatedShots = (geminiResponse.data as any).shots || [];
 
         // Persistência com reordenação transacional
         const createdScenes = await db.$transaction(async (tx) => {
@@ -190,7 +199,7 @@ Gere exatamente ${input.count} planos complementares/sub-cenas decupadas.`;
         return {
           originalSceneId: targetScene.id,
           expansionType: input.expansionType,
-          rationale: geminiResponse.data.rationale,
+          rationale: (geminiResponse.data as any).rationale || "",
           createdScenes,
         };
       }
@@ -222,24 +231,34 @@ Gere exatamente ${input.count} planos complementares/sub-cenas decupadas.`;
       },
     });
 
-    const outputSchema = z.object({
-      sequenceTitle: z.string(),
-      dramaticArc: z.string(),
-      scenes: z.array(
-        z.object({
-          title: z.string(),
-          description: z.string(),
-          durationSeconds: z.number().int().default(6),
-          framing: z.string(),
-          cameraMovement: z.string(),
-          mainAction: z.string(),
-          lighting: z.string(),
-          visualStyle: z.string(),
-          transitionIn: z.string().default("Corte Direto (Cut)"),
-          transitionOut: z.string().default("Corte Direto (Cut)"),
-        })
-      ),
-    });
+    const outputSchema = z.preprocess(
+      (val: any) => {
+        if (!val || typeof val !== "object") return {};
+        return {
+          sequenceTitle: val.sequenceTitle || val.titulo || "Sequência",
+          dramaticArc: val.dramaticArc || val.arcoDramatico || "",
+          scenes: Array.isArray(val.scenes || val.cenas) ? (val.scenes || val.cenas) : [],
+        };
+      },
+      z.object({
+        sequenceTitle: z.string().default("Sequência"),
+        dramaticArc: z.string().default(""),
+        scenes: z.array(
+          z.object({
+            title: z.string().default("Cena"),
+            description: z.string().default(""),
+            durationSeconds: z.number().int().default(6),
+            framing: z.string().default("Plano Geral"),
+            cameraMovement: z.string().default("Tracking"),
+            mainAction: z.string().default(""),
+            lighting: z.string().default("Cinemática"),
+            visualStyle: z.string().default("Estilizado"),
+            transitionIn: z.string().default("Corte Direto (Cut)"),
+            transitionOut: z.string().default("Corte Direto (Cut)"),
+          })
+        ).default([]),
+      })
+    );
 
     return await CreditExecutionService.executeWithCredits(
       {
@@ -293,9 +312,10 @@ Gere a sequência técnica de exatamente ${input.sceneCount} cenas numeradas.`;
 
         let nextOrder = (maxOrderScene?.order ?? 0) + 1;
 
+        const sequenceData = geminiResponse.data as any;
         const createdScenes = await db.$transaction(async (tx) => {
           const list = [];
-          for (const s of geminiResponse.data.scenes) {
+          for (const s of (sequenceData.scenes || [])) {
             const created = await tx.scene.create({
               data: {
                 projectId,
@@ -311,8 +331,8 @@ Gere a sequência técnica de exatamente ${input.sceneCount} cenas numeradas.`;
                   visualStyle: s.visualStyle,
                   transitionIn: s.transitionIn,
                   transitionOut: s.transitionOut,
-                  sequenceTitle: geminiResponse.data.sequenceTitle,
-                  sequenceArc: geminiResponse.data.dramaticArc,
+                  sequenceTitle: sequenceData.sequenceTitle,
+                  sequenceArc: sequenceData.dramaticArc,
                 },
                 characters: {
                   create: characters.map((c) => ({
@@ -338,8 +358,8 @@ Gere a sequência técnica de exatamente ${input.sceneCount} cenas numeradas.`;
         });
 
         return {
-          sequenceTitle: geminiResponse.data.sequenceTitle,
-          dramaticArc: geminiResponse.data.dramaticArc,
+          sequenceTitle: sequenceData.sequenceTitle || "Sequência",
+          dramaticArc: sequenceData.dramaticArc || "",
           createdScenes,
         };
       }
@@ -357,23 +377,34 @@ Gere a sequência técnica de exatamente ${input.sceneCount} cenas numeradas.`;
   ) {
     const project = await this.assertProjectOwnership(projectId, workspaceId);
 
-    const outputSchema = z.object({
-      title: z.string(),
-      logline: z.string(),
-      fullScreenplayText: z.string(),
-      scenes: z.array(
-        z.object({
-          sceneNumber: z.number().int(),
-          heading: z.string(),
-          summary: z.string(),
-          durationSeconds: z.number().int().default(10),
-          framing: z.string(),
-          mainAction: z.string(),
-          lighting: z.string(),
-          charactersInvolved: z.array(z.string()).default([]),
-        })
-      ),
-    });
+    const outputSchema = z.preprocess(
+      (val: any) => {
+        if (!val || typeof val !== "object") return {};
+        return {
+          title: val.title || val.titulo || "Roteiro",
+          logline: val.logline || val.sinopse || "",
+          fullScreenplayText: val.fullScreenplayText || val.textoCompleto || val.roteiro || "",
+          scenes: Array.isArray(val.scenes || val.cenas) ? (val.scenes || val.cenas) : [],
+        };
+      },
+      z.object({
+        title: z.string().default("Roteiro"),
+        logline: z.string().default(""),
+        fullScreenplayText: z.string().default(""),
+        scenes: z.array(
+          z.object({
+            sceneNumber: z.number().int().default(1),
+            heading: z.string().default("CENA"),
+            summary: z.string().default(""),
+            durationSeconds: z.number().int().default(10),
+            framing: z.string().default("Plano Médio"),
+            mainAction: z.string().default(""),
+            lighting: z.string().default("Natural"),
+            charactersInvolved: z.array(z.string()).default([]),
+          })
+        ).default([]),
+      })
+    );
 
     return await CreditExecutionService.executeWithCredits(
       {
@@ -417,7 +448,7 @@ Escreva o roteiro completo no campo 'fullScreenplayText' e decomponha em blocos 
           { systemInstruction: systemPrompt }
         );
 
-        const data = geminiResponse.data;
+        const data = geminiResponse.data as any;
 
         // Atualiza a configuração do projeto com o roteiro
         const updatedConfig = {
@@ -494,24 +525,48 @@ Escreva o roteiro completo no campo 'fullScreenplayText' e decomponha em blocos 
   ) {
     const project = await this.assertProjectOwnership(projectId, workspaceId);
 
-    const outputSchema = z.object({
-      name: z.string(),
-      archetype: z.string(),
-      role: z.string(),
-      description: z.string(),
-      attributes: z.object({
-        age: z.string().optional(),
-        gender: z.string().optional(),
-        eyes: z.string().optional(),
-        hair: z.string().optional(),
-        physique: z.string().optional(),
-        costume: z.string().optional(),
-        lightingPreference: z.string().optional(),
-        actingStyle: z.string().optional(),
-        colorPalette: z.string().optional(),
-        psychologicalTraits: z.string().optional(),
-      }),
-    });
+    const outputSchema = z.preprocess(
+      (val: any) => {
+        if (!val || typeof val !== "object") return {};
+        // Se vier envelopado ou em lista
+        let raw = val;
+        if (Array.isArray(val) && val.length > 0) {
+          raw = val[0];
+        } else if (val.character && typeof val.character === "object" && !Array.isArray(val.character)) {
+          raw = val.character;
+        } else if (val.personagem && typeof val.personagem === "object" && !Array.isArray(val.personagem)) {
+          raw = val.personagem;
+        } else if (val.data && typeof val.data === "object" && !Array.isArray(val.data)) {
+          raw = val.data;
+        }
+
+        const pickStr = (...candidates: any[]): string | undefined => {
+          for (const c of candidates) {
+            if (typeof c === "string" && c.trim().length > 0) return c.trim();
+          }
+          return undefined;
+        };
+
+        return {
+          name: pickStr(raw.name, raw.nome, raw.character_name) || "Personagem",
+          archetype: pickStr(raw.archetype, raw.arquetipo, raw.tipo, input.archetype) || "Protagonista",
+          role: pickStr(raw.role, raw.papel, raw.funcao, input.role) || "Personagem Principal",
+          description: pickStr(raw.description, raw.descricao, raw.perfil, raw.bio, input.prompt) || "",
+          attributes: typeof raw.attributes === "object" && raw.attributes !== null && !Array.isArray(raw.attributes)
+            ? raw.attributes
+            : typeof raw.atributos === "object" && raw.atributos !== null && !Array.isArray(raw.atributos)
+            ? raw.atributos
+            : {},
+        };
+      },
+      z.object({
+        name: z.string().default("Personagem"),
+        archetype: z.string().default("Protagonista"),
+        role: z.string().default("Personagem Principal"),
+        description: z.string().default(""),
+        attributes: z.record(z.any()).default({}),
+      })
+    );
 
     return await CreditExecutionService.executeWithCredits(
       {
@@ -527,7 +582,27 @@ Escreva o roteiro completo no campo 'fullScreenplayText' e decomponha em blocos 
       },
       async () => {
         const systemPrompt = `Você é um Diretor de Elenco e Dramaturgo cinematográfico.
-Sua missão é conceber um personagem tridimensional, marcante e perfeito para ser renderizado por IAs visuais (Midjourney, Flux, Sora).`;
+Sua missão é conceber um personagem tridimensional, marcante e perfeito para ser renderizado por IAs visuais (Midjourney, Flux, Sora).
+
+Responda ESTRITAMENTE em formato JSON com o seguinte schema:
+{
+  "name": "Nome cinematográfico do personagem",
+  "archetype": "Arquétipo dramático (ex: O Rebelde, O Explorador)",
+  "role": "Papel na narrativa (ex: Protagonista, Antagonista)",
+  "description": "Descrição conceitual marcante e tridimensional",
+  "attributes": {
+    "age": "Idade aparente",
+    "gender": "Gênero",
+    "eyes": "Olhos",
+    "hair": "Cabelo",
+    "physique": "Biotipo físico",
+    "costume": "Figurino característico",
+    "lightingPreference": "Iluminação",
+    "actingStyle": "Estilo de atuação",
+    "colorPalette": "Paleta cromática",
+    "psychologicalTraits": "Traços psicológicos"
+  }
+}`;
 
         const userPrompt = `PROJETO: "${project.title}"
 GÊNERO: ${project.genre || "Cinema Geral"}
@@ -543,7 +618,7 @@ Crie um nome único e ficha completa.`;
           { systemInstruction: systemPrompt }
         );
 
-        const data = geminiResponse.data;
+        const data = geminiResponse.data as any;
 
         const newCharacter = await db.character.create({
           data: {
@@ -575,22 +650,45 @@ Crie um nome único e ficha completa.`;
   ) {
     const project = await this.assertProjectOwnership(projectId, workspaceId);
 
-    const outputSchema = z.object({
-      name: z.string(),
-      type: z.string(),
-      description: z.string(),
-      attributes: z.object({
-        locationType: z.string().optional(),
-        spatialDimensions: z.string().optional(),
-        lightingKey: z.string().optional(),
-        practicalLights: z.string().optional(),
-        colorPalette: z.string().optional(),
-        atmosphereAndMood: z.string().optional(),
-        texturesAndMaterials: z.string().optional(),
-        keyProps: z.string().optional(),
-        cameraLensSuggestion: z.string().optional(),
-      }),
-    });
+    const outputSchema = z.preprocess(
+      (val: any) => {
+        if (!val || typeof val !== "object") return {};
+        let raw = val;
+        if (Array.isArray(val) && val.length > 0) {
+          raw = val[0];
+        } else if (val.environment && typeof val.environment === "object" && !Array.isArray(val.environment)) {
+          raw = val.environment;
+        } else if (val.ambiente && typeof val.ambiente === "object" && !Array.isArray(val.ambiente)) {
+          raw = val.ambiente;
+        } else if (val.data && typeof val.data === "object" && !Array.isArray(val.data)) {
+          raw = val.data;
+        }
+
+        const pickStr = (...candidates: any[]): string | undefined => {
+          for (const c of candidates) {
+            if (typeof c === "string" && c.trim().length > 0) return c.trim();
+          }
+          return undefined;
+        };
+
+        return {
+          name: pickStr(raw.name, raw.nome, raw.location_name) || "Locação",
+          type: pickStr(raw.type, raw.tipo, raw.locationType, input.locationType) || "Geral",
+          description: pickStr(raw.description, raw.descricao, raw.detalhes, input.prompt) || "",
+          attributes: typeof raw.attributes === "object" && raw.attributes !== null && !Array.isArray(raw.attributes)
+            ? raw.attributes
+            : typeof raw.atributos === "object" && raw.atributos !== null && !Array.isArray(raw.atributos)
+            ? raw.atributos
+            : {},
+        };
+      },
+      z.object({
+        name: z.string().default("Locação"),
+        type: z.string().default("Geral"),
+        description: z.string().default(""),
+        attributes: z.record(z.any()).default({}),
+      })
+    );
 
     return await CreditExecutionService.executeWithCredits(
       {
@@ -606,7 +704,25 @@ Crie um nome único e ficha completa.`;
       },
       async () => {
         const systemPrompt = `Você é um Diretor de Arte e Cenógrafo Cinematográfico.
-Conceba uma locação cinematográfica palpável, com atmosfera visual rica em texturas, iluminação cênica e identidade estética.`;
+Conceba uma locação cinematográfica palpável, com atmosfera visual rica em texturas, iluminação cênica e identidade estética.
+
+Responda ESTRITAMENTE em formato JSON com o seguinte schema:
+{
+  "name": "Nome da Locação",
+  "type": "Tipo de Locação",
+  "description": "Descrição detalhada do ambiente e clima cênico",
+  "attributes": {
+    "locationType": "Interna / Externa / Estúdio",
+    "spatialDimensions": "Dimensões e proporções espaciais",
+    "lightingKey": "Esquema e temperatura de luz",
+    "practicalLights": "Fontes de luz visíveis no quadro",
+    "colorPalette": "Paleta cromática do espaço",
+    "atmosphereAndMood": "Atmosfera e clima psicológico",
+    "texturesAndMaterials": "Materiais e superfícies táteis",
+    "keyProps": "Objetos cênicos fundamentais",
+    "cameraLensSuggestion": "Lente e enquadramento recomendados"
+  }
+}`;
 
         const userPrompt = `PROJETO: "${project.title}"
 GÊNERO: ${project.genre || "Cinema Geral"}
@@ -621,7 +737,7 @@ Crie nome cinematográfico e ficha de direção de arte completa.`;
           { systemInstruction: systemPrompt }
         );
 
-        const data = geminiResponse.data;
+        const data = geminiResponse.data as any;
 
         const newEnvironment = await db.environment.create({
           data: {
@@ -682,27 +798,53 @@ Crie nome cinematográfico e ficha de direção de arte completa.`;
       throw error;
     }
 
-    const outputSchema = z.object({
-      artDirectionConcept: z.string(),
-      colorPalette: z.object({
-        dominant: z.string(),
-        secondary: z.string(),
-        accent: z.string(),
-        gradingNotes: z.string(),
-      }),
-      cinematography: z.object({
-        aspectRatio: z.string(),
-        recommendedLenses: z.string(),
-        cameraMovementStyle: z.string(),
-        grainAndTexture: z.string(),
-      }),
-      lightingPhilosophy: z.object({
-        contrastRatio: z.string(),
-        keyLightStyle: z.string(),
-        shadowTreatment: z.string(),
-      }),
-      visualDirectives: z.array(z.string()),
-    });
+    const outputSchema = z.preprocess(
+      (val: any) => {
+        if (!val || typeof val !== "object") return {};
+        return {
+          artDirectionConcept: val.artDirectionConcept || val.conceito || val.direcaoDeArte || "Conceito Cinematográfico Geral",
+          colorPalette: typeof val.colorPalette === "object" && val.colorPalette !== null
+            ? val.colorPalette
+            : typeof val.paletaDeCores === "object" && val.paletaDeCores !== null
+            ? val.paletaDeCores
+            : { dominant: "Neutro", secondary: "Natural", accent: "Dourado", gradingNotes: "" },
+          cinematography: typeof val.cinematography === "object" && val.cinematography !== null
+            ? val.cinematography
+            : typeof val.fotografia === "object" && val.fotografia !== null
+            ? val.fotografia
+            : { aspectRatio: "16:9", recommendedLenses: "35mm e 50mm", cameraMovementStyle: "Cinemático", grainAndTexture: "35mm sutil" },
+          lightingPhilosophy: typeof val.lightingPhilosophy === "object" && val.lightingPhilosophy !== null
+            ? val.lightingPhilosophy
+            : typeof val.iluminacao === "object" && val.iluminacao !== null
+            ? val.iluminacao
+            : { contrastRatio: "Médio", keyLightStyle: "Suave", shadowTreatment: "Difuso" },
+          visualDirectives: Array.isArray(val.visualDirectives || val.diretrizes)
+            ? (val.visualDirectives || val.diretrizes)
+            : [],
+        };
+      },
+      z.object({
+        artDirectionConcept: z.string().default("Conceito Cinematográfico Geral"),
+        colorPalette: z.object({
+          dominant: z.string().default("Neutro"),
+          secondary: z.string().default("Natural"),
+          accent: z.string().default("Dourado"),
+          gradingNotes: z.string().default(""),
+        }).default({}),
+        cinematography: z.object({
+          aspectRatio: z.string().default("16:9"),
+          recommendedLenses: z.string().default("35mm e 50mm"),
+          cameraMovementStyle: z.string().default("Cinemático"),
+          grainAndTexture: z.string().default("35mm"),
+        }).default({}),
+        lightingPhilosophy: z.object({
+          contrastRatio: z.string().default("Médio"),
+          keyLightStyle: z.string().default("Suave"),
+          shadowTreatment: z.string().default("Difuso"),
+        }).default({}),
+        visualDirectives: z.array(z.string()).default([]),
+      })
+    );
 
     return await CreditExecutionService.executeWithCredits(
       {
@@ -763,12 +905,25 @@ Gere a Bíblia Visual completa em JSON.`;
   ) {
     await this.assertProjectOwnership(projectId, workspaceId);
 
-    const outputSchema = z.object({
-      originalPrompt: z.string(),
-      enhancedPrompt: z.string(),
-      technicalNotes: z.array(z.string()),
-      targetGenerator: z.string(),
-    });
+    const outputSchema = z.preprocess(
+      (val: any) => {
+        if (!val || typeof val !== "object") return {};
+        return {
+          originalPrompt: val.originalPrompt || val.promptOriginal || input.prompt || "",
+          enhancedPrompt: val.enhancedPrompt || val.promptAprimorado || val.prompt || input.prompt || "",
+          technicalNotes: Array.isArray(val.technicalNotes || val.notasTecnicas)
+            ? (val.technicalNotes || val.notasTecnicas)
+            : [],
+          targetGenerator: val.targetGenerator || input.targetGenerator || "general",
+        };
+      },
+      z.object({
+        originalPrompt: z.string().default(""),
+        enhancedPrompt: z.string().default(""),
+        technicalNotes: z.array(z.string()).default([]),
+        targetGenerator: z.string().default("general"),
+      })
+    );
 
     return await CreditExecutionService.executeWithCredits(
       {

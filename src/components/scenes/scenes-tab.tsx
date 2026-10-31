@@ -5,6 +5,7 @@ import Link from "next/link";
 import { ContinuityReport, ContinuityWarning } from "@/modules/scenes/scene.schema";
 import { EntityParametersSection } from "@/components/parameters/entity-parameters-section";
 import { VisualParameterSelector } from "@/components/visual-library/visual-parameter-selector";
+import { DirectEntityImageModal } from "@/components/image-generation/direct-entity-image-modal";
 
 export interface SceneItem {
   id: string;
@@ -14,6 +15,10 @@ export interface SceneItem {
   durationSeconds: number | null;
   description: string;
   configuration: {
+    startFrameUrl?: string;
+    endFrameUrl?: string;
+    startFrameImageId?: string;
+    endFrameImageId?: string;
     mainAction?: string;
     initialState?: string;
     finalState?: string;
@@ -151,6 +156,17 @@ export function ScenesTab({ projectId, onStatsUpdate, onOpenPromptEngine }: Scen
   const [scriptLoading, setScriptLoading] = useState(false);
   const [scriptResult, setScriptResult] = useState<any>(null);
   const [scriptError, setScriptError] = useState<string | null>(null);
+
+  // Modal de Geração Direta de Imagem da Cena (Quadro Inicial e Final)
+  const [imageModalOpen, setImageModalOpen] = useState(false);
+  const [imageModalScene, setImageModalScene] = useState<SceneItem | null>(null);
+  const [imageModalFrameType, setImageModalFrameType] = useState<"SCENE_START" | "SCENE_END">("SCENE_START");
+
+  const handleOpenSceneImage = (scene: SceneItem, frameType: "SCENE_START" | "SCENE_END") => {
+    setImageModalScene(scene);
+    setImageModalFrameType(frameType);
+    setImageModalOpen(true);
+  };
 
   // Carregar cenas e entidades
   const fetchScenes = useCallback(async () => {
@@ -824,6 +840,99 @@ export function ScenesTab({ projectId, onStatsUpdate, onOpenPromptEngine }: Scen
                           📍 {se.environment.name}
                         </span>
                       ))}
+                    </div>
+
+                    {/* Keyframes Visuais da Cena (Quadro Inicial e Final) */}
+                    <div className="pt-2.5 mt-2 border-t border-white/5 flex flex-wrap items-center gap-3">
+                      {/* Quadro Inicial (Start Frame) */}
+                      <div className="flex items-center gap-2">
+                        {config.startFrameUrl ? (
+                          <div className="relative group/frame overflow-hidden rounded-xl border border-amber-400/40 bg-black/60 h-16 w-28 shrink-0 shadow-md">
+                            <img
+                              src={config.startFrameUrl}
+                              alt="Quadro Inicial"
+                              className="h-full w-full object-cover transition group-hover/frame:scale-105"
+                            />
+                            <div className="absolute inset-0 bg-black/70 opacity-0 group-hover/frame:opacity-100 flex items-center justify-center gap-1.5 transition">
+                              <button
+                                type="button"
+                                onClick={() => handleOpenSceneImage(scene, "SCENE_START")}
+                                className="p-1 rounded bg-amber-400 text-black text-[10px] font-bold"
+                                title="Regenerar Imagem Inicial"
+                              >
+                                🔄
+                              </button>
+                              <a
+                                href={config.startFrameUrl}
+                                target="_blank"
+                                rel="noreferrer"
+                                className="p-1 rounded bg-white/20 text-white text-[10px]"
+                                title="Visualizar em tamanho real"
+                              >
+                                🔍
+                              </a>
+                            </div>
+                            <span className="absolute bottom-0 left-0 right-0 bg-black/80 text-[8px] text-amber-300 font-mono text-center py-0.5 truncate">
+                              Start Frame
+                            </span>
+                          </div>
+                        ) : (
+                          <button
+                            type="button"
+                            onClick={() => handleOpenSceneImage(scene, "SCENE_START")}
+                            className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg border border-amber-400/30 bg-amber-400/10 text-[11px] font-semibold text-amber-300 hover:bg-amber-400/20 transition shadow-sm shadow-amber-500/10"
+                            title="Gerar imagem inicial (start frame) desta cena com IA"
+                          >
+                            <span>🎨</span>
+                            <span>Criar Imagem Inicial</span>
+                          </button>
+                        )}
+                      </div>
+
+                      {/* Quadro Final (End Frame / Opcional) */}
+                      <div className="flex items-center gap-2">
+                        {config.endFrameUrl ? (
+                          <div className="relative group/frame overflow-hidden rounded-xl border border-purple-400/40 bg-black/60 h-16 w-28 shrink-0 shadow-md">
+                            <img
+                              src={config.endFrameUrl}
+                              alt="Quadro Final"
+                              className="h-full w-full object-cover transition group-hover/frame:scale-105"
+                            />
+                            <div className="absolute inset-0 bg-black/70 opacity-0 group-hover/frame:opacity-100 flex items-center justify-center gap-1.5 transition">
+                              <button
+                                type="button"
+                                onClick={() => handleOpenSceneImage(scene, "SCENE_END")}
+                                className="p-1 rounded bg-purple-400 text-black text-[10px] font-bold"
+                                title="Regenerar Imagem Final"
+                              >
+                                🔄
+                              </button>
+                              <a
+                                href={config.endFrameUrl}
+                                target="_blank"
+                                rel="noreferrer"
+                                className="p-1 rounded bg-white/20 text-white text-[10px]"
+                                title="Visualizar em tamanho real"
+                              >
+                                🔍
+                              </a>
+                            </div>
+                            <span className="absolute bottom-0 left-0 right-0 bg-black/80 text-[8px] text-purple-300 font-mono text-center py-0.5 truncate">
+                              End Frame
+                            </span>
+                          </div>
+                        ) : (
+                          <button
+                            type="button"
+                            onClick={() => handleOpenSceneImage(scene, "SCENE_END")}
+                            className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg border border-white/10 bg-white/5 text-[11px] font-medium text-white/60 hover:text-white hover:bg-white/10 transition"
+                            title="Criar keyframe final para transição / interpolação de vídeo"
+                          >
+                            <span>➕</span>
+                            <span>Imagem Final (Opcional)</span>
+                          </button>
+                        )}
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -1549,7 +1658,10 @@ export function ScenesTab({ projectId, onStatsUpdate, onOpenPromptEngine }: Scen
 
             <div className="mt-6 flex items-center justify-between border-t border-white/10 pt-4">
               <span className="text-xs text-white/50 flex items-center gap-1.5">
-                <span className="text-primary font-bold">🪙 EXPAND_SCENE</span> • Cobrado via tabela de créditos
+                <span className="text-amber-400 font-bold flex items-center gap-1">
+                  <span>🪙</span> 5 créditos
+                </span>
+                <span>• Tabela de créditos</span>
               </span>
               <div className="flex gap-2">
                 <button
@@ -1698,7 +1810,10 @@ export function ScenesTab({ projectId, onStatsUpdate, onOpenPromptEngine }: Scen
 
             <div className="mt-6 flex items-center justify-between border-t border-white/10 pt-4">
               <span className="text-xs text-white/50 flex items-center gap-1.5">
-                <span className="text-primary font-bold">🪙 GEN_SCENE_SEQUENCE</span> • Conforme tabela
+                <span className="text-amber-400 font-bold flex items-center gap-1">
+                  <span>🪙</span> 8 créditos
+                </span>
+                <span>• Tabela de créditos</span>
               </span>
               <div className="flex gap-2">
                 <button
@@ -1845,7 +1960,10 @@ export function ScenesTab({ projectId, onStatsUpdate, onOpenPromptEngine }: Scen
 
             <div className="mt-6 flex items-center justify-between border-t border-white/10 pt-4">
               <span className="text-xs text-white/50 flex items-center gap-1.5">
-                <span className="text-amber-400 font-bold">🪙 GEN_SCRIPT</span> • Tabela de créditos
+                <span className="text-amber-400 font-bold flex items-center gap-1">
+                  <span>🪙</span> 15 créditos
+                </span>
+                <span>• Tabela de créditos</span>
               </span>
               <div className="flex gap-2">
                 <button
@@ -1901,6 +2019,56 @@ export function ScenesTab({ projectId, onStatsUpdate, onOpenPromptEngine }: Scen
             </div>
           </div>
         </div>
+      )}
+      {/* MODAL: Geração Direta de Imagem da Cena (Quadro Inicial / Final) */}
+      {imageModalScene && (
+        <DirectEntityImageModal
+          isOpen={imageModalOpen}
+          onClose={() => {
+            setImageModalOpen(false);
+            setImageModalScene(null);
+          }}
+          title={
+            imageModalFrameType === "SCENE_START"
+              ? `Quadro Inicial (Start Frame): ${imageModalScene.title}`
+              : `Quadro Final (End Frame): ${imageModalScene.title}`
+          }
+          subtitle={
+            imageModalFrameType === "SCENE_START"
+              ? "Geração do keyframe de abertura e estabelecimento da cena"
+              : "Geração do keyframe de desfecho / resolução da ação cênica"
+          }
+          entityType={imageModalFrameType}
+          projectId={projectId}
+          sceneId={imageModalScene.id}
+          currentImageUrl={
+            imageModalFrameType === "SCENE_START"
+              ? imageModalScene.configuration?.startFrameUrl
+              : imageModalScene.configuration?.endFrameUrl
+          }
+          defaultAspectRatio="16:9"
+          initialPrompt={
+            imageModalFrameType === "SCENE_START"
+              ? `Plano de cinema de abertura (start frame) da cena: "${imageModalScene.title}". Ação inicial: ${
+                  imageModalScene.configuration?.mainAction || imageModalScene.description || ""
+                }. Enquadramento: ${imageModalScene.configuration?.framing || "Plano Médio"}. Iluminação: ${
+                  imageModalScene.configuration?.lighting || "Natural"
+                }. Personagens: ${imageModalScene.characters.map((c) => c.character.name).join(", ") || "Em cena"}. Locação: ${
+                  imageModalScene.environments.map((e) => e.environment.name).join(", ") || "Locação da cena"
+                }. Still cinematográfico nítido, granulação 35mm sutil, 8k.`
+              : `Plano de cinema de desfecho (end frame) da cena: "${imageModalScene.title}". Resolução da ação: ${
+                  imageModalScene.configuration?.mainAction || imageModalScene.description || ""
+                }. Enquadramento: ${imageModalScene.configuration?.framing || "Plano Médio"}. Iluminação: ${
+                  imageModalScene.configuration?.lighting || "Natural"
+                }. Still cinematográfico final, composição dramática de resolução, 8k.`
+          }
+          onImageGenerated={() => {
+            fetchScenes();
+            if (typeof window !== "undefined") {
+              window.dispatchEvent(new CustomEvent("tomadix:entities-updated", { detail: { type: "scenes", projectId } }));
+            }
+          }}
+        />
       )}
     </div>
   );

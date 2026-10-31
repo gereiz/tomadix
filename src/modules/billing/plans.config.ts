@@ -27,6 +27,11 @@ export const PLANS_CATALOG: Record<PlanTier, PlanConfig> = {
     enabledTemplates: ["character_definition", "environment_definition", "individual_scene"],
     exportAllowed: true,
     visualBibleAdvanced: false,
+    hasImageGeneration: false,
+    imageDailyLimit: 0,
+    imageMonthlyLimit: 0,
+    imageDefaultCost: 10,
+    imageAllowedModels: [],
   },
   PRO: {
     tier: PlanTier.PRO,
@@ -47,6 +52,7 @@ export const PLANS_CATALOG: Record<PlanTier, PlanConfig> = {
       "Até 3 membros colaboradores",
       "500 créditos de adesão + 500 mensais",
       "100 créditos diários renovados todo dia",
+      "Geração direta de imagens com IA (Flux)",
       "Todos os 7 templates cinematográficos",
       "Bíblia Visual cinematográfica completa",
       "Análise de continuidade de cenas",
@@ -56,6 +62,11 @@ export const PLANS_CATALOG: Record<PlanTier, PlanConfig> = {
     enabledTemplates: ["*"],
     exportAllowed: true,
     visualBibleAdvanced: true,
+    hasImageGeneration: true,
+    imageDailyLimit: 25,
+    imageMonthlyLimit: 250,
+    imageDefaultCost: 10,
+    imageAllowedModels: ["flux", "turbo"],
   },
   TEAM: {
     tier: PlanTier.TEAM,
@@ -76,6 +87,8 @@ export const PLANS_CATALOG: Record<PlanTier, PlanConfig> = {
       "Até 10 membros com gestão de papéis (RBAC)",
       "1.000 créditos de adesão + 2.500 mensais",
       "200 créditos diários acumulativos",
+      "Geração direta de imagens em lote e alta resolução",
+      "Acesso a todos os modelos de imagem (Flux Realism, 3D, Anime)",
       "Acesso antecipado a novos modelos Gemini",
       "Trilha completa de auditoria administrativa",
       "Templates customizados e parâmetros corporativos",
@@ -84,6 +97,11 @@ export const PLANS_CATALOG: Record<PlanTier, PlanConfig> = {
     enabledTemplates: ["*"],
     exportAllowed: true,
     visualBibleAdvanced: true,
+    hasImageGeneration: true,
+    imageDailyLimit: 100,
+    imageMonthlyLimit: 1000,
+    imageDefaultCost: 10,
+    imageAllowedModels: ["*"],
   },
   ENTERPRISE: {
     tier: PlanTier.ENTERPRISE,
@@ -103,6 +121,7 @@ export const PLANS_CATALOG: Record<PlanTier, PlanConfig> = {
       "Projetos e membros ilimitados",
       "5.000 créditos de adesão + 10.000 mensais",
       "500 créditos diários acumulativos",
+      "Geração direta de imagens com cotas elevadas",
       "SLA de 99.9% e infraestrutura dedicada",
       "Integrações de API customizadas",
       "Suporte 24/7 com engenheiro de prompts"
@@ -110,6 +129,11 @@ export const PLANS_CATALOG: Record<PlanTier, PlanConfig> = {
     enabledTemplates: ["*"],
     exportAllowed: true,
     visualBibleAdvanced: true,
+    hasImageGeneration: true,
+    imageDailyLimit: 500,
+    imageMonthlyLimit: 5000,
+    imageDefaultCost: 8,
+    imageAllowedModels: ["*"],
   }
 };
 

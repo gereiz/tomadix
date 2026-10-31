@@ -46,7 +46,7 @@ export function QuickCreationBar({
   const startYRef = useRef(0);
   const startHeightRef = useRef(160);
 
-  const [contentType, setContentType] = useState<"PROJECT" | "CHARACTER" | "ENVIRONMENT" | "SCENE" | "PROMPT">(
+  const [contentType, setContentType] = useState<"PROJECT" | "CHARACTER" | "ENVIRONMENT" | "SCENE" | "PROMPT" | "IMAGE">(
     currentProjectId ? "CHARACTER" : "PROJECT"
   );
   const [selectedProjectId, setSelectedProjectId] = useState<string>(currentProjectId || "");
@@ -187,6 +187,7 @@ export function QuickCreationBar({
     { id: "ENVIRONMENT", label: "Ambiente", icon: "🏙️", placeholder: "Descreva o cenário, iluminação e atmosfera... Dica: use @personagem para associar" },
     { id: "SCENE", label: "Cena", icon: "🎥", placeholder: "Descreva a ação dramática... Mencione @personagem, #ambiente ou $cena anterior" },
     { id: "PROMPT", label: "Prompt IA", icon: "✨", placeholder: "Instruções adicionais para a IA cinematográfica... Use @personagem, #ambiente para direcionar" },
+    { id: "IMAGE", label: "Imagem IA", icon: "🎨", placeholder: "Descreva a imagem cinematográfica que deseja gerar diretamente com IA..." },
   ];
 
   const TYPE_OPTIONS = currentProjectId

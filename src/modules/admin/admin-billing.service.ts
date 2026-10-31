@@ -56,6 +56,15 @@ export interface PlanInput {
   enabledTemplates?: string[];
   exportAllowed?: boolean;
   visualBibleAdvanced?: boolean;
+  hasImageGeneration?: boolean;
+  imageDailyLimit?: number | null;
+  imageMonthlyLimit?: number | null;
+  imageTotalLimit?: number | null;
+  imageDefaultCost?: number;
+  imageAllowedModels?: string[];
+  imageMaxBatchSize?: number;
+  imageAllowedResolutions?: string[];
+  imageAllowReferenceImages?: boolean;
   customRules?: Record<string, any>;
   gatewayProductId?: string | null;
   gatewayPriceIdMonthly?: string | null;
@@ -274,6 +283,15 @@ export class AdminBillingService {
       enabledTemplates: (data.enabledTemplates || ["*"]) as Prisma.InputJsonValue,
       exportAllowed: data.exportAllowed ?? true,
       visualBibleAdvanced: data.visualBibleAdvanced ?? false,
+      hasImageGeneration: data.hasImageGeneration ?? existingPlan?.hasImageGeneration ?? false,
+      imageDailyLimit: data.imageDailyLimit !== undefined ? data.imageDailyLimit : (existingPlan?.imageDailyLimit ?? null),
+      imageMonthlyLimit: data.imageMonthlyLimit !== undefined ? data.imageMonthlyLimit : (existingPlan?.imageMonthlyLimit ?? null),
+      imageTotalLimit: data.imageTotalLimit !== undefined ? data.imageTotalLimit : (existingPlan?.imageTotalLimit ?? null),
+      imageDefaultCost: data.imageDefaultCost !== undefined ? Number(data.imageDefaultCost) : (existingPlan?.imageDefaultCost ?? 10),
+      imageAllowedModels: (data.imageAllowedModels ?? existingPlan?.imageAllowedModels ?? []) as Prisma.InputJsonValue,
+      imageMaxBatchSize: data.imageMaxBatchSize !== undefined ? Number(data.imageMaxBatchSize) : (existingPlan?.imageMaxBatchSize ?? 1),
+      imageAllowedResolutions: (data.imageAllowedResolutions ?? existingPlan?.imageAllowedResolutions ?? ["1024x1024", "1280x720", "720x1280"]) as Prisma.InputJsonValue,
+      imageAllowReferenceImages: data.imageAllowReferenceImages ?? existingPlan?.imageAllowReferenceImages ?? false,
       customRules: (data.customRules || {}) as Prisma.InputJsonValue,
       gatewayProductId: data.gatewayProductId || null,
       gatewayPriceIdMonthly: data.gatewayPriceIdMonthly || null,

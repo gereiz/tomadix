@@ -5,15 +5,17 @@ import { CharacterService } from "@/modules/characters/character.service";
 import { EnvironmentService } from "@/modules/environments/environment.service";
 import { SceneService } from "@/modules/scenes/scene.service";
 import { PromptEngineService } from "@/modules/prompt-engine/prompt-engine.service";
+import { ImageGenerationService } from "@/modules/image-generation/image-generation.service";
 import { CreditExecutionService } from "@/modules/billing/credit-execution.service";
 import { db } from "@/lib/db";
 import { z } from "zod";
 
 const quickCreateSchema = z.object({
-  type: z.enum(["PROJECT", "CHARACTER", "ENVIRONMENT", "SCENE", "PROMPT"]),
+  type: z.enum(["PROJECT", "CHARACTER", "ENVIRONMENT", "SCENE", "PROMPT", "IMAGE"]),
   prompt: z.string().trim().min(2, "Informe uma descrição para criar o conteúdo.").max(3000),
   projectId: z.string().optional().nullable(),
   title: z.string().trim().max(120).optional(),
+  generateImageAlso: z.boolean().optional().default(false),
   references: z
     .object({
       characterIds: z.array(z.string()).optional(),
@@ -263,6 +265,34 @@ export async function POST(request: NextRequest) {
             href: `/projects/${effectiveProjectId}?tab=prompts`,
             preview: promptResult.data,
           },
+        },
+        { status: 201 }
+      );
+    }
+
+    // 6. GERAÇÃO DIRETA DE IMAGEM IA
+    if (validated.type === "IMAGE") {
+      const { user } = await getCurrentWorkspace();
+      const imageResult = await ImageGenerationService.generateDirectImage({
+        workspaceId: workspace.id,
+        userId: user.id,
+        prompt: validated.prompt,
+        projectId: effectiveProjectId || undefined,
+        aspectRatio: "16:9",
+      });
+
+      return NextResponse.json(
+        {
+          message: "Imagem gerada com sucesso pela IA.",
+          data: {
+            id: imageResult.image.id,
+            type: "IMAGE",
+            title: `Imagem IA: ${validated.prompt.slice(0, 30)}...`,
+            imageUrl: imageResult.image.imageUrl,
+            href: `/projects/${effectiveProjectId}?tab=gallery`,
+          },
+          creditCost: imageResult.credits.deducted,
+          newBalance: imageResult.credits.newBalance,
         },
         { status: 201 }
       );

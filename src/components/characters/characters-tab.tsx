@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback } from "react";
 import { EntityParametersSection } from "@/components/parameters/entity-parameters-section";
+import { DirectEntityImageModal } from "@/components/image-generation/direct-entity-image-modal";
 
 export interface CharacterItem {
   id: string;
@@ -9,6 +10,7 @@ export interface CharacterItem {
   name: string;
   description: string;
   attributes: {
+    imageUrl?: string;
     visualIdentity?: string;
     physicalCharacteristics?: string;
     apparentAge?: string;
@@ -81,6 +83,15 @@ export function CharactersTab({ projectId, onStatsUpdate }: CharactersTabProps) 
   const [aiRole, setAiRole] = useState("");
   const [aiLoading, setAiLoading] = useState(false);
   const [aiError, setAiError] = useState<string | null>(null);
+
+  // Modal de Geração Direta de Imagem do Personagem
+  const [imageModalOpen, setImageModalOpen] = useState(false);
+  const [selectedCharForImage, setSelectedCharForImage] = useState<CharacterItem | null>(null);
+
+  const handleOpenImageGen = (char: CharacterItem) => {
+    setSelectedCharForImage(char);
+    setImageModalOpen(true);
+  };
 
   const handleOpenAiModal = () => {
     setAiPrompt("");
@@ -450,6 +461,25 @@ export function CharactersTab({ projectId, onStatsUpdate }: CharactersTabProps) 
                 }`}
               >
                 <div>
+                  {/* Avatar / Imagem do Personagem (se gerada) */}
+                  {attrs.imageUrl && (
+                    <div className="relative mb-3 h-36 w-full overflow-hidden rounded-xl border border-white/10 bg-black/60 group">
+                      <img
+                        src={attrs.imageUrl}
+                        alt={char.name}
+                        className="h-full w-full object-cover object-top transition duration-300 group-hover:scale-105"
+                      />
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent" />
+                      <button
+                        type="button"
+                        onClick={() => handleOpenImageGen(char)}
+                        className="absolute bottom-2 right-2 rounded-lg bg-black/70 px-2 py-1 text-[10px] font-semibold text-amber-300 border border-amber-400/30 opacity-0 group-hover:opacity-100 transition"
+                      >
+                        🔄 Regenerar
+                      </button>
+                    </div>
+                  )}
+
                   {/* Cabeçalho do Card */}
                   <div className="flex items-start justify-between gap-2">
                     <div>
@@ -505,17 +535,29 @@ export function CharactersTab({ projectId, onStatsUpdate }: CharactersTabProps) 
 
                 {/* Barra de Ações Inferior */}
                 <div className="mt-5 pt-3 border-t border-white/10 flex items-center justify-between gap-1">
-                  {/* Botão Ver Prompt JSON */}
-                  <button
-                    onClick={() => handleViewPrompt(char)}
-                    className="flex items-center gap-1.5 rounded-lg bg-primary/10 px-2.5 py-1.5 text-[11px] font-semibold text-primary border border-primary/20 hover:bg-primary/20 transition"
-                    title="Visualizar e exportar prompt base estruturado em JSON"
-                  >
-                    <svg className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4" />
-                    </svg>
-                    Prompt JSON
-                  </button>
+                  <div className="flex items-center gap-1.5">
+                    {/* Botão Ver Prompt JSON */}
+                    <button
+                      onClick={() => handleViewPrompt(char)}
+                      className="flex items-center gap-1.5 rounded-lg bg-primary/10 px-2.5 py-1.5 text-[11px] font-semibold text-primary border border-primary/20 hover:bg-primary/20 transition"
+                      title="Visualizar e exportar prompt base estruturado em JSON"
+                    >
+                      <svg className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4" />
+                      </svg>
+                      Prompt JSON
+                    </button>
+
+                    {/* Botão Gerar Imagem com IA */}
+                    <button
+                      onClick={() => handleOpenImageGen(char)}
+                      className="flex items-center gap-1 rounded-lg bg-amber-400/15 px-2.5 py-1.5 text-[11px] font-bold text-amber-300 border border-amber-400/30 hover:bg-amber-400/25 transition shadow-sm shadow-amber-500/10"
+                      title="Gerar retrato visual cinematográfico com IA deste personagem"
+                    >
+                      <span>🎨</span>
+                      <span>Gerar Imagem</span>
+                    </button>
+                  </div>
 
                   <div className="flex items-center gap-1">
                     {/* Botão Editar */}
@@ -935,7 +977,10 @@ export function CharactersTab({ projectId, onStatsUpdate }: CharactersTabProps) 
 
             <div className="mt-6 flex items-center justify-between border-t border-white/10 pt-4">
               <span className="text-xs text-white/50 flex items-center gap-1.5">
-                <span className="text-primary font-bold">🪙 GEN_CHARACTER</span> • Tabela de créditos
+                <span className="text-amber-400 font-bold flex items-center gap-1">
+                  <span>🪙</span> 5 créditos
+                </span>
+                <span>• Tabela de créditos</span>
               </span>
               <div className="flex gap-2">
                 <button
@@ -989,6 +1034,36 @@ export function CharactersTab({ projectId, onStatsUpdate }: CharactersTabProps) 
             </div>
           </div>
         </div>
+      )}
+      {/* MODAL: Geração Direta de Imagem do Personagem */}
+      {selectedCharForImage && (
+        <DirectEntityImageModal
+          isOpen={imageModalOpen}
+          onClose={() => {
+            setImageModalOpen(false);
+            setSelectedCharForImage(null);
+          }}
+          title={`Gerar Imagem: ${selectedCharForImage.name}`}
+          subtitle="Geração direta com IA e vinculação instantânea à ficha do personagem"
+          entityType="CHARACTER"
+          projectId={projectId}
+          characterId={selectedCharForImage.id}
+          currentImageUrl={selectedCharForImage.attributes?.imageUrl}
+          defaultAspectRatio="1:1"
+          initialPrompt={`Retrato cinematográfico fotorrealista de ${selectedCharForImage.name}, ${selectedCharForImage.description || ""}. ${
+            selectedCharForImage.attributes?.hairAndFace ? `Rosto e traços: ${selectedCharForImage.attributes.hairAndFace}. ` : ""
+          }${
+            selectedCharForImage.attributes?.costumeAndAccessories ? `Figurino: ${selectedCharForImage.attributes.costumeAndAccessories}. ` : ""
+          }${
+            selectedCharForImage.attributes?.visualIdentity ? `Identidade visual: ${selectedCharForImage.attributes.visualIdentity}. ` : ""
+          }Iluminação de cinema com profundidade de campo rasa, textura de pele fotorrealista, 8k.`}
+          onImageGenerated={() => {
+            fetchCharacters();
+            if (typeof window !== "undefined") {
+              window.dispatchEvent(new CustomEvent("tomadix:entities-updated", { detail: { type: "characters", projectId } }));
+            }
+          }}
+        />
       )}
     </div>
   );
