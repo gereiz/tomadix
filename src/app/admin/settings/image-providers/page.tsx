@@ -102,6 +102,7 @@ export default function ImageProvidersAdminPage() {
   const [apiKey, setApiKey] = useState("");
   const [isActive, setIsActive] = useState(true);
   const [defaultModel, setDefaultModel] = useState("flux");
+  const [defaultCreditCost, setDefaultCreditCost] = useState<number>(10);
 
   // Filtro e Ordenação de modelos por qualidade
   const [modelSearch, setModelSearch] = useState("");
@@ -119,6 +120,7 @@ export default function ImageProvidersAdminPage() {
         setBaseUrl(data.provider.baseUrl);
         setIsActive(data.provider.isActive);
         setDefaultModel(data.provider.defaultModel || "flux");
+        setDefaultCreditCost(data.provider.defaultCreditCost !== undefined ? Number(data.provider.defaultCreditCost) : 10);
         setModels(data.models || []);
       } else {
         setNotification({ type: "error", text: data.error || "Erro ao carregar dados do provedor." });
@@ -162,6 +164,7 @@ export default function ImageProvidersAdminPage() {
         baseUrl,
         isActive,
         defaultModel,
+        defaultCreditCost: Number(defaultCreditCost),
       };
 
       if (apiKey.trim().length > 0) {
@@ -549,6 +552,37 @@ export default function ImageProvidersAdminPage() {
                   </select>
                   <p className="text-[10px] text-white/40">
                     Ao selecionar, o modelo torna-se imediatamente o padrão da plataforma.
+                  </p>
+                </div>
+
+                {/* Custo Padrão em Créditos da Operação de Imagem */}
+                <div className="space-y-1.5 p-3 rounded-xl bg-amber-500/5 border border-amber-500/20">
+                  <div className="flex items-center justify-between">
+                    <label className="text-xs font-semibold text-amber-300 flex items-center gap-1.5">
+                      <span>🪙</span> Custo Padrão por Imagem (Créditos)
+                    </label>
+                    <Link
+                      href="/admin/credits"
+                      className="text-[10px] font-semibold text-amber-400 hover:underline flex items-center gap-1"
+                      title="Ver e gerenciar regras de precificação por plano na Tabela de Créditos"
+                    >
+                      <span>Tabela de Créditos</span>
+                      <span>↗</span>
+                    </Link>
+                  </div>
+                  <div className="relative">
+                    <input
+                      type="number"
+                      min={0}
+                      step={1}
+                      value={defaultCreditCost}
+                      onChange={(e) => setDefaultCreditCost(Math.max(0, parseInt(e.target.value) || 0))}
+                      className="w-full px-3 py-2 pl-8 rounded-xl bg-black/50 border border-amber-500/30 text-xs text-white font-mono font-bold focus:border-amber-400 focus:outline-none"
+                    />
+                    <span className="absolute left-2.5 top-2.5 text-xs text-amber-400">🪙</span>
+                  </div>
+                  <p className="text-[10px] text-white/50 leading-relaxed">
+                    Custo padrão debitado por imagem gerada no Tomadix. Sincroniza automaticamente com a operação global <code className="text-amber-300 font-mono">GEN_IMAGE_DIRECT</code> na Tabela de Créditos.
                   </p>
                 </div>
 

@@ -6,6 +6,7 @@ import { ContinuityReport, ContinuityWarning } from "@/modules/scenes/scene.sche
 import { EntityParametersSection } from "@/components/parameters/entity-parameters-section";
 import { VisualParameterSelector } from "@/components/visual-library/visual-parameter-selector";
 import { DirectEntityImageModal } from "@/components/image-generation/direct-entity-image-modal";
+import { ImageLightboxModal } from "@/components/image-generation/image-lightbox-modal";
 
 export interface SceneItem {
   id: string;
@@ -161,6 +162,14 @@ export function ScenesTab({ projectId, onStatsUpdate, onOpenPromptEngine }: Scen
   const [imageModalOpen, setImageModalOpen] = useState(false);
   const [imageModalScene, setImageModalScene] = useState<SceneItem | null>(null);
   const [imageModalFrameType, setImageModalFrameType] = useState<"SCENE_START" | "SCENE_END">("SCENE_START");
+
+  // Lightbox para visualização de keyframes em alta resolução
+  const [lightboxImage, setLightboxImage] = useState<{
+    url: string;
+    title: string;
+    subtitle?: string;
+    prompt?: string;
+  } | null>(null);
 
   const handleOpenSceneImage = (scene: SceneItem, frameType: "SCENE_START" | "SCENE_END") => {
     setImageModalScene(scene);
@@ -847,32 +856,48 @@ export function ScenesTab({ projectId, onStatsUpdate, onOpenPromptEngine }: Scen
                       {/* Quadro Inicial (Start Frame) */}
                       <div className="flex items-center gap-2">
                         {config.startFrameUrl ? (
-                          <div className="relative group/frame overflow-hidden rounded-xl border border-amber-400/40 bg-black/60 h-16 w-28 shrink-0 shadow-md">
+                          <div className="relative group/frame overflow-hidden rounded-xl border border-amber-400/40 bg-[#07090e] h-20 w-36 shrink-0 shadow-lg cursor-zoom-in">
+                            <img
+                              src={config.startFrameUrl}
+                              alt=""
+                              aria-hidden="true"
+                              className="absolute inset-0 h-full w-full object-cover blur-md opacity-30 scale-110 pointer-events-none"
+                            />
                             <img
                               src={config.startFrameUrl}
                               alt="Quadro Inicial"
-                              className="h-full w-full object-cover transition group-hover/frame:scale-105"
+                              className="relative z-10 h-full w-full object-contain transition duration-300 group-hover/frame:scale-105"
                             />
-                            <div className="absolute inset-0 bg-black/70 opacity-0 group-hover/frame:opacity-100 flex items-center justify-center gap-1.5 transition">
+                            <div className="absolute inset-0 z-20 bg-black/60 opacity-0 group-hover/frame:opacity-100 flex items-center justify-center gap-2 transition">
                               <button
                                 type="button"
-                                onClick={() => handleOpenSceneImage(scene, "SCENE_START")}
-                                className="p-1 rounded bg-amber-400 text-black text-[10px] font-bold"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  setLightboxImage({
+                                    url: config.startFrameUrl!,
+                                    title: `Quadro Inicial: ${scene.title}`,
+                                    subtitle: `Cena ${scene.order + 1}`,
+                                    prompt: scene.description,
+                                  });
+                                }}
+                                className="p-1.5 rounded-lg bg-white/20 text-white text-xs hover:bg-white/30 transition"
+                                title="Visualizar em tamanho real"
+                              >
+                                🔍
+                              </button>
+                              <button
+                                type="button"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  handleOpenSceneImage(scene, "SCENE_START");
+                                }}
+                                className="p-1.5 rounded-lg bg-amber-400 text-black text-xs font-bold hover:bg-amber-300 transition"
                                 title="Regenerar Imagem Inicial"
                               >
                                 🔄
                               </button>
-                              <a
-                                href={config.startFrameUrl}
-                                target="_blank"
-                                rel="noreferrer"
-                                className="p-1 rounded bg-white/20 text-white text-[10px]"
-                                title="Visualizar em tamanho real"
-                              >
-                                🔍
-                              </a>
                             </div>
-                            <span className="absolute bottom-0 left-0 right-0 bg-black/80 text-[8px] text-amber-300 font-mono text-center py-0.5 truncate">
+                            <span className="absolute bottom-0 left-0 right-0 z-10 bg-black/80 text-[8px] text-amber-300 font-mono text-center py-0.5 truncate border-t border-amber-500/20">
                               Start Frame
                             </span>
                           </div>
@@ -892,32 +917,48 @@ export function ScenesTab({ projectId, onStatsUpdate, onOpenPromptEngine }: Scen
                       {/* Quadro Final (End Frame / Opcional) */}
                       <div className="flex items-center gap-2">
                         {config.endFrameUrl ? (
-                          <div className="relative group/frame overflow-hidden rounded-xl border border-purple-400/40 bg-black/60 h-16 w-28 shrink-0 shadow-md">
+                          <div className="relative group/frame overflow-hidden rounded-xl border border-purple-400/40 bg-[#07090e] h-20 w-36 shrink-0 shadow-lg cursor-zoom-in">
+                            <img
+                              src={config.endFrameUrl}
+                              alt=""
+                              aria-hidden="true"
+                              className="absolute inset-0 h-full w-full object-cover blur-md opacity-30 scale-110 pointer-events-none"
+                            />
                             <img
                               src={config.endFrameUrl}
                               alt="Quadro Final"
-                              className="h-full w-full object-cover transition group-hover/frame:scale-105"
+                              className="relative z-10 h-full w-full object-contain transition duration-300 group-hover/frame:scale-105"
                             />
-                            <div className="absolute inset-0 bg-black/70 opacity-0 group-hover/frame:opacity-100 flex items-center justify-center gap-1.5 transition">
+                            <div className="absolute inset-0 z-20 bg-black/60 opacity-0 group-hover/frame:opacity-100 flex items-center justify-center gap-2 transition">
                               <button
                                 type="button"
-                                onClick={() => handleOpenSceneImage(scene, "SCENE_END")}
-                                className="p-1 rounded bg-purple-400 text-black text-[10px] font-bold"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  setLightboxImage({
+                                    url: config.endFrameUrl!,
+                                    title: `Quadro Final: ${scene.title}`,
+                                    subtitle: `Cena ${scene.order + 1}`,
+                                    prompt: scene.description,
+                                  });
+                                }}
+                                className="p-1.5 rounded-lg bg-white/20 text-white text-xs hover:bg-white/30 transition"
+                                title="Visualizar em tamanho real"
+                              >
+                                🔍
+                              </button>
+                              <button
+                                type="button"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  handleOpenSceneImage(scene, "SCENE_END");
+                                }}
+                                className="p-1.5 rounded-lg bg-purple-400 text-black text-xs font-bold hover:bg-purple-300 transition"
                                 title="Regenerar Imagem Final"
                               >
                                 🔄
                               </button>
-                              <a
-                                href={config.endFrameUrl}
-                                target="_blank"
-                                rel="noreferrer"
-                                className="p-1 rounded bg-white/20 text-white text-[10px]"
-                                title="Visualizar em tamanho real"
-                              >
-                                🔍
-                              </a>
                             </div>
-                            <span className="absolute bottom-0 left-0 right-0 bg-black/80 text-[8px] text-purple-300 font-mono text-center py-0.5 truncate">
+                            <span className="absolute bottom-0 left-0 right-0 z-10 bg-black/80 text-[8px] text-purple-300 font-mono text-center py-0.5 truncate border-t border-purple-500/20">
                               End Frame
                             </span>
                           </div>
@@ -955,6 +996,17 @@ export function ScenesTab({ projectId, onStatsUpdate, onOpenPromptEngine }: Scen
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
                     </svg>
                     Gerar Prompt
+                  </button>
+
+                  {/* Botão Direto de Gerar Imagem com IA da Cena */}
+                  <button
+                    type="button"
+                    onClick={() => handleOpenSceneImage(scene, "SCENE_START")}
+                    className="flex items-center gap-1.5 rounded-lg bg-amber-400/15 px-3 py-1.5 text-xs font-bold text-amber-300 border border-amber-400/30 hover:bg-amber-400/25 transition w-full justify-center shadow-sm shadow-amber-500/10"
+                    title="Gerar imagem ou keyframe cinematográfico desta cena com IA"
+                  >
+                    <span>🎨</span>
+                    <span>Gerar Imagem</span>
                   </button>
 
                   <div className="flex items-center gap-1 w-full justify-end">
@@ -2070,6 +2122,16 @@ export function ScenesTab({ projectId, onStatsUpdate, onOpenPromptEngine }: Scen
           }}
         />
       )}
+
+      {/* Lightbox Modal para Visualização de Keyframes em Alta Resolução */}
+      <ImageLightboxModal
+        isOpen={Boolean(lightboxImage)}
+        onClose={() => setLightboxImage(null)}
+        imageUrl={lightboxImage?.url || null}
+        title={lightboxImage?.title || "Keyframe da Cena"}
+        subtitle={lightboxImage?.subtitle}
+        prompt={lightboxImage?.prompt}
+      />
     </div>
   );
 }

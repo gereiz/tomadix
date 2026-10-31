@@ -3,6 +3,7 @@
 import { useState, useEffect, useCallback } from "react";
 import { EntityParametersSection } from "@/components/parameters/entity-parameters-section";
 import { DirectEntityImageModal } from "@/components/image-generation/direct-entity-image-modal";
+import { ImageLightboxModal } from "@/components/image-generation/image-lightbox-modal";
 
 export interface EnvironmentItem {
   id: string;
@@ -86,6 +87,14 @@ export function EnvironmentsTab({ projectId, onStatsUpdate }: EnvironmentsTabPro
   // Modal de Geração Direta de Imagem do Ambiente
   const [imageModalOpen, setImageModalOpen] = useState(false);
   const [selectedEnvForImage, setSelectedEnvForImage] = useState<EnvironmentItem | null>(null);
+
+  // Lightbox para visualização de imagem em alta resolução
+  const [lightboxImage, setLightboxImage] = useState<{
+    url: string;
+    title: string;
+    subtitle?: string;
+    prompt?: string;
+  } | null>(null);
 
   const handleOpenImageGen = (env: EnvironmentItem) => {
     setSelectedEnvForImage(env);
@@ -461,20 +470,59 @@ export function EnvironmentsTab({ projectId, onStatsUpdate }: EnvironmentsTabPro
                 <div>
                   {/* Imagem Panorâmica do Ambiente (se gerada) */}
                   {attrs.imageUrl && (
-                    <div className="relative mb-3 h-36 w-full overflow-hidden rounded-xl border border-white/10 bg-black/60 group">
+                    <div className="relative mb-3.5 w-full overflow-hidden rounded-2xl border border-white/10 bg-[#07090e] shadow-xl group aspect-[16/10] sm:aspect-video">
+                      {/* Efeito Blur de Preenchimento Cinematográfico */}
+                      <img
+                        src={attrs.imageUrl}
+                        alt=""
+                        aria-hidden="true"
+                        className="absolute inset-0 h-full w-full object-cover blur-xl opacity-30 scale-110 pointer-events-none"
+                      />
+
+                      {/* Imagem Principal Centralizada e Completa */}
                       <img
                         src={attrs.imageUrl}
                         alt={env.name}
-                        className="h-full w-full object-cover transition duration-300 group-hover:scale-105"
+                        className="relative z-10 h-full w-full object-contain object-center transition duration-500 group-hover:scale-[1.02]"
                       />
-                      <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent" />
-                      <button
-                        type="button"
-                        onClick={() => handleOpenImageGen(env)}
-                        className="absolute bottom-2 right-2 rounded-lg bg-black/70 px-2 py-1 text-[10px] font-semibold text-amber-300 border border-amber-400/30 opacity-0 group-hover:opacity-100 transition"
-                      >
-                        🔄 Regenerar
-                      </button>
+
+                      {/* Vinheta Gradiente */}
+                      <div className="absolute inset-0 z-20 pointer-events-none bg-gradient-to-t from-black/80 via-transparent to-black/20" />
+
+                      {/* Badge Superior */}
+                      <div className="absolute top-2 left-2 z-30 flex items-center gap-1 rounded-md bg-black/70 px-2 py-0.5 text-[9px] font-mono text-amber-300 border border-amber-400/20 backdrop-blur-sm">
+                        <span>🏙️</span>
+                        <span>Cenário IA</span>
+                      </div>
+
+                      {/* Ações no Hover da Imagem */}
+                      <div className="absolute inset-0 z-30 flex items-center justify-center gap-2 opacity-0 group-hover:opacity-100 transition duration-200 bg-black/40 backdrop-blur-[2px]">
+                        <button
+                          type="button"
+                          onClick={() =>
+                            setLightboxImage({
+                              url: attrs.imageUrl!,
+                              title: env.name,
+                              subtitle: attrs.locationContext || undefined,
+                              prompt: attrs.basePrompt || env.description,
+                            })
+                          }
+                          className="flex items-center gap-1.5 rounded-xl bg-white/20 hover:bg-white/30 px-3 py-1.5 text-xs font-semibold text-white border border-white/20 transition shadow-lg backdrop-blur-sm"
+                          title="Visualizar cenário em tamanho real"
+                        >
+                          <span>🔍</span>
+                          <span>Ampliar</span>
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => handleOpenImageGen(env)}
+                          className="flex items-center gap-1.5 rounded-xl bg-amber-400 text-black hover:bg-amber-300 px-3 py-1.5 text-xs font-bold transition shadow-lg"
+                          title="Gerar uma nova variação de imagem"
+                        >
+                          <span>🔄</span>
+                          <span>Regenerar</span>
+                        </button>
+                      </div>
                     </div>
                   )}
 
@@ -1027,6 +1075,16 @@ export function EnvironmentsTab({ projectId, onStatsUpdate }: EnvironmentsTabPro
           }}
         />
       )}
+
+      {/* Lightbox Modal para Visualização de Cenário em Alta Resolução */}
+      <ImageLightboxModal
+        isOpen={Boolean(lightboxImage)}
+        onClose={() => setLightboxImage(null)}
+        imageUrl={lightboxImage?.url || null}
+        title={lightboxImage?.title || "Visualização do Ambiente"}
+        subtitle={lightboxImage?.subtitle}
+        prompt={lightboxImage?.prompt}
+      />
     </div>
   );
 }

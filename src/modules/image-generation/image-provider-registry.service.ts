@@ -81,8 +81,9 @@ export class ImageProviderRegistryService {
     baseUrl?: string;
     isActive?: boolean;
     defaultModel?: string;
+    defaultCreditCost?: number;
   }): Promise<ImageProviderConfig> {
-    const { providerId, name, apiKey, baseUrl, isActive, defaultModel } = params;
+    const { providerId, name, apiKey, baseUrl, isActive, defaultModel, defaultCreditCost } = params;
 
     const existing = await this.getProviderConfig(providerId);
 
@@ -90,6 +91,37 @@ export class ImageProviderRegistryService {
     if (name !== undefined) updateData.name = name.trim();
     if (baseUrl !== undefined) updateData.baseUrl = baseUrl.trim();
     if (isActive !== undefined) updateData.isActive = Boolean(isActive);
+
+    // Suporte e sincronização com o custo padrão de créditos da geração de imagens
+    if (defaultCreditCost !== undefined && defaultCreditCost >= 0) {
+      const currentCustom = (existing.customConfig as Record<string, any>) || {};
+      updateData.customConfig = {
+        ...currentCustom,
+        defaultCreditCost: Number(defaultCreditCost),
+      };
+
+      // Sincronizar simultaneamente com a operação GEN_IMAGE_DIRECT na Tabela de Créditos
+      try {
+        await db.creditOperation.upsert({
+          where: { code: "GEN_IMAGE_DIRECT" },
+          create: {
+            code: "GEN_IMAGE_DIRECT",
+            name: "Geração Direta de Imagem IA",
+            description: "Geração direta de imagem através de provedores integrados (Pollinations.ai).",
+            category: "IMAGES",
+            defaultCreditCost: Number(defaultCreditCost),
+            isActive: true,
+            isFree: Number(defaultCreditCost) === 0,
+          },
+          update: {
+            defaultCreditCost: Number(defaultCreditCost),
+            isFree: Number(defaultCreditCost) === 0,
+          },
+        });
+      } catch (err: any) {
+        console.warn("[ImageProviderRegistry] Aviso ao sincronizar GEN_IMAGE_DIRECT:", err?.message);
+      }
+    }
 
     if (defaultModel !== undefined && defaultModel.trim().length > 0) {
       const trimmedModel = defaultModel.trim();

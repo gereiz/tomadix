@@ -32,6 +32,7 @@ interface CreditOperation {
 
 const CATEGORY_TABS = [
   { id: "ALL", label: "Todas as Criações", icon: "🎬" },
+  { id: "IMAGES", label: "Geração de Imagens", icon: "🎨" },
   { id: "PROMPTS", label: "Prompts de IA", icon: "✨" },
   { id: "SCENES", label: "Cenas & Roteiro", icon: "🎥" },
   { id: "ENTITIES", label: "Personagens & Ambientes", icon: "👥" },
@@ -111,8 +112,10 @@ export default function AdminCreditsConfigPage() {
     return operations.filter((op) => {
       // Filtro de Categoria
       let matchesCategory = true;
-      if (activeCategory === "PROMPTS") {
-        matchesCategory = ["PROMPTS", "PREMIUM", "EXPANSIONS"].includes(op.category) && !op.code.includes("SCENE");
+      if (activeCategory === "IMAGES") {
+        matchesCategory = op.category === "IMAGES" || op.code === "GEN_IMAGE_DIRECT" || op.code.includes("IMAGE");
+      } else if (activeCategory === "PROMPTS") {
+        matchesCategory = ["PROMPTS", "PREMIUM", "EXPANSIONS"].includes(op.category) && !op.code.includes("SCENE") && op.code !== "GEN_IMAGE_DIRECT";
       } else if (activeCategory === "SCENES") {
         matchesCategory = op.category === "SCENES" || op.code.includes("SCENE") || op.code === "GEN_SCRIPT";
       } else if (activeCategory === "ENTITIES") {

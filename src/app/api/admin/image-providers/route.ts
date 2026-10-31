@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { requirePlatformAdmin, AuthorizationError, AuthenticationError } from "@/lib/auth";
+import { db } from "@/lib/db";
 import { ImageProviderRegistryService } from "@/modules/image-generation/image-provider-registry.service";
 import { AdminAuditService } from "@/modules/admin/admin-audit.service";
 
@@ -9,6 +10,17 @@ export async function GET() {
 
     const providerConfig = await ImageProviderRegistryService.getProviderConfig("pollinations");
     const models = await ImageProviderRegistryService.listModelsForAdmin("pollinations");
+
+    // Obter custo padrão configurado na operação GEN_IMAGE_DIRECT ou no customConfig
+    const customConfig = (providerConfig.customConfig as Record<string, any>) || {};
+    let defaultCreditCost = customConfig.defaultCreditCost;
+    if (defaultCreditCost === undefined || defaultCreditCost === null) {
+      const op = await db.creditOperation.findUnique({
+        where: { code: "GEN_IMAGE_DIRECT" },
+        select: { defaultCreditCost: true },
+      }).catch(() => null);
+      defaultCreditCost = op?.defaultCreditCost ?? 10;
+    }
 
     // Garantir que a apiKey bruta NUNCA seja retornada no frontend
     const safeConfig = {
@@ -20,6 +32,7 @@ export async function GET() {
       baseUrl: providerConfig.baseUrl,
       isActive: providerConfig.isActive,
       defaultModel: providerConfig.defaultModel,
+      defaultCreditCost: Number(defaultCreditCost),
       connectionStatus: providerConfig.connectionStatus,
       lastTestedAt: providerConfig.lastTestedAt,
       lastTestMessage: providerConfig.lastTestMessage,
@@ -57,7 +70,7 @@ export async function POST(request: NextRequest) {
     const adminUser = await requirePlatformAdmin("settings:manage");
     const body = await request.json().catch(() => ({}));
 
-    const { providerId = "pollinations", name, apiKey, baseUrl, isActive, defaultModel } = body;
+    const { providerId = "pollinations", name, apiKey, baseUrl, isActive, defaultModel, defaultCreditCost } = body;
 
     const updated = await ImageProviderRegistryService.saveProviderConfig({
       providerId,
@@ -66,6 +79,7 @@ export async function POST(request: NextRequest) {
       baseUrl,
       isActive,
       defaultModel,
+      defaultCreditCost: defaultCreditCost !== undefined ? Number(defaultCreditCost) : undefined,
     });
 
     await AdminAuditService.logAction({

@@ -119,21 +119,29 @@ export class ImageEntitlementService {
       }
     }
 
-    // 7. Calcular o custo em créditos
+    // 7. Calcular o custo em créditos com prioridade consistente:
+    // 1º Regra de preço por plano configurada na Tabela de Créditos (GEN_IMAGE_DIRECT)
+    // 2º Custo customizado do modelo específico (se configurado pelo admin e > 0)
+    // 3º Custo padrão da operação GEN_IMAGE_DIRECT (Tabela de Créditos / Provedor)
+    // 4º Custo de fallback do plano
     let creditCost = plan.imageDefaultCost ?? 10;
-
-    // Se o modelo tiver override de custo específico
-    if (modelConfig?.defaultCreditCost !== null && modelConfig?.defaultCreditCost !== undefined && modelConfig.defaultCreditCost >= 0) {
-      creditCost = modelConfig.defaultCreditCost;
-    } else {
-      // Verificar se há regra de preços em CreditPricingRule para GEN_IMAGE_DIRECT
-      try {
-        const costResolution = await CreditPricingService.resolveCost("GEN_IMAGE_DIRECT", planTier);
-        if (!costResolution.isFree && costResolution.creditCost > 0) {
-          creditCost = costResolution.creditCost;
-        }
-      } catch (err) {
-        // Fallback para imageDefaultCost do plano
+    try {
+      const costResolution = await CreditPricingService.resolveCost("GEN_IMAGE_DIRECT", planTier);
+      if (costResolution.isFree) {
+        creditCost = 0;
+      } else if (costResolution.appliedRule === "PLAN_SPECIFIC") {
+        // Regra explícita para o plano do usuário prevalece
+        creditCost = costResolution.creditCost;
+      } else if (modelConfig?.defaultCreditCost !== null && modelConfig?.defaultCreditCost !== undefined && modelConfig.defaultCreditCost > 0) {
+        creditCost = modelConfig.defaultCreditCost;
+      } else {
+        creditCost = costResolution.creditCost;
+      }
+    } catch {
+      if (modelConfig?.defaultCreditCost !== null && modelConfig?.defaultCreditCost !== undefined && modelConfig.defaultCreditCost > 0) {
+        creditCost = modelConfig.defaultCreditCost;
+      } else {
+        creditCost = plan.imageDefaultCost ?? 10;
       }
     }
 
@@ -195,24 +203,47 @@ export class ImageEntitlementService {
 
     const filtered = allModels.filter((m) => isAllowAll || allowedList.includes(m.modelId));
 
+    let baseCreditCost = plan.imageDefaultCost ?? 10;
+    let isPlanFree = false;
+    let hasPlanRule = false;
+    try {
+      const costResolution = await CreditPricingService.resolveCost("GEN_IMAGE_DIRECT", planTier);
+      isPlanFree = costResolution.isFree;
+      baseCreditCost = costResolution.creditCost;
+      hasPlanRule = costResolution.appliedRule === "PLAN_SPECIFIC";
+    } catch {
+      // Fallback
+    }
+
     return {
       enabled: true,
       planName: plan.name,
       planTier,
       imageDailyLimit: plan.imageDailyLimit,
       imageMonthlyLimit: plan.imageMonthlyLimit,
-      defaultCreditCost: plan.imageDefaultCost,
-      models: filtered.map((m) => ({
-        id: m.modelId,
-        name: m.name,
-        publisher: m.publisher,
-        description: m.description,
-        capabilities: m.capabilities,
-        supportedSizes: m.supportedSizes,
-        supportsReferenceImage: m.supportsReferenceImage,
-        isDefault: m.isDefault,
-        creditCost: m.defaultCreditCost ?? plan.imageDefaultCost ?? 10,
-      })),
+      defaultCreditCost: isPlanFree ? 0 : baseCreditCost,
+      models: filtered.map((m) => {
+        let modelCost = baseCreditCost;
+        if (isPlanFree) {
+          modelCost = 0;
+        } else if (hasPlanRule) {
+          modelCost = baseCreditCost;
+        } else if (m.defaultCreditCost !== null && m.defaultCreditCost !== undefined && m.defaultCreditCost > 0) {
+          modelCost = m.defaultCreditCost;
+        }
+
+        return {
+          id: m.modelId,
+          name: m.name,
+          publisher: m.publisher,
+          description: m.description,
+          capabilities: m.capabilities,
+          supportedSizes: m.supportedSizes,
+          supportsReferenceImage: m.supportsReferenceImage,
+          isDefault: m.isDefault,
+          creditCost: modelCost,
+        };
+      }),
     };
   }
 }
