@@ -229,7 +229,7 @@ export class AdminBillingService {
       description: data.description ?? existingPlan?.description ?? "",
       code: data.code || data.tier.toLowerCase(),
       badge: data.badge || null,
-      displayOrder: data.displayOrder ?? 0,
+      displayOrder: data.displayOrder !== undefined ? Number(data.displayOrder) : (existingPlan?.displayOrder ?? 0),
       isHighlighted: data.isHighlighted ?? false,
       targetAudience: data.targetAudience || null,
       commercialStatus: data.commercialStatus || "ACTIVE",
@@ -458,6 +458,44 @@ export class AdminBillingService {
     });
 
     return duplicated;
+  }
+
+  /**
+   * Reordena a ordem de exibição dos planos na vitrine pública (/pricing) e no console administrativo.
+   */
+  static async reorderPlans(
+    adminUserId: string,
+    orderedTiers: (PlanTier | string)[],
+    context?: { ip?: string; ua?: string }
+  ) {
+    if (!Array.isArray(orderedTiers) || orderedTiers.length === 0) {
+      throw new Error("Lista de planos inválida para reordenação.");
+    }
+
+    // Atualiza atomicamente a ordem de cada plano
+    const updates = orderedTiers.map((tier, index) => {
+      return db.plan.update({
+        where: { tier: tier as PlanTier },
+        data: { displayOrder: index + 1 },
+      });
+    });
+
+    await db.$transaction(updates);
+
+    await AdminAuditService.logAction({
+      adminUserId,
+      action: "PLAN_REORDER",
+      targetType: "Plan",
+      targetId: "all",
+      result: "SUCCESS",
+      details: {
+        orderedTiers,
+      },
+      ipAddress: context?.ip,
+      userAgent: context?.ua,
+    });
+
+    return await this.listAllPlans();
   }
 
   /**

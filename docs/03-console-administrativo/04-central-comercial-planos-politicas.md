@@ -57,7 +57,23 @@ A aba **"4. Limites, Recursos & Custos"** unifica:
 - As regras de desconto e gratuidade específicas por plano (`CreditPricingRule`).
 - O sistema autônomo e idempotente de renovação periódica de créditos (`CreditRenewalPolicy`).
 
-*(Para documentação aprofundada sobre custos e renovações, consulte o documento [05-central-custos-renovacao-creditos.md](./05-central-custos-renovacao-creditos.md)).*
+---
+
+## 5. Controle da Ordem de Exibição na Vitrine de Planos (`displayOrder`)
+
+A aba **"2. Planos & Preços"** permite que o administrador organize a ordem em que os planos aparecem para os usuários na página pública de planos (`/pricing`), sem necessidade de alterar código ou banco de dados manualmente:
+
+1. **Reordenação Visual Rápida (Botões ◀ e ▶)**:
+   - Cada card de plano na Central Comercial exibe um badge identificando sua posição atual na vitrine (ex: `Posição #1 na Vitrine`, `Posição #2 na Vitrine`).
+   - Botões de ação rápida `◀` (mover para a esquerda) e `▶` (mover para a direita) realizam a troca de posição imediata com o plano adjacente.
+   - A alteração é refletida em tempo real na tela através de atualização otimista e sincronizada no backend via endpoint `PUT /api/admin/billing/plans/reorder`.
+2. **Definição Numérica via Edição de Plano**:
+   - Ao abrir o formulário **"Editar"** de qualquer plano, o campo **"Ordem de Exibição na Vitrine"** permite definir diretamente a posição numérica desejada (`displayOrder`). Valores menores aparecem primeiro (à esquerda na página pública).
+3. **Atalho de Ordem Convencional**:
+   - O botão **"Ordem Padrão (Free → Pro → Team → Enterprise)"** permite restaurar em um clique a sequência clássica e comprovada de conversão SaaS.
+4. **Sincronização com a Página do Usuário (`/pricing`)**:
+   - A consulta pública de planos (`BillingService.listPlans()`) ordena deterministicamente por `displayOrder ASC, priceMonthly ASC`. A vitrine pública dos usuários reflete instantaneamente a ordem configurada.
+
 
 ---
 

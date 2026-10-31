@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from "next/server";
 import { requirePlatformAdmin, AuthorizationError, AuthenticationError, getClientContext } from "@/lib/auth";
 import { AdminBillingService } from "@/modules/admin/admin-billing.service";
 
+export const dynamic = "force-dynamic";
+
 export async function GET() {
   try {
     await requirePlatformAdmin("plans:manage");

@@ -41,6 +41,7 @@ export default function AdminBillingPage() {
   const [duplicateModal, setDuplicateModal] = useState<{ sourceTier: string; name: string; targetTier: string } | null>(null);
   const [archiveModal, setArchiveModal] = useState<any>(null);
   const [policyEditModal, setPolicyEditModal] = useState<{ key: string; label: string; value: any; dataType: string; justification: string } | null>(null);
+  const [isReordering, setIsReordering] = useState(false);
 
   const [notification, setNotification] = useState<{ type: "success" | "error"; message: string } | null>(null);
 
@@ -150,6 +151,80 @@ export default function AdminBillingPage() {
       loadData();
     } catch (err: any) {
       setNotification({ type: "error", message: err.message });
+    }
+  };
+
+  const handleMovePlan = async (tier: string, direction: "left" | "right") => {
+    const currentIndex = plans.findIndex((p) => p.tier === tier);
+    if (currentIndex === -1) return;
+    const targetIndex = direction === "left" ? currentIndex - 1 : currentIndex + 1;
+    if (targetIndex < 0 || targetIndex >= plans.length) return;
+
+    const newPlans = [...plans];
+    const [moved] = newPlans.splice(currentIndex, 1);
+    newPlans.splice(targetIndex, 0, moved);
+
+    // Atualização otimista imediata na UI
+    setPlans(newPlans);
+    setIsReordering(true);
+
+    try {
+      const orderedTiers = newPlans.map((p) => p.tier);
+      const res = await fetch("/api/admin/billing/plans/reorder", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ orderedTiers }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error);
+
+      setNotification({
+        type: "success",
+        message: `Ordem atualizada: "${moved.name}" agora é a posição #${targetIndex + 1} na página de planos dos usuários.`,
+      });
+      if (Array.isArray(data.plans)) {
+        setPlans(data.plans);
+      }
+    } catch (err: any) {
+      setNotification({ type: "error", message: "Erro ao reordenar planos: " + err.message });
+      loadData();
+    } finally {
+      setIsReordering(false);
+    }
+  };
+
+  const handleResetConventionalOrder = async () => {
+    const conventionalTiers = ["FREE", "PRO", "TEAM", "ENTERPRISE"];
+    const currentTiers = plans.map((p) => p.tier);
+    const customTiers = currentTiers.filter((t) => !conventionalTiers.includes(t));
+    const finalOrderedTiers = [
+      ...conventionalTiers.filter((t) => currentTiers.includes(t)),
+      ...customTiers,
+    ];
+
+    setIsReordering(true);
+    try {
+      const res = await fetch("/api/admin/billing/plans/reorder", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ orderedTiers: finalOrderedTiers }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error);
+
+      setNotification({
+        type: "success",
+        message: "Ordem padrão redefinida com sucesso (Gratuito → Pro → Team → Enterprise).",
+      });
+      if (Array.isArray(data.plans)) {
+        setPlans(data.plans);
+      } else {
+        loadData();
+      }
+    } catch (err: any) {
+      setNotification({ type: "error", message: "Erro ao restaurar ordem padrão: " + err.message });
+    } finally {
+      setIsReordering(false);
     }
   };
 
@@ -425,8 +500,35 @@ export default function AdminBillingPage() {
       {/* SEÇÃO 2: PLANOS E PREÇOS */}
       {activeTab === "plans" && (
         <div className="space-y-6">
+          {/* Barra Informativa de Ordem de Exibição na Vitrine */}
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-4 rounded-xl border border-sky-500/20 bg-sky-950/20">
+            <div className="flex items-center gap-3">
+              <span className="text-xl">↕️</span>
+              <div>
+                <h4 className="text-xs font-bold text-white flex items-center gap-2">
+                  <span>Ordem de Exibição na Vitrine de Planos</span>
+                  <span className="text-[10px] text-sky-400 font-mono bg-sky-500/10 px-2 py-0.5 rounded border border-sky-500/20">
+                    /pricing dos Usuários
+                  </span>
+                </h4>
+                <p className="text-[11px] text-white/60 mt-0.5">
+                  Os planos abaixo são exibidos para os usuários na página pública de planos exatamente nesta ordem (da esquerda para a direita). Use as setas ◀ ▶ nos cards ou defina a ordem no botão Editar.
+                </p>
+              </div>
+            </div>
+            <button
+              type="button"
+              onClick={handleResetConventionalOrder}
+              disabled={isReordering}
+              className="shrink-0 px-3 py-1.5 rounded-lg bg-sky-500/10 border border-sky-500/30 text-sky-300 text-xs font-semibold hover:bg-sky-500/20 transition flex items-center gap-1.5 self-start sm:self-auto disabled:opacity-50"
+              title="Ordem recomendada de conversão: Gratuito primeiro, depois Pro, Team e Enterprise"
+            >
+              <span>✨</span> Ordem Padrão (Free → Pro → Team → Enterprise)
+            </button>
+          </div>
+
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-            {plans.map((p) => (
+            {plans.map((p, idx) => (
               <div
                 key={p.tier}
                 className={`rounded-2xl border p-5 flex flex-col justify-between transition ${
@@ -436,6 +538,36 @@ export default function AdminBillingPage() {
                 }`}
               >
                 <div>
+                  {/* Barra de Posição na Vitrine & Reordenação */}
+                  <div className="flex items-center justify-between pb-3 mb-3 border-b border-white/5">
+                    <div className="flex items-center gap-1.5">
+                      <span className="px-2 py-0.5 rounded text-[10px] font-mono font-bold bg-sky-500/20 text-sky-300 border border-sky-500/30">
+                        Posição #{idx + 1}
+                      </span>
+                      <span className="text-[10px] text-white/40">na Vitrine</span>
+                    </div>
+                    <div className="flex items-center gap-1">
+                      <button
+                        type="button"
+                        onClick={() => handleMovePlan(p.tier, "left")}
+                        disabled={idx === 0 || isReordering}
+                        title="Mover para esquerda (exibir antes na página de planos dos usuários)"
+                        className="h-6 w-6 rounded bg-white/5 hover:bg-sky-500/20 hover:text-sky-300 border border-white/10 disabled:opacity-20 disabled:cursor-not-allowed flex items-center justify-center text-xs font-bold transition text-white"
+                      >
+                        ◀
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => handleMovePlan(p.tier, "right")}
+                        disabled={idx === plans.length - 1 || isReordering}
+                        title="Mover para direita (exibir depois na página de planos dos usuários)"
+                        className="h-6 w-6 rounded bg-white/5 hover:bg-sky-500/20 hover:text-sky-300 border border-white/10 disabled:opacity-20 disabled:cursor-not-allowed flex items-center justify-center text-xs font-bold transition text-white"
+                      >
+                        ▶
+                      </button>
+                    </div>
+                  </div>
+
                   <div className="flex items-center justify-between mb-3">
                     <span className="font-mono text-xs font-bold text-amber-400">{p.tier}</span>
                     <span
@@ -512,6 +644,7 @@ export default function AdminBillingPage() {
                     onClick={() =>
                       setEditingPlan({
                         ...p,
+                        displayOrder: p.displayOrder !== undefined ? p.displayOrder : idx + 1,
                         preserveExistingContracts: true,
                       })
                     }
@@ -977,6 +1110,37 @@ export default function AdminBillingPage() {
                     onChange={(e) => setEditingPlan({ ...editingPlan, badge: e.target.value })}
                     className="w-full rounded-xl border border-white/10 bg-white/5 p-2.5 text-white"
                   />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                  <label className="text-white/60 block mb-1 flex items-center justify-between">
+                    <span>Ordem de Exibição na Vitrine</span>
+                    <span className="text-[10px] text-sky-400 font-mono">Página /pricing</span>
+                  </label>
+                  <input
+                    type="number"
+                    min="1"
+                    value={editingPlan.displayOrder ?? 1}
+                    onChange={(e) => setEditingPlan({ ...editingPlan, displayOrder: parseInt(e.target.value || "1") })}
+                    className="w-full rounded-xl border border-white/10 bg-white/5 p-2.5 text-white font-mono"
+                  />
+                  <span className="text-[10px] text-white/40 mt-1 block">
+                    Determina a posição de exibição na tela de Planos dos usuários (ex: 1 = primeiro à esquerda).
+                  </span>
+                </div>
+                <div>
+                  <label className="text-white/60 block mb-1">Status Comercial</label>
+                  <select
+                    value={editingPlan.commercialStatus || "ACTIVE"}
+                    onChange={(e) => setEditingPlan({ ...editingPlan, commercialStatus: e.target.value })}
+                    className="w-full rounded-xl border border-white/10 bg-[#0d111c] p-2.5 text-white"
+                  >
+                    <option value="ACTIVE">Ativo (Visível na Vitrine)</option>
+                    <option value="DRAFT">Rascunho (Oculto)</option>
+                    <option value="ARCHIVED">Arquivado</option>
+                  </select>
                 </div>
               </div>
 

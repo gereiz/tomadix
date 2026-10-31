@@ -2,54 +2,15 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import {
+  ADMIN_NAV_GROUPS,
+  NavItem,
+  NavGroup,
+  isItemActive,
+} from "./admin-nav.config";
 
-export interface NavItem {
-  href: string;
-  label: string;
-  icon: string;
-  badge?: string;
-}
-
-export interface NavGroup {
-  groupName: string;
-  items: NavItem[];
-}
-
-export const ADMIN_NAV_GROUPS: NavGroup[] = [
-  {
-    groupName: "Visão Geral",
-    items: [
-      { href: "/admin", label: "Dashboard", icon: "📊" },
-    ],
-  },
-  {
-    groupName: "Gestão",
-    items: [
-      { href: "/admin/users", label: "Usuários", icon: "👥" },
-      { href: "/admin/projects", label: "Projetos", icon: "🎬" },
-      { href: "/admin/billing", label: "Planos & Assinaturas", icon: "💳" },
-      { href: "/admin/credits", label: "Tabela de Créditos", icon: "🪙" },
-      { href: "/admin/usage", label: "Consumo & Custos IA", icon: "⚡" },
-      { href: "/admin/parameters", label: "Parâmetros Dinâmicos", icon: "⚙️" },
-    ],
-  },
-  {
-    groupName: "Plataforma",
-    items: [
-      { href: "/admin/customization", label: "Personalização", icon: "🎨" },
-      { href: "/admin/settings", label: "Configurações Gerais", icon: "🛠️" },
-      { href: "/admin/settings/database", label: "Banco de Dados", icon: "🗄️" },
-      { href: "/admin/settings/gemini", label: "APIs Gemini (Multi-Key)", icon: "✨" },
-    ],
-  },
-  {
-    groupName: "Sistema",
-    items: [
-      { href: "/admin/visual-library", label: "Biblioteca Visual", icon: "🖼️" },
-      { href: "/admin/audit", label: "Auditoria & Logs", icon: "🛡️" },
-    ],
-  },
-];
+export type { NavItem, NavGroup };
+export { ADMIN_NAV_GROUPS };
 
 interface AdminSidebarProps {
   collapsed: boolean;
@@ -65,13 +26,6 @@ export function AdminSidebar({
   onCloseMobile,
 }: AdminSidebarProps) {
   const pathname = usePathname();
-
-  const isItemActive = (href: string) => {
-    if (href === "/admin") {
-      return pathname === "/admin";
-    }
-    return pathname.startsWith(href);
-  };
 
   const navContent = (
     <div className="flex h-full flex-col justify-between overflow-y-auto no-scrollbar py-4 px-3">
@@ -121,7 +75,7 @@ export function AdminSidebar({
               )}
               <div className="space-y-0.5">
                 {group.items.map((item) => {
-                  const active = isItemActive(item.href);
+                  const active = isItemActive(item.href, pathname);
                   return (
                     <Link
                       key={item.href}
