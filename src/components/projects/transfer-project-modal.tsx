@@ -113,7 +113,7 @@ export function TransferProjectModal({
               <select
                 value={selectedTargetId}
                 onChange={(e) => setSelectedTargetId(e.target.value)}
-                className="w-full rounded-xl border border-white/15 bg-[#0d1017] px-3.5 py-2.5 text-xs text-white focus:border-emerald-400 focus:outline-none"
+                className="w-full rounded-xl border border-white/15 bg-[#0d1017] px-3.5 py-2.5 text-xs text-white focus:border-primary focus:outline-none"
               >
                 {workspaces.map((w) => (
                   <option key={w.id} value={w.id}>
@@ -138,7 +138,7 @@ export function TransferProjectModal({
               <button
                 type="submit"
                 disabled={loading || !selectedTargetId}
-                className="rounded-xl bg-emerald-400 px-4 py-2 text-xs font-bold text-black transition hover:bg-emerald-300 disabled:opacity-50"
+                className="rounded-xl bg-primary px-4 py-2 text-xs font-bold text-on-primary transition hover:opacity-90 disabled:opacity-50 shadow-md shadow-primary/20"
               >
                 {loading ? "Transferindo..." : "Confirmar Transferência"}
               </button>

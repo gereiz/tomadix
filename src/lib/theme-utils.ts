@@ -7,7 +7,7 @@ export function getContrastTextColor(hexColor: string): string {
   const g = parseInt(hex.substring(2, 4), 16) || 0;
   const b = parseInt(hex.substring(4, 6), 16) || 0;
   const yiq = (r * 299 + g * 587 + b * 114) / 1000;
-  return yiq >= 160 ? "#002014" : "#ffffff";
+  return yiq >= 160 ? "#090d16" : "#ffffff";
 }
 
 export function generateThemeCss(customization: CustomizationSettings): string {
@@ -68,6 +68,28 @@ export function generateThemeCss(customization: CustomizationSettings): string {
 
       --color-outline: ${customization.borderColor};
       --color-outline-variant: ${customization.borderColor};
+
+      /* Aliases automáticos de Tailwind para que classes como text-emerald-400 / bg-emerald-500 herdem a personalização da marca */
+      --color-emerald-50: color-mix(in srgb, ${customization.primaryColor} 10%, white);
+      --color-emerald-100: color-mix(in srgb, ${customization.primaryColor} 20%, white);
+      --color-emerald-200: color-mix(in srgb, ${customization.secondaryColor} 80%, white);
+      --color-emerald-300: ${customization.secondaryColor};
+      --color-emerald-400: ${customization.primaryColor};
+      --color-emerald-500: ${customization.primaryColor};
+      --color-emerald-600: ${customization.primaryColor};
+      --color-emerald-700: color-mix(in srgb, ${customization.primaryColor} 80%, black);
+      --color-emerald-800: color-mix(in srgb, ${customization.primaryColor} 60%, black);
+      --color-emerald-900: color-mix(in srgb, ${customization.primaryColor} 40%, black);
+      --color-emerald-950: ${customization.surfaceColor};
+    }
+
+    /* Regras de compatibilidade para garantir contraste legível em botões legados */
+    .bg-emerald-400.text-black,
+    .bg-emerald-500.text-white,
+    .bg-emerald-500.text-black,
+    .bg-primary.text-black,
+    .bg-primary.text-white {
+      color: ${onPrimary} !important;
     }
 
     body {

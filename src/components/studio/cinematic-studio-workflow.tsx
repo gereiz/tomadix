@@ -157,7 +157,7 @@ function StepTitle({ n, title, extra }: { n: number; title: string; extra?: Reac
   return (
     <div className="mb-3 flex items-center justify-between gap-2">
       <div className="flex items-center gap-2.5">
-        <span className="flex h-6 w-6 items-center justify-center rounded-full bg-emerald-400/15 text-[11px] font-bold text-emerald-300 ring-1 ring-emerald-400/30">
+        <span className="flex h-6 w-6 items-center justify-center rounded-full bg-primary/15 text-[11px] font-bold text-primary ring-1 ring-primary/30">
           {n}
         </span>
         <h3 className="text-sm font-bold text-white">{title}</h3>
@@ -837,8 +837,8 @@ export function CinematicStudioWorkflow() {
                             }}
                             className={`group flex flex-col justify-between rounded-2xl border p-4 text-left transition ${
                               isSelected
-                                ? "border-emerald-400/60 bg-emerald-400/10 ring-1 ring-emerald-400/30"
-                                : "border-white/10 bg-black/25 hover:border-emerald-400/40 hover:bg-white/[0.04]"
+                                ? "border-primary/60 bg-primary/10 ring-1 ring-primary/30"
+                                : "border-white/10 bg-black/25 hover:border-primary/40 hover:bg-white/[0.04]"
                             }`}
                           >
                             <div>
@@ -850,11 +850,11 @@ export function CinematicStudioWorkflow() {
                                   {p.configuration?.aspectRatio || "16:9"}
                                 </span>
                               </div>
-                              <p className="mt-2.5 line-clamp-1 text-sm font-bold text-white group-hover:text-emerald-300">
+                              <p className="mt-2.5 line-clamp-1 text-sm font-bold text-white group-hover:text-primary">
                                 {p.title}
                               </p>
                             </div>
-                            <div className="mt-3 flex items-center justify-between border-t border-white/5 pt-2 text-[11px] font-semibold text-emerald-300">
+                            <div className="mt-3 flex items-center justify-between border-t border-white/5 pt-2 text-[11px] font-semibold text-primary">
                               <span>Usar este projeto</span>
                               <span>→</span>
                             </div>
@@ -922,7 +922,7 @@ export function CinematicStudioWorkflow() {
                       value={newProjectTitle}
                       onChange={(e) => setNewProjectTitle(e.target.value)}
                       placeholder="Ex: Comercial Cyber Fashion 2026"
-                      className="w-full rounded-xl border border-white/10 bg-black/40 px-3.5 py-2.5 text-xs text-white placeholder-white/30 focus:border-emerald-400 focus:outline-none"
+                      className="w-full rounded-xl border border-white/10 bg-black/40 px-3.5 py-2.5 text-xs text-white placeholder-white/30 focus:border-primary focus:outline-none"
                     />
                   </div>
 
@@ -936,7 +936,7 @@ export function CinematicStudioWorkflow() {
                         value={newProjectGenre}
                         onChange={(e) => setNewProjectGenre(e.target.value)}
                         placeholder="Ex: Comercial, Ficção..."
-                        className="w-full rounded-xl border border-white/10 bg-black/40 px-3 py-2 text-xs text-white placeholder-white/30 focus:border-emerald-400 focus:outline-none"
+                        className="w-full rounded-xl border border-white/10 bg-black/40 px-3 py-2 text-xs text-white placeholder-white/30 focus:border-primary focus:outline-none"
                       />
                     </div>
                     <div>
@@ -946,7 +946,7 @@ export function CinematicStudioWorkflow() {
                       <select
                         value={newProjectAspectRatio}
                         onChange={(e) => setNewProjectAspectRatio(e.target.value as any)}
-                        className="w-full rounded-xl border border-white/10 bg-[#181c21] px-3 py-2 text-xs font-semibold text-white focus:border-emerald-400 focus:outline-none"
+                        className="w-full rounded-xl border border-white/10 bg-[#181c21] px-3 py-2 text-xs font-semibold text-white focus:border-primary focus:outline-none"
                       >
                         <option value="16:9">16:9 (Widescreen)</option>
                         <option value="9:16">9:16 (Vertical / Reels)</option>
@@ -966,7 +966,7 @@ export function CinematicStudioWorkflow() {
                       value={newProjectDescription}
                       onChange={(e) => setNewProjectDescription(e.target.value)}
                       placeholder="Breve descrição da estética ou objetivo do projeto..."
-                      className="w-full rounded-xl border border-white/10 bg-black/40 p-3 text-xs text-white placeholder-white/30 focus:border-emerald-400 focus:outline-none"
+                      className="w-full rounded-xl border border-white/10 bg-black/40 p-3 text-xs text-white placeholder-white/30 focus:border-primary focus:outline-none"
                     />
                   </div>
 
@@ -1032,7 +1032,7 @@ export function CinematicStudioWorkflow() {
                           title={ref.title}
                           className={`group relative aspect-video overflow-hidden rounded-xl bg-[#0b0e12] transition ${
                             active
-                              ? "ring-2 ring-emerald-400 shadow-[0_0_14px_rgba(52,211,153,0.3)]"
+                              ? "ring-2 ring-primary shadow-lg shadow-primary/25"
                               : "ring-1 ring-white/10 opacity-75 hover:opacity-100"
                           }`}
                         >
@@ -1046,7 +1046,7 @@ export function CinematicStudioWorkflow() {
                             {ref.badge}
                           </span>
                           {active && (
-                            <span className="absolute right-1 top-1 flex h-4 w-4 items-center justify-center rounded-full bg-emerald-400 text-[9px] font-black text-black">
+                            <span className="absolute right-1 top-1 flex h-4 w-4 items-center justify-center rounded-full bg-primary text-[9px] font-black text-on-primary">
                               ✓
                             </span>
                           )}
@@ -1058,7 +1058,7 @@ export function CinematicStudioWorkflow() {
                     <div className="mt-3 rounded-xl border border-white/5 bg-white/[0.03] p-3">
                       <div className="flex items-center justify-between gap-2">
                         <p className="truncate text-xs font-bold text-white">{selectedRef.title}</p>
-                        <span className="flex-shrink-0 rounded bg-emerald-400/15 px-1.5 py-0.5 text-[9px] font-bold uppercase text-emerald-300">
+                        <span className="flex-shrink-0 rounded bg-primary/15 px-1.5 py-0.5 text-[9px] font-bold uppercase text-primary">
                           {selectedRef.badge}
                         </span>
                       </div>
@@ -1085,8 +1085,8 @@ export function CinematicStudioWorkflow() {
                     }}
                     className={`rounded-2xl border-2 border-dashed transition ${
                       isDraggingFiles
-                        ? "border-emerald-400 bg-emerald-400/10"
-                        : "border-white/10 bg-white/[0.02] hover:border-emerald-400/50"
+                        ? "border-primary bg-primary/10"
+                        : "border-white/10 bg-white/[0.02] hover:border-primary/50"
                     }`}
                   >
                     <button
@@ -1141,8 +1141,8 @@ export function CinematicStudioWorkflow() {
 
                       {/* Resumo automático de combinação quando há 2+ imagens */}
                       {uploadedImages.length > 1 && primaryUploadedImage && (
-                        <div className="rounded-xl border border-emerald-400/25 bg-emerald-400/[0.06] p-3 text-[11px] leading-relaxed">
-                          <p className="font-bold text-emerald-300">Como a IA vai analisar suas imagens:</p>
+                        <div className="rounded-xl border border-primary/25 bg-primary/[0.06] p-3 text-[11px] leading-relaxed">
+                          <p className="font-bold text-primary">Como a IA vai analisar suas imagens:</p>
                           <ul className="mt-1 space-y-1 text-white/80">
                             <li>
                               • <strong className="text-white">{primaryUploadedImage.name} (Principal):</strong> Todos os
@@ -1177,7 +1177,7 @@ export function CinematicStudioWorkflow() {
                               key={img.id}
                               className={`rounded-2xl border p-3 transition ${
                                 isPrimary
-                                  ? "border-emerald-400/60 bg-emerald-400/[0.06]"
+                                  ? "border-primary/60 bg-primary/[0.06]"
                                   : "border-white/10 bg-black/30"
                               }`}
                             >
@@ -1187,7 +1187,7 @@ export function CinematicStudioWorkflow() {
                                   <img src={img.thumbnailUrl} alt={img.name} className="h-full w-full object-cover" />
                                   <span
                                     className={`absolute left-1 top-1 rounded px-1.5 py-0.5 text-[9px] font-black uppercase ${
-                                      isPrimary ? "bg-emerald-400 text-black" : "bg-black/75 text-white/80"
+                                      isPrimary ? "bg-primary text-on-primary" : "bg-black/75 text-white/80"
                                     }`}
                                   >
                                     {isPrimary ? "★ Principal" : `#${idx + 1}`}
@@ -1204,7 +1204,7 @@ export function CinematicStudioWorkflow() {
                                         <button
                                           type="button"
                                           onClick={() => handleSetPrimaryImage(img.id)}
-                                          className="rounded-lg border border-emerald-400/40 bg-emerald-400/10 px-2 py-1 text-[10px] font-bold text-emerald-300 transition hover:bg-emerald-400 hover:text-black"
+                                          className="rounded-lg border border-primary/40 bg-primary/10 px-2 py-1 text-[10px] font-bold text-primary transition hover:bg-primary hover:text-on-primary"
                                         >
                                           ☆ Tornar Principal
                                         </button>
@@ -1221,7 +1221,7 @@ export function CinematicStudioWorkflow() {
                                   </div>
 
                                   {isPrimary ? (
-                                    <p className="mt-1 text-[11px] text-emerald-300/90">
+                                    <p className="mt-1 text-[11px] text-primary/90">
                                       Imagem base da análise — fornece todos os parâmetros principais
                                       {delegatedAspectsList.length > 0
                                         ? ` (exceto ${delegatedAspectsList.join(", ")})`
@@ -1248,7 +1248,7 @@ export function CinematicStudioWorkflow() {
                                           onClick={() => handleToggleAuxAspect(img.id, opt.id)}
                                           className={`inline-flex items-center gap-1 rounded-lg border px-2 py-1 text-[10px] font-semibold transition ${
                                             active
-                                              ? "border-emerald-400 bg-emerald-400 text-black shadow-sm"
+                                              ? "border-primary bg-primary text-on-primary shadow-sm"
                                               : "border-white/10 bg-white/[0.03] text-white/70 hover:border-white/25 hover:text-white"
                                           }`}
                                         >
@@ -1263,7 +1263,7 @@ export function CinematicStudioWorkflow() {
                                     value={img.customInstruction}
                                     onChange={(e) => handleChangeAuxInstruction(img.id, e.target.value)}
                                     placeholder="Ou detalhe o que extrair desta imagem (ex: apenas a luz de recorte neon)…"
-                                    className="mt-2 w-full rounded-xl border border-white/10 bg-black/40 px-2.5 py-1.5 text-[11px] text-white placeholder-white/30 focus:border-emerald-400 focus:outline-none"
+                                    className="mt-2 w-full rounded-xl border border-white/10 bg-black/40 px-2.5 py-1.5 text-[11px] text-white placeholder-white/30 focus:border-primary focus:outline-none"
                                   />
                                 </div>
                               )}
@@ -1290,11 +1290,11 @@ export function CinematicStudioWorkflow() {
                       onClick={() => setMode(m)}
                       className={`flex flex-col items-start gap-1 rounded-xl border p-2.5 text-left transition ${
                         active
-                          ? "border-emerald-400/50 bg-emerald-400/10"
+                          ? "border-primary/50 bg-primary/10"
                           : "border-white/5 bg-white/[0.02] hover:border-white/15"
                       }`}
                     >
-                      <span className={`text-xs font-bold ${active ? "text-emerald-300" : "text-white"}`}>
+                      <span className={`text-xs font-bold ${active ? "text-primary" : "text-white"}`}>
                         {meta.icon} {meta.label}
                       </span>
                       <span className="text-[10px] leading-snug text-white/45">{meta.description}</span>
@@ -1333,7 +1333,7 @@ export function CinematicStudioWorkflow() {
                     <button
                       type="button"
                       onClick={() => comparisonInputRef.current?.click()}
-                      className="flex w-full flex-col items-center justify-center gap-1 rounded-2xl border-2 border-dashed border-white/10 bg-white/[0.02] p-4 text-center hover:border-emerald-400/50"
+                      className="flex w-full flex-col items-center justify-center gap-1 rounded-2xl border-2 border-dashed border-white/10 bg-white/[0.02] p-4 text-center hover:border-primary/50"
                     >
                       <span className="text-xl">📸</span>
                       <span className="text-xs font-bold text-white">Enviar Tomada B</span>
@@ -1365,7 +1365,7 @@ export function CinematicStudioWorkflow() {
                 value={notes}
                 onChange={(e) => setNotes(e.target.value)}
                 placeholder="Opcional: contexto ou foco geral da análise. Ex.: comercial de moda noturno, manter estética anamórfica…"
-                className="w-full resize-none rounded-xl border border-white/10 bg-black/30 p-3 text-xs text-white placeholder-white/30 focus:border-emerald-400 focus:outline-none"
+                className="w-full resize-none rounded-xl border border-white/10 bg-black/30 p-3 text-xs text-white placeholder-white/30 focus:border-primary focus:outline-none"
               />
               <div className="mt-3 grid grid-cols-2 gap-2">
                 {(
@@ -1379,11 +1379,11 @@ export function CinematicStudioWorkflow() {
                     onClick={() => setModelTier(t.id)}
                     className={`rounded-xl border p-2.5 text-left transition ${
                       modelTier === t.id
-                        ? "border-emerald-400/50 bg-emerald-400/10"
+                        ? "border-primary/50 bg-primary/10"
                         : "border-white/5 bg-white/[0.02] hover:border-white/15"
                     }`}
                   >
-                    <p className={`text-xs font-bold ${modelTier === t.id ? "text-emerald-300" : "text-white"}`}>{t.label}</p>
+                    <p className={`text-xs font-bold ${modelTier === t.id ? "text-primary" : "text-white"}`}>{t.label}</p>
                     <p className="text-[10px] text-white/45">{t.desc}</p>
                   </button>
                 ))}
@@ -1395,11 +1395,11 @@ export function CinematicStudioWorkflow() {
               <button
                 onClick={handleAnalyze}
                 disabled={isAnalyzing || !!validationMessage}
-                className="flex w-full items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-emerald-400 to-lime-400 px-4 py-3.5 text-sm font-bold text-black shadow-[0_0_24px_rgba(16,185,129,0.25)] transition hover:brightness-105 active:scale-[0.99] disabled:cursor-not-allowed disabled:opacity-40 disabled:shadow-none"
+                className="flex w-full items-center justify-center gap-2 rounded-2xl bg-primary px-4 py-3.5 text-sm font-bold text-on-primary shadow-lg shadow-primary/25 transition hover:brightness-105 active:scale-[0.99] disabled:cursor-not-allowed disabled:opacity-40 disabled:shadow-none"
               >
                 {isAnalyzing ? (
                   <>
-                    <span className="h-4 w-4 animate-spin rounded-full border-2 border-black border-t-transparent" />
+                    <span className="h-4 w-4 animate-spin rounded-full border-2 border-on-primary border-t-transparent" />
                     Analisando…
                   </>
                 ) : source === "upload" && uploadedImages.length > 1 ? (
@@ -1428,14 +1428,14 @@ export function CinematicStudioWorkflow() {
             {isAnalyzing ? (
               <div className="flex flex-col gap-5">
                 <div className="flex items-center gap-3">
-                  <span className="h-5 w-5 animate-spin rounded-full border-2 border-emerald-400 border-t-transparent" />
+                  <span className="h-5 w-5 animate-spin rounded-full border-2 border-primary border-t-transparent" />
                   <p className="text-sm font-semibold text-white">{LOADING_STEPS[loadingStep]}</p>
                 </div>
                 <div className="flex gap-1.5">
                   {LOADING_STEPS.map((_, i) => (
                     <span
                       key={i}
-                      className={`h-1 flex-1 rounded-full transition-colors ${i <= loadingStep ? "bg-emerald-400" : "bg-white/10"}`}
+                      className={`h-1 flex-1 rounded-full transition-colors ${i <= loadingStep ? "bg-primary" : "bg-white/10"}`}
                     />
                   ))}
                 </div>
@@ -1588,7 +1588,7 @@ export function CinematicStudioWorkflow() {
                       }}
                       onKeyDown={(e) => e.key === "Enter" && setSelectedResultId(r.id)}
                       className={`group relative cursor-pointer overflow-hidden rounded-2xl border bg-[#0b0e12] text-left transition ${
-                        active ? "border-emerald-400 ring-2 ring-emerald-400/30" : "border-white/10 hover:border-emerald-400/40"
+                        active ? "border-primary ring-2 ring-primary/30" : "border-white/10 hover:border-primary/40"
                       }`}
                     >
                       <div className="relative aspect-video bg-gradient-to-br from-[#1a2027] to-[#0c0f13]">
@@ -1622,7 +1622,7 @@ export function CinematicStudioWorkflow() {
                           {fav ? "♥" : "♡"}
                         </button>
                         {r.auxiliarySummary && r.auxiliarySummary.length > 0 && (
-                          <span className="absolute bottom-2 right-1.5 rounded bg-black/75 px-1.5 py-0.5 text-[9px] font-bold text-emerald-300 backdrop-blur">
+                          <span className="absolute bottom-2 right-1.5 rounded bg-black/75 px-1.5 py-0.5 text-[9px] font-bold text-primary backdrop-blur">
                             +{r.auxiliarySummary.length} ref{r.auxiliarySummary.length > 1 ? "s" : ""}
                           </span>
                         )}
@@ -1700,7 +1700,7 @@ export function CinematicStudioWorkflow() {
             key={t.id}
             className={`pointer-events-auto rounded-xl border px-4 py-2.5 text-xs font-semibold shadow-2xl backdrop-blur-md ${
               t.type === "success"
-                ? "border-emerald-500/30 bg-emerald-950/90 text-emerald-200"
+                ? "border-primary/30 bg-surface-container text-primary"
                 : t.type === "error"
                 ? "border-rose-500/30 bg-rose-950/90 text-rose-200"
                 : "border-white/10 bg-[#1a1f25]/95 text-white/85"

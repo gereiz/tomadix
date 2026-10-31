@@ -145,11 +145,11 @@ export default function AdminOverviewPage() {
         <>
           {/* 4 Core KPI Cards */}
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-            <div className="rounded-xl border border-white/10 bg-[#0d111c] p-5 transition hover:border-emerald-500/30">
+            <div className="rounded-xl border border-white/10 bg-[#0d111c] p-5 transition hover:border-primary/30">
               <span className="text-xs text-white/50 font-medium">Receita Recorrente (MRR)</span>
               <div className="mt-2 flex items-baseline justify-between">
-                <span className="text-2xl font-bold text-emerald-400 font-mono">{mrr}</span>
-                <span className="text-[10px] font-semibold text-emerald-400 bg-emerald-500/10 border border-emerald-500/20 px-2 py-0.5 rounded">
+                <span className="text-2xl font-bold text-primary font-mono">{mrr}</span>
+                <span className="text-[10px] font-semibold text-primary bg-primary/10 border border-primary/20 px-2 py-0.5 rounded">
                   Ativo
                 </span>
               </div>
@@ -176,7 +176,7 @@ export default function AdminOverviewPage() {
               <span className="text-xs text-white/50 font-medium">Gerações Gemini ({data?.periodDays}d)</span>
               <div className="mt-2 flex items-baseline justify-between">
                 <span className="text-2xl font-bold text-white font-mono">{totalJobs}</span>
-                <span className="text-[10px] font-semibold text-emerald-400 bg-emerald-500/10 border border-emerald-500/20 px-2 py-0.5 rounded">
+                <span className="text-[10px] font-semibold text-primary bg-primary/10 border border-primary/20 px-2 py-0.5 rounded">
                   {successRate}% sucesso
                 </span>
               </div>
@@ -223,7 +223,7 @@ export default function AdminOverviewPage() {
               <div className="pt-4 border-t border-white/10 space-y-2">
                 <div className="flex justify-between text-xs text-white/60">
                   <span>Taxa de Conversão:</span>
-                  <strong className="text-emerald-400">{conversionRate}%</strong>
+                  <strong className="text-primary">{conversionRate}%</strong>
                 </div>
                 <div className="flex justify-between text-xs text-white/60">
                   <span>Total de Créditos Concedidos:</span>
@@ -277,7 +277,7 @@ export default function AdminOverviewPage() {
                               Suspenso
                             </span>
                           ) : (
-                            <span className="rounded bg-emerald-500/10 border border-emerald-500/30 px-2 py-0.5 text-[10px] text-emerald-400 font-semibold">
+                            <span className="rounded bg-primary/10 border border-primary/30 px-2 py-0.5 text-[10px] text-primary font-semibold">
                               Ativo
                             </span>
                           )}
@@ -347,7 +347,7 @@ export default function AdminOverviewPage() {
                           <span
                             className={`rounded px-2 py-0.5 text-[10px] font-semibold ${
                               log.result === "SUCCESS"
-                                ? "bg-emerald-500/10 text-emerald-400 border border-emerald-500/20"
+                                ? "bg-primary/10 text-primary border border-primary/20"
                                 : "bg-rose-500/10 text-rose-400 border border-rose-500/20"
                             }`}
                           >

@@ -385,7 +385,7 @@ export default function AdminUserDetailsPage({ params }: { params: Promise<{ id:
         <div
           className={`p-4 rounded-xl text-xs flex justify-between items-center ${
             notification.type === "success"
-              ? "bg-emerald-950/40 border border-emerald-500/30 text-emerald-300"
+              ? "bg-primary/10 border border-primary/30 text-primary"
               : "bg-rose-950/40 border border-rose-500/30 text-rose-300"
           }`}
         >
@@ -425,7 +425,7 @@ export default function AdminUserDetailsPage({ params }: { params: Promise<{ id:
                   CONTA SUSPENSA
                 </span>
               ) : (
-                <span className="rounded bg-emerald-500/10 border border-emerald-500/30 px-2 py-0.5 text-[10px] text-emerald-400 font-semibold">
+                <span className="rounded bg-primary/10 border border-primary/30 px-2 py-0.5 text-[10px] text-primary font-semibold">
                   CONTA ATIVA
                 </span>
               )}
@@ -433,7 +433,7 @@ export default function AdminUserDetailsPage({ params }: { params: Promise<{ id:
             <div className="flex flex-wrap items-center gap-3 text-xs text-white/40 mt-1 font-mono">
               <span>{u.email}</span>
               <span>•</span>
-              <span className={u.emailConfirmed ? "text-emerald-400" : "text-amber-400"}>
+              <span className={u.emailConfirmed ? "text-primary" : "text-amber-400"}>
                 {u.emailConfirmed ? "✓ E-mail Confirmado" : "✗ E-mail Não Confirmado"}
               </span>
               <span>•</span>
@@ -448,7 +448,7 @@ export default function AdminUserDetailsPage({ params }: { params: Promise<{ id:
           {u.isSuspended ? (
             <button
               onClick={handleToggleSuspend}
-              className="rounded-xl border border-emerald-500/30 bg-emerald-500/10 px-3.5 py-2 text-xs font-bold text-emerald-300 hover:bg-emerald-500/20 transition"
+              className="rounded-xl border border-primary/30 bg-primary/10 px-3.5 py-2 text-xs font-bold text-primary hover:bg-primary/20 transition"
             >
               Reativar Conta
             </button>
@@ -496,7 +496,7 @@ export default function AdminUserDetailsPage({ params }: { params: Promise<{ id:
         </div>
         <div className="rounded-xl border border-white/10 bg-[#0d111c] p-3.5">
           <span className="text-white/40">Créditos Disponíveis</span>
-          <p className="text-lg font-bold text-emerald-400 font-mono mt-1">
+          <p className="text-lg font-bold text-primary font-mono mt-1">
             {data.metrics.credits.available} cr
           </p>
         </div>
@@ -563,7 +563,7 @@ export default function AdminUserDetailsPage({ params }: { params: Promise<{ id:
                   <span
                     className={`flex-1 rounded-xl border px-3 py-2 text-center font-semibold ${
                       u.emailConfirmed
-                        ? "bg-emerald-500/10 border-emerald-500/30 text-emerald-300"
+                        ? "bg-primary/10 border-primary/30 text-primary"
                         : "bg-amber-500/10 border-amber-500/30 text-amber-300"
                     }`}
                   >
@@ -616,7 +616,7 @@ export default function AdminUserDetailsPage({ params }: { params: Promise<{ id:
                     setTargetPlanTier(primarySubscription?.planTier || "PRO");
                     setChangePlanModalOpen(true);
                   }}
-                  className="rounded-xl border border-emerald-500/40 bg-emerald-500/15 px-3.5 py-2 font-bold text-emerald-300 hover:bg-emerald-500/25 transition flex items-center gap-1.5"
+                  className="rounded-xl border border-primary/40 bg-primary/15 px-3.5 py-2 font-bold text-primary hover:bg-primary/25 transition flex items-center gap-1.5"
                   title="Alterar definitivamente o plano contratado do estúdio"
                 >
                   <span>🔄</span> Alterar Plano Efetivo
@@ -645,7 +645,7 @@ export default function AdminUserDetailsPage({ params }: { params: Promise<{ id:
               </div>
               <div className="rounded-xl border border-white/10 bg-white/5 p-3.5">
                 <span className="text-white/40">Status do Contrato</span>
-                <p className="text-base font-bold text-emerald-400 mt-1">
+                <p className="text-base font-bold text-primary mt-1">
                   {primarySubscription?.status || "ACTIVE"}
                 </p>
               </div>
@@ -707,7 +707,7 @@ export default function AdminUserDetailsPage({ params }: { params: Promise<{ id:
           <div className="grid grid-cols-4 gap-3">
             <div className="rounded-xl border border-white/10 bg-[#0d111c] p-3.5">
               <span className="text-white/40">Saldo Atual</span>
-              <p className="text-lg font-bold text-emerald-400 font-mono mt-1">
+              <p className="text-lg font-bold text-primary font-mono mt-1">
                 {data.metrics.credits.available} cr
               </p>
             </div>
@@ -765,7 +765,7 @@ export default function AdminUserDetailsPage({ params }: { params: Promise<{ id:
                           {new Date(entry.createdAt).toLocaleString("pt-BR")}
                         </td>
                         <td className="p-3 font-bold font-mono">
-                          <span className={entry.amount > 0 ? "text-emerald-400" : "text-rose-400"}>
+                          <span className={entry.amount > 0 ? "text-primary" : "text-rose-400"}>
                             {entry.amount > 0 ? `+${entry.amount}` : entry.amount} cr
                           </span>
                         </td>
@@ -1060,8 +1060,8 @@ export default function AdminUserDetailsPage({ params }: { params: Promise<{ id:
       {/* MODAL: AJUSTAR CRÉDITOS (+ / -) */}
       {creditModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4">
-          <div className="max-w-md w-full rounded-2xl border border-emerald-500/30 bg-[#0c1410] p-6 space-y-4">
-            <h3 className="text-base font-bold text-emerald-300">Ajuste de Créditos (+ Concessão / - Retirada)</h3>
+          <div className="max-w-md w-full rounded-2xl border border-primary/30 bg-[#0c141c] p-6 space-y-4">
+            <h3 className="text-base font-bold text-primary">Ajuste de Créditos (+ Concessão / - Retirada)</h3>
             <p className="text-xs text-white/70 leading-relaxed">
               Informe um valor positivo para adicionar créditos ou negativo para retirar. O sistema impede saldos negativos.
             </p>
@@ -1118,7 +1118,7 @@ export default function AdminUserDetailsPage({ params }: { params: Promise<{ id:
               <button
                 disabled={adjustingCredit || creditAmount === 0 || !creditReason.trim()}
                 onClick={handleAdjustCredits}
-                className="rounded-xl bg-emerald-500 px-4 py-2 text-xs font-bold text-black hover:bg-emerald-400 disabled:opacity-40"
+                className="rounded-xl bg-primary px-4 py-2 text-xs font-bold text-on-primary hover:bg-primary-fixed disabled:opacity-40"
               >
                 {adjustingCredit ? "Processando..." : "Confirmar Ajuste"}
               </button>
@@ -1130,8 +1130,8 @@ export default function AdminUserDetailsPage({ params }: { params: Promise<{ id:
       {/* MODAL: ALTERAÇÃO DEFINITIVA DE PLANO */}
       {changePlanModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4">
-          <div className="max-w-md w-full rounded-2xl border border-emerald-500/40 bg-[#0c141c] p-6 space-y-4">
-            <h3 className="text-base font-bold text-emerald-300">Alterar Plano Contratado do Estúdio</h3>
+          <div className="max-w-md w-full rounded-2xl border border-primary/40 bg-[#0c141c] p-6 space-y-4">
+            <h3 className="text-base font-bold text-primary">Alterar Plano Contratado do Estúdio</h3>
             <p className="text-xs text-white/70 leading-relaxed">
               Atualiza efetivamente o plano contratado do workspace, aplicando imediatamente as novas cotas de workspaces, projetos, membros e recursos.
             </p>
@@ -1141,7 +1141,7 @@ export default function AdminUserDetailsPage({ params }: { params: Promise<{ id:
               <select
                 value={targetPlanTier}
                 onChange={(e) => setTargetPlanTier(e.target.value)}
-                className="w-full rounded-xl border border-white/10 bg-[#16202e] p-2.5 text-xs text-white focus:outline-none focus:border-emerald-400"
+                className="w-full rounded-xl border border-white/10 bg-[#16202e] p-2.5 text-xs text-white focus:outline-none focus:border-primary"
               >
                 <option value="FREE">FREE — Plano Gratuito (2 Projetos, 1 Membro)</option>
                 <option value="PRO">PRO — Tomadix Pro (20 Projetos, 3 Membros, 500 cr/mês)</option>
@@ -1156,7 +1156,7 @@ export default function AdminUserDetailsPage({ params }: { params: Promise<{ id:
                 id="grantPlanCreditsCheck"
                 checked={grantPlanCredits}
                 onChange={(e) => setGrantPlanCredits(e.target.checked)}
-                className="h-4 w-4 rounded border-white/20 bg-white/5 text-emerald-400 focus:ring-emerald-400/50"
+                className="h-4 w-4 rounded border-white/20 bg-white/5 text-primary focus:ring-primary/50"
               />
               <label htmlFor="grantPlanCreditsCheck" className="text-xs text-white/80 cursor-pointer">
                 Conceder créditos mensais do novo plano imediatamente
@@ -1170,7 +1170,7 @@ export default function AdminUserDetailsPage({ params }: { params: Promise<{ id:
                 placeholder="Ex: Upgrade comercial autorizado, migração de plano, cortesia contratual..."
                 value={changePlanReason}
                 onChange={(e) => setChangePlanReason(e.target.value)}
-                className="w-full rounded-xl border border-white/10 bg-white/5 p-2.5 text-xs text-white placeholder-white/30 focus:outline-none focus:border-emerald-400"
+                className="w-full rounded-xl border border-white/10 bg-white/5 p-2.5 text-xs text-white placeholder-white/30 focus:outline-none focus:border-primary"
               />
             </div>
 
@@ -1184,7 +1184,7 @@ export default function AdminUserDetailsPage({ params }: { params: Promise<{ id:
               <button
                 disabled={changingPlan || !changePlanReason.trim()}
                 onClick={handleChangePlan}
-                className="rounded-xl bg-emerald-500 px-4 py-2 text-xs font-bold text-black hover:bg-emerald-400 disabled:opacity-40 transition"
+                className="rounded-xl bg-primary px-4 py-2 text-xs font-bold text-on-primary hover:bg-primary-fixed disabled:opacity-40 transition"
               >
                 {changingPlan ? "Salvando..." : "Confirmar Alteração de Plano"}
               </button>

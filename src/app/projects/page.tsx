@@ -128,12 +128,12 @@ function getGenreVisual(genre: string | null) {
   const g = (genre || "").toLowerCase();
   if (g.includes("cyber") || g.includes("anime") || g.includes("sci-fi") || g.includes("ficção")) {
     return {
-      gradient: "from-emerald-950/70 via-slate-900 to-[#0b0f13]",
+      gradient: "from-primary/20 via-slate-900 to-[#0b0f13]",
       border: "border-primary/30",
       accent: "text-primary",
       badge: "bg-[var(--brand-badge-bg,var(--color-primary))] text-[var(--brand-badge-text,#ffffff)] font-bold shadow-sm",
-      glowColor: "rgba(78, 222, 163, 0.25)",
-      bgPattern: "radial-gradient(circle at 80% 20%, rgba(78, 222, 163, 0.15) 0%, transparent 60%)",
+      glowColor: "var(--brand-primary, #2563eb)",
+      bgPattern: "radial-gradient(circle at 80% 20%, var(--brand-primary, #2563eb) 0%, transparent 60%)",
     };
   }
   if (g.includes("noir") || g.includes("suspense") || g.includes("terror") || g.includes("drama")) {
@@ -1006,7 +1006,7 @@ export default function ProjectsPage() {
                             className="material-symbols-outlined text-[18px]"
                             style={{
                               fontVariationSettings: isStarred ? "'FILL' 1" : "'FILL' 0",
-                              color: isStarred ? "#4edea3" : undefined,
+                              color: isStarred ? "var(--brand-primary, #4edea3)" : undefined,
                             }}
                           >
                             star
@@ -1379,7 +1379,7 @@ export default function ProjectsPage() {
                   className={`mt-2 w-full rounded-xl border bg-black/40 px-4 py-2.5 text-sm text-white placeholder-white/30 focus:outline-none focus:ring-1 ${
                     formErrors.title
                       ? "border-red-500 focus:border-red-500 focus:ring-red-500"
-                      : "border-white/10 focus:border-emerald-400 focus:ring-emerald-400"
+                      : "border-white/10 focus:border-primary focus:ring-primary"
                   }`}
                 />
                 {formErrors.title && <p className="mt-1.5 text-xs text-red-400">{formErrors.title}</p>}
@@ -1395,7 +1395,7 @@ export default function ProjectsPage() {
                   placeholder="Resumo do universo, proposta estética, tom narrativo e objetivos audiovisuais..."
                   value={formData.description}
                   onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                  className="mt-2 w-full rounded-xl border border-white/10 bg-black/40 px-4 py-2.5 text-sm text-white placeholder-white/30 focus:border-emerald-400 focus:outline-none focus:ring-1 focus:ring-emerald-400"
+                  className="mt-2 w-full rounded-xl border border-white/10 bg-black/40 px-4 py-2.5 text-sm text-white placeholder-white/30 focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
                 />
               </div>
 
@@ -1408,7 +1408,7 @@ export default function ProjectsPage() {
                   <select
                     value={formData.genre}
                     onChange={(e) => setFormData({ ...formData, genre: e.target.value })}
-                    className="mt-2 w-full rounded-xl border border-white/10 bg-black/40 px-3 py-2.5 text-sm text-white focus:border-emerald-400 focus:outline-none"
+                    className="mt-2 w-full rounded-xl border border-white/10 bg-black/40 px-3 py-2.5 text-sm text-white focus:border-primary focus:outline-none"
                   >
                     {GENRE_OPTIONS.map((g) => (
                       <option key={g} value={g}>
@@ -1426,7 +1426,7 @@ export default function ProjectsPage() {
                     type="text"
                     value={formData.language}
                     onChange={(e) => setFormData({ ...formData, language: e.target.value })}
-                    className="mt-2 w-full rounded-xl border border-white/10 bg-black/40 px-4 py-2.5 text-sm text-white focus:border-emerald-400 focus:outline-none"
+                    className="mt-2 w-full rounded-xl border border-white/10 bg-black/40 px-4 py-2.5 text-sm text-white focus:border-primary focus:outline-none"
                   />
                 </div>
 
@@ -1439,7 +1439,7 @@ export default function ProjectsPage() {
                     placeholder="Ex: 30, 60, 120"
                     value={formData.durationSeconds}
                     onChange={(e) => setFormData({ ...formData, durationSeconds: e.target.value })}
-                    className="mt-2 w-full rounded-xl border border-white/10 bg-black/40 px-4 py-2.5 text-sm text-white focus:border-emerald-400 focus:outline-none"
+                    className="mt-2 w-full rounded-xl border border-white/10 bg-black/40 px-4 py-2.5 text-sm text-white focus:border-primary focus:outline-none"
                   />
                   {formErrors.durationSeconds && (
                     <p className="mt-1.5 text-xs text-red-400">{formErrors.durationSeconds}</p>
@@ -1568,7 +1568,7 @@ export default function ProjectsPage() {
                         onClick={() => setParamScopeFilter(tab.key)}
                         className={`rounded-lg px-2.5 py-1 text-[10px] font-semibold transition ${
                           paramScopeFilter === tab.key
-                            ? "bg-primary text-primary-foreground shadow"
+                            ? "bg-primary text-on-primary shadow"
                             : "bg-white/5 text-white/60 hover:bg-white/10 hover:text-white"
                         }`}
                       >
@@ -1603,7 +1603,7 @@ export default function ProjectsPage() {
                       const scope = String(param.scope || "GLOBAL").toUpperCase();
                       const scopeBadgeClass =
                         scope === "GLOBAL"
-                          ? "bg-emerald-500/20 text-emerald-300 border-emerald-500/30"
+                          ? "bg-primary/20 text-primary border-primary/30"
                           : scope === "CHARACTER" || scope === "PERSONAGEM"
                           ? "bg-blue-500/20 text-blue-300 border-blue-500/30"
                           : scope === "ENVIRONMENT" || scope === "AMBIENTE"
@@ -1645,7 +1645,7 @@ export default function ProjectsPage() {
                             type="checkbox"
                             checked={isSelected}
                             onChange={() => {}} // tratado no onClick do container
-                            className="mt-0.5 h-4 w-4 rounded border-white/20 bg-black/60 text-primary accent-emerald-500 focus:ring-0 cursor-pointer"
+                            className="mt-0.5 h-4 w-4 rounded border-white/20 bg-black/60 text-primary accent-primary focus:ring-0 cursor-pointer"
                           />
                           <div className="flex-1 min-w-0">
                             <div className="flex items-center gap-2 flex-wrap">

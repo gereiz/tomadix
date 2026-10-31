@@ -323,7 +323,7 @@ export default function ProjectDetailPage({ params }: { params: Promise<{ id: st
       <main className="w-full px-4 sm:px-6 lg:px-8 pt-8 pb-28">
         {/* Navegação Breadcrumb & Voltar */}
         <div className="flex items-center gap-2 text-xs text-white/50">
-          <Link href="/projects" className="hover:text-emerald-400 transition">
+          <Link href="/projects" className="hover:text-primary transition">
             Projetos
           </Link>
           <span>/</span>
@@ -334,7 +334,7 @@ export default function ProjectDetailPage({ params }: { params: Promise<{ id: st
         <div className="mt-4 flex flex-col justify-between gap-6 md:flex-row md:items-start border-b border-white/10 pb-8">
           <div className="flex-1">
             <div className="flex flex-wrap items-center gap-2 mb-2">
-              <span className="rounded-lg bg-emerald-400/10 px-2.5 py-1 text-xs font-semibold text-emerald-300 border border-emerald-400/20">
+              <span className="rounded-lg bg-primary/10 px-2.5 py-1 text-xs font-semibold text-primary border border-primary/20">
                 {project.genre || "Gênero Geral"}
               </span>
 
@@ -347,7 +347,7 @@ export default function ProjectDetailPage({ params }: { params: Promise<{ id: st
                   Arquivado
                 </span>
               ) : (
-                <span className="rounded-lg bg-emerald-500/10 px-2.5 py-1 text-xs text-emerald-400 border border-emerald-500/20">
+                <span className="rounded-lg bg-primary/10 px-2.5 py-1 text-xs text-primary border border-primary/20">
                   Ativo em Produção
                 </span>
               )}
@@ -406,7 +406,7 @@ export default function ProjectDetailPage({ params }: { params: Promise<{ id: st
                 onClick={() => setActiveTab(tab.id as TabType)}
                 className={`flex items-center gap-2 border-b-2 px-4 py-3 text-xs font-semibold transition whitespace-nowrap ${
                   isActive
-                    ? "border-emerald-400 text-emerald-300"
+                    ? "border-primary text-primary"
                     : "border-transparent text-white/50 hover:border-white/20 hover:text-white"
                 }`}
               >
@@ -414,7 +414,7 @@ export default function ProjectDetailPage({ params }: { params: Promise<{ id: st
                 {tab.count !== null && (
                   <span
                     className={`rounded-full px-2 py-0.5 text-[10px] ${
-                      isActive ? "bg-emerald-400/20 text-emerald-300" : "bg-white/10 text-white/50"
+                      isActive ? "bg-primary/20 text-primary" : "bg-white/10 text-white/50"
                     }`}
                   >
                     {tab.count}
@@ -432,7 +432,7 @@ export default function ProjectDetailPage({ params }: { params: Promise<{ id: st
             <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
               <div
                 onClick={() => setActiveTab("characters")}
-                className="cursor-pointer rounded-2xl border border-white/10 bg-white/[0.02] p-5 hover:border-emerald-400/30 transition"
+                className="cursor-pointer rounded-2xl border border-white/10 bg-white/[0.02] p-5 hover:border-primary/30 transition"
               >
                 <div className="flex items-center justify-between text-white/50 text-xs">
                   <span>PERSONAGENS</span>
@@ -446,7 +446,7 @@ export default function ProjectDetailPage({ params }: { params: Promise<{ id: st
 
               <div
                 onClick={() => setActiveTab("environments")}
-                className="cursor-pointer rounded-2xl border border-white/10 bg-white/[0.02] p-5 hover:border-emerald-400/30 transition"
+                className="cursor-pointer rounded-2xl border border-white/10 bg-white/[0.02] p-5 hover:border-primary/30 transition"
               >
                 <div className="flex items-center justify-between text-white/50 text-xs">
                   <span>AMBIENTES</span>
@@ -460,7 +460,7 @@ export default function ProjectDetailPage({ params }: { params: Promise<{ id: st
 
               <div
                 onClick={() => setActiveTab("scenes")}
-                className="cursor-pointer rounded-2xl border border-white/10 bg-white/[0.02] p-5 hover:border-emerald-400/30 transition"
+                className="cursor-pointer rounded-2xl border border-white/10 bg-white/[0.02] p-5 hover:border-primary/30 transition"
               >
                 <div className="flex items-center justify-between text-white/50 text-xs">
                   <span>CENAS / TAKES</span>
@@ -474,7 +474,7 @@ export default function ProjectDetailPage({ params }: { params: Promise<{ id: st
 
               <div
                 onClick={() => setActiveTab("prompts")}
-                className="cursor-pointer rounded-2xl border border-white/10 bg-white/[0.02] p-5 hover:border-emerald-400/30 transition"
+                className="cursor-pointer rounded-2xl border border-white/10 bg-white/[0.02] p-5 hover:border-primary/30 transition"
               >
                 <div className="flex items-center justify-between text-white/50 text-xs">
                   <span>PROMPTS GERADOS</span>
@@ -482,7 +482,7 @@ export default function ProjectDetailPage({ params }: { params: Promise<{ id: st
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
                   </svg>
                 </div>
-                <p className="mt-3 text-3xl font-bold text-emerald-400">{project._count.generations}</p>
+                <p className="mt-3 text-3xl font-bold text-primary">{project._count.generations}</p>
                 <p className="mt-1 text-xs text-white/40">Versões estruturadas em JSON</p>
               </div>
             </div>
@@ -493,7 +493,7 @@ export default function ProjectDetailPage({ params }: { params: Promise<{ id: st
               <div className="mt-6 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
                 <div className="rounded-2xl border border-white/5 bg-black/30 p-4">
                   <span className="text-[10px] font-semibold uppercase tracking-wider text-white/40">Plataforma-Alvo</span>
-                  <p className="mt-1.5 text-sm font-semibold text-emerald-300">
+                  <p className="mt-1.5 text-sm font-semibold text-primary">
                     {project.configuration?.targetPlatform || "Google Flow"}
                   </p>
                 </div>
@@ -566,7 +566,7 @@ export default function ProjectDetailPage({ params }: { params: Promise<{ id: st
                         <span
                           className={`rounded-full px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wider border ${
                             isVbReady
-                              ? "bg-emerald-500/20 text-emerald-400 border-emerald-500/30"
+                              ? "bg-primary/20 text-primary border-primary/30"
                               : "bg-amber-500/20 text-amber-400 border-amber-500/30"
                           }`}
                         >
@@ -604,7 +604,7 @@ export default function ProjectDetailPage({ params }: { params: Promise<{ id: st
                   <div
                     className={`mt-5 rounded-2xl border p-4 transition ${
                       isVbReady
-                        ? "border-emerald-500/20 bg-emerald-500/5"
+                        ? "border-primary/20 bg-primary/5"
                         : "border-amber-500/20 bg-amber-500/5"
                     }`}
                   >
@@ -612,7 +612,7 @@ export default function ProjectDetailPage({ params }: { params: Promise<{ id: st
                       <div className="flex items-center gap-2">
                         <span
                           className={`h-2 w-2 rounded-full ${
-                            isVbReady ? "bg-emerald-400" : "bg-amber-400 animate-pulse"
+                            isVbReady ? "bg-primary" : "bg-amber-400 animate-pulse"
                           }`}
                         />
                         <span className="text-xs font-bold uppercase tracking-wider text-white">
@@ -631,7 +631,7 @@ export default function ProjectDetailPage({ params }: { params: Promise<{ id: st
                       <div
                         className={`flex items-center justify-between rounded-xl border p-2.5 text-xs ${
                           hasValidDesc
-                            ? "border-emerald-500/30 bg-emerald-500/10 text-emerald-300"
+                            ? "border-primary/30 bg-primary/10 text-primary"
                             : "border-amber-500/30 bg-amber-500/10 text-amber-200"
                         }`}
                       >
@@ -661,7 +661,7 @@ export default function ProjectDetailPage({ params }: { params: Promise<{ id: st
                       <div
                         className={`flex items-center justify-between rounded-xl border p-2.5 text-xs ${
                           hasValidGenre
-                            ? "border-emerald-500/30 bg-emerald-500/10 text-emerald-300"
+                            ? "border-primary/30 bg-primary/10 text-primary"
                             : "border-amber-500/30 bg-amber-500/10 text-amber-200"
                         }`}
                       >
@@ -689,7 +689,7 @@ export default function ProjectDetailPage({ params }: { params: Promise<{ id: st
                       <div
                         className={`flex items-center justify-between rounded-xl border p-2.5 text-xs ${
                           hasValidChars
-                            ? "border-emerald-500/30 bg-emerald-500/10 text-emerald-300"
+                            ? "border-primary/30 bg-primary/10 text-primary"
                             : "border-amber-500/30 bg-amber-500/10 text-amber-200"
                         }`}
                       >
@@ -720,7 +720,7 @@ export default function ProjectDetailPage({ params }: { params: Promise<{ id: st
                       <div
                         className={`flex items-center justify-between rounded-xl border p-2.5 text-xs ${
                           hasValidEnvs
-                            ? "border-emerald-500/30 bg-emerald-500/10 text-emerald-300"
+                            ? "border-primary/30 bg-primary/10 text-primary"
                             : "border-amber-500/30 bg-amber-500/10 text-amber-200"
                         }`}
                       >
@@ -982,7 +982,7 @@ export default function ProjectDetailPage({ params }: { params: Promise<{ id: st
                     type="button"
                     onClick={handleSubmitVisualBible}
                     disabled={vbLoading}
-                    className="rounded-xl bg-primary px-4 py-2 text-xs font-semibold text-primary-foreground shadow-lg hover:opacity-90 disabled:opacity-50 transition"
+                    className="rounded-xl bg-primary px-4 py-2 text-xs font-semibold text-on-primary shadow-lg hover:opacity-90 disabled:opacity-50 transition"
                   >
                     {vbLoading ? "Compilando Bíblia..." : "Compilar com IA"}
                   </button>
@@ -1102,7 +1102,7 @@ export default function ProjectDetailPage({ params }: { params: Promise<{ id: st
                   <button
                     type="submit"
                     disabled={editSaving}
-                    className="rounded-xl bg-primary px-4 py-2 text-xs font-semibold text-primary-foreground hover:opacity-90 disabled:opacity-50 transition cursor-pointer"
+                    className="rounded-xl bg-primary px-4 py-2 text-xs font-semibold text-on-primary hover:opacity-90 disabled:opacity-50 transition cursor-pointer"
                   >
                     {editSaving ? "Salvando..." : "Salvar Alterações"}
                   </button>

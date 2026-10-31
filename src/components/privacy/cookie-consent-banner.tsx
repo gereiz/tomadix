@@ -53,7 +53,7 @@ export function CookieConsentBanner() {
                 Termos de Uso
               </Link>{" "}
               e nossa{" "}
-              <Link href="/privacy" className="text-emerald-400 hover:underline">
+              <Link href="/privacy" className="text-primary hover:underline">
                 Política de Privacidade (LGPD)
               </Link>.
             </p>
@@ -69,7 +69,7 @@ export function CookieConsentBanner() {
           </button>
           <button
             onClick={() => handleConsent("all")}
-            className="rounded-lg bg-emerald-400 px-3.5 py-1.5 text-[11px] font-semibold text-black hover:bg-emerald-300 transition"
+            className="rounded-lg bg-primary px-3.5 py-1.5 text-[11px] font-semibold text-on-primary hover:opacity-90 transition shadow-sm shadow-primary/20"
           >
             Aceitar e Continuar
           </button>

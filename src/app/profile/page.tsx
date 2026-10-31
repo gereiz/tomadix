@@ -311,7 +311,7 @@ export default function ProfilePage() {
         {/* Cabeçalho do Perfil */}
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-6 border-b border-white/10 pb-8">
           <div className="flex items-center gap-4">
-            <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-to-tr from-emerald-500 to-teal-400 font-bold text-black text-xl shadow-lg shadow-emerald-500/20">
+            <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-to-tr from-primary to-secondary font-bold text-on-primary text-xl shadow-lg shadow-primary/20">
               {initials}
             </div>
             <div>
@@ -322,7 +322,7 @@ export default function ProfilePage() {
                 <span
                   className={`rounded-full px-2.5 py-0.5 text-[10px] font-bold ${
                     profile?.emailConfirmed
-                      ? "bg-emerald-400/20 text-emerald-300 border border-emerald-400/30"
+                      ? "bg-primary/20 text-primary border border-primary/30"
                       : "bg-amber-400/20 text-amber-300 border border-amber-400/30"
                   }`}
                 >
@@ -360,7 +360,7 @@ export default function ProfilePage() {
               onClick={() => setActiveTab(tab.id as TabType)}
               className={`flex items-center gap-2 rounded-t-2xl px-5 py-3 text-xs font-semibold whitespace-nowrap transition border-b-2 ${
                 activeTab === tab.id
-                  ? "border-emerald-400 text-emerald-300 bg-white/[0.03]"
+                  ? "border-primary text-primary bg-white/[0.03]"
                   : "border-transparent text-white/50 hover:text-white hover:bg-white/[0.01]"
               }`}
             >
@@ -388,7 +388,7 @@ export default function ProfilePage() {
                       value={displayName}
                       onChange={(e) => setDisplayName(e.target.value)}
                       placeholder="Seu nome ou pseudônimo de diretor"
-                      className="mt-1.5 w-full rounded-xl border border-white/10 bg-black/40 px-3.5 py-2 text-xs text-white focus:border-emerald-400 focus:outline-none"
+                      className="mt-1.5 w-full rounded-xl border border-white/10 bg-black/40 px-3.5 py-2 text-xs text-white focus:border-primary focus:outline-none"
                     />
                   </div>
 
@@ -409,7 +409,7 @@ export default function ProfilePage() {
                     <button
                       type="submit"
                       disabled={actionLoading}
-                      className="rounded-xl bg-emerald-400 px-5 py-2 text-xs font-bold text-black hover:bg-emerald-300 transition disabled:opacity-50"
+                      className="rounded-xl bg-primary px-5 py-2 text-xs font-bold text-on-primary hover:opacity-90 transition disabled:opacity-50 shadow-md shadow-primary/20"
                     >
                       Salvar Alterações
                     </button>
@@ -433,7 +433,7 @@ export default function ProfilePage() {
                       value={currentPassword}
                       onChange={(e) => setCurrentPassword(e.target.value)}
                       placeholder="••••••••"
-                      className="mt-1.5 w-full rounded-xl border border-white/10 bg-black/40 px-3.5 py-2 text-xs text-white focus:border-emerald-400 focus:outline-none"
+                      className="mt-1.5 w-full rounded-xl border border-white/10 bg-black/40 px-3.5 py-2 text-xs text-white focus:border-primary focus:outline-none"
                     />
                   </div>
 
@@ -446,7 +446,7 @@ export default function ProfilePage() {
                       value={newPassword}
                       onChange={(e) => setNewPassword(e.target.value)}
                       placeholder="Mínimo de 8 caracteres"
-                      className="mt-1.5 w-full rounded-xl border border-white/10 bg-black/40 px-3.5 py-2 text-xs text-white focus:border-emerald-400 focus:outline-none"
+                      className="mt-1.5 w-full rounded-xl border border-white/10 bg-black/40 px-3.5 py-2 text-xs text-white focus:border-primary focus:outline-none"
                     />
                   </div>
 
@@ -459,7 +459,7 @@ export default function ProfilePage() {
                       value={confirmPassword}
                       onChange={(e) => setConfirmPassword(e.target.value)}
                       placeholder="••••••••"
-                      className="mt-1.5 w-full rounded-xl border border-white/10 bg-black/40 px-3.5 py-2 text-xs text-white focus:border-emerald-400 focus:outline-none"
+                      className="mt-1.5 w-full rounded-xl border border-white/10 bg-black/40 px-3.5 py-2 text-xs text-white focus:border-primary focus:outline-none"
                     />
                   </div>
 
@@ -491,7 +491,7 @@ export default function ProfilePage() {
                     <select
                       value={defaultViewMode}
                       onChange={(e: any) => setDefaultViewMode(e.target.value)}
-                      className="mt-2 w-full rounded-xl border border-white/10 bg-black/40 px-3 py-2 text-xs text-white focus:border-emerald-400 focus:outline-none"
+                      className="mt-2 w-full rounded-xl border border-white/10 bg-black/40 px-3 py-2 text-xs text-white focus:border-primary focus:outline-none"
                     >
                       <option value="cards">Grade de Cartões (Visual)</option>
                       <option value="table">Tabela Compacta (Lista)</option>
@@ -503,7 +503,7 @@ export default function ProfilePage() {
                     <select
                       value={theme}
                       onChange={(e: any) => setTheme(e.target.value)}
-                      className="mt-2 w-full rounded-xl border border-white/10 bg-black/40 px-3 py-2 text-xs text-white focus:border-emerald-400 focus:outline-none"
+                      className="mt-2 w-full rounded-xl border border-white/10 bg-black/40 px-3 py-2 text-xs text-white focus:border-primary focus:outline-none"
                     >
                       <option value="dark">Escuro Cinema (Padrão)</option>
                       <option value="system">Seguir Sistema Operacional</option>
@@ -515,7 +515,7 @@ export default function ProfilePage() {
                     <select
                       value={language}
                       onChange={(e: any) => setLanguage(e.target.value)}
-                      className="mt-2 w-full rounded-xl border border-white/10 bg-black/40 px-3 py-2 text-xs text-white focus:border-emerald-400 focus:outline-none"
+                      className="mt-2 w-full rounded-xl border border-white/10 bg-black/40 px-3 py-2 text-xs text-white focus:border-primary focus:outline-none"
                     >
                       <option value="pt-BR">Português (Brasil)</option>
                       <option value="en-US">English (US)</option>
@@ -537,7 +537,7 @@ export default function ProfilePage() {
                     <select
                       value={defaultPlatform}
                       onChange={(e) => setDefaultPlatform(e.target.value)}
-                      className="mt-2 w-full rounded-xl border border-white/10 bg-black/40 px-3 py-2 text-xs text-white focus:border-emerald-400 focus:outline-none"
+                      className="mt-2 w-full rounded-xl border border-white/10 bg-black/40 px-3 py-2 text-xs text-white focus:border-primary focus:outline-none"
                     >
                       <option value="Google Flow">Google Flow</option>
                       <option value="OpenAI Sora">OpenAI Sora</option>
@@ -552,7 +552,7 @@ export default function ProfilePage() {
                     <select
                       value={defaultAspectRatio}
                       onChange={(e) => setDefaultAspectRatio(e.target.value)}
-                      className="mt-2 w-full rounded-xl border border-white/10 bg-black/40 px-3 py-2 text-xs text-white focus:border-emerald-400 focus:outline-none"
+                      className="mt-2 w-full rounded-xl border border-white/10 bg-black/40 px-3 py-2 text-xs text-white focus:border-primary focus:outline-none"
                     >
                       <option value="16:9">16:9 (Cinema / Vídeo)</option>
                       <option value="2.39:1">2.39:1 (Anamórfico Widescreen)</option>
@@ -569,7 +569,7 @@ export default function ProfilePage() {
                       value={defaultColorGrade}
                       onChange={(e) => setDefaultColorGrade(e.target.value)}
                       placeholder="Ex: Kodachrome 64, Bleach Bypass..."
-                      className="mt-2 w-full rounded-xl border border-white/10 bg-black/40 px-3 py-2 text-xs text-white focus:border-emerald-400 focus:outline-none"
+                      className="mt-2 w-full rounded-xl border border-white/10 bg-black/40 px-3 py-2 text-xs text-white focus:border-primary focus:outline-none"
                     />
                   </div>
                 </div>
@@ -578,7 +578,7 @@ export default function ProfilePage() {
                   <button
                     onClick={handleSavePreferences}
                     disabled={actionLoading}
-                    className="rounded-xl bg-emerald-400 px-6 py-2.5 text-xs font-bold text-black hover:bg-emerald-300 transition"
+                    className="rounded-xl bg-primary px-6 py-2.5 text-xs font-bold text-on-primary hover:opacity-90 transition shadow-md shadow-primary/20"
                   >
                     Salvar Preferências
                   </button>
@@ -605,7 +605,7 @@ export default function ProfilePage() {
                     type="checkbox"
                     checked={billingAlerts}
                     onChange={(e) => setBillingAlerts(e.target.checked)}
-                    className="h-4 w-4 rounded accent-emerald-400 cursor-pointer"
+                    className="h-4 w-4 rounded accent-primary cursor-pointer"
                   />
                 </div>
 
@@ -620,7 +620,7 @@ export default function ProfilePage() {
                     type="checkbox"
                     checked={teamInvites}
                     onChange={(e) => setTeamInvites(e.target.checked)}
-                    className="h-4 w-4 rounded accent-emerald-400 cursor-pointer"
+                    className="h-4 w-4 rounded accent-primary cursor-pointer"
                   />
                 </div>
 
@@ -635,7 +635,7 @@ export default function ProfilePage() {
                     type="checkbox"
                     checked={emailNotifications}
                     onChange={(e) => setEmailNotifications(e.target.checked)}
-                    className="h-4 w-4 rounded accent-emerald-400 cursor-pointer"
+                    className="h-4 w-4 rounded accent-primary cursor-pointer"
                   />
                 </div>
 
@@ -650,7 +650,7 @@ export default function ProfilePage() {
                     type="checkbox"
                     checked={productUpdates}
                     onChange={(e) => setProductUpdates(e.target.checked)}
-                    className="h-4 w-4 rounded accent-emerald-400 cursor-pointer"
+                    className="h-4 w-4 rounded accent-primary cursor-pointer"
                   />
                 </div>
               </div>
@@ -659,7 +659,7 @@ export default function ProfilePage() {
                 <button
                   onClick={handleSavePreferences}
                   disabled={actionLoading}
-                  className="rounded-xl bg-emerald-400 px-6 py-2.5 text-xs font-bold text-black hover:bg-emerald-300 transition"
+                  className="rounded-xl bg-primary px-6 py-2.5 text-xs font-bold text-on-primary hover:opacity-90 transition shadow-md shadow-primary/20"
                 >
                   Salvar Preferências
                 </button>
@@ -700,7 +700,7 @@ export default function ProfilePage() {
                             {sess.userAgent}
                           </p>
                           {sess.isCurrent && (
-                            <span className="rounded-full bg-emerald-400/20 px-2 py-0.5 text-[10px] font-bold text-emerald-300 border border-emerald-400/30">
+                            <span className="rounded-full bg-primary/20 px-2 py-0.5 text-[10px] font-bold text-primary border border-primary/30">
                               Esta Sessão
                             </span>
                           )}

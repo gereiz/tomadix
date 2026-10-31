@@ -231,7 +231,7 @@ export default function AdminProjectsPage() {
         <div
           className={`fixed bottom-6 right-6 z-50 rounded-xl p-4 text-sm font-semibold shadow-2xl backdrop-blur-md transition-all ${
             notification.type === "success"
-              ? "border border-emerald-500/40 bg-emerald-950/90 text-emerald-200"
+              ? "border border-primary/40 bg-primary/90 text-primary"
               : "border border-rose-500/40 bg-rose-950/90 text-rose-200"
           }`}
         >
@@ -377,7 +377,7 @@ export default function AdminProjectsPage() {
                         <span className="text-[11px] text-white/50 block">
                           {project.ownerEmail}
                         </span>
-                        <span className="inline-block mt-0.5 rounded px-1.5 py-0.2 text-[9px] font-bold uppercase tracking-wider bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
+                        <span className="inline-block mt-0.5 rounded px-1.5 py-0.2 text-[9px] font-bold uppercase tracking-wider bg-primary/10 text-primary border border-primary/20">
                           {project.planTier}
                         </span>
                       </div>
@@ -411,8 +411,8 @@ export default function AdminProjectsPage() {
                           <span className="h-1.5 w-1.5 rounded-full bg-rose-400" /> Arquivado
                         </span>
                       ) : (
-                        <span className="inline-flex items-center gap-1 rounded-full bg-emerald-500/10 px-2.5 py-1 text-[10px] font-bold text-emerald-300 border border-emerald-500/30">
-                          <span className="h-1.5 w-1.5 rounded-full bg-emerald-400 animate-pulse" /> Ativo
+                        <span className="inline-flex items-center gap-1 rounded-full bg-primary/10 px-2.5 py-1 text-[10px] font-bold text-primary border border-primary/30">
+                          <span className="h-1.5 w-1.5 rounded-full bg-primary animate-pulse" /> Ativo
                         </span>
                       )}
                     </td>
@@ -439,7 +439,7 @@ export default function AdminProjectsPage() {
                           onClick={() => handleArchiveToggle(project)}
                           className={`rounded-lg border px-2.5 py-1.5 text-[11px] font-semibold transition ${
                             project.isArchived
-                              ? "border-emerald-500/30 bg-emerald-500/10 text-emerald-300 hover:bg-emerald-500/20"
+                              ? "border-primary/30 bg-primary/10 text-primary hover:bg-primary/20"
                               : "border-amber-500/30 bg-amber-500/10 text-amber-300 hover:bg-amber-500/20"
                           }`}
                           title={project.isArchived ? "Desarquivar obra" : "Arquivar obra"}
@@ -548,7 +548,7 @@ export default function AdminProjectsPage() {
                   </div>
                   <div className="rounded-2xl border border-white/10 bg-white/[0.02] p-4 text-center">
                     <span className="text-[10px] text-white/50 uppercase font-mono block">Jobs Gemini IA</span>
-                    <strong className="text-xl text-emerald-300 font-bold mt-1 block">
+                    <strong className="text-xl text-primary font-bold mt-1 block">
                       {projectDetails.project._count.generations}
                     </strong>
                   </div>
@@ -571,7 +571,7 @@ export default function AdminProjectsPage() {
                     </div>
                     <div>
                       <span className="text-white/40 block">Plano Contratado:</span>
-                      <span className="font-bold text-emerald-400">
+                      <span className="font-bold text-primary">
                         {projectDetails.project.workspace.subscription?.planTier || "FREE"} (
                         {projectDetails.project.workspace.subscription?.status || "ACTIVE"})
                       </span>

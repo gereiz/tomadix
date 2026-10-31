@@ -35,7 +35,7 @@ function SuccessContent() {
 
   return (
     <div className="mx-auto max-w-xl text-center space-y-6">
-      <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-2xl bg-emerald-500/10 border border-emerald-500/30 text-3xl">
+      <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-2xl bg-primary/10 border border-primary/30 text-3xl">
         🎉
       </div>
 
@@ -51,8 +51,8 @@ function SuccessContent() {
       <div className="rounded-2xl border border-white/10 bg-white/[0.02] p-6 text-left space-y-3">
         <div className="flex items-center justify-between text-xs pb-3 border-b border-white/10">
           <span className="text-white/50">Status de Confirmação:</span>
-          <span className="font-semibold text-emerald-400 flex items-center gap-1.5">
-            <span className="h-2 w-2 rounded-full bg-emerald-400 animate-pulse" />
+          <span className="font-semibold text-primary flex items-center gap-1.5">
+            <span className="h-2 w-2 rounded-full bg-primary animate-pulse" />
             {checking
               ? "Sincronizando com gateway..."
               : subStatus?.status === "ACTIVE"
@@ -89,7 +89,7 @@ function SuccessContent() {
       <div className="flex flex-col sm:flex-row items-center justify-center gap-3 pt-4">
         <Link
           href="/workspace/billing"
-          className="w-full sm:w-auto rounded-xl bg-emerald-400 px-6 py-3 text-sm font-bold text-black transition hover:bg-emerald-300"
+          className="w-full sm:w-auto rounded-xl bg-primary px-6 py-3 text-sm font-bold text-on-primary transition hover:opacity-90 shadow-md shadow-primary/20"
         >
           Ver Painel de Assinatura
         </Link>

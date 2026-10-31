@@ -258,7 +258,7 @@ export default function DashboardPage() {
         <div className="flex flex-col justify-between gap-4 border-b border-white/10 pb-6 md:flex-row md:items-center">
           <div>
             <div className="flex flex-wrap items-center gap-2.5">
-              <span className="text-xs font-bold uppercase tracking-widest text-emerald-400">
+              <span className="text-xs font-bold uppercase tracking-widest text-primary">
                 Painel do Criador
               </span>
               <span className="text-white/30">•</span>
@@ -287,7 +287,7 @@ export default function DashboardPage() {
           <div className="flex flex-wrap items-center gap-2.5">
             <button
               onClick={handleRestartTutorial}
-              className="flex items-center gap-1.5 rounded-xl border border-emerald-500/30 bg-emerald-500/10 px-3.5 py-2 text-xs font-semibold text-emerald-300 hover:bg-emerald-500/20 transition shadow-sm"
+              className="flex items-center gap-1.5 rounded-xl border border-primary/30 bg-primary/10 px-3.5 py-2 text-xs font-semibold text-primary hover:bg-primary/20 transition shadow-sm"
               title="Reiniciar o tutorial de introdução a partir da etapa 1"
             >
               <svg className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -309,7 +309,7 @@ export default function DashboardPage() {
                   router.push("/projects");
                 }
               }}
-              className="flex items-center gap-2 rounded-xl bg-emerald-400 px-4 py-2 text-xs font-bold text-black transition hover:bg-emerald-300 shadow-md shadow-emerald-400/20"
+              className="flex items-center gap-2 rounded-xl bg-primary px-4 py-2 text-xs font-bold text-on-primary transition hover:opacity-90 shadow-md shadow-primary/20"
             >
               <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M12 4v16m8-8H4" />
@@ -415,7 +415,7 @@ export default function DashboardPage() {
               <span className="text-[11px] font-bold uppercase tracking-wider text-white/50">
                 Projetos no Estúdio
               </span>
-              <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-emerald-400/10 text-emerald-400 border border-emerald-400/20">
+              <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-primary/10 text-primary border border-primary/20">
                 <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 4v16M17 4v16M3 8h4m10 0h4M3 12h18M3 16h4m10 0h4M4 20h16a1 1 0 001-1V5a1 1 0 00-1-1H4a1 1 0 00-1 1v14a1 1 0 001 1z" />
                 </svg>
@@ -434,7 +434,7 @@ export default function DashboardPage() {
                     className={`h-full rounded-full ${
                       usageSummary.projectsCount >= usageSummary.maxProjects
                         ? "bg-amber-400"
-                        : "bg-emerald-400"
+                        : "bg-primary"
                     }`}
                     style={{
                       width: `${Math.min(100, (usageSummary.projectsCount / usageSummary.maxProjects) * 100)}%`,
@@ -528,7 +528,7 @@ export default function DashboardPage() {
               </div>
               <Link
                 href="/projects"
-                className="text-xs font-semibold text-emerald-400 hover:text-emerald-300 transition"
+                className="text-xs font-semibold text-primary hover:text-primary/80 transition"
               >
                 Ver todos os projetos ({stats.totalProjects}) →
               </Link>
@@ -546,7 +546,7 @@ export default function DashboardPage() {
                   </button>
                   <Link
                     href="/projects"
-                    className="rounded-xl bg-emerald-400 px-4 py-2 text-xs font-bold text-black hover:bg-emerald-300"
+                    className="rounded-xl bg-primary px-4 py-2 text-xs font-bold text-on-primary hover:opacity-90 shadow-md shadow-primary/20"
                   >
                     Criar do Zero
                   </Link>
@@ -558,7 +558,7 @@ export default function DashboardPage() {
                   <Link
                     key={p.id}
                     href={`/projects/${p.id}`}
-                    className="group rounded-3xl border border-white/10 bg-white/[0.02] p-5 hover:border-emerald-500/40 hover:bg-white/[0.04] transition"
+                    className="group rounded-3xl border border-white/10 bg-white/[0.02] p-5 hover:border-primary/40 hover:bg-white/[0.04] transition"
                   >
                     <div className="flex items-center justify-between">
                       <span className="rounded-full bg-white/10 px-2.5 py-0.5 text-[10px] font-semibold text-white/60">
@@ -569,7 +569,7 @@ export default function DashboardPage() {
                       </span>
                     </div>
 
-                    <h3 className="mt-3 text-base font-bold text-white group-hover:text-emerald-300 transition line-clamp-1">
+                    <h3 className="mt-3 text-base font-bold text-white group-hover:text-primary transition line-clamp-1">
                       {p.title}
                     </h3>
                     <p className="mt-1 text-xs text-white/50 line-clamp-2 leading-relaxed">
@@ -609,7 +609,7 @@ export default function DashboardPage() {
                     className="block rounded-2xl border border-white/10 bg-white/[0.02] p-4 hover:border-white/20 transition"
                   >
                     <div className="flex items-center justify-between text-[10px]">
-                      <span className="font-semibold text-emerald-400">
+                      <span className="font-semibold text-primary">
                         {gen.targetTool || "Prompt IA"}
                       </span>
                       <span className="text-white/40">
@@ -633,12 +633,12 @@ export default function DashboardPage() {
             )}
 
             {/* Banner Comercial Integrado */}
-            <div className="rounded-3xl border border-emerald-500/30 bg-gradient-to-b from-emerald-950/20 to-black p-5">
+            <div className="rounded-3xl border border-primary/30 bg-gradient-to-b from-primary/10 to-black p-5">
               <div className="flex items-center gap-2">
-                <span className="flex h-5 w-5 items-center justify-center rounded-full bg-emerald-400/20 text-emerald-400 text-xs font-bold">
+                <span className="flex h-5 w-5 items-center justify-center rounded-full bg-primary/20 text-primary text-xs font-bold">
                   ★
                 </span>
-                <span className="text-xs font-bold uppercase tracking-wider text-emerald-300">
+                <span className="text-xs font-bold uppercase tracking-wider text-primary">
                   Desbloqueie o Máximo Potencial
                 </span>
               </div>
@@ -647,7 +647,7 @@ export default function DashboardPage() {
               </p>
               <Link
                 href="/pricing"
-                className="mt-4 block rounded-xl bg-gradient-to-r from-emerald-400 to-teal-300 py-2 text-center text-xs font-bold text-black transition hover:opacity-95 shadow-md shadow-emerald-400/10"
+                className="mt-4 block rounded-xl bg-primary py-2 text-center text-xs font-bold text-on-primary transition hover:opacity-90 shadow-md shadow-primary/20"
               >
                 Conhecer os Planos PRO & TEAM
               </Link>

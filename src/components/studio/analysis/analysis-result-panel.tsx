@@ -187,7 +187,7 @@ export function AnalysisResultPanel({
   };
 
   const score = result.continuityReport?.score ?? 0;
-  const scoreColor = score >= 80 ? "bg-emerald-400" : score >= 55 ? "bg-amber-400" : "bg-rose-500";
+  const scoreColor = score >= 80 ? "bg-primary" : score >= 55 ? "bg-amber-400" : "bg-rose-500";
   const lightboxEntry = lightboxIndex !== null ? sentImages[lightboxIndex] : null;
 
   return (
@@ -217,7 +217,7 @@ export function AnalysisResultPanel({
           <span
             className={`absolute left-2 top-2 rounded-md px-2 py-0.5 text-[9px] font-extrabold uppercase shadow ${
               currentImage?.isPrimary
-                ? "bg-emerald-400 text-black"
+                ? "bg-primary text-on-primary"
                 : "bg-black/80 text-cyan-300 border border-cyan-400/30"
             }`}
           >
@@ -241,7 +241,7 @@ export function AnalysisResultPanel({
 
         <div className="flex-1 min-w-0 flex flex-col gap-2">
           <div className="flex flex-wrap items-center gap-2">
-            <span className="rounded-lg bg-emerald-400/10 border border-emerald-400/20 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-emerald-300">
+            <span className="rounded-lg bg-primary/10 border border-primary/20 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-primary">
               {mode.icon} {mode.label}
             </span>
             {sentImages.length > 1 && (
@@ -268,7 +268,7 @@ export function AnalysisResultPanel({
               onClick={onApply}
               disabled={!canApply || isApplying}
               title={canApply ? "Mescla os parâmetros na Bíblia Visual do projeto" : "Selecione um projeto no topo da página"}
-              className="inline-flex items-center gap-1.5 rounded-xl bg-emerald-400 px-3.5 py-2 text-xs font-bold text-black transition hover:bg-emerald-300 disabled:cursor-not-allowed disabled:opacity-40"
+              className="inline-flex items-center gap-1.5 rounded-xl bg-primary px-3.5 py-2 text-xs font-bold text-on-primary transition hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-40 shadow-sm shadow-primary/20"
             >
               {isApplying ? (
                 <span className="h-3.5 w-3.5 rounded-full border-2 border-black border-t-transparent animate-spin" />
@@ -335,7 +335,7 @@ export function AnalysisResultPanel({
                   onClick={() => setActiveImageIndex(img.index)}
                   className={`group flex cursor-pointer items-center gap-3 rounded-xl border p-2 transition ${
                     isSelected
-                      ? "border-emerald-400 bg-emerald-400/10 ring-1 ring-emerald-400/40"
+                      ? "border-primary bg-primary/10 ring-1 ring-primary/40"
                       : "border-white/10 bg-white/[0.02] hover:border-white/25"
                   }`}
                 >
@@ -355,7 +355,7 @@ export function AnalysisResultPanel({
                     )}
                     <span
                       className={`absolute left-1 top-1 rounded px-1 py-0.5 text-[8px] font-black uppercase ${
-                        img.isPrimary ? "bg-emerald-400 text-black" : "bg-black/80 text-cyan-300"
+                        img.isPrimary ? "bg-primary text-on-primary" : "bg-black/80 text-cyan-300"
                       }`}
                     >
                       {img.role}
@@ -368,7 +368,7 @@ export function AnalysisResultPanel({
                           setLightboxIndex(img.index);
                         }}
                         title="Ampliar imagem"
-                        className="absolute bottom-1 right-1 rounded bg-black/75 px-1.5 py-0.5 text-[9px] font-bold text-white opacity-0 transition group-hover:opacity-100 hover:bg-emerald-400 hover:text-black"
+                        className="absolute bottom-1 right-1 rounded bg-black/75 px-1.5 py-0.5 text-[9px] font-bold text-white opacity-0 transition group-hover:opacity-100 hover:bg-primary-fixed hover:text-black"
                       >
                         🔍
                       </button>
@@ -398,7 +398,7 @@ export function AnalysisResultPanel({
             onClick={() => setTab(t.id)}
             className={`whitespace-nowrap border-b-2 px-3.5 py-2.5 text-xs font-semibold transition ${
               tab === t.id
-                ? "border-emerald-400 text-emerald-300"
+                ? "border-primary text-primary"
                 : "border-transparent text-white/50 hover:text-white"
             }`}
           >
@@ -452,7 +452,7 @@ export function AnalysisResultPanel({
             </div>
             <div className="mt-2 h-1.5 rounded-full bg-white/10">
               <div
-                className="h-full rounded-full bg-gradient-to-r from-emerald-400 to-lime-400"
+                className="h-full rounded-full bg-gradient-to-r from-primary to-secondary"
                 style={{ width: `${Math.min(100, Math.max(0, td?.filmGrain ?? 0))}%` }}
               />
             </div>
@@ -468,7 +468,7 @@ export function AnalysisResultPanel({
               <div
                 key={img.index}
                 className={`overflow-hidden rounded-2xl border ${
-                  img.isPrimary ? "border-emerald-400/40 bg-emerald-400/[0.04]" : "border-white/10 bg-white/[0.02]"
+                  img.isPrimary ? "border-primary/40 bg-primary/[0.04]" : "border-white/10 bg-white/[0.02]"
                 }`}
               >
                 <div
@@ -491,7 +491,7 @@ export function AnalysisResultPanel({
                   )}
                   <span
                     className={`absolute left-2.5 top-2.5 rounded-md px-2 py-0.5 text-[10px] font-extrabold uppercase ${
-                      img.isPrimary ? "bg-emerald-400 text-black" : "bg-black/80 text-cyan-300 border border-cyan-400/30"
+                      img.isPrimary ? "bg-primary text-on-primary" : "bg-black/80 text-cyan-300 border border-cyan-400/30"
                     }`}
                   >
                     {img.role}
@@ -514,7 +514,7 @@ export function AnalysisResultPanel({
               onClick={() =>
                 onCopy(promptBlocks.map((b) => `## ${b.label}\n${b.text}`).join("\n\n"), "Todos os prompts")
               }
-              className="text-[11px] font-semibold text-emerald-300 hover:underline"
+              className="text-[11px] font-semibold text-primary hover:underline"
             >
               Copiar todos
             </button>
@@ -572,11 +572,11 @@ export function AnalysisResultPanel({
             </div>
           )}
           {result.continuityReport.alignmentRecommendations?.length > 0 && (
-            <div className="rounded-2xl border border-emerald-500/20 bg-emerald-500/5 p-3.5">
-              <p className="mb-2 text-[10px] font-bold uppercase tracking-wider text-emerald-300">Recomendações</p>
+            <div className="rounded-2xl border border-primary/20 bg-primary/5 p-3.5">
+              <p className="mb-2 text-[10px] font-bold uppercase tracking-wider text-primary">Recomendações</p>
               <ul className="space-y-1.5 text-xs text-white/80">
                 {result.continuityReport.alignmentRecommendations.map((d, i) => (
-                  <li key={i} className="flex gap-2"><span className="text-emerald-400">✓</span>{d}</li>
+                  <li key={i} className="flex gap-2"><span className="text-primary">✓</span>{d}</li>
                 ))}
               </ul>
             </div>
@@ -596,7 +596,7 @@ export function AnalysisResultPanel({
                 key={k}
                 className={`grid grid-cols-[minmax(0,1fr)_minmax(0,1.4fr)] gap-3 px-3.5 py-2 text-xs ${i % 2 ? "bg-white/[0.02]" : ""}`}
               >
-                <code className="truncate font-mono text-[11px] text-emerald-300">{k}</code>
+                <code className="truncate font-mono text-[11px] text-primary">{k}</code>
                 <span className="break-words text-white/80">{typeof v === "string" ? v : JSON.stringify(v)}</span>
               </div>
             ))}
@@ -619,7 +619,7 @@ export function AnalysisResultPanel({
                 <span
                   className={`rounded-md px-2 py-0.5 text-[10px] font-extrabold uppercase ${
                     lightboxEntry.isPrimary
-                      ? "bg-emerald-400 text-black"
+                      ? "bg-primary text-on-primary"
                       : "bg-cyan-400/15 text-cyan-300 border border-cyan-400/30"
                   }`}
                 >
@@ -656,14 +656,14 @@ export function AnalysisResultPanel({
                     onClick={() =>
                       setLightboxIndex((cur) => ((cur ?? 0) - 1 + sentImages.length) % sentImages.length)
                     }
-                    className="absolute left-3 top-1/2 -translate-y-1/2 rounded-full bg-black/70 px-3 py-2 text-sm font-bold text-white hover:bg-emerald-400 hover:text-black"
+                    className="absolute left-3 top-1/2 -translate-y-1/2 rounded-full bg-black/70 px-3 py-2 text-sm font-bold text-white hover:bg-primary-fixed hover:text-black"
                   >
                     ‹
                   </button>
                   <button
                     type="button"
                     onClick={() => setLightboxIndex((cur) => ((cur ?? 0) + 1) % sentImages.length)}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 rounded-full bg-black/70 px-3 py-2 text-sm font-bold text-white hover:bg-emerald-400 hover:text-black"
+                    className="absolute right-3 top-1/2 -translate-y-1/2 rounded-full bg-black/70 px-3 py-2 text-sm font-bold text-white hover:bg-primary-fixed hover:text-black"
                   >
                     ›
                   </button>
@@ -680,7 +680,7 @@ export function AnalysisResultPanel({
                     onClick={() => setLightboxIndex(img.index)}
                     className={`flex items-center gap-2 rounded-xl border px-2.5 py-1.5 text-left transition flex-shrink-0 ${
                       img.index === lightboxEntry.index
-                        ? "border-emerald-400 bg-emerald-400/15 text-white"
+                        ? "border-primary bg-primary/15 text-white"
                         : "border-white/10 bg-white/[0.02] text-white/60 hover:text-white"
                     }`}
                   >

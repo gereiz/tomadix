@@ -197,7 +197,7 @@ export function WebhooksTab({ onNotify }: { onNotify: (type: "success" | "error"
                         <span
                           className={`text-[9px] px-1.5 py-0.5 rounded font-bold uppercase ${
                             evt.environment === "PRODUCTION"
-                              ? "bg-emerald-500/20 text-emerald-300"
+                              ? "bg-primary/20 text-primary"
                               : "bg-amber-500/20 text-amber-300"
                           }`}
                         >
@@ -210,7 +210,7 @@ export function WebhooksTab({ onNotify }: { onNotify: (type: "success" | "error"
                       <span
                         className={`text-[10px] px-2 py-0.5 rounded font-bold ${
                           evt.status === "PROCESSED"
-                            ? "bg-emerald-500/20 text-emerald-400"
+                            ? "bg-primary/20 text-primary"
                             : evt.status === "FAILED"
                             ? "bg-rose-500/20 text-rose-400"
                             : "bg-amber-500/20 text-amber-400"
@@ -299,7 +299,7 @@ export function WebhooksTab({ onNotify }: { onNotify: (type: "success" | "error"
             </div>
 
             <div className="rounded-xl border border-white/10 bg-black/40 p-4 max-h-96 overflow-y-auto">
-              <pre className="text-xs font-mono text-emerald-300 whitespace-pre-wrap break-all">
+              <pre className="text-xs font-mono text-primary whitespace-pre-wrap break-all">
                 {JSON.stringify(viewPayloadModal.rawPayload, null, 2)}
               </pre>
             </div>

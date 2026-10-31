@@ -327,11 +327,11 @@ export default function WorkspaceMembersPage() {
                     type="text"
                     value={editName}
                     onChange={(e) => setEditName(e.target.value)}
-                    className="rounded-lg border border-white/20 bg-white/5 px-3 py-1 text-xl font-bold text-white focus:outline-none focus:border-emerald-400"
+                    className="rounded-lg border border-white/20 bg-white/5 px-3 py-1 text-xl font-bold text-white focus:outline-none focus:border-primary"
                   />
                   <button
                     onClick={handleUpdateWorkspaceName}
-                    className="rounded-lg bg-emerald-400 px-3 py-1 text-xs font-bold text-black"
+                    className="rounded-lg bg-primary px-3 py-1 text-xs font-bold text-black"
                   >
                     Salvar
                   </button>
@@ -357,7 +357,7 @@ export default function WorkspaceMembersPage() {
                 </div>
               )}
 
-              <span className="rounded-full bg-emerald-400/20 border border-emerald-400/40 px-2.5 py-0.5 text-xs font-bold text-emerald-300">
+              <span className="rounded-full bg-primary/20 border border-primary/40 px-2.5 py-0.5 text-xs font-bold text-primary">
                 Plano {workspace.planName}
               </span>
             </div>
@@ -384,7 +384,7 @@ export default function WorkspaceMembersPage() {
           <div
             className={`mt-6 rounded-xl p-4 text-sm font-medium ${
               message.type === "success"
-                ? "bg-emerald-950/60 border border-emerald-500/40 text-emerald-300"
+                ? "bg-primary/60 border border-primary/40 text-primary"
                 : "bg-red-950/60 border border-red-500/40 text-red-300"
             }`}
           >
@@ -438,7 +438,7 @@ export default function WorkspaceMembersPage() {
                     <tr key={m.id}>
                       <td className="px-5 py-3.5">
                         <div className="flex items-center gap-3">
-                          <div className="flex h-8 w-8 items-center justify-center rounded-full bg-emerald-400/20 font-bold text-emerald-300">
+                          <div className="flex h-8 w-8 items-center justify-center rounded-full bg-primary/20 font-bold text-primary">
                             {m.user.displayName ? m.user.displayName[0].toUpperCase() : m.user.email[0].toUpperCase()}
                           </div>
                           <div>
@@ -452,7 +452,7 @@ export default function WorkspaceMembersPage() {
 
                       <td className="px-5 py-3.5">
                         {isOwner ? (
-                          <span className="rounded-md bg-emerald-400/20 border border-emerald-400/40 px-2 py-0.5 text-[10px] font-bold text-emerald-300">
+                          <span className="rounded-md bg-primary/20 border border-primary/40 px-2 py-0.5 text-[10px] font-bold text-primary">
                             PROPRIETÁRIO (OWNER)
                           </span>
                         ) : (
@@ -460,7 +460,7 @@ export default function WorkspaceMembersPage() {
                             value={m.role}
                             onChange={(e) => handleUpdateRole(m.id, e.target.value)}
                             disabled={actionLoading}
-                            className="rounded-lg border border-white/15 bg-white/5 px-2.5 py-1 text-xs text-white focus:outline-none focus:border-emerald-400"
+                            className="rounded-lg border border-white/15 bg-white/5 px-2.5 py-1 text-xs text-white focus:outline-none focus:border-primary"
                           >
                             <option value="ADMIN" className="bg-[#0d1017]">ADMIN (Administrador)</option>
                             <option value="MEMBER" className="bg-[#0d1017]">MEMBER (Criador)</option>
@@ -528,7 +528,7 @@ export default function WorkspaceMembersPage() {
                             inv.status === "PENDING"
                               ? "bg-amber-400/20 text-amber-300"
                               : inv.status === "ACCEPTED"
-                              ? "bg-emerald-400/20 text-emerald-300"
+                              ? "bg-primary/20 text-primary"
                               : "bg-white/10 text-white/40"
                           }`}
                         >
@@ -547,7 +547,7 @@ export default function WorkspaceMembersPage() {
                                 navigator.clipboard.writeText(url);
                                 setMessage({ type: "success", text: "Link copiado para a área de transferência!" });
                               }}
-                              className="text-emerald-400 hover:underline"
+                              className="text-primary hover:underline"
                             >
                               Copiar Link
                             </button>
@@ -609,8 +609,8 @@ export default function WorkspaceMembersPage() {
 
               {generatedInviteUrl ? (
                 <div className="space-y-4 pt-2">
-                  <div className="rounded-xl bg-emerald-950/60 border border-emerald-500/40 p-4 space-y-2">
-                    <p className="text-xs font-bold text-emerald-300">
+                  <div className="rounded-xl bg-primary/60 border border-primary/40 p-4 space-y-2">
+                    <p className="text-xs font-bold text-primary">
                       Link Seguro de Convite Gerado:
                     </p>
                     <input
@@ -624,7 +624,7 @@ export default function WorkspaceMembersPage() {
                         navigator.clipboard.writeText(generatedInviteUrl);
                         alert("Link copiado!");
                       }}
-                      className="w-full rounded-lg bg-emerald-400 py-2 text-xs font-bold text-black hover:bg-emerald-300 transition"
+                      className="w-full rounded-lg bg-primary py-2 text-xs font-bold text-on-primary hover:opacity-90 transition shadow-md shadow-primary/20"
                     >
                       Copiar Link de Convite
                     </button>
@@ -651,7 +651,7 @@ export default function WorkspaceMembersPage() {
                       placeholder="roteirista@cinema.com"
                       value={inviteEmail}
                       onChange={(e) => setInviteEmail(e.target.value)}
-                      className="w-full rounded-xl border border-white/15 bg-white/5 px-3.5 py-2.5 text-xs text-white placeholder-white/30 focus:border-emerald-400 focus:outline-none"
+                      className="w-full rounded-xl border border-white/15 bg-white/5 px-3.5 py-2.5 text-xs text-white placeholder-white/30 focus:border-primary focus:outline-none"
                     />
                   </div>
 
@@ -662,7 +662,7 @@ export default function WorkspaceMembersPage() {
                     <select
                       value={inviteRole}
                       onChange={(e: any) => setInviteRole(e.target.value)}
-                      className="w-full rounded-xl border border-white/15 bg-[#0d1017] px-3.5 py-2.5 text-xs text-white focus:border-emerald-400 focus:outline-none"
+                      className="w-full rounded-xl border border-white/15 bg-[#0d1017] px-3.5 py-2.5 text-xs text-white focus:border-primary focus:outline-none"
                     >
                       <option value="MEMBER">MEMBER — Criar e editar projetos e cenas</option>
                       <option value="ADMIN">ADMIN — Gestão de equipe, parâmetros e estúdio</option>
@@ -705,7 +705,7 @@ export default function WorkspaceMembersPage() {
                 <select
                   value={selectedNewOwnerId}
                   onChange={(e) => setSelectedNewOwnerId(e.target.value)}
-                  className="w-full rounded-xl border border-white/15 bg-[#0d1017] px-3.5 py-2.5 text-xs text-white focus:border-emerald-400 focus:outline-none"
+                  className="w-full rounded-xl border border-white/15 bg-[#0d1017] px-3.5 py-2.5 text-xs text-white focus:border-primary focus:outline-none"
                 >
                   <option value="">Selecione um membro...</option>
                   {members

@@ -36,7 +36,7 @@ export function PlanLimitModal({
       <div className="relative w-full max-w-lg overflow-hidden rounded-3xl border border-amber-500/30 bg-gradient-to-b from-neutral-900 via-neutral-950 to-black p-6 sm:p-8 text-white shadow-2xl shadow-amber-500/10">
         {/* Glow de fundo */}
         <div className="pointer-events-none absolute -top-24 -left-24 h-48 w-48 rounded-full bg-amber-500/20 blur-3xl" />
-        <div className="pointer-events-none absolute -bottom-24 -right-24 h-48 w-48 rounded-full bg-emerald-500/10 blur-3xl" />
+        <div className="pointer-events-none absolute -bottom-24 -right-24 h-48 w-48 rounded-full bg-primary/10 blur-3xl" />
 
         {/* Header do Modal */}
         <div className="flex items-start justify-between">
@@ -94,19 +94,19 @@ export function PlanLimitModal({
           </p>
           <div className="grid gap-2 text-xs">
             <div className="flex items-center gap-2 text-white/90">
-              <span className="text-emerald-400 font-bold">✓</span>
+              <span className="text-primary font-bold">✓</span>
               <span><strong>Projetos Ilimitados:</strong> Crie quantos universos e roteiros desejar.</span>
             </div>
             <div className="flex items-center gap-2 text-white/90">
-              <span className="text-emerald-400 font-bold">✓</span>
+              <span className="text-primary font-bold">✓</span>
               <span><strong>2.500 Créditos Mensais:</strong> Geração acelerada com Google Flow e Gemini.</span>
             </div>
             <div className="flex items-center gap-2 text-white/90">
-              <span className="text-emerald-400 font-bold">✓</span>
+              <span className="text-primary font-bold">✓</span>
               <span><strong>Modelos Avançados:</strong> Prompts otimizados para Runway Gen-3 e Sora.</span>
             </div>
             <div className="flex items-center gap-2 text-white/90">
-              <span className="text-emerald-400 font-bold">✓</span>
+              <span className="text-primary font-bold">✓</span>
               <span><strong>Exportação 4K:</strong> Roteiros técnicos completos em JSON e Markdown.</span>
             </div>
           </div>
@@ -129,7 +129,7 @@ export function PlanLimitModal({
           </Link>
           <Link
             href="/pricing"
-            className="w-full sm:w-auto inline-flex items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-amber-400 via-amber-300 to-emerald-400 px-5 py-2.5 text-xs font-bold text-black transition hover:opacity-95 shadow-lg shadow-amber-400/20 text-center"
+            className="w-full sm:w-auto inline-flex items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-amber-400 via-amber-300 to-primary px-5 py-2.5 text-xs font-bold text-black transition hover:opacity-95 shadow-lg shadow-amber-400/20 text-center"
           >
             <span>Fazer Upgrade Agora</span>
             <span>→</span>

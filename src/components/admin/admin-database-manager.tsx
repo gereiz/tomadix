@@ -263,7 +263,7 @@ export function AdminDatabaseManager() {
         <div
           className={`rounded-2xl border p-4 text-xs font-medium flex items-center justify-between ${
             feedback.type === "success"
-              ? "border-emerald-500/30 bg-emerald-950/30 text-emerald-300"
+              ? "border-primary/30 bg-primary/30 text-primary"
               : "border-rose-500/30 bg-rose-950/30 text-rose-300"
           }`}
         >
@@ -349,7 +349,7 @@ export function AdminDatabaseManager() {
                 <div className="mt-1 flex items-center gap-2">
                   <span
                     className={`h-2.5 w-2.5 rounded-full ${
-                      currentTest?.success ? "bg-emerald-400 animate-pulse" : "bg-rose-500"
+                      currentTest?.success ? "bg-primary animate-pulse" : "bg-rose-500"
                     }`}
                   />
                   <span className="text-sm font-bold text-white">
@@ -427,7 +427,7 @@ export function AdminDatabaseManager() {
 
                 <div>
                   <span className="text-white/40 block text-[10px]">Criptografia SSL/TLS:</span>
-                  <span className="font-medium text-emerald-400">
+                  <span className="font-medium text-primary">
                     {currentTest?.sslUsed ? "Ativa (TLS Seguro)" : "Conexão SSL Require"}
                   </span>
                 </div>
@@ -441,7 +441,7 @@ export function AdminDatabaseManager() {
               {currentTest?.testedAt && (
                 <div className="border-t border-white/5 pt-3 text-[11px] text-white/40 flex items-center justify-between">
                   <span>Última verificação: {new Date(currentTest.testedAt).toLocaleString("pt-BR")}</span>
-                  <span className="text-emerald-400/80 font-mono">Prisma Client v6 • Driver Nativo</span>
+                  <span className="text-primary/80 font-mono">Prisma Client v6 • Driver Nativo</span>
                 </div>
               )}
             </div>
@@ -465,7 +465,7 @@ export function AdminDatabaseManager() {
             </div>
 
             {saveSuccessMessage && (
-              <div className="rounded-xl border border-emerald-500/30 bg-emerald-950/40 p-4 text-xs text-emerald-300">
+              <div className="rounded-xl border border-primary/30 bg-primary/40 p-4 text-xs text-primary">
                 {saveSuccessMessage}
               </div>
             )}
@@ -635,7 +635,7 @@ export function AdminDatabaseManager() {
                   type="button"
                   onClick={handleApplyNewConnection}
                   disabled={savingConnection}
-                  className="rounded-xl bg-emerald-500 hover:bg-emerald-400 px-5 py-2.5 text-xs font-bold text-black transition shadow-lg shadow-emerald-500/10 disabled:opacity-50 flex items-center gap-2"
+                  className="rounded-xl bg-primary hover:bg-primary-fixed px-5 py-2.5 text-xs font-bold text-black transition shadow-lg shadow-primary/10 disabled:opacity-50 flex items-center gap-2"
                 >
                   {savingConnection ? (
                     <span>Aplicando e criando backup...</span>
@@ -654,7 +654,7 @@ export function AdminDatabaseManager() {
               <div
                 className={`rounded-xl border p-4 space-y-3 ${
                   candidateTest.success
-                    ? "border-emerald-500/30 bg-emerald-950/20"
+                    ? "border-primary/30 bg-primary/20"
                     : "border-rose-500/30 bg-rose-950/20"
                 }`}
               >
@@ -743,7 +743,7 @@ export function AdminDatabaseManager() {
                     wizardStep === s.step
                       ? "border border-amber-400 bg-amber-400/10 text-amber-300 font-bold"
                       : wizardStep > s.step
-                      ? "bg-emerald-950/20 text-emerald-300 font-medium"
+                      ? "bg-primary/20 text-primary font-medium"
                       : "bg-white/5 text-white/40"
                   }`}
                 >
@@ -761,7 +761,7 @@ export function AdminDatabaseManager() {
                     <span
                       className={`rounded px-2 py-0.5 text-[10px] font-bold ${
                         diagnosis?.status === "READY"
-                          ? "bg-emerald-500/20 text-emerald-300"
+                          ? "bg-primary/20 text-primary"
                           : diagnosis?.status === "PARTIAL"
                           ? "bg-amber-500/20 text-amber-300"
                           : "bg-rose-500/20 text-rose-300"
@@ -786,7 +786,7 @@ export function AdminDatabaseManager() {
                       <span className="text-white/40 block text-[10px]">Super Administrador:</span>
                       <span
                         className={`font-bold ${
-                          diagnosis?.hasSuperAdmin ? "text-emerald-400" : "text-amber-400"
+                          diagnosis?.hasSuperAdmin ? "text-primary" : "text-amber-400"
                         }`}
                       >
                         {diagnosis?.hasSuperAdmin ? "Configurado ✅" : "Ausente ⚠️"}
@@ -819,9 +819,9 @@ export function AdminDatabaseManager() {
             {wizardStep === 2 && (
               <div className="space-y-4">
                 {diagnosis?.hasSuperAdmin ? (
-                  <div className="rounded-xl border border-emerald-500/30 bg-emerald-950/20 p-5 space-y-2">
+                  <div className="rounded-xl border border-primary/30 bg-primary/20 p-5 space-y-2">
                     <div className="flex items-center gap-2">
-                      <span className="text-emerald-400">✅</span>
+                      <span className="text-primary">✅</span>
                       <h4 className="text-xs font-bold text-white">
                         Administrador Inicial já Existente
                       </h4>
@@ -980,14 +980,14 @@ export function AdminDatabaseManager() {
             {/* PASSO 4: RELATÓRIO FINAL */}
             {wizardStep === 4 && (
               <div className="space-y-4">
-                <div className="rounded-xl border border-emerald-500/30 bg-emerald-950/20 p-5 space-y-4">
+                <div className="rounded-xl border border-primary/30 bg-primary/20 p-5 space-y-4">
                   <div className="flex items-center gap-2">
                     <span className="text-xl">🎉</span>
                     <div>
                       <h4 className="text-sm font-bold text-white">
                         {initReport?.message || "Inicialização Concluída com Sucesso!"}
                       </h4>
-                      <p className="text-xs text-emerald-300">
+                      <p className="text-xs text-primary">
                         Tempo total de execução: {initReport?.durationMs}ms
                       </p>
                     </div>

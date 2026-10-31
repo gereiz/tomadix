@@ -51,7 +51,7 @@ function ConfirmEmailContent() {
     <div className="w-full max-w-md rounded-3xl border border-white/10 bg-[#0f1219]/90 p-8 shadow-2xl backdrop-blur-xl">
       <div className="mb-8 text-center">
         <Link href="/" className="inline-block text-lg font-bold tracking-tight">
-          <span className="text-emerald-400">CINE</span>PROMPT{" "}
+          <span className="text-primary">CINE</span>PROMPT{" "}
           <span className="text-xs font-normal tracking-widest text-white/40">STUDIO</span>
         </Link>
         <h1 className="mt-4 text-2xl font-semibold tracking-tight text-white">Confirmação de E-mail</h1>
@@ -61,15 +61,15 @@ function ConfirmEmailContent() {
       </div>
 
       {confirmed && (
-        <div className="mb-6 rounded-2xl border border-emerald-400/30 bg-emerald-400/10 p-5 text-center text-emerald-300">
-          <div className="mx-auto mb-2 flex h-10 w-10 items-center justify-center rounded-full bg-emerald-400/20 text-lg">
+        <div className="mb-6 rounded-2xl border border-primary/30 bg-primary/10 p-5 text-center text-primary">
+          <div className="mx-auto mb-2 flex h-10 w-10 items-center justify-center rounded-full bg-primary/20 text-lg">
             ✓
           </div>
           <p className="text-sm font-semibold">{message}</p>
           <div className="mt-5">
             <Link
               href="/projects"
-              className="inline-block rounded-xl bg-emerald-400 px-5 py-2.5 text-xs font-bold text-black transition hover:bg-emerald-300"
+              className="inline-block rounded-xl bg-primary px-5 py-2.5 text-xs font-bold text-on-primary transition hover:opacity-90 shadow-md shadow-primary/20"
             >
               Acessar Meus Projetos
             </Link>
@@ -99,14 +99,14 @@ function ConfirmEmailContent() {
               value={inputToken}
               onChange={(e) => setInputToken(e.target.value)}
               placeholder="Cole o token de ativação"
-              className="mt-1.5 w-full rounded-xl border border-white/10 bg-black/30 px-3.5 py-2.5 font-mono text-sm text-white placeholder-white/20 transition focus:border-emerald-400 focus:outline-none focus:ring-1 focus:ring-emerald-400"
+              className="mt-1.5 w-full rounded-xl border border-white/10 bg-black/30 px-3.5 py-2.5 font-mono text-sm text-white placeholder-white/20 transition focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
             />
           </div>
 
           <button
             type="submit"
             disabled={loading}
-            className="mt-2 w-full rounded-xl bg-emerald-400 py-3 text-sm font-semibold text-black transition hover:bg-emerald-300 disabled:opacity-50"
+            className="mt-2 w-full rounded-xl bg-primary py-3 text-sm font-semibold text-on-primary transition hover:opacity-90 disabled:opacity-50 shadow-md shadow-primary/20"
           >
             {loading ? "Confirmando..." : "Confirmar endereço de e-mail"}
           </button>
@@ -114,7 +114,7 @@ function ConfirmEmailContent() {
       )}
 
       <div className="mt-8 border-t border-white/10 pt-6 text-center text-xs text-white/50">
-        <Link href="/login" className="font-semibold text-emerald-400 transition hover:text-emerald-300">
+        <Link href="/login" className="font-semibold text-primary transition hover:text-primary">
           Ir para tela de login
         </Link>
       </div>

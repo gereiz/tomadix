@@ -22,7 +22,7 @@ export default function BillingCanceledPage() {
         <div className="flex flex-col sm:flex-row items-center justify-center gap-3 pt-4">
           <Link
             href="/pricing"
-            className="w-full sm:w-auto rounded-xl bg-emerald-400 px-6 py-3 text-sm font-bold text-black transition hover:bg-emerald-300"
+            className="w-full sm:w-auto rounded-xl bg-primary px-6 py-3 text-sm font-bold text-on-primary transition hover:opacity-90 shadow-md shadow-primary/20"
           >
             Voltar aos Planos
           </Link>

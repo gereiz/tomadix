@@ -157,7 +157,7 @@ export function ConsumptionOrderTab() {
         <div
           className={`p-4 rounded-xl text-xs flex justify-between items-center transition ${
             notification.type === "success"
-              ? "bg-emerald-950/40 border border-emerald-500/30 text-emerald-300"
+              ? "bg-primary/40 border border-primary/30 text-primary"
               : "bg-rose-950/40 border border-rose-500/30 text-rose-300"
           }`}
         >

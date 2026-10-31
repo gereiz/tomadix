@@ -74,7 +74,7 @@ export default function AdminUsagePage() {
         <div
           className={`p-4 rounded-xl text-xs flex justify-between items-center ${
             notification.type === "success"
-              ? "bg-emerald-950/40 border border-emerald-500/30 text-emerald-300"
+              ? "bg-primary/40 border border-primary/30 text-primary"
               : "bg-rose-950/40 border border-rose-500/30 text-rose-300"
           }`}
         >
@@ -97,7 +97,7 @@ export default function AdminUsagePage() {
         <div className="flex items-center gap-2">
           <Link
             href="/admin/settings/gemini"
-            className="rounded-xl bg-emerald-500/20 border border-emerald-500/40 px-3 py-1.5 text-xs font-semibold text-emerald-300 hover:bg-emerald-500/30 transition flex items-center gap-1.5"
+            className="rounded-xl bg-primary/20 border border-primary/40 px-3 py-1.5 text-xs font-semibold text-primary hover:bg-primary/30 transition flex items-center gap-1.5"
           >
             <span>✨</span> Gerenciar APIs Gemini (Multi-Key) ↗
           </Link>
@@ -134,7 +134,7 @@ export default function AdminUsagePage() {
 
         <div className="rounded-xl border border-white/10 bg-[#0d111c] p-4">
           <span className="text-[11px] text-white/50 font-medium">Taxa de Sucesso</span>
-          <div className="mt-2 text-2xl font-bold font-mono text-emerald-400">
+          <div className="mt-2 text-2xl font-bold font-mono text-primary">
             {totals.successRatePercent || 100}%
           </div>
           <span className="text-[11px] text-white/40 mt-1 block">

@@ -30,7 +30,7 @@ export function ToastNotification({ message, onClose }: ToastProps) {
             : isWarning
             ? "border-amber-500/40 bg-amber-950/80 text-amber-200 shadow-amber-500/10"
             : isSuccess
-            ? "border-emerald-500/40 bg-emerald-950/80 text-emerald-200 shadow-emerald-500/10"
+            ? "border-primary/40 bg-primary/80 text-primary shadow-primary/10"
             : "border-white/20 bg-neutral-900/90 text-white shadow-black/40"
         }`}
       >
@@ -50,7 +50,7 @@ export function ToastNotification({ message, onClose }: ToastProps) {
             </div>
           )}
           {isSuccess && (
-            <div className="flex h-6 w-6 items-center justify-center rounded-full bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">
+            <div className="flex h-6 w-6 items-center justify-center rounded-full bg-primary/20 text-primary border border-primary/30">
               <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
               </svg>

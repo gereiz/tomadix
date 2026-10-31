@@ -360,7 +360,7 @@ export function EnvironmentsTab({ projectId, onStatsUpdate }: EnvironmentsTabPro
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               placeholder="Buscar ambientes, arquitetura ou iluminação..."
-              className="w-full rounded-xl border border-white/10 bg-white/5 pl-10 pr-4 py-2 text-xs text-white placeholder-white/40 focus:border-emerald-500 focus:outline-none transition"
+              className="w-full rounded-xl border border-white/10 bg-white/5 pl-10 pr-4 py-2 text-xs text-white placeholder-white/40 focus:border-primary focus:outline-none transition"
             />
           </div>
 
@@ -372,7 +372,7 @@ export function EnvironmentsTab({ projectId, onStatsUpdate }: EnvironmentsTabPro
                 onClick={() => setStatusFilter(filter)}
                 className={`rounded-lg px-3 py-1.5 text-xs font-medium transition ${
                   statusFilter === filter
-                    ? "bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 font-semibold"
+                    ? "bg-primary/20 text-primary border border-primary/30 font-semibold"
                     : "text-white/60 hover:text-white"
                 }`}
               >
@@ -397,7 +397,7 @@ export function EnvironmentsTab({ projectId, onStatsUpdate }: EnvironmentsTabPro
 
           <button
             onClick={handleOpenCreate}
-            className="flex items-center justify-center gap-2 rounded-xl bg-primary px-4 py-2.5 text-xs font-semibold text-primary-foreground shadow-lg hover:opacity-90 transition"
+            className="flex items-center justify-center gap-2 rounded-xl bg-primary px-4 py-2.5 text-xs font-semibold text-on-primary shadow-lg hover:opacity-90 transition"
           >
             <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
@@ -416,7 +416,7 @@ export function EnvironmentsTab({ projectId, onStatsUpdate }: EnvironmentsTabPro
         </div>
       ) : environments.length === 0 ? (
         <div className="rounded-3xl border border-dashed border-white/10 bg-white/[0.01] p-12 text-center">
-          <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 mb-4">
+          <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-primary/10 text-primary border border-primary/20 mb-4">
             <svg className="h-7 w-7" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
             </svg>
@@ -443,7 +443,7 @@ export function EnvironmentsTab({ projectId, onStatsUpdate }: EnvironmentsTabPro
             return (
               <div
                 key={env.id}
-                className={`flex flex-col justify-between rounded-2xl border bg-black/40 p-5 transition hover:border-emerald-500/40 ${
+                className={`flex flex-col justify-between rounded-2xl border bg-black/40 p-5 transition hover:border-primary/40 ${
                   env.isArchived ? "border-amber-500/20 opacity-70" : "border-white/10"
                 }`}
               >
@@ -460,7 +460,7 @@ export function EnvironmentsTab({ projectId, onStatsUpdate }: EnvironmentsTabPro
                         )}
                       </div>
                       {attrs.locationContext && (
-                        <p className="text-[11px] font-mono text-emerald-400 mt-0.5">
+                        <p className="text-[11px] font-mono text-primary mt-0.5">
                           📍 {attrs.locationContext}
                         </p>
                       )}
@@ -479,7 +479,7 @@ export function EnvironmentsTab({ projectId, onStatsUpdate }: EnvironmentsTabPro
                   {/* Badges de Atributos Arquiteturais & Iluminação */}
                   <div className="mt-3 flex flex-wrap gap-1.5">
                     {attrs.architecture && (
-                      <span className="rounded-md bg-emerald-500/10 px-2 py-0.5 text-[10px] text-emerald-300 border border-emerald-500/20 truncate max-w-[200px]">
+                      <span className="rounded-md bg-primary/10 px-2 py-0.5 text-[10px] text-primary border border-primary/20 truncate max-w-[200px]">
                         🏛️ {attrs.architecture}
                       </span>
                     )}
@@ -511,7 +511,7 @@ export function EnvironmentsTab({ projectId, onStatsUpdate }: EnvironmentsTabPro
                   {/* Botão Ver Prompt JSON */}
                   <button
                     onClick={() => handleViewPrompt(env)}
-                    className="flex items-center gap-1.5 rounded-lg bg-emerald-500/10 px-2.5 py-1.5 text-[11px] font-semibold text-emerald-300 border border-emerald-500/20 hover:bg-emerald-500/20 transition"
+                    className="flex items-center gap-1.5 rounded-lg bg-primary/10 px-2.5 py-1.5 text-[11px] font-semibold text-primary border border-primary/20 hover:bg-primary/20 transition"
                     title="Visualizar e exportar prompt base estruturado em JSON"
                   >
                     <svg className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -607,7 +607,7 @@ export function EnvironmentsTab({ projectId, onStatsUpdate }: EnvironmentsTabPro
               <div className="grid gap-3 sm:grid-cols-2">
                 <div>
                   <label className="block text-xs font-semibold text-white/80 mb-1">
-                    Nome do Ambiente <span className="text-emerald-400">*</span>
+                    Nome do Ambiente <span className="text-primary">*</span>
                   </label>
                   <input
                     type="text"
@@ -615,7 +615,7 @@ export function EnvironmentsTab({ projectId, onStatsUpdate }: EnvironmentsTabPro
                     value={formData.name}
                     onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                     placeholder="Ex: Sala de Controle Subterrânea, Bosque Nebuloso..."
-                    className="w-full rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-xs text-white placeholder-white/40 focus:border-emerald-500 focus:outline-none"
+                    className="w-full rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-xs text-white placeholder-white/40 focus:border-primary focus:outline-none"
                   />
                 </div>
                 <div>
@@ -625,7 +625,7 @@ export function EnvironmentsTab({ projectId, onStatsUpdate }: EnvironmentsTabPro
                     value={formData.locationContext}
                     onChange={(e) => setFormData({ ...formData, locationContext: e.target.value })}
                     placeholder="Ex: Berlim Oriental, Setor 4, Planeta desértico..."
-                    className="w-full rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-xs text-white placeholder-white/40 focus:border-emerald-500 focus:outline-none"
+                    className="w-full rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-xs text-white placeholder-white/40 focus:border-primary focus:outline-none"
                   />
                 </div>
               </div>
@@ -638,13 +638,13 @@ export function EnvironmentsTab({ projectId, onStatsUpdate }: EnvironmentsTabPro
                   value={formData.description}
                   onChange={(e) => setFormData({ ...formData, description: e.target.value })}
                   placeholder="Visão panorâmica, dimensões espaciais, sensação dramática do local..."
-                  className="w-full rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-xs text-white placeholder-white/40 focus:border-emerald-500 focus:outline-none"
+                  className="w-full rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-xs text-white placeholder-white/40 focus:border-primary focus:outline-none"
                 />
               </div>
 
               {/* Seção 1: Arquitetura e Objetos */}
               <div className="rounded-2xl border border-white/5 bg-black/20 p-4 space-y-3">
-                <h4 className="text-xs font-bold uppercase tracking-wider text-emerald-400">
+                <h4 className="text-xs font-bold uppercase tracking-wider text-primary">
                   Arquitetura & Elementos de Cenário
                 </h4>
 
@@ -657,7 +657,7 @@ export function EnvironmentsTab({ projectId, onStatsUpdate }: EnvironmentsTabPro
                     value={formData.architecture}
                     onChange={(e) => setFormData({ ...formData, architecture: e.target.value })}
                     placeholder="Ex: Concreto aparente brutalista, tetos altos com vigas de aço expostas"
-                    className="w-full rounded-xl border border-white/10 bg-white/5 px-3 py-1.5 text-xs text-white placeholder-white/40 focus:border-emerald-500 focus:outline-none"
+                    className="w-full rounded-xl border border-white/10 bg-white/5 px-3 py-1.5 text-xs text-white placeholder-white/40 focus:border-primary focus:outline-none"
                   />
                 </div>
 
@@ -670,7 +670,7 @@ export function EnvironmentsTab({ projectId, onStatsUpdate }: EnvironmentsTabPro
                     value={formData.propsAndElements}
                     onChange={(e) => setFormData({ ...formData, propsAndElements: e.target.value })}
                     placeholder="Ex: Terminais analógicos piscando, cabos suspensos, mesas metálicas"
-                    className="w-full rounded-xl border border-white/10 bg-white/5 px-3 py-1.5 text-xs text-white placeholder-white/40 focus:border-emerald-500 focus:outline-none"
+                    className="w-full rounded-xl border border-white/10 bg-white/5 px-3 py-1.5 text-xs text-white placeholder-white/40 focus:border-primary focus:outline-none"
                   />
                 </div>
               </div>
@@ -689,7 +689,7 @@ export function EnvironmentsTab({ projectId, onStatsUpdate }: EnvironmentsTabPro
                       value={formData.colorPalette}
                       onChange={(e) => setFormData({ ...formData, colorPalette: e.target.value })}
                       placeholder="Ex: Tons frios ciano, sombras carvão, toques âmbar"
-                      className="w-full rounded-xl border border-white/10 bg-white/5 px-3 py-1.5 text-xs text-white placeholder-white/40 focus:border-emerald-500 focus:outline-none"
+                      className="w-full rounded-xl border border-white/10 bg-white/5 px-3 py-1.5 text-xs text-white placeholder-white/40 focus:border-primary focus:outline-none"
                     />
                   </div>
 
@@ -700,7 +700,7 @@ export function EnvironmentsTab({ projectId, onStatsUpdate }: EnvironmentsTabPro
                       value={formData.weatherAndAtmosphere}
                       onChange={(e) => setFormData({ ...formData, weatherAndAtmosphere: e.target.value })}
                       placeholder="Ex: Névoa densa, umidade no chão"
-                      className="w-full rounded-xl border border-white/10 bg-white/5 px-3 py-1.5 text-xs text-white placeholder-white/40 focus:border-emerald-500 focus:outline-none"
+                      className="w-full rounded-xl border border-white/10 bg-white/5 px-3 py-1.5 text-xs text-white placeholder-white/40 focus:border-primary focus:outline-none"
                     />
                   </div>
 
@@ -711,7 +711,7 @@ export function EnvironmentsTab({ projectId, onStatsUpdate }: EnvironmentsTabPro
                       value={formData.historicalEra}
                       onChange={(e) => setFormData({ ...formData, historicalEra: e.target.value })}
                       placeholder="Ex: Anos 80 alternativo, Futuro distante"
-                      className="w-full rounded-xl border border-white/10 bg-white/5 px-3 py-1.5 text-xs text-white placeholder-white/40 focus:border-emerald-500 focus:outline-none"
+                      className="w-full rounded-xl border border-white/10 bg-white/5 px-3 py-1.5 text-xs text-white placeholder-white/40 focus:border-primary focus:outline-none"
                     />
                   </div>
                 </div>
@@ -738,7 +738,7 @@ export function EnvironmentsTab({ projectId, onStatsUpdate }: EnvironmentsTabPro
                   value={formData.basePrompt}
                   onChange={(e) => setFormData({ ...formData, basePrompt: e.target.value })}
                   placeholder="Trecho literal de prompt para compor o cenário em IA..."
-                  className="w-full rounded-xl border border-white/10 bg-white/5 px-3 py-1.5 text-xs text-white placeholder-white/40 focus:border-emerald-500 focus:outline-none font-mono"
+                  className="w-full rounded-xl border border-white/10 bg-white/5 px-3 py-1.5 text-xs text-white placeholder-white/40 focus:border-primary focus:outline-none font-mono"
                 />
               </div>
 
@@ -754,7 +754,7 @@ export function EnvironmentsTab({ projectId, onStatsUpdate }: EnvironmentsTabPro
                 <button
                   type="submit"
                   disabled={formLoading}
-                  className="flex items-center gap-2 rounded-xl bg-emerald-500 px-5 py-2 text-xs font-semibold text-white shadow-lg shadow-emerald-500/20 hover:bg-emerald-400 disabled:opacity-50 transition"
+                  className="flex items-center gap-2 rounded-xl bg-primary px-5 py-2 text-xs font-semibold text-on-primary shadow-lg shadow-primary/20 hover:opacity-90 disabled:opacity-50 transition"
                 >
                   {formLoading && (
                     <svg className="h-3.5 w-3.5 animate-spin" viewBox="0 0 24 24" fill="none">
@@ -776,7 +776,7 @@ export function EnvironmentsTab({ projectId, onStatsUpdate }: EnvironmentsTabPro
           <div className="relative w-full max-w-2xl rounded-3xl border border-white/10 bg-[#0f1218] p-6 shadow-2xl">
             <div className="flex items-center justify-between border-b border-white/10 pb-4">
               <div className="flex items-center gap-2">
-                <span className="rounded-lg bg-emerald-500/10 px-2 py-1 text-xs font-mono text-emerald-400 border border-emerald-500/20">
+                <span className="rounded-lg bg-primary/10 px-2 py-1 text-xs font-mono text-primary border border-primary/20">
                   JSON v1.0
                 </span>
                 <h3 className="text-base font-bold text-white">Prompt-Base Estruturado do Ambiente</h3>
@@ -792,14 +792,14 @@ export function EnvironmentsTab({ projectId, onStatsUpdate }: EnvironmentsTabPro
             <div className="mt-4">
               {promptLoading ? (
                 <div className="flex items-center justify-center py-12">
-                  <svg className="h-6 w-6 animate-spin text-emerald-400" viewBox="0 0 24 24" fill="none">
+                  <svg className="h-6 w-6 animate-spin text-primary" viewBox="0 0 24 24" fill="none">
                     <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
                     <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z" />
                   </svg>
                 </div>
               ) : (
                 <div className="space-y-4">
-                  <div className="relative rounded-2xl border border-white/10 bg-black/60 p-4 font-mono text-xs text-emerald-300 max-h-96 overflow-y-auto">
+                  <div className="relative rounded-2xl border border-white/10 bg-black/60 p-4 font-mono text-xs text-primary max-h-96 overflow-y-auto">
                     <pre>{JSON.stringify(promptData, null, 2)}</pre>
                   </div>
 
@@ -809,7 +809,7 @@ export function EnvironmentsTab({ projectId, onStatsUpdate }: EnvironmentsTabPro
                     </span>
                     <button
                       onClick={handleCopyPromptJson}
-                      className="flex items-center gap-1.5 rounded-xl bg-emerald-500 px-4 py-2 text-xs font-semibold text-white shadow-lg shadow-emerald-500/20 hover:bg-emerald-400 transition"
+                      className="flex items-center gap-1.5 rounded-xl bg-primary px-4 py-2 text-xs font-semibold text-on-primary shadow-lg shadow-primary/20 hover:opacity-90 transition"
                     >
                       {copySuccess ? (
                         <>
@@ -909,7 +909,7 @@ export function EnvironmentsTab({ projectId, onStatsUpdate }: EnvironmentsTabPro
                   type="button"
                   onClick={handleSubmitAiGenerate}
                   disabled={aiLoading}
-                  className="rounded-xl bg-primary px-4 py-2 text-xs font-semibold text-primary-foreground shadow-lg hover:opacity-90 disabled:opacity-50 transition"
+                  className="rounded-xl bg-primary px-4 py-2 text-xs font-semibold text-on-primary shadow-lg hover:opacity-90 disabled:opacity-50 transition"
                 >
                   {aiLoading ? "Concebendo Ambiente..." : "Gerar Ambiente"}
                 </button>

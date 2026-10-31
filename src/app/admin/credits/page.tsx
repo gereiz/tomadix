@@ -329,7 +329,7 @@ export default function AdminCreditsConfigPage() {
         <div className="flex items-center gap-2 self-start md:self-auto">
           <button
             onClick={() => setShowCreateModal(true)}
-            className="rounded-xl bg-primary px-3.5 py-2 text-xs font-bold text-primary-foreground shadow-lg shadow-primary/20 hover:opacity-95 transition flex items-center gap-1.5"
+            className="rounded-xl bg-primary px-3.5 py-2 text-xs font-bold text-on-primary shadow-lg shadow-primary/20 hover:opacity-95 transition flex items-center gap-1.5"
           >
             <span>➕</span> Nova Operação
           </button>
@@ -356,7 +356,7 @@ export default function AdminCreditsConfigPage() {
                 onClick={() => setActiveCategory(tab.id)}
                 className={`whitespace-nowrap flex items-center gap-1.5 rounded-lg px-3 py-1.5 font-semibold transition ${
                   isActive
-                    ? "bg-primary text-primary-foreground shadow-sm shadow-primary/20"
+                    ? "bg-primary text-on-primary shadow-sm shadow-primary/20"
                     : "text-white/60 hover:text-white hover:bg-white/5"
                 }`}
               >
@@ -411,7 +411,7 @@ export default function AdminCreditsConfigPage() {
                     </span>
                     <div className="flex items-center gap-1.5">
                       {op.isFree ? (
-                        <span className="rounded bg-emerald-500/20 border border-emerald-500/40 px-2 py-0.5 text-[10px] font-bold text-emerald-300">
+                        <span className="rounded bg-primary/20 border border-primary/40 px-2 py-0.5 text-[10px] font-bold text-primary">
                           GRATUITO
                         </span>
                       ) : (
@@ -422,7 +422,7 @@ export default function AdminCreditsConfigPage() {
                       )}
                       <span
                         className={`h-2 w-2 rounded-full ${
-                          op.isActive ? "bg-emerald-400" : "bg-red-400"
+                          op.isActive ? "bg-primary" : "bg-red-400"
                         }`}
                         title={op.isActive ? "Operação Ativa" : "Operação Inativa"}
                       />
@@ -538,7 +538,7 @@ export default function AdminCreditsConfigPage() {
             type="button"
             onClick={handleSimulate}
             disabled={simulating || !simOpCode}
-            className="rounded-xl bg-primary px-4 py-2 text-xs font-bold text-primary-foreground shadow-md shadow-primary/20 hover:opacity-95 transition flex items-center justify-center gap-1.5"
+            className="rounded-xl bg-primary px-4 py-2 text-xs font-bold text-on-primary shadow-md shadow-primary/20 hover:opacity-95 transition flex items-center justify-center gap-1.5"
           >
             {simulating ? "Calculando..." : "Simular Custo Efetivo ↗"}
           </button>
@@ -557,7 +557,7 @@ export default function AdminCreditsConfigPage() {
                 <span className="font-mono text-xs text-amber-300 font-semibold">{simResult.appliedRule}</span>
               </div>
               <div className="rounded-xl bg-primary px-4 py-1.5 text-center shadow-lg shadow-primary/25">
-                <span className="text-xs font-bold text-primary-foreground block">
+                <span className="text-xs font-bold text-on-primary block">
                   {simResult.creditCost === 0 ? "GRÁTIS" : `${simResult.creditCost} créditos`}
                 </span>
               </div>
@@ -646,7 +646,7 @@ export default function AdminCreditsConfigPage() {
                 type="button"
                 disabled={savingOp}
                 onClick={() => handleSaveOperation(editingOp)}
-                className="rounded-xl bg-primary px-4 py-2 text-xs font-bold text-primary-foreground shadow-md shadow-primary/20 hover:opacity-95 transition"
+                className="rounded-xl bg-primary px-4 py-2 text-xs font-bold text-on-primary shadow-md shadow-primary/20 hover:opacity-95 transition"
               >
                 {savingOp ? "Salvando..." : "Salvar Configuração"}
               </button>
@@ -755,7 +755,7 @@ export default function AdminCreditsConfigPage() {
                 <button
                   type="submit"
                   disabled={savingRule}
-                  className="rounded-xl bg-primary px-4 py-2 text-xs font-bold text-primary-foreground shadow-md shadow-primary/20 hover:opacity-95 transition"
+                  className="rounded-xl bg-primary px-4 py-2 text-xs font-bold text-on-primary shadow-md shadow-primary/20 hover:opacity-95 transition"
                 >
                   {savingRule ? "Adicionando..." : "Adicionar Regra ao Plano"}
                 </button>
@@ -856,7 +856,7 @@ export default function AdminCreditsConfigPage() {
                 <button
                   type="submit"
                   disabled={creatingOp}
-                  className="rounded-xl bg-primary px-4 py-2 text-xs font-bold text-primary-foreground shadow-md shadow-primary/20 hover:opacity-95 transition"
+                  className="rounded-xl bg-primary px-4 py-2 text-xs font-bold text-on-primary shadow-md shadow-primary/20 hover:opacity-95 transition"
                 >
                   {creatingOp ? "Criando..." : "Salvar Operação"}
                 </button>

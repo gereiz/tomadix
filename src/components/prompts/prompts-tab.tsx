@@ -435,7 +435,7 @@ export function PromptsTab({ projectId, initialSceneId, onStatsUpdate }: Prompts
   if (loading) {
     return (
       <div className="mt-8 rounded-3xl border border-white/10 bg-white/[0.02] p-12 text-center">
-        <div className="inline-block h-8 w-8 animate-spin rounded-full border-2 border-emerald-500 border-t-transparent mb-3" />
+        <div className="inline-block h-8 w-8 animate-spin rounded-full border-2 border-primary border-t-transparent mb-3" />
         <p className="text-sm text-white/60">Carregando catálogo de templates e ferramentas...</p>
       </div>
     );
@@ -453,7 +453,7 @@ export function PromptsTab({ projectId, initialSceneId, onStatsUpdate }: Prompts
           <div className="rounded-3xl border border-white/10 bg-black/40 p-6 space-y-5">
             <div>
               <h3 className="text-base font-bold text-white flex items-center gap-2">
-                <svg className="h-4 w-4 text-emerald-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <svg className="h-4 w-4 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
                 </svg>
                 Motor de Composição Cinemática
@@ -471,7 +471,7 @@ export function PromptsTab({ projectId, initialSceneId, onStatsUpdate }: Prompts
               <select
                 value={selectedTemplate}
                 onChange={(e) => setSelectedTemplate(e.target.value as TemplateKey)}
-                className="w-full rounded-xl border border-white/10 bg-[#0f1218] px-3 py-2 text-xs text-white focus:border-emerald-500 focus:outline-none"
+                className="w-full rounded-xl border border-white/10 bg-[#0f1218] px-3 py-2 text-xs text-white focus:border-primary focus:outline-none"
               >
                 {templates.length > 0 ? (
                   templates.map((t) => (
@@ -513,7 +513,7 @@ export function PromptsTab({ projectId, initialSceneId, onStatsUpdate }: Prompts
                     onClick={() => setSelectedTool(tool.key)}
                     className={`rounded-xl p-2.5 text-center text-xs font-medium border transition ${
                       selectedTool === tool.key
-                        ? "bg-emerald-500/20 text-emerald-300 border-emerald-500/40 font-semibold"
+                        ? "bg-primary/20 text-primary border-primary/40 font-semibold"
                         : "bg-white/5 text-white/60 border-white/10 hover:text-white"
                     }`}
                   >
@@ -540,7 +540,7 @@ export function PromptsTab({ projectId, initialSceneId, onStatsUpdate }: Prompts
                   <select
                     value={selectedSceneId}
                     onChange={(e) => setSelectedSceneId(e.target.value)}
-                    className="w-full rounded-xl border border-white/10 bg-[#0f1218] px-3 py-2 text-xs text-white focus:border-emerald-500 focus:outline-none"
+                    className="w-full rounded-xl border border-white/10 bg-[#0f1218] px-3 py-2 text-xs text-white focus:border-primary focus:outline-none"
                   >
                     {scenes.map((s) => (
                       <option key={s.id} value={s.id}>
@@ -565,7 +565,7 @@ export function PromptsTab({ projectId, initialSceneId, onStatsUpdate }: Prompts
                   <select
                     value={selectedCharacterId}
                     onChange={(e) => setSelectedCharacterId(e.target.value)}
-                    className="w-full rounded-xl border border-white/10 bg-[#0f1218] px-3 py-2 text-xs text-white focus:border-emerald-500 focus:outline-none"
+                    className="w-full rounded-xl border border-white/10 bg-[#0f1218] px-3 py-2 text-xs text-white focus:border-primary focus:outline-none"
                   >
                     {characters.map((c) => (
                       <option key={c.id} value={c.id}>
@@ -590,7 +590,7 @@ export function PromptsTab({ projectId, initialSceneId, onStatsUpdate }: Prompts
                   <select
                     value={selectedEnvironmentId}
                     onChange={(e) => setSelectedEnvironmentId(e.target.value)}
-                    className="w-full rounded-xl border border-white/10 bg-[#0f1218] px-3 py-2 text-xs text-white focus:border-emerald-500 focus:outline-none"
+                    className="w-full rounded-xl border border-white/10 bg-[#0f1218] px-3 py-2 text-xs text-white focus:border-primary focus:outline-none"
                   >
                     {environments.map((e) => (
                       <option key={e.id} value={e.id}>
@@ -707,7 +707,7 @@ export function PromptsTab({ projectId, initialSceneId, onStatsUpdate }: Prompts
               href={`/api/projects/${projectId}/prompts/export-sequence?download=true`}
               className="rounded-xl border border-white/20 bg-white/5 px-3 py-2 text-xs font-medium text-white hover:bg-white/10 transition flex items-center gap-1.5"
             >
-              <svg className="h-3.5 w-3.5 text-emerald-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <svg className="h-3.5 w-3.5 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
               </svg>
               Sequência (.json)
@@ -891,7 +891,7 @@ export function PromptsTab({ projectId, initialSceneId, onStatsUpdate }: Prompts
                     </div>
                     <div>
                       <span className="text-[10px] text-white/40 uppercase block">Plataforma</span>
-                      <span className="font-mono text-emerald-300">{currentResult.targetTool}</span>
+                      <span className="font-mono text-primary">{currentResult.targetTool}</span>
                     </div>
                     <div>
                       <span className="text-[10px] text-white/40 uppercase block">Tokens</span>
@@ -1204,7 +1204,7 @@ export function PromptsTab({ projectId, initialSceneId, onStatsUpdate }: Prompts
           <div className="relative w-full max-w-4xl rounded-3xl border border-white/20 bg-[#0f1218] p-6 shadow-2xl space-y-4 max-h-[90vh] overflow-y-auto">
             <div className="flex items-center justify-between pb-3 border-b border-white/10">
               <h3 className="text-base font-bold text-white flex items-center gap-2">
-                <svg className="h-5 w-5 text-emerald-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <svg className="h-5 w-5 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4" />
                 </svg>
                 Comparador de Versões (Diff)
@@ -1254,7 +1254,7 @@ export function PromptsTab({ projectId, initialSceneId, onStatsUpdate }: Prompts
               <button
                 onClick={handleCompareSubmit}
                 disabled={comparingLoading || compareVersionAId === compareVersionBId}
-                className="rounded-xl bg-emerald-500 px-4 py-2 text-xs font-bold text-white hover:bg-emerald-400 transition disabled:opacity-50"
+                className="rounded-xl bg-primary px-4 py-2 text-xs font-bold text-white hover:bg-primary-fixed transition disabled:opacity-50"
               >
                 {comparingLoading ? "Comparando..." : "Executar Comparação"}
               </button>
@@ -1264,7 +1264,7 @@ export function PromptsTab({ projectId, initialSceneId, onStatsUpdate }: Prompts
             {comparisonResult && (
               <div className="space-y-4 pt-3 border-t border-white/10">
                 {comparisonResult.identical ? (
-                  <div className="rounded-xl bg-emerald-500/10 border border-emerald-500/20 p-3 text-xs text-emerald-300 text-center">
+                  <div className="rounded-xl bg-primary/10 border border-primary/20 p-3 text-xs text-primary text-center">
                     As duas versões possuem conteúdo JSON e prompts de texto idênticos.
                   </div>
                 ) : (
@@ -1276,14 +1276,14 @@ export function PromptsTab({ projectId, initialSceneId, onStatsUpdate }: Prompts
                         <div className="space-y-2">
                           {comparisonResult.jsonDiff.modifiedKeys.map((m: any) => (
                             <div key={m.key} className="p-3 rounded-xl bg-black/60 border border-white/10 text-xs">
-                              <span className="font-mono text-emerald-400 block font-semibold mb-1">{m.key}</span>
+                              <span className="font-mono text-primary block font-semibold mb-1">{m.key}</span>
                               <div className="grid grid-cols-2 gap-2 text-[11px]">
                                 <div className="p-2 rounded bg-red-950/20 border border-red-500/20 text-red-200">
                                   <span className="text-[10px] uppercase text-red-400 block">Versão A:</span>
                                   {typeof m.from === "object" ? JSON.stringify(m.from) : String(m.from)}
                                 </div>
-                                <div className="p-2 rounded bg-emerald-950/20 border border-emerald-500/20 text-emerald-200">
-                                  <span className="text-[10px] uppercase text-emerald-400 block">Versão B:</span>
+                                <div className="p-2 rounded bg-primary/20 border border-primary/20 text-primary">
+                                  <span className="text-[10px] uppercase text-primary block">Versão B:</span>
                                   {typeof m.to === "object" ? JSON.stringify(m.to) : String(m.to)}
                                 </div>
                               </div>
@@ -1302,7 +1302,7 @@ export function PromptsTab({ projectId, initialSceneId, onStatsUpdate }: Prompts
                           {comparisonResult.versionA.outputText || "N/A"}
                         </div>
                         <div className="rounded-xl border border-white/10 bg-black/60 p-3 whitespace-pre-wrap text-white/80 max-h-48 overflow-y-auto">
-                          <span className="text-[10px] text-emerald-400 block font-semibold mb-1 uppercase">Versão B</span>
+                          <span className="text-[10px] text-primary block font-semibold mb-1 uppercase">Versão B</span>
                           {comparisonResult.versionB.outputText || "N/A"}
                         </div>
                       </div>

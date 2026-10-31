@@ -19,13 +19,13 @@ const CINEMATIC_CATEGORIES_METADATA: Array<{
 }> = [
   { id: "CAMERA", name: "Câmera & Sensor", icon: "🎥", color: "from-blue-500/20 to-cyan-500/20 text-cyan-400 border-cyan-500/30" },
   { id: "LENS", name: "Lentes & Óptica", icon: "🔍", color: "from-indigo-500/20 to-blue-500/20 text-indigo-400 border-indigo-500/30" },
-  { id: "FRAMING", name: "Enquadramento", icon: "📐", color: "from-emerald-500/20 to-teal-500/20 text-emerald-400 border-emerald-500/30" },
+  { id: "FRAMING", name: "Enquadramento", icon: "📐", color: "from-primary/20 to-secondary/20 text-primary border-primary/30" },
   { id: "MOVEMENT", name: "Movimento", icon: "🎬", color: "from-amber-500/20 to-yellow-500/20 text-amber-400 border-amber-500/30" },
   { id: "LIGHTING", name: "Iluminação", icon: "💡", color: "from-yellow-500/20 to-amber-500/20 text-yellow-300 border-yellow-500/30" },
   { id: "AESTHETICS", name: "Estética & Cor", icon: "🎨", color: "from-purple-500/20 to-pink-500/20 text-purple-400 border-purple-500/30" },
   { id: "ART_ATMOSPHERE", name: "Arte & Atmosfera", icon: "🏙️", color: "from-rose-500/20 to-pink-500/20 text-rose-400 border-rose-500/30" },
-  { id: "AUDIO", name: "Áudio & Som", icon: "🎧", color: "from-teal-500/20 to-emerald-500/20 text-teal-300 border-teal-500/30" },
-  { id: "CONTINUITY", name: "Continuidade", icon: "🛡️", color: "from-lime-500/20 to-emerald-500/20 text-lime-400 border-lime-500/30" },
+  { id: "AUDIO", name: "Áudio & Som", icon: "🎧", color: "from-secondary/20 to-primary/20 text-secondary border-secondary/30" },
+  { id: "CONTINUITY", name: "Continuidade", icon: "🛡️", color: "from-accent/20 to-primary/20 text-accent border-accent/30" },
 ];
 
 const SCOPE_OPTIONS = [
@@ -488,14 +488,14 @@ export default function AdminParametersPage() {
           </div>
 
           <div className="p-4 rounded-2xl bg-[#0e121b] border border-white/5 relative overflow-hidden group col-span-2 md:col-span-1">
-            <div className="absolute top-0 right-0 p-3 text-white/10 group-hover:text-emerald-500/20 transition-colors">
+            <div className="absolute top-0 right-0 p-3 text-white/10 group-hover:text-primary/20 transition-colors">
               <span className="text-3xl font-mono">05</span>
             </div>
             <p className="text-xs font-medium text-white/50 uppercase tracking-wider">
               Estabilidade
             </p>
             <div className="flex items-baseline gap-2 mt-2">
-              <span className="text-2xl md:text-3xl font-bold text-emerald-400 tracking-tight">
+              <span className="text-2xl md:text-3xl font-bold text-primary tracking-tight">
                 100%
               </span>
               <span className="text-xs text-lime-400 font-mono">Seguro</span>

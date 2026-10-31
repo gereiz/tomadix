@@ -189,7 +189,7 @@ export function SubscriptionsTab() {
         <div
           className={`p-4 rounded-xl text-xs flex justify-between items-center ${
             notification.type === "success"
-              ? "bg-emerald-950/40 border border-emerald-500/30 text-emerald-300"
+              ? "bg-primary/40 border border-primary/30 text-primary"
               : "bg-rose-950/40 border border-rose-500/30 text-rose-300"
           }`}
         >
@@ -336,7 +336,7 @@ export function SubscriptionsTab() {
 
                       <td className="p-3.5">
                         {sub.status === "ACTIVE" ? (
-                          <span className="rounded bg-emerald-500/10 border border-emerald-500/30 px-2 py-0.5 text-[10px] text-emerald-400 font-semibold">
+                          <span className="rounded bg-primary/10 border border-primary/30 px-2 py-0.5 text-[10px] text-primary font-semibold">
                             ATIVA
                           </span>
                         ) : sub.status === "TRIALING" ? (
@@ -361,7 +361,7 @@ export function SubscriptionsTab() {
                         )}
                       </td>
 
-                      <td className="p-3.5 font-mono text-emerald-400">
+                      <td className="p-3.5 font-mono text-primary">
                         {sub.workspace.creditsBalance} cr
                       </td>
 
@@ -477,7 +477,7 @@ export function SubscriptionsTab() {
                   </div>
                   <div className="rounded-xl border border-white/10 bg-white/5 p-3">
                     <span className="text-white/40">Créditos em Conta</span>
-                    <p className="text-sm font-bold text-emerald-400 mt-1">
+                    <p className="text-sm font-bold text-primary mt-1">
                       {subDetails.subscription.workspace.creditsBalance} cr
                     </p>
                   </div>
@@ -617,7 +617,7 @@ export function SubscriptionsTab() {
                 type="checkbox"
                 checked={editGrantCredits}
                 onChange={(e) => setEditGrantCredits(e.target.checked)}
-                className="rounded border-white/20 text-emerald-500 focus:ring-0"
+                className="rounded border-white/20 text-primary focus:ring-0"
               />
               <span>Conceder créditos mensais do novo plano imediatamente</span>
             </label>

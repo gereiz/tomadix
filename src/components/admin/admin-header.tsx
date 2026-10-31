@@ -64,8 +64,8 @@ export function AdminHeader({ admin, onOpenMobileSidebar }: AdminHeaderProps) {
 
         {/* Right: SaaS Status & Admin Profile */}
         <div className="flex items-center gap-3 sm:gap-4">
-          <div className="hidden sm:inline-flex items-center gap-1.5 rounded-full border border-emerald-500/20 bg-emerald-500/10 px-2.5 py-1 text-[11px] font-medium text-emerald-400">
-            <span className="h-1.5 w-1.5 rounded-full bg-emerald-400 animate-pulse" />
+          <div className="hidden sm:inline-flex items-center gap-1.5 rounded-full border border-primary/20 bg-primary/10 px-2.5 py-1 text-[11px] font-medium text-primary">
+            <span className="h-1.5 w-1.5 rounded-full bg-primary animate-pulse" />
             <span>SaaS Online</span>
           </div>
 

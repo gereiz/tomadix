@@ -125,7 +125,7 @@ export function WorkspaceSelector() {
         onClick={() => setIsOpen(!isOpen)}
         className="flex items-center gap-1.5 sm:gap-2 rounded-xl border border-white/10 bg-white/[0.04] px-2 sm:px-3 py-1.5 text-xs text-white transition hover:bg-white/[0.08]"
       >
-        <div className="flex h-5 w-5 flex-shrink-0 items-center justify-center rounded-md bg-emerald-400/20 text-[10px] font-bold text-emerald-300">
+        <div className="flex h-5 w-5 flex-shrink-0 items-center justify-center rounded-md bg-primary/20 text-[10px] font-bold text-primary">
           🏢
         </div>
         <div className="flex flex-col text-left truncate">
@@ -133,7 +133,7 @@ export function WorkspaceSelector() {
             {activeWorkspace.name}
           </span>
         </div>
-        <span className="hidden sm:inline rounded bg-white/10 px-1.5 py-0.5 text-[9px] font-bold uppercase text-emerald-300 flex-shrink-0">
+        <span className="hidden sm:inline rounded bg-white/10 px-1.5 py-0.5 text-[9px] font-bold uppercase text-primary flex-shrink-0">
           {activeWorkspace.role}
         </span>
         <svg
@@ -163,7 +163,7 @@ export function WorkspaceSelector() {
                   disabled={loading}
                   className={`flex w-full items-center justify-between rounded-xl px-3 py-2 text-left text-xs transition ${
                     isActive
-                      ? "bg-emerald-400/10 text-emerald-300 border border-emerald-400/20"
+                      ? "bg-primary/10 text-primary border border-primary/20"
                       : "text-white/80 hover:bg-white/5"
                   }`}
                 >
@@ -252,7 +252,7 @@ export function WorkspaceSelector() {
                 <button
                   type="submit"
                   disabled={loading || !newWorkspaceName.trim()}
-                  className="rounded-xl bg-primary px-4 py-2 text-xs font-bold text-primary-foreground transition hover:opacity-90 disabled:opacity-50"
+                  className="rounded-xl bg-primary px-4 py-2 text-xs font-bold text-on-primary transition hover:opacity-90 disabled:opacity-50"
                 >
                   {loading ? "Criando..." : "Criar Estúdio"}
                 </button>

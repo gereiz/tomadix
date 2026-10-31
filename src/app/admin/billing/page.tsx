@@ -343,7 +343,7 @@ export default function AdminBillingPage() {
         <div
           className={`p-4 rounded-xl text-xs flex justify-between items-center transition ${
             notification.type === "success"
-              ? "bg-emerald-950/40 border border-emerald-500/30 text-emerald-300"
+              ? "bg-primary/10 border border-primary/30 text-primary"
               : "bg-rose-950/40 border border-rose-500/30 text-rose-300"
           }`}
         >
@@ -429,7 +429,7 @@ export default function AdminBillingPage() {
                     <span>MRR Estimado</span>
                     <span>📈</span>
                   </div>
-                  <div className="mt-2 text-2xl font-bold font-mono text-emerald-400">
+                  <div className="mt-2 text-2xl font-bold font-mono text-primary">
                     {metrics.mrr?.formattedBrl || "R$ 0,00"}
                   </div>
                   <p className="mt-1 text-[11px] text-white/40">Receita Recorrente Mensal contratada</p>
@@ -573,7 +573,7 @@ export default function AdminBillingPage() {
                     <span
                       className={`text-[10px] font-semibold px-2 py-0.5 rounded ${
                         p.commercialStatus === "ACTIVE"
-                          ? "bg-emerald-500/10 text-emerald-400 border border-emerald-500/20"
+                          ? "bg-primary/10 text-primary border border-primary/20"
                           : p.commercialStatus === "DRAFT"
                           ? "bg-amber-500/10 text-amber-300 border border-amber-500/20"
                           : "bg-rose-500/10 text-rose-300 border border-rose-500/20"
@@ -584,7 +584,7 @@ export default function AdminBillingPage() {
                   </div>
 
                   {p.badge && (
-                    <span className="inline-block mb-2 rounded bg-emerald-400/20 border border-emerald-400/40 px-2 py-0.5 text-[10px] font-bold text-emerald-300">
+                    <span className="inline-block mb-2 rounded bg-primary/20 border border-primary/40 px-2 py-0.5 text-[10px] font-bold text-primary">
                       {p.badge}
                     </span>
                   )}
@@ -613,7 +613,7 @@ export default function AdminBillingPage() {
                     </div>
                     <div className="flex justify-between">
                       <span className="text-white/40">Cota Diária:</span>
-                      <strong className="text-emerald-400 font-mono">
+                      <strong className="text-primary font-mono">
                         +{p.dailyCredits || 0} cr/dia
                         <span className="text-[10px] text-white/40 font-normal ml-1">
                           ({p.dailyCreditsAccumulative ? "acumulativo" : "não-acum."})
@@ -657,7 +657,7 @@ export default function AdminBillingPage() {
                     className={`rounded-lg px-2.5 py-1.5 text-xs font-semibold transition ${
                       p.isActive
                         ? "bg-rose-500/10 text-rose-300 border border-rose-500/20 hover:bg-rose-500/20"
-                        : "bg-emerald-500/10 text-emerald-300 border border-emerald-500/20 hover:bg-emerald-500/20"
+                        : "bg-primary/10 text-primary border border-primary/20 hover:bg-primary/20"
                     }`}
                   >
                     {p.isActive ? "Desativar" : "Ativar"}
@@ -728,35 +728,35 @@ export default function AdminBillingPage() {
                       </td>
                       <td className="p-3.5 font-mono">
                         {p.unlimitedProjects || p.maxProjects === -1 ? (
-                          <span className="text-emerald-400 font-bold">Ilimitado</span>
+                          <span className="text-primary font-bold">Ilimitado</span>
                         ) : (
                           p.maxProjects
                         )}
                       </td>
                       <td className="p-3.5 font-mono">
                         {p.unlimitedMembers || p.maxMembers === -1 ? (
-                          <span className="text-emerald-400 font-bold">Ilimitado</span>
+                          <span className="text-primary font-bold">Ilimitado</span>
                         ) : (
                           p.maxMembers
                         )}
                       </td>
                       <td className="p-3.5 font-mono">
                         {p.unlimitedCharacters ? (
-                          <span className="text-emerald-400 font-bold">Ilimitado</span>
+                          <span className="text-primary font-bold">Ilimitado</span>
                         ) : (
                           p.maxCharacters || "Padrão"
                         )}
                       </td>
                       <td className="p-3.5 font-mono">
                         {p.unlimitedEnvironments ? (
-                          <span className="text-emerald-400 font-bold">Ilimitado</span>
+                          <span className="text-primary font-bold">Ilimitado</span>
                         ) : (
                           p.maxEnvironments || "Padrão"
                         )}
                       </td>
                       <td className="p-3.5 font-mono">
                         {p.unlimitedScenes ? (
-                          <span className="text-emerald-400 font-bold">Ilimitado</span>
+                          <span className="text-primary font-bold">Ilimitado</span>
                         ) : (
                           p.maxScenes || "Padrão"
                         )}
@@ -898,7 +898,7 @@ export default function AdminBillingPage() {
                       Preço Normal: {formatBrl(p.priceMonthly)} / mês
                     </div>
                     {p.promoPriceMonthly ? (
-                      <div className="text-xs font-mono text-emerald-400 font-bold mt-1">
+                      <div className="text-xs font-mono text-primary font-bold mt-1">
                         Promoção: {formatBrl(p.promoPriceMonthly)} / mês
                       </div>
                     ) : (
@@ -908,7 +908,7 @@ export default function AdminBillingPage() {
 
                   <button
                     onClick={() => setEditingPlan({ ...p, preserveExistingContracts: true })}
-                    className="rounded-lg bg-emerald-500/10 border border-emerald-500/20 px-3 py-1.5 text-xs font-semibold text-emerald-300 hover:bg-emerald-500/20 transition"
+                    className="rounded-lg bg-primary/10 border border-primary/20 px-3 py-1.5 text-xs font-semibold text-primary hover:bg-primary/20 transition"
                   >
                     Ajustar Oferta
                   </button>
@@ -1236,7 +1236,7 @@ export default function AdminBillingPage() {
                   <div>
                     <div className="flex justify-between items-center mb-1">
                       <label className="text-white/60">Cota Diária de Créditos</label>
-                      <label className="text-[10px] text-emerald-400 flex items-center gap-1 cursor-pointer">
+                      <label className="text-[10px] text-primary flex items-center gap-1 cursor-pointer">
                         <input
                           type="checkbox"
                           checked={editingPlan.dailyCreditsAccumulative ?? true}
@@ -1250,7 +1250,7 @@ export default function AdminBillingPage() {
                       min="0"
                       value={editingPlan.dailyCredits || 0}
                       onChange={(e) => setEditingPlan({ ...editingPlan, dailyCredits: parseInt(e.target.value || "0") })}
-                      className="w-full rounded-xl border border-white/10 bg-white/5 p-2.5 text-emerald-300 font-mono font-bold"
+                      className="w-full rounded-xl border border-white/10 bg-white/5 p-2.5 text-primary font-mono font-bold"
                     />
                     <span className="text-[10px] text-white/40 mt-1 block">
                       {editingPlan.dailyCreditsAccumulative
@@ -1286,7 +1286,7 @@ export default function AdminBillingPage() {
                           <th className="p-2.5 text-center">Custo Unitário</th>
                           <th className="p-2.5 text-center text-sky-300">Com Adesão</th>
                           <th className="p-2.5 text-center text-white">Por Mês</th>
-                          <th className="p-2.5 text-center text-emerald-300">Por Dia</th>
+                          <th className="p-2.5 text-center text-primary">Por Dia</th>
                           <th className="p-2.5 text-center text-amber-300">Total Ciclo (30d)</th>
                         </tr>
                       </thead>
@@ -1296,7 +1296,7 @@ export default function AdminBillingPage() {
                             <td className="p-2.5 font-medium text-white">{svc.operationName}</td>
                             <td className="p-2.5 text-center font-mono">
                               {svc.isFree ? (
-                                <span className="text-emerald-400 font-bold">Grátis</span>
+                                <span className="text-primary font-bold">Grátis</span>
                               ) : (
                                 `${svc.costInCredits} cr`
                               )}
@@ -1307,7 +1307,7 @@ export default function AdminBillingPage() {
                             <td className="p-2.5 text-center font-mono text-white">
                               {svc.isFree ? "Ilimitado" : `${svc.monthlyPossibleUses} un`}
                             </td>
-                            <td className="p-2.5 text-center font-mono text-emerald-400">
+                            <td className="p-2.5 text-center font-mono text-primary">
                               {svc.isFree ? "Ilimitado" : `${svc.dailyPossibleUses} un`}
                             </td>
                             <td className="p-2.5 text-center font-mono font-bold text-amber-300">

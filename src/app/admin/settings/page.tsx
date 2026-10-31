@@ -217,7 +217,7 @@ function AdminSettingsContent() {
         <div
           className={`rounded-xl border p-4 text-xs font-medium flex items-center justify-between ${
             feedback.type === "success"
-              ? "border-emerald-500/30 bg-emerald-950/30 text-emerald-300"
+              ? "border-primary/30 bg-primary/30 text-primary"
               : "border-rose-500/30 bg-rose-950/30 text-rose-300"
           }`}
         >
@@ -306,10 +306,10 @@ function AdminSettingsContent() {
             {analysisResult && (
               <div className="space-y-6 animate-fade-in">
                 {/* Status Callout */}
-                <div className="rounded-xl border border-emerald-500/30 bg-emerald-950/20 p-4 flex items-start gap-3">
+                <div className="rounded-xl border border-primary/30 bg-primary/20 p-4 flex items-start gap-3">
                   <span className="text-xl">🛡️</span>
                   <div>
-                    <h3 className="text-xs font-bold text-emerald-300">
+                    <h3 className="text-xs font-bold text-primary">
                       Critérios Auditados e Classificação Concluída
                     </h3>
                     <p className="text-[11px] text-white/70 mt-1 leading-relaxed">
@@ -348,8 +348,8 @@ function AdminSettingsContent() {
                   </div>
 
                   {/* Real Data Preserved */}
-                  <div className="rounded-xl border border-emerald-500/20 bg-emerald-950/10 p-5 space-y-3">
-                    <span className="text-xs font-mono font-bold text-emerald-400 uppercase tracking-wider">
+                  <div className="rounded-xl border border-primary/20 bg-primary/10 p-5 space-y-3">
+                    <span className="text-xs font-mono font-bold text-primary uppercase tracking-wider">
                       Dados Reais Preservados (Intactos)
                     </span>
                     <div className="space-y-2 text-xs">
@@ -359,7 +359,7 @@ function AdminSettingsContent() {
                             <span className="font-semibold text-white block">{u.displayName}</span>
                             <span className="text-[11px] font-mono text-white/40">{u.email}</span>
                           </div>
-                          <span className="rounded bg-emerald-500/20 px-2 py-0.5 text-[10px] text-emerald-300 font-mono">
+                          <span className="rounded bg-primary/20 px-2 py-0.5 text-[10px] text-primary font-mono">
                             {u.platformRole}
                           </span>
                         </div>
@@ -399,7 +399,7 @@ function AdminSettingsContent() {
                     <strong className="text-amber-400 text-lg">{cleanupReport.summary.deletedGateways}</strong>
                   </div>
                 </div>
-                <p className="text-[11px] text-emerald-400 font-medium">
+                <p className="text-[11px] text-primary font-medium">
                   ✓ Ação registrada permanentemente na trilha de auditoria sob PLATFORM_TEST_DATA_CLEANUP.
                 </p>
               </div>
@@ -532,7 +532,7 @@ function AdminSettingsContent() {
                   }
                   className="sr-only peer"
                 />
-                <div className="w-11 h-6 bg-white/10 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-emerald-400"></div>
+                <div className="w-11 h-6 bg-white/10 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary"></div>
               </label>
             </div>
 
@@ -626,7 +626,7 @@ function AdminSettingsContent() {
               <div className="rounded-xl border border-white/10 bg-black/30 p-4 space-y-2">
                 <span className="text-xs text-white/50 font-medium">Banco de Dados (PostgreSQL)</span>
                 <div className="flex items-baseline justify-between">
-                  <span className="text-xl font-bold text-emerald-400">{diagnosticsData.database.status}</span>
+                  <span className="text-xl font-bold text-primary">{diagnosticsData.database.status}</span>
                   <span className="text-xs font-mono text-white/60">{diagnosticsData.database.latencyMs} ms</span>
                 </div>
                 <p className="text-[11px] text-white/40">{diagnosticsData.database.provider}</p>

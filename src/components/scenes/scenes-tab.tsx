@@ -614,7 +614,7 @@ export function ScenesTab({ projectId, onStatsUpdate, onOpenPromptEngine }: Scen
                 onClick={() => setFilterMode(mode)}
                 className={`rounded-lg px-3 py-1.5 text-xs font-medium transition ${
                   filterMode === mode
-                    ? "bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 font-semibold"
+                    ? "bg-primary/20 text-primary border border-primary/30 font-semibold"
                     : "text-white/60 hover:text-white"
                 }`}
               >
@@ -662,7 +662,7 @@ export function ScenesTab({ projectId, onStatsUpdate, onOpenPromptEngine }: Scen
         {/* Botão Nova Cena */}
         <button
           onClick={handleOpenCreate}
-          className="flex items-center justify-center gap-2 rounded-xl bg-primary px-4 py-2.5 text-xs font-semibold text-primary-foreground shadow-lg hover:opacity-90 transition"
+          className="flex items-center justify-center gap-2 rounded-xl bg-primary px-4 py-2.5 text-xs font-semibold text-on-primary shadow-lg hover:opacity-90 transition"
         >
           <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
@@ -680,7 +680,7 @@ export function ScenesTab({ projectId, onStatsUpdate, onOpenPromptEngine }: Scen
         </div>
       ) : filteredScenes.length === 0 ? (
         <div className="rounded-3xl border border-dashed border-white/10 bg-white/[0.01] p-12 text-center">
-          <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 mb-4">
+          <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-primary/10 text-primary border border-primary/20 mb-4">
             <svg className="h-7 w-7" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
             </svg>
@@ -707,7 +707,7 @@ export function ScenesTab({ projectId, onStatsUpdate, onOpenPromptEngine }: Scen
             return (
               <div
                 key={scene.id}
-                className="flex flex-col md:flex-row md:items-start justify-between gap-4 rounded-2xl border border-white/10 bg-black/40 p-5 transition hover:border-emerald-500/30"
+                className="flex flex-col md:flex-row md:items-start justify-between gap-4 rounded-2xl border border-white/10 bg-black/40 p-5 transition hover:border-primary/30"
               >
                 {/* Lado Esquerdo: Sequenciador e Dados da Cena */}
                 <div className="flex items-start gap-4 flex-1">
@@ -721,7 +721,7 @@ export function ScenesTab({ projectId, onStatsUpdate, onOpenPromptEngine }: Scen
                     >
                       ▲
                     </button>
-                    <span className="rounded-lg bg-emerald-500/10 px-2 py-1 text-xs font-mono font-bold text-emerald-300 border border-emerald-500/20">
+                    <span className="rounded-lg bg-primary/10 px-2 py-1 text-xs font-mono font-bold text-primary border border-primary/20">
                       #{scene.order}
                     </span>
                     <button
@@ -741,7 +741,7 @@ export function ScenesTab({ projectId, onStatsUpdate, onOpenPromptEngine }: Scen
 
                       {/* Status de Prontidão */}
                       {isReady ? (
-                        <span className="rounded-full bg-emerald-500/10 px-2.5 py-0.5 text-[10px] font-semibold text-emerald-400 border border-emerald-500/20">
+                        <span className="rounded-full bg-primary/10 px-2.5 py-0.5 text-[10px] font-semibold text-primary border border-primary/20">
                           ✓ Pronta para Geração
                         </span>
                       ) : (
@@ -772,7 +772,7 @@ export function ScenesTab({ projectId, onStatsUpdate, onOpenPromptEngine }: Scen
                     {/* Ação Principal */}
                     {config.mainAction && (
                       <div className="text-xs bg-white/[0.02] border border-white/5 rounded-xl p-2.5 text-white/80">
-                        <span className="font-semibold text-emerald-400">Ação:</span>{" "}
+                        <span className="font-semibold text-primary">Ação:</span>{" "}
                         {config.mainAction}
                       </div>
                     )}
@@ -839,7 +839,7 @@ export function ScenesTab({ projectId, onStatsUpdate, onOpenPromptEngine }: Scen
                         handleOpenEdit(scene);
                       }
                     }}
-                    className="flex items-center gap-1.5 rounded-lg bg-emerald-500/10 px-3 py-1.5 text-xs font-semibold text-emerald-300 border border-emerald-500/20 hover:bg-emerald-500/20 transition w-full justify-center"
+                    className="flex items-center gap-1.5 rounded-lg bg-primary/10 px-3 py-1.5 text-xs font-semibold text-primary border border-primary/20 hover:bg-primary/20 transition w-full justify-center"
                     title="Configurar geração de prompt"
                   >
                     <svg className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -935,7 +935,7 @@ export function ScenesTab({ projectId, onStatsUpdate, onOpenPromptEngine }: Scen
               <div className="grid gap-3 sm:grid-cols-3">
                 <div className="sm:col-span-2">
                   <label className="block text-xs font-semibold text-white/80 mb-1">
-                    Título da Tomada / Cena <span className="text-emerald-400">*</span>
+                    Título da Tomada / Cena <span className="text-primary">*</span>
                   </label>
                   <input
                     type="text"
@@ -943,7 +943,7 @@ export function ScenesTab({ projectId, onStatsUpdate, onOpenPromptEngine }: Scen
                     value={formData.title}
                     onChange={(e) => setFormData({ ...formData, title: e.target.value })}
                     placeholder="Ex: Cena 1 - Invasão ao Beco Neon"
-                    className="w-full rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-xs text-white placeholder-white/40 focus:border-emerald-500 focus:outline-none"
+                    className="w-full rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-xs text-white placeholder-white/40 focus:border-primary focus:outline-none"
                   />
                 </div>
                 <div>
@@ -957,7 +957,7 @@ export function ScenesTab({ projectId, onStatsUpdate, onOpenPromptEngine }: Scen
                     value={formData.durationSeconds}
                     onChange={(e) => setFormData({ ...formData, durationSeconds: e.target.value })}
                     placeholder="Ex: 5"
-                    className="w-full rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-xs text-white placeholder-white/40 focus:border-emerald-500 focus:outline-none"
+                    className="w-full rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-xs text-white placeholder-white/40 focus:border-primary focus:outline-none"
                   />
                   <span className="block text-[10px] text-white/40 mt-1">
                     Intenção de planejamento de roteiro.
@@ -973,7 +973,7 @@ export function ScenesTab({ projectId, onStatsUpdate, onOpenPromptEngine }: Scen
                   value={formData.description}
                   onChange={(e) => setFormData({ ...formData, description: e.target.value })}
                   placeholder="Contexto dramático da cena..."
-                  className="w-full rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-xs text-white placeholder-white/40 focus:border-emerald-500 focus:outline-none"
+                  className="w-full rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-xs text-white placeholder-white/40 focus:border-primary focus:outline-none"
                 />
               </div>
 
@@ -991,7 +991,7 @@ export function ScenesTab({ projectId, onStatsUpdate, onOpenPromptEngine }: Scen
                       value={formData.focusDepth}
                       onChange={(e) => setFormData({ ...formData, focusDepth: e.target.value })}
                       placeholder="Ex: Foco raso f/1.8 com bokeh acentuado"
-                      className="w-full rounded-xl border border-white/10 bg-white/5 px-3 py-1.5 text-xs text-white placeholder-white/40 focus:border-emerald-500 focus:outline-none"
+                      className="w-full rounded-xl border border-white/10 bg-white/5 px-3 py-1.5 text-xs text-white placeholder-white/40 focus:border-primary focus:outline-none"
                     />
                   </div>
 
@@ -1002,7 +1002,7 @@ export function ScenesTab({ projectId, onStatsUpdate, onOpenPromptEngine }: Scen
                       value={formData.transitionIn}
                       onChange={(e) => setFormData({ ...formData, transitionIn: e.target.value })}
                       placeholder="Ex: Corte Direto, Fade in, Dissolve..."
-                      className="w-full rounded-xl border border-white/10 bg-white/5 px-3 py-1.5 text-xs text-white placeholder-white/40 focus:border-emerald-500 focus:outline-none"
+                      className="w-full rounded-xl border border-white/10 bg-white/5 px-3 py-1.5 text-xs text-white placeholder-white/40 focus:border-primary focus:outline-none"
                     />
                   </div>
 
@@ -1013,7 +1013,7 @@ export function ScenesTab({ projectId, onStatsUpdate, onOpenPromptEngine }: Scen
                       value={formData.transitionOut}
                       onChange={(e) => setFormData({ ...formData, transitionOut: e.target.value })}
                       placeholder="Ex: Corte Direto, Match cut..."
-                      className="w-full rounded-xl border border-white/10 bg-white/5 px-3 py-1.5 text-xs text-white placeholder-white/40 focus:border-emerald-500 focus:outline-none"
+                      className="w-full rounded-xl border border-white/10 bg-white/5 px-3 py-1.5 text-xs text-white placeholder-white/40 focus:border-primary focus:outline-none"
                     />
                   </div>
                 </div>
@@ -1062,20 +1062,20 @@ export function ScenesTab({ projectId, onStatsUpdate, onOpenPromptEngine }: Scen
 
               {/* Seção 3: Ação, Continuidade e Movimentação */}
               <div className="rounded-2xl border border-white/5 bg-black/20 p-4 space-y-3">
-                <h4 className="text-xs font-bold uppercase tracking-wider text-emerald-400">
+                <h4 className="text-xs font-bold uppercase tracking-wider text-primary">
                   Ação & Continuidade Narrativa
                 </h4>
 
                 <div>
                   <label className="block text-[11px] font-medium text-white/70 mb-1">
-                    Ação Principal da Cena <span className="text-emerald-400">*</span>
+                    Ação Principal da Cena <span className="text-primary">*</span>
                   </label>
                   <textarea
                     rows={2}
                     value={formData.mainAction}
                     onChange={(e) => setFormData({ ...formData, mainAction: e.target.value })}
                     placeholder="Descreva a ação física essencial que acontece na tomada..."
-                    className="w-full rounded-xl border border-white/10 bg-white/5 px-3 py-1.5 text-xs text-white placeholder-white/40 focus:border-emerald-500 focus:outline-none"
+                    className="w-full rounded-xl border border-white/10 bg-white/5 px-3 py-1.5 text-xs text-white placeholder-white/40 focus:border-primary focus:outline-none"
                   />
                 </div>
 
@@ -1089,7 +1089,7 @@ export function ScenesTab({ projectId, onStatsUpdate, onOpenPromptEngine }: Scen
                       value={formData.initialState}
                       onChange={(e) => setFormData({ ...formData, initialState: e.target.value })}
                       placeholder="Ex: Personagem escondido atrás da pilastra"
-                      className="w-full rounded-xl border border-white/10 bg-white/5 px-3 py-1.5 text-xs text-white placeholder-white/40 focus:border-emerald-500 focus:outline-none"
+                      className="w-full rounded-xl border border-white/10 bg-white/5 px-3 py-1.5 text-xs text-white placeholder-white/40 focus:border-primary focus:outline-none"
                     />
                   </div>
                   <div>
@@ -1101,7 +1101,7 @@ export function ScenesTab({ projectId, onStatsUpdate, onOpenPromptEngine }: Scen
                       value={formData.finalState}
                       onChange={(e) => setFormData({ ...formData, finalState: e.target.value })}
                       placeholder="Ex: Personagem cai de joelhos desarmado"
-                      className="w-full rounded-xl border border-white/10 bg-white/5 px-3 py-1.5 text-xs text-white placeholder-white/40 focus:border-emerald-500 focus:outline-none"
+                      className="w-full rounded-xl border border-white/10 bg-white/5 px-3 py-1.5 text-xs text-white placeholder-white/40 focus:border-primary focus:outline-none"
                     />
                   </div>
                 </div>
@@ -1115,7 +1115,7 @@ export function ScenesTab({ projectId, onStatsUpdate, onOpenPromptEngine }: Scen
                     value={formData.characterMovement}
                     onChange={(e) => setFormData({ ...formData, characterMovement: e.target.value })}
                     placeholder="Ex: Avança da esquerda para a direita do quadro em passo acelerado"
-                    className="w-full rounded-xl border border-white/10 bg-white/5 px-3 py-1.5 text-xs text-white placeholder-white/40 focus:border-emerald-500 focus:outline-none"
+                    className="w-full rounded-xl border border-white/10 bg-white/5 px-3 py-1.5 text-xs text-white placeholder-white/40 focus:border-primary focus:outline-none"
                   />
                 </div>
               </div>
@@ -1148,7 +1148,7 @@ export function ScenesTab({ projectId, onStatsUpdate, onOpenPromptEngine }: Scen
                             }}
                             className={`rounded-xl px-3 py-1.5 text-xs font-medium border transition ${
                               isSelected
-                                ? "bg-emerald-500/20 text-emerald-300 border-emerald-500/40 font-semibold"
+                                ? "bg-primary/20 text-primary border-primary/40 font-semibold"
                                 : "bg-white/5 text-white/60 border-white/10 hover:text-white"
                             }`}
                           >
@@ -1208,7 +1208,7 @@ export function ScenesTab({ projectId, onStatsUpdate, onOpenPromptEngine }: Scen
                     value={formData.ambientSound}
                     onChange={(e) => setFormData({ ...formData, ambientSound: e.target.value })}
                     placeholder="Ex: Chuva forte contra janelas, sirenes distantes, eco metálico"
-                    className="w-full rounded-xl border border-white/10 bg-white/5 px-3 py-1.5 text-xs text-white placeholder-white/40 focus:border-emerald-500 focus:outline-none"
+                    className="w-full rounded-xl border border-white/10 bg-white/5 px-3 py-1.5 text-xs text-white placeholder-white/40 focus:border-primary focus:outline-none"
                   />
                 </div>
 
@@ -1222,13 +1222,13 @@ export function ScenesTab({ projectId, onStatsUpdate, onOpenPromptEngine }: Scen
                         onChange={(e) =>
                           setFormData({ ...formData, dialogueEnabled: e.target.checked })
                         }
-                        className="rounded border-white/20 bg-white/10 text-emerald-500"
+                        className="rounded border-white/20 bg-white/10 text-primary"
                       />
                       <span>Habilitar Diálogo nesta tomada</span>
                     </label>
 
                     {formData.dialogueEnabled && (
-                      <span className="text-[10px] font-mono text-emerald-400">
+                      <span className="text-[10px] font-mono text-primary">
                         Idioma padrão: {formData.dialogueLanguage}
                       </span>
                     )}
@@ -1243,7 +1243,7 @@ export function ScenesTab({ projectId, onStatsUpdate, onOpenPromptEngine }: Scen
                           setFormData({ ...formData, dialogueLines: e.target.value })
                         }
                         placeholder="Ex: KAELEN: 'Eles já sabem que estamos aqui.'"
-                        className="w-full rounded-xl border border-white/10 bg-white/5 px-3 py-1.5 text-xs text-white placeholder-white/40 focus:border-emerald-500 focus:outline-none"
+                        className="w-full rounded-xl border border-white/10 bg-white/5 px-3 py-1.5 text-xs text-white placeholder-white/40 focus:border-primary focus:outline-none"
                       />
                       <p className="text-[10px] text-white/40">
                         * Em projetos em português do Brasil, as falas devem respeitar o pt-BR salvo especificação explícita.
@@ -1259,7 +1259,7 @@ export function ScenesTab({ projectId, onStatsUpdate, onOpenPromptEngine }: Scen
                       type="checkbox"
                       checked={formData.musicEnabled}
                       onChange={(e) => setFormData({ ...formData, musicEnabled: e.target.checked })}
-                      className="rounded border-white/20 bg-white/10 text-emerald-500"
+                      className="rounded border-white/20 bg-white/10 text-primary"
                     />
                     <span>Habilitar Música nesta tomada</span>
                   </label>
@@ -1272,7 +1272,7 @@ export function ScenesTab({ projectId, onStatsUpdate, onOpenPromptEngine }: Scen
                         setFormData({ ...formData, musicDescription: e.target.value })
                       }
                       placeholder="Ex: Sintetizadores analógicos sombrios com batida pulsante em crescendo"
-                      className="w-full rounded-xl border border-white/10 bg-white/5 px-3 py-1.5 text-xs text-white placeholder-white/40 focus:border-emerald-500 focus:outline-none mt-2"
+                      className="w-full rounded-xl border border-white/10 bg-white/5 px-3 py-1.5 text-xs text-white placeholder-white/40 focus:border-primary focus:outline-none mt-2"
                     />
                   )}
                 </div>
@@ -1288,7 +1288,7 @@ export function ScenesTab({ projectId, onStatsUpdate, onOpenPromptEngine }: Scen
                   value={formData.restrictions}
                   onChange={(e) => setFormData({ ...formData, restrictions: e.target.value })}
                   placeholder="Ex: Sem cortes rápidos, sem luz solar direta, sem figurantes sorrindo"
-                  className="w-full rounded-xl border border-white/10 bg-white/5 px-3 py-1.5 text-xs text-white placeholder-white/40 focus:border-emerald-500 focus:outline-none"
+                  className="w-full rounded-xl border border-white/10 bg-white/5 px-3 py-1.5 text-xs text-white placeholder-white/40 focus:border-primary focus:outline-none"
                 />
               </div>
 
@@ -1315,7 +1315,7 @@ export function ScenesTab({ projectId, onStatsUpdate, onOpenPromptEngine }: Scen
                 <button
                   type="submit"
                   disabled={formLoading}
-                  className="flex items-center gap-2 rounded-xl bg-emerald-500 px-5 py-2 text-xs font-semibold text-white shadow-lg shadow-emerald-500/20 hover:bg-emerald-400 disabled:opacity-50 transition"
+                  className="flex items-center gap-2 rounded-xl bg-primary px-5 py-2 text-xs font-semibold text-on-primary shadow-lg shadow-primary/20 hover:opacity-90 disabled:opacity-50 transition"
                 >
                   {formLoading && (
                     <svg className="h-3.5 w-3.5 animate-spin" viewBox="0 0 24 24" fill="none">
@@ -1366,7 +1366,7 @@ export function ScenesTab({ projectId, onStatsUpdate, onOpenPromptEngine }: Scen
                   <div
                     className={`rounded-2xl border p-4 ${
                       continuityReport.status === "ok"
-                        ? "border-emerald-500/20 bg-emerald-950/20 text-emerald-300"
+                        ? "border-primary/20 bg-primary/20 text-primary"
                         : continuityReport.status === "critical"
                         ? "border-red-500/20 bg-red-950/20 text-red-300"
                         : "border-amber-500/20 bg-amber-950/20 text-amber-300"
@@ -1436,7 +1436,7 @@ export function ScenesTab({ projectId, onStatsUpdate, onOpenPromptEngine }: Scen
 
                           <p className="text-xs text-white/70">{w.message}</p>
 
-                          <div className="rounded-xl border border-white/5 bg-white/[0.02] p-2 text-[11px] text-emerald-300">
+                          <div className="rounded-xl border border-white/5 bg-white/[0.02] p-2 text-[11px] text-primary">
                             <strong>💡 Sugestão do Diretor:</strong> {w.suggestion}
                           </div>
                         </div>
@@ -1563,7 +1563,7 @@ export function ScenesTab({ projectId, onStatsUpdate, onOpenPromptEngine }: Scen
                   type="button"
                   onClick={handleSubmitExpand}
                   disabled={expandLoading}
-                  className="rounded-xl bg-primary px-4 py-2 text-xs font-semibold text-primary-foreground shadow-lg hover:opacity-90 disabled:opacity-50 transition"
+                  className="rounded-xl bg-primary px-4 py-2 text-xs font-semibold text-on-primary shadow-lg hover:opacity-90 disabled:opacity-50 transition"
                 >
                   {expandLoading ? "Decupando com IA..." : "Expandir com IA"}
                 </button>
@@ -1712,7 +1712,7 @@ export function ScenesTab({ projectId, onStatsUpdate, onOpenPromptEngine }: Scen
                   type="button"
                   onClick={handleSubmitSequence}
                   disabled={sequenceLoading}
-                  className="rounded-xl bg-primary px-4 py-2 text-xs font-semibold text-primary-foreground shadow-lg hover:opacity-90 disabled:opacity-50 transition"
+                  className="rounded-xl bg-primary px-4 py-2 text-xs font-semibold text-on-primary shadow-lg hover:opacity-90 disabled:opacity-50 transition"
                 >
                   {sequenceLoading ? "Estruturando Sequência..." : "Gerar Sequência"}
                 </button>

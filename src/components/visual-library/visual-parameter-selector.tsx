@@ -136,7 +136,7 @@ export function VisualParameterSelector({
             className="rounded-xl border border-white/10 bg-white/5 px-3 py-1 text-xs font-medium text-white/80 hover:bg-white/10 hover:text-white transition flex items-center gap-1.5"
           >
             <span>{isOpen ? "▲ Recolher" : "🖼️ Ver Galeria Visual"}</span>
-            <span className="rounded-full bg-emerald-500/20 px-1.5 py-0.2 text-[10px] text-emerald-300 font-mono">
+            <span className="rounded-full bg-primary/20 px-1.5 py-0.2 text-[10px] text-primary font-mono">
               {resolvedOptions.length}
             </span>
           </button>
@@ -146,7 +146,7 @@ export function VisualParameterSelector({
           <div>
             <label className="text-xs font-semibold text-white flex items-center gap-1.5">
               <span>🎬</span> {label}
-              {required && <span className="text-emerald-400 font-bold">*</span>}
+              {required && <span className="text-primary font-bold">*</span>}
             </label>
             {description && <p className="text-[11px] text-white/50">{description}</p>}
           </div>
@@ -159,7 +159,7 @@ export function VisualParameterSelector({
               className="rounded-xl border border-white/10 bg-white/5 px-3 py-1.5 text-xs font-medium text-white/80 hover:bg-white/10 hover:text-white transition flex items-center gap-1.5"
             >
               <span>{isOpen ? "▲ Recolher" : "🖼️ Ver Galeria Visual"}</span>
-              <span className="rounded-full bg-emerald-500/20 px-1.5 py-0.2 text-[10px] text-emerald-300 font-mono">
+              <span className="rounded-full bg-primary/20 px-1.5 py-0.2 text-[10px] text-primary font-mono">
                 {resolvedOptions.length}
               </span>
             </button>
@@ -169,7 +169,7 @@ export function VisualParameterSelector({
 
       {/* Card da Opção Atualmente Selecionada (Quando fechado ou recolhido) */}
       {currentSelectedOption && !isOpen && (
-        <div className="rounded-2xl border border-emerald-500/30 bg-emerald-950/15 p-3.5 flex flex-col sm:flex-row sm:items-center justify-between gap-4 transition">
+        <div className="rounded-2xl border border-primary/30 bg-primary/10 p-3.5 flex flex-col sm:flex-row sm:items-center justify-between gap-4 transition">
           <div className="flex items-center gap-3.5">
             <div className="relative h-14 w-24 flex-shrink-0 rounded-xl overflow-hidden bg-black border border-white/10">
               <img
@@ -215,7 +215,7 @@ export function VisualParameterSelector({
             <button
               type="button"
               onClick={() => setIsOpen(true)}
-              className="rounded-xl bg-emerald-500/20 border border-emerald-500/40 px-3 py-1.5 text-[11px] font-semibold text-emerald-300 hover:bg-emerald-500/30 transition"
+              className="rounded-xl bg-primary/20 border border-primary/40 px-3 py-1.5 text-[11px] font-semibold text-primary hover:bg-primary/30 transition"
             >
               Trocar Opção
             </button>
@@ -230,7 +230,7 @@ export function VisualParameterSelector({
             value={value || ""}
             onChange={(e) => onChange(e.target.value)}
             disabled={disabled}
-            className="w-full rounded-xl border border-white/15 bg-black/80 px-3 py-2 text-xs text-white focus:border-emerald-400 focus:outline-none"
+            className="w-full rounded-xl border border-white/15 bg-black/80 px-3 py-2 text-xs text-white focus:border-primary focus:outline-none"
           >
             <option value="">
               {required ? "Selecione uma opção obrigatória..." : "Padrão / Não especificado"}
@@ -244,7 +244,7 @@ export function VisualParameterSelector({
           <button
             type="button"
             onClick={() => setIsOpen(true)}
-            className="flex-shrink-0 rounded-xl bg-emerald-500/20 border border-emerald-500/40 px-3.5 py-2 text-xs font-semibold text-emerald-300 hover:bg-emerald-500/30 transition"
+            className="flex-shrink-0 rounded-xl bg-primary/20 border border-primary/40 px-3.5 py-2 text-xs font-semibold text-primary hover:bg-primary/30 transition"
           >
             Galeria Visual ➔
           </button>
@@ -264,7 +264,7 @@ export function VisualParameterSelector({
                 placeholder="Buscar por nome, técnica em inglês ou palavra-chave..."
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
-                className="w-full rounded-xl border border-white/10 bg-black/60 py-2 pl-9 pr-8 text-xs text-white placeholder-white/40 focus:border-emerald-400 focus:outline-none"
+                className="w-full rounded-xl border border-white/10 bg-black/60 py-2 pl-9 pr-8 text-xs text-white placeholder-white/40 focus:border-primary focus:outline-none"
               />
               {search && (
                 <button
@@ -310,7 +310,7 @@ export function VisualParameterSelector({
                   setSearch("");
                   setSelectedCategory("ALL");
                 }}
-                className="text-xs font-semibold text-emerald-400 hover:underline"
+                className="text-xs font-semibold text-primary hover:underline"
               >
                 Limpar filtros de busca
               </button>
@@ -348,7 +348,7 @@ export function VisualParameterSelector({
                     }}
                     className={`flex items-center justify-between p-2.5 rounded-xl border transition cursor-pointer ${
                       isSelected
-                        ? "border-emerald-500 bg-emerald-950/20"
+                        ? "border-primary bg-primary/10"
                         : "border-white/5 bg-white/[0.02] hover:bg-white/[0.05]"
                     }`}
                   >
@@ -387,11 +387,11 @@ export function VisualParameterSelector({
                         🔍
                       </button>
                       {isSelected ? (
-                        <span className="rounded-full bg-emerald-500 px-2 py-0.5 text-[10px] font-bold text-white">
+                        <span className="rounded-full bg-primary px-2 py-0.5 text-[10px] font-bold text-on-primary">
                           Ativo
                         </span>
                       ) : (
-                        <span className="text-[10px] text-white/40 hover:text-emerald-400 font-semibold">
+                        <span className="text-[10px] text-white/40 hover:text-primary font-semibold">
                           Escolher
                         </span>
                       )}

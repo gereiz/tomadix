@@ -29,9 +29,9 @@ export function VisualOptionCard({
         }
       }}
       onClick={() => onSelect(option.value)}
-      className={`group relative flex flex-col overflow-hidden rounded-2xl border text-left transition-all duration-200 cursor-pointer focus:outline-none focus:ring-2 focus:ring-emerald-400 ${
+      className={`group relative flex flex-col overflow-hidden rounded-2xl border text-left transition-all duration-200 cursor-pointer focus:outline-none focus:ring-2 focus:ring-primary ${
         isSelected
-          ? "border-emerald-500 bg-emerald-950/20 ring-2 ring-emerald-500/50 shadow-lg shadow-emerald-950/50"
+          ? "border-primary bg-primary/10 ring-2 ring-primary/50 shadow-lg shadow-primary/20"
           : "border-white/10 bg-[#0d121c] hover:border-white/25 hover:bg-[#121824]"
       }`}
     >
@@ -59,7 +59,7 @@ export function VisualOptionCard({
 
         {/* Indicador de Selecionado */}
         {isSelected && (
-          <div className="absolute top-2 right-2.5 rounded-full bg-emerald-500 p-1 text-white shadow-md shadow-emerald-500/50">
+          <div className="absolute top-2 right-2.5 rounded-full bg-primary p-1 text-on-primary shadow-md shadow-primary/50">
             <svg className="h-3 w-3 stroke-[3]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
             </svg>
@@ -84,7 +84,7 @@ export function VisualOptionCard({
       <div className="flex flex-1 flex-col justify-between p-3.5 space-y-2">
         <div>
           <div className="flex items-start justify-between gap-1">
-            <h4 className="text-xs font-bold text-white line-clamp-1 group-hover:text-emerald-300 transition">
+            <h4 className="text-xs font-bold text-white line-clamp-1 group-hover:text-primary transition">
               {option.label}
             </h4>
           </div>
@@ -104,7 +104,7 @@ export function VisualOptionCard({
           <code className="text-white/40 font-mono">{option.value}</code>
           <span
             className={`font-semibold ${
-              isSelected ? "text-emerald-400" : "text-white/40 group-hover:text-white/70"
+              isSelected ? "text-primary" : "text-white/40 group-hover:text-white/70"
             }`}
           >
             {isSelected ? "Selecionado" : "Clique para escolher"}

@@ -180,7 +180,7 @@ export function VisualCoverageDashboard() {
         <div
           className={`p-4 rounded-xl border flex items-center justify-between text-xs animate-in fade-in ${
             notification.type === "success"
-              ? "bg-emerald-500/10 border-emerald-500/30 text-emerald-300"
+              ? "bg-primary/10 border-primary/30 text-primary"
               : "bg-rose-500/10 border-rose-500/30 text-rose-300"
           }`}
         >
@@ -205,7 +205,7 @@ export function VisualCoverageDashboard() {
             <button
               onClick={handleSyncDefaults}
               disabled={syncing}
-              className="rounded-xl border border-emerald-500/40 bg-emerald-500/10 px-3.5 py-2 text-xs font-semibold text-emerald-300 hover:bg-emerald-500/20 transition flex items-center gap-1.5"
+              className="rounded-xl border border-primary/40 bg-primary/10 px-3.5 py-2 text-xs font-semibold text-primary hover:bg-primary/20 transition flex items-center gap-1.5"
             >
               <span>⚡</span> {syncing ? "Sincronizando..." : "Sincronizar Catálogo Mestre"}
             </button>
@@ -218,14 +218,14 @@ export function VisualCoverageDashboard() {
             <div className="rounded-2xl border border-white/10 bg-white/[0.02] p-4 space-y-1">
               <span className="text-[11px] font-medium text-white/50">Taxa de Cobertura Global</span>
               <div className="flex items-baseline gap-2">
-                <span className="text-2xl font-bold font-mono text-emerald-400">
+                <span className="text-2xl font-bold font-mono text-primary">
                   {report.coveragePercentage}%
                 </span>
                 <span className="text-[10px] text-white/40">validadas</span>
               </div>
               <div className="w-full bg-white/10 rounded-full h-1.5 mt-2 overflow-hidden">
                 <div
-                  className="bg-emerald-400 h-1.5 rounded-full transition-all duration-500"
+                  className="bg-primary h-1.5 rounded-full transition-all duration-500"
                   style={{ width: `${report.coveragePercentage}%` }}
                 />
               </div>
@@ -270,7 +270,7 @@ export function VisualCoverageDashboard() {
                   onClick={() => setSelectedCategory(c.category)}
                   className={`p-3 rounded-xl border transition cursor-pointer ${
                     selectedCategory === c.category
-                      ? "border-emerald-500 bg-emerald-950/20"
+                      ? "border-primary bg-primary/10"
                       : "border-white/5 bg-black/40 hover:border-white/20"
                   }`}
                 >
@@ -278,13 +278,13 @@ export function VisualCoverageDashboard() {
                     <span className="font-semibold text-white flex items-center gap-1.5">
                       <span>{c.icon}</span> {c.categoryName}
                     </span>
-                    <span className="font-mono text-[11px] font-bold text-emerald-400">
+                    <span className="font-mono text-[11px] font-bold text-primary">
                       {c.covered}/{c.total} ({c.percentage}%)
                     </span>
                   </div>
                   <div className="w-full bg-white/10 rounded-full h-1 mt-2 overflow-hidden">
                     <div
-                      className="bg-emerald-400 h-1 rounded-full"
+                      className="bg-primary h-1 rounded-full"
                       style={{ width: `${c.percentage}%` }}
                     />
                   </div>
@@ -321,7 +321,7 @@ export function VisualCoverageDashboard() {
               <button
                 onClick={() => setStatusFilter("COVERED")}
                 className={`rounded-lg px-2.5 py-1 text-xs font-medium transition ${
-                  statusFilter === "COVERED" ? "bg-emerald-500/20 text-emerald-300" : "text-white/50 hover:text-white"
+                  statusFilter === "COVERED" ? "bg-primary/20 text-primary" : "text-white/50 hover:text-white"
                 }`}
               >
                 Válidas
@@ -346,7 +346,7 @@ export function VisualCoverageDashboard() {
                 placeholder="Pesquisar por código, título em português ou termo em inglês..."
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
-                className="w-full rounded-xl border border-white/10 bg-black/60 py-2 pl-9 pr-8 text-xs text-white placeholder-white/40 focus:border-emerald-400 focus:outline-none"
+                className="w-full rounded-xl border border-white/10 bg-black/60 py-2 pl-9 pr-8 text-xs text-white placeholder-white/40 focus:border-primary focus:outline-none"
               />
               {search && (
                 <button onClick={() => setSearch("")} className="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-white/40 hover:text-white">
@@ -358,7 +358,7 @@ export function VisualCoverageDashboard() {
             <select
               value={selectedCategory}
               onChange={(e) => setSelectedCategory(e.target.value)}
-              className="rounded-xl border border-white/10 bg-black/60 px-3 py-2 text-xs text-white font-mono focus:border-emerald-400 focus:outline-none"
+              className="rounded-xl border border-white/10 bg-black/60 px-3 py-2 text-xs text-white font-mono focus:border-primary focus:outline-none"
             >
               <option value="ALL">Todas as Categorias</option>
               {VISUAL_CATEGORIES.map((cat) => (
@@ -399,7 +399,7 @@ export function VisualCoverageDashboard() {
                       <td className="p-3.5">
                         <div
                           onClick={() => setInspectingOption(opt)}
-                          className="h-12 w-20 rounded-xl overflow-hidden bg-black border border-white/10 cursor-pointer hover:border-emerald-400 transition flex-shrink-0"
+                          className="h-12 w-20 rounded-xl overflow-hidden bg-black border border-white/10 cursor-pointer hover:border-primary transition flex-shrink-0"
                           title="Clique para ampliar"
                         >
                           <img
@@ -443,7 +443,7 @@ export function VisualCoverageDashboard() {
                       {/* Status */}
                       <td className="p-3.5">
                         {hasValidAsset ? (
-                          <span className="rounded-full bg-emerald-500/15 border border-emerald-500/30 px-2 py-0.5 text-[10px] font-bold text-emerald-400">
+                          <span className="rounded-full bg-primary/15 border border-primary/30 px-2 py-0.5 text-[10px] font-bold text-primary">
                             ✓ Ativo (Válido)
                           </span>
                         ) : (
@@ -525,7 +525,7 @@ export function VisualCoverageDashboard() {
                       setUploadFile(e.target.files[0]);
                     }
                   }}
-                  className="w-full text-xs text-white/60 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-emerald-500/20 file:text-emerald-300 hover:file:bg-emerald-500/30"
+                  className="w-full text-xs text-white/60 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-primary/20 file:text-primary hover:file:bg-primary/30"
                 />
               </div>
 
@@ -603,7 +603,7 @@ export function VisualCoverageDashboard() {
                 <button
                   type="submit"
                   disabled={saving}
-                  className="rounded-xl bg-emerald-500 px-5 py-2 font-bold text-white shadow-lg shadow-emerald-500/20 hover:bg-emerald-400 disabled:opacity-50"
+                  className="rounded-xl bg-primary px-5 py-2 font-bold text-on-primary shadow-lg shadow-primary/20 hover:opacity-90 disabled:opacity-50"
                 >
                   {saving ? "Salvando Asset..." : "Salvar Alterações"}
                 </button>

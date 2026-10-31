@@ -314,7 +314,7 @@ export function GatewaysTab({ onNotify }: { onNotify: (type: "success" | "error"
             onClick={() => setEnvironmentFilter("PRODUCTION")}
             className={`px-3 py-1.5 rounded-lg font-semibold transition flex items-center gap-1.5 ${
               environmentFilter === "PRODUCTION"
-                ? "bg-emerald-500/20 text-emerald-300 border border-emerald-500/40"
+                ? "bg-primary/20 text-primary border border-primary/40"
                 : "text-white/60 hover:text-white"
             }`}
           >
@@ -374,7 +374,7 @@ export function GatewaysTab({ onNotify }: { onNotify: (type: "success" | "error"
                     <span
                       className={`text-[10px] px-2 py-0.5 rounded-md font-bold uppercase tracking-wider ${
                         gw.environment === "PRODUCTION"
-                          ? "bg-emerald-500/20 text-emerald-300 border border-emerald-500/40"
+                          ? "bg-primary/20 text-primary border border-primary/40"
                           : "bg-amber-500/20 text-amber-300 border border-amber-500/40"
                       }`}
                     >
@@ -383,7 +383,7 @@ export function GatewaysTab({ onNotify }: { onNotify: (type: "success" | "error"
                     <span
                       className={`text-[10px] px-2 py-0.5 rounded-md font-bold ${
                         gw.status === "ACTIVE"
-                          ? "bg-emerald-500/10 text-emerald-400"
+                          ? "bg-primary/10 text-primary"
                           : gw.status === "CONFIG_PENDING"
                           ? "bg-amber-500/10 text-amber-400"
                           : "bg-rose-500/10 text-rose-400"
@@ -405,7 +405,7 @@ export function GatewaysTab({ onNotify }: { onNotify: (type: "success" | "error"
                     <span
                       className={`font-semibold flex items-center gap-1.5 ${
                         gw.connectionStatus === "CONNECTED"
-                          ? "text-emerald-400"
+                          ? "text-primary"
                           : gw.connectionStatus === "FAILED"
                           ? "text-rose-400"
                           : gw.connectionStatus === "UNTESTED"
@@ -518,7 +518,7 @@ export function GatewaysTab({ onNotify }: { onNotify: (type: "success" | "error"
                     className={`rounded-xl px-2.5 py-1.5 text-[11px] font-semibold transition ${
                       gw.status === "ACTIVE"
                         ? "bg-rose-500/10 text-rose-300 hover:bg-rose-500/20"
-                        : "bg-emerald-500/10 text-emerald-300 hover:bg-emerald-500/20"
+                        : "bg-primary/10 text-primary hover:bg-primary/20"
                     }`}
                   >
                     {gw.status === "ACTIVE" ? "Desativar" : "Ativar"}
@@ -598,7 +598,7 @@ export function GatewaysTab({ onNotify }: { onNotify: (type: "success" | "error"
                       <span
                         className={`px-2 py-0.5 rounded text-[10px] font-bold ${
                           m.environment === "PRODUCTION"
-                            ? "bg-emerald-500/20 text-emerald-300"
+                            ? "bg-primary/20 text-primary"
                             : "bg-amber-500/20 text-amber-300"
                         }`}
                       >
@@ -608,14 +608,14 @@ export function GatewaysTab({ onNotify }: { onNotify: (type: "success" | "error"
                     <td className="p-3 text-white/60 text-[11px]">
                       {m.externalProductId || "—"}
                     </td>
-                    <td className="p-3 text-emerald-300 text-[11px]">
+                    <td className="p-3 text-primary text-[11px]">
                       {m.externalPriceIdMonthly || "—"}
                     </td>
                     <td className="p-3 text-cyan-300 text-[11px]">
                       {m.externalPriceIdYearly || "—"}
                     </td>
                     <td className="p-3">
-                      <span className="text-[10px] text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded font-bold">
+                      <span className="text-[10px] text-primary bg-primary/10 px-2 py-0.5 rounded font-bold">
                         {m.syncStatus}
                       </span>
                     </td>
@@ -652,7 +652,7 @@ export function GatewaysTab({ onNotify }: { onNotify: (type: "success" | "error"
             <div className="flex items-center gap-3">
               <div
                 className={`w-10 h-10 rounded-full flex items-center justify-center text-lg ${
-                  testResultModal.success ? "bg-emerald-500/20 text-emerald-300" : "bg-rose-500/20 text-rose-300"
+                  testResultModal.success ? "bg-primary/20 text-primary" : "bg-rose-500/20 text-rose-300"
                 }`}
               >
                 {testResultModal.success ? "✓" : "✕"}
@@ -666,7 +666,7 @@ export function GatewaysTab({ onNotify }: { onNotify: (type: "success" | "error"
             <div className="rounded-xl border border-white/10 bg-white/5 p-4 space-y-2 text-xs">
               <div className="flex justify-between">
                 <span className="text-white/50">Status:</span>
-                <span className={`font-bold ${testResultModal.success ? "text-emerald-400" : "text-rose-400"}`}>
+                <span className={`font-bold ${testResultModal.success ? "text-primary" : "text-rose-400"}`}>
                   {testResultModal.success ? "Conexão Bem-Sucedida" : "Falha na Conexão"}
                 </span>
               </div>
@@ -878,7 +878,7 @@ export function GatewaysTab({ onNotify }: { onNotify: (type: "success" | "error"
                 disabled={toggling}
                 className={`rounded-xl px-5 py-2 text-xs font-bold text-white disabled:opacity-50 ${
                   toggleConfirmModal.newStatus === "ACTIVE"
-                    ? "bg-emerald-500 hover:bg-emerald-600"
+                    ? "bg-primary hover:opacity-90"
                     : "bg-rose-500 hover:bg-rose-600"
                 }`}
               >

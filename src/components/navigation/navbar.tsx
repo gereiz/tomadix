@@ -269,7 +269,7 @@ export function Navbar() {
                 href="/workspace"
                 onClick={() => setIsMobileMenuOpen(false)}
                 className={`flex items-center gap-3 rounded-xl px-3 py-2 text-sm font-medium transition ${pathname === "/workspace"
-                  ? "bg-emerald-400/10 text-emerald-300 font-semibold"
+                  ? "bg-primary/10 text-primary font-semibold"
                   : "text-white/70 hover:bg-white/5"
                   }`}
               >
@@ -279,7 +279,7 @@ export function Navbar() {
                 href="/workspace/members"
                 onClick={() => setIsMobileMenuOpen(false)}
                 className={`flex items-center gap-3 rounded-xl px-3 py-2 text-sm font-medium transition ${pathname === "/workspace/members"
-                  ? "bg-emerald-400/10 text-emerald-300 font-semibold"
+                  ? "bg-primary/10 text-primary font-semibold"
                   : "text-white/70 hover:bg-white/5"
                   }`}
               >
@@ -289,7 +289,7 @@ export function Navbar() {
                 href="/workspace/billing"
                 onClick={() => setIsMobileMenuOpen(false)}
                 className={`flex items-center gap-3 rounded-xl px-3 py-2 text-sm font-medium transition ${pathname === "/workspace/billing"
-                  ? "bg-emerald-400/10 text-emerald-300 font-semibold"
+                  ? "bg-primary/10 text-primary font-semibold"
                   : "text-white/70 hover:bg-white/5"
                   }`}
               >
@@ -335,7 +335,7 @@ export function Navbar() {
               <Link
                 href="/register"
                 onClick={() => setIsMobileMenuOpen(false)}
-                className="w-full rounded-xl bg-emerald-400 px-3 py-2.5 text-center text-sm font-semibold text-black hover:bg-emerald-300"
+                className="w-full rounded-xl bg-primary px-3 py-2.5 text-center text-sm font-semibold text-on-primary hover:opacity-90 shadow-md shadow-primary/20"
               >
                 Criar Conta Grátis
               </Link>

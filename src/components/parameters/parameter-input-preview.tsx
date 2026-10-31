@@ -36,7 +36,7 @@ export function ParameterInputPreview({
       <div className="flex items-center justify-between mb-1.5">
         <label className="text-xs font-semibold text-white flex items-center gap-1.5">
           {label || "Nome do Campo"}
-          {required && <span className="text-emerald-400 font-bold">*</span>}
+          {required && <span className="text-primary font-bold">*</span>}
         </label>
         <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-white/10 text-white/50">
           {type}
@@ -54,7 +54,7 @@ export function ParameterInputPreview({
           value={val || ""}
           onChange={(e) => setVal(e.target.value)}
           placeholder={`Digite ${label.toLowerCase()}...`}
-          className="w-full rounded-xl border border-white/10 bg-black/60 px-3.5 py-2 text-xs text-white placeholder-white/30 focus:border-emerald-400 focus:outline-none"
+          className="w-full rounded-xl border border-white/10 bg-black/60 px-3.5 py-2 text-xs text-white placeholder-white/30 focus:border-primary focus:outline-none"
         />
       )}
 
@@ -64,7 +64,7 @@ export function ParameterInputPreview({
           value={val || ""}
           onChange={(e) => setVal(e.target.value)}
           placeholder={`Descreva ${label.toLowerCase()} detalhadamente...`}
-          className="w-full rounded-xl border border-white/10 bg-black/60 px-3.5 py-2 text-xs text-white placeholder-white/30 focus:border-emerald-400 focus:outline-none"
+          className="w-full rounded-xl border border-white/10 bg-black/60 px-3.5 py-2 text-xs text-white placeholder-white/30 focus:border-primary focus:outline-none"
         />
       )}
 
@@ -78,7 +78,7 @@ export function ParameterInputPreview({
             value={val ?? ""}
             onChange={(e) => setVal(e.target.value)}
             placeholder="0"
-            className="w-full rounded-xl border border-white/10 bg-black/60 px-3.5 py-2 text-xs text-white placeholder-white/30 focus:border-emerald-400 focus:outline-none font-mono"
+            className="w-full rounded-xl border border-white/10 bg-black/60 px-3.5 py-2 text-xs text-white placeholder-white/30 focus:border-primary focus:outline-none font-mono"
           />
           {validationRules?.min !== undefined && validationRules?.max !== undefined && (
             <span className="text-[10px] text-white/40 whitespace-nowrap">
@@ -94,7 +94,7 @@ export function ParameterInputPreview({
             type="button"
             onClick={() => setVal(!val)}
             className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
-              val ? "bg-emerald-500" : "bg-white/20"
+              val ? "bg-primary" : "bg-white/20"
             }`}
           >
             <span
@@ -113,7 +113,7 @@ export function ParameterInputPreview({
         <select
           value={val || ""}
           onChange={(e) => setVal(e.target.value)}
-          className="w-full rounded-xl border border-white/10 bg-black/60 px-3 py-2 text-xs text-white focus:border-emerald-400 focus:outline-none"
+          className="w-full rounded-xl border border-white/10 bg-black/60 px-3 py-2 text-xs text-white focus:border-primary focus:outline-none"
         >
           <option value="">Selecione uma opção...</option>
           {options?.map((opt) => (
@@ -143,7 +143,7 @@ export function ParameterInputPreview({
                   }}
                   className={`rounded-lg px-2.5 py-1 text-[11px] font-medium transition ${
                     selected
-                      ? "bg-emerald-400 text-black font-semibold"
+                      ? "bg-primary text-on-primary font-semibold"
                       : "bg-white/10 text-white/70 hover:bg-white/15"
                   }`}
                 >
@@ -163,7 +163,7 @@ export function ParameterInputPreview({
         <div className="space-y-2 mt-1">
           <div className="flex justify-between text-[11px] font-mono text-white/60">
             <span>Mín: {validationRules?.min ?? 0}</span>
-            <span className="font-bold text-emerald-400">{val ?? validationRules?.min ?? 0}</span>
+            <span className="font-bold text-primary">{val ?? validationRules?.min ?? 0}</span>
             <span>Máx: {validationRules?.max ?? 100}</span>
           </div>
           <input
@@ -173,7 +173,7 @@ export function ParameterInputPreview({
             step={validationRules?.step ?? 1}
             value={val ?? validationRules?.min ?? 0}
             onChange={(e) => setVal(Number(e.target.value))}
-            className="w-full accent-emerald-400 cursor-pointer"
+            className="w-full accent-primary cursor-pointer"
           />
         </div>
       )}
@@ -186,7 +186,7 @@ export function ParameterInputPreview({
             value={val ?? ""}
             onChange={(e) => setVal(e.target.value)}
             placeholder="Ex: 30"
-            className="w-32 rounded-xl border border-white/10 bg-black/60 px-3.5 py-2 text-xs text-white placeholder-white/30 focus:border-emerald-400 focus:outline-none font-mono"
+            className="w-32 rounded-xl border border-white/10 bg-black/60 px-3.5 py-2 text-xs text-white placeholder-white/30 focus:border-primary focus:outline-none font-mono"
           />
           <span className="text-xs text-white/60">segundos</span>
         </div>
@@ -197,7 +197,7 @@ export function ParameterInputPreview({
           type="date"
           value={val || ""}
           onChange={(e) => setVal(e.target.value)}
-          className="w-full rounded-xl border border-white/10 bg-black/60 px-3.5 py-2 text-xs text-white focus:border-emerald-400 focus:outline-none"
+          className="w-full rounded-xl border border-white/10 bg-black/60 px-3.5 py-2 text-xs text-white focus:border-primary focus:outline-none"
         />
       )}
 
@@ -207,7 +207,7 @@ export function ParameterInputPreview({
           value={typeof val === "object" ? JSON.stringify(val, null, 2) : val || ""}
           onChange={(e) => setVal(e.target.value)}
           placeholder='{"chave": "valor"}'
-          className="w-full rounded-xl border border-white/10 bg-black/60 px-3.5 py-2 font-mono text-xs text-emerald-300 focus:border-emerald-400 focus:outline-none"
+          className="w-full rounded-xl border border-white/10 bg-black/60 px-3.5 py-2 font-mono text-xs text-primary focus:border-primary focus:outline-none"
         />
       )}
     </div>

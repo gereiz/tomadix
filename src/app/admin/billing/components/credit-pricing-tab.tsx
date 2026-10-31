@@ -329,7 +329,7 @@ export function CreditPricingTab() {
         <div
           className={`p-4 rounded-xl border flex items-center justify-between text-xs animate-in fade-in ${
             notification.type === "success"
-              ? "bg-emerald-500/10 border-emerald-500/30 text-emerald-300"
+              ? "bg-primary/10 border-primary/30 text-primary"
               : "bg-rose-500/10 border-rose-500/30 text-rose-300"
           }`}
         >
@@ -502,10 +502,10 @@ export function CreditPricingTab() {
         </div>
 
         {simResult && (
-          <div className="mt-4 p-4 rounded-xl border border-emerald-500/30 bg-emerald-500/5 animate-in fade-in flex flex-col md:flex-row md:items-center justify-between gap-4">
+          <div className="mt-4 p-4 rounded-xl border border-primary/30 bg-primary/5 animate-in fade-in flex flex-col md:flex-row md:items-center justify-between gap-4">
             <div>
               <div className="flex items-center gap-2">
-                <span className="text-xs font-bold text-emerald-400 uppercase tracking-wider">Custo Efetivo Resolvido:</span>
+                <span className="text-xs font-bold text-primary uppercase tracking-wider">Custo Efetivo Resolvido:</span>
                 <span className="text-xl font-bold font-mono text-white">
                   {simResult.isFree ? "0 Créditos (Gratuito)" : `${simResult.cost} Créditos`}
                 </span>
@@ -537,7 +537,7 @@ export function CreditPricingTab() {
             <button
               onClick={handleRunRenewalJob}
               disabled={runningJob}
-              className="rounded-xl border border-emerald-500/40 bg-emerald-500/10 px-3.5 py-1.5 text-xs font-semibold text-emerald-300 hover:bg-emerald-500/20 transition flex items-center gap-1.5"
+              className="rounded-xl border border-primary/40 bg-primary/10 px-3.5 py-1.5 text-xs font-semibold text-primary hover:bg-primary/20 transition flex items-center gap-1.5"
             >
               <span>⚡</span> {runningJob ? "Processando..." : "Executar Ciclo de Renovação"}
             </button>
@@ -552,13 +552,13 @@ export function CreditPricingTab() {
         </div>
 
         {jobResult && (
-          <div className="p-4 bg-emerald-500/10 border-b border-emerald-500/20 text-xs text-emerald-300 flex items-center justify-between">
+          <div className="p-4 bg-primary/10 border-b border-primary/20 text-xs text-primary flex items-center justify-between">
             <span>
               Ciclo finalizado: <strong>{jobResult.processed}</strong> estúdios analisados,{" "}
               <strong>{jobResult.renewed}</strong> renovados com sucesso e{" "}
               <strong>{jobResult.skipped}</strong> ignorados (já renovados neste ciclo).
             </span>
-            <button onClick={() => setJobResult(null)} className="text-emerald-400 hover:text-white">✕</button>
+            <button onClick={() => setJobResult(null)} className="text-primary hover:text-white">✕</button>
           </div>
         )}
 
@@ -598,7 +598,7 @@ export function CreditPricingTab() {
 
                   <td className="p-3.5">
                     {pol.accumulate || pol.allowAccumulate ? (
-                      <span className="text-emerald-400 font-semibold">
+                      <span className="text-primary font-semibold">
                         Acumula {(pol.maxAccumulated ?? pol.maxAccumulateBalance) ? `(Máx: ${pol.maxAccumulated ?? pol.maxAccumulateBalance})` : "(Sem teto)"}
                       </span>
                     ) : (
@@ -608,7 +608,7 @@ export function CreditPricingTab() {
 
                   <td className="p-3.5">
                     {(pol.isActive ?? pol.active ?? true) ? (
-                      <span className="rounded bg-emerald-500/10 border border-emerald-500/30 px-2 py-0.5 text-[10px] text-emerald-400 font-bold">
+                      <span className="rounded bg-primary/10 border border-primary/30 px-2 py-0.5 text-[10px] text-primary font-bold">
                         ATIVO
                       </span>
                     ) : (

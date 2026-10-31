@@ -414,7 +414,7 @@ export default function ParametersPage() {
         <div
           className={`fixed bottom-6 right-6 z-50 flex items-center gap-3 rounded-xl border px-4 py-3 shadow-2xl backdrop-blur-md transition-all ${
             toast.type === "success"
-              ? "border-emerald-500/30 bg-emerald-950/90 text-emerald-200"
+              ? "border-primary/30 bg-primary/90 text-primary"
               : "border-red-500/30 bg-red-950/90 text-red-200"
           }`}
         >
@@ -427,7 +427,7 @@ export default function ParametersPage() {
         <div className="flex flex-col justify-between gap-4 md:flex-row md:items-center">
           <div>
             <div className="flex items-center gap-2 sm:gap-3 flex-wrap">
-              <span className="text-[10px] sm:text-xs font-semibold uppercase tracking-[0.2em] text-emerald-400">
+              <span className="text-[10px] sm:text-xs font-semibold uppercase tracking-[0.2em] text-primary">
                 Arquitetura Modular de Prompts
               </span>
               <span className="rounded-full bg-white/10 px-2.5 py-0.5 text-[10px] sm:text-xs text-white/60">
@@ -469,7 +469,7 @@ export default function ParametersPage() {
           ) : (
             <div className="flex items-center gap-2">
               <span className="rounded-xl border border-white/10 bg-white/5 px-3.5 py-2 text-xs font-medium text-white/70 flex items-center gap-2">
-                <span className="h-2 w-2 rounded-full bg-emerald-400"></span>
+                <span className="h-2 w-2 rounded-full bg-primary"></span>
                 <span>Catálogo Geral • Modo Consulta</span>
               </span>
             </div>
@@ -486,7 +486,7 @@ export default function ParametersPage() {
                 onClick={() => setSelectedScope(tab.id)}
                 className={`border-b-2 px-3 sm:px-4 py-2.5 sm:py-3 text-xs font-semibold transition whitespace-nowrap ${
                   isActive
-                    ? "border-emerald-400 text-emerald-300"
+                    ? "border-primary text-primary"
                     : "border-transparent text-white/50 hover:border-white/20 hover:text-white"
                 }`}
               >
@@ -512,7 +512,7 @@ export default function ParametersPage() {
               placeholder="Buscar por nome, chave ou descrição..."
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              className="w-full rounded-xl border border-white/10 bg-black/40 py-2 pl-10 pr-4 text-xs text-white placeholder-white/30 focus:border-emerald-400 focus:outline-none"
+              className="w-full rounded-xl border border-white/10 bg-black/40 py-2 pl-10 pr-4 text-xs text-white placeholder-white/30 focus:border-primary focus:outline-none"
             />
           </div>
 
@@ -520,7 +520,7 @@ export default function ParametersPage() {
             <select
               value={selectedType}
               onChange={(e) => setSelectedType(e.target.value)}
-              className="w-full sm:w-auto rounded-xl border border-white/10 bg-black/40 px-3 py-2 text-xs text-white/80 focus:border-emerald-400 focus:outline-none"
+              className="w-full sm:w-auto rounded-xl border border-white/10 bg-black/40 px-3 py-2 text-xs text-white/80 focus:border-primary focus:outline-none"
             >
               <option value="ALL">Todos os Tipos</option>
               {TYPE_OPTIONS.map((t) => (
@@ -533,7 +533,7 @@ export default function ParametersPage() {
             <select
               value={statusFilter}
               onChange={(e) => setStatusFilter(e.target.value as any)}
-              className="w-full sm:w-auto rounded-xl border border-white/10 bg-black/40 px-3 py-2 text-xs text-white/80 focus:border-emerald-400 focus:outline-none"
+              className="w-full sm:w-auto rounded-xl border border-white/10 bg-black/40 px-3 py-2 text-xs text-white/80 focus:border-primary focus:outline-none"
             >
               <option value="all">Status: Todos</option>
               <option value="active">Apenas Ativos</option>
@@ -565,7 +565,7 @@ export default function ParametersPage() {
                   resetForm();
                   setIsModalOpen(true);
                 }}
-                className="mt-5 rounded-xl bg-emerald-400 px-5 py-2 text-xs font-semibold text-black hover:bg-emerald-300 transition"
+                className="mt-5 rounded-xl bg-primary px-5 py-2 text-xs font-semibold text-on-primary hover:opacity-90 transition shadow-md shadow-primary/20"
               >
                 Criar Primeiro Parâmetro
               </button>
@@ -578,7 +578,7 @@ export default function ParametersPage() {
                 key={p.id}
                 className={`flex flex-col justify-between gap-3 sm:gap-4 rounded-2xl border p-3.5 sm:p-4 transition md:flex-row md:items-center ${
                   p.enabled
-                    ? "border-white/10 bg-white/[0.02] hover:border-emerald-400/30"
+                    ? "border-white/10 bg-white/[0.02] hover:border-primary/30"
                     : "border-white/5 bg-black/20 opacity-60"
                 }`}
               >
@@ -589,7 +589,7 @@ export default function ParametersPage() {
                       <button
                         onClick={() => handleMoveOrder(idx, "up")}
                         disabled={idx === 0}
-                        className="hover:text-emerald-400 disabled:opacity-20 text-xs"
+                        className="hover:text-primary disabled:opacity-20 text-xs"
                         title="Subir Ordem"
                       >
                         ▲
@@ -598,7 +598,7 @@ export default function ParametersPage() {
                       <button
                         onClick={() => handleMoveOrder(idx, "down")}
                         disabled={idx === parameters.length - 1}
-                        className="hover:text-emerald-400 disabled:opacity-20 text-xs"
+                        className="hover:text-primary disabled:opacity-20 text-xs"
                         title="Descer Ordem"
                       >
                         ▼
@@ -613,7 +613,7 @@ export default function ParametersPage() {
                   <div className="flex-1 min-w-0">
                     <div className="flex flex-wrap items-center gap-1.5 sm:gap-2">
                       <span className="font-semibold text-white text-xs sm:text-sm">{p.label}</span>
-                      <code className="rounded bg-black/50 px-1.5 py-0.5 font-mono text-[10px] sm:text-[11px] text-emerald-400 border border-white/10 break-all">
+                      <code className="rounded bg-black/50 px-1.5 py-0.5 font-mono text-[10px] sm:text-[11px] text-primary border border-white/10 break-all">
                         {p.key}
                       </code>
                       <span className="rounded-md bg-white/10 px-1.5 py-0.5 text-[9px] sm:text-[10px] font-mono text-white/60">
@@ -625,7 +625,7 @@ export default function ParametersPage() {
                         const isAll = scopesList.includes("ALL") || allScopes.every((s) => scopesList.includes(s));
                         if (isAll) {
                           return (
-                            <span className="rounded-md bg-emerald-400/10 px-2 py-0.5 text-[9px] sm:text-[10px] text-emerald-300 border border-emerald-400/20 font-medium">
+                            <span className="rounded-md bg-primary/10 px-2 py-0.5 text-[9px] sm:text-[10px] text-primary border border-primary/20 font-medium">
                               🌐 Todos os Escopos
                             </span>
                           );
@@ -640,7 +640,7 @@ export default function ParametersPage() {
                         return scopesList.map((sc) => (
                           <span
                             key={sc}
-                            className="rounded-md bg-emerald-400/10 px-1.5 py-0.5 text-[9px] sm:text-[10px] text-emerald-300 border border-emerald-400/20"
+                            className="rounded-md bg-primary/10 px-1.5 py-0.5 text-[9px] sm:text-[10px] text-primary border border-primary/20"
                           >
                             {labelMap[sc] || sc}
                           </span>
@@ -671,7 +671,7 @@ export default function ParametersPage() {
                         onClick={() => handleToggle(p)}
                         className={`rounded-lg px-2.5 sm:px-3 py-1.5 text-xs font-medium transition ${
                           p.enabled
-                            ? "bg-emerald-500/20 text-emerald-300 border border-emerald-500/30"
+                            ? "bg-primary/20 text-primary border border-primary/30"
                             : "bg-white/10 text-white/50 hover:bg-white/15"
                         }`}
                       >
@@ -706,7 +706,7 @@ export default function ParametersPage() {
                     <span
                       className={`rounded-lg px-2.5 sm:px-3 py-1 text-xs font-medium ${
                         p.enabled
-                          ? "bg-emerald-500/10 text-emerald-300 border border-emerald-500/20"
+                          ? "bg-primary/10 text-primary border border-primary/20"
                           : "bg-white/5 text-white/40 border border-white/10"
                       }`}
                     >
@@ -726,7 +726,7 @@ export default function ParametersPage() {
           <div className="relative max-h-[92vh] w-full max-w-4xl overflow-y-auto rounded-3xl border border-white/10 bg-[#12161f] p-6 shadow-2xl md:p-8">
             <div className="flex items-center justify-between border-b border-white/10 pb-4">
               <div>
-                <span className="text-xs uppercase tracking-[0.2em] text-emerald-400">
+                <span className="text-xs uppercase tracking-[0.2em] text-primary">
                   {editingParam ? "Configuração de Parâmetro" : "Novo Parâmetro Customizado"}
                 </span>
                 <h2 className="mt-1 text-2xl font-bold">
@@ -751,7 +751,7 @@ export default function ParametersPage() {
                   {/* Chave (snake_case) */}
                   <div>
                     <label className="block text-xs font-semibold uppercase tracking-wider text-white/70">
-                      Chave Interna (snake_case) <span className="text-emerald-400">*</span>
+                      Chave Interna (snake_case) <span className="text-primary">*</span>
                     </label>
                     <input
                       type="text"
@@ -760,7 +760,7 @@ export default function ParametersPage() {
                       value={formData.key}
                       onChange={(e) => setFormData({ ...formData, key: e.target.value })}
                       className={`mt-1.5 w-full rounded-xl border bg-black/40 px-3.5 py-2 font-mono text-xs text-white placeholder-white/30 focus:outline-none ${
-                        formErrors.key ? "border-red-500" : "border-white/10 focus:border-emerald-400"
+                        formErrors.key ? "border-red-500" : "border-white/10 focus:border-primary"
                       } disabled:opacity-50`}
                     />
                     {formErrors.key && <p className="mt-1 text-xs text-red-400">{formErrors.key}</p>}
@@ -769,7 +769,7 @@ export default function ParametersPage() {
                   {/* Nome de Exibição */}
                   <div>
                     <label className="block text-xs font-semibold uppercase tracking-wider text-white/70">
-                      Nome de Exibição (Label) <span className="text-emerald-400">*</span>
+                      Nome de Exibição (Label) <span className="text-primary">*</span>
                     </label>
                     <input
                       type="text"
@@ -777,7 +777,7 @@ export default function ParametersPage() {
                       value={formData.label}
                       onChange={(e) => setFormData({ ...formData, label: e.target.value })}
                       className={`mt-1.5 w-full rounded-xl border bg-black/40 px-3.5 py-2 text-xs text-white placeholder-white/30 focus:outline-none ${
-                        formErrors.label ? "border-red-500" : "border-white/10 focus:border-emerald-400"
+                        formErrors.label ? "border-red-500" : "border-white/10 focus:border-primary"
                       }`}
                     />
                     {formErrors.label && <p className="mt-1 text-xs text-red-400">{formErrors.label}</p>}
@@ -793,7 +793,7 @@ export default function ParametersPage() {
                       placeholder="Explique como este parâmetro influencia a estética ou a narrativa..."
                       value={formData.description}
                       onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                      className="mt-1.5 w-full rounded-xl border border-white/10 bg-black/40 px-3.5 py-2 text-xs text-white placeholder-white/30 focus:border-emerald-400 focus:outline-none"
+                      className="mt-1.5 w-full rounded-xl border border-white/10 bg-black/40 px-3.5 py-2 text-xs text-white placeholder-white/30 focus:border-primary focus:outline-none"
                     />
                   </div>
 
@@ -805,7 +805,7 @@ export default function ParametersPage() {
                     <select
                       value={formData.type}
                       onChange={(e) => setFormData({ ...formData, type: e.target.value as ParameterType })}
-                      className="mt-1.5 w-full rounded-xl border border-white/10 bg-black/40 px-3 py-2 text-xs text-white focus:border-emerald-400 focus:outline-none"
+                      className="mt-1.5 w-full rounded-xl border border-white/10 bg-black/40 px-3 py-2 text-xs text-white focus:border-primary focus:outline-none"
                     >
                       {TYPE_OPTIONS.map((t) => (
                         <option key={t} value={t}>
@@ -819,7 +819,7 @@ export default function ParametersPage() {
                   <div className="rounded-2xl border border-white/10 bg-black/30 p-3.5 space-y-2.5">
                     <div className="flex items-center justify-between">
                       <label className="block text-xs font-semibold uppercase tracking-wider text-white/80">
-                        Escopos Aplicáveis <span className="text-emerald-400">*</span>
+                        Escopos Aplicáveis <span className="text-primary">*</span>
                       </label>
                       <button
                         type="button"
@@ -832,7 +832,7 @@ export default function ParametersPage() {
                             scope: isAllSelected ? "GLOBAL" : "GLOBAL",
                           });
                         }}
-                        className="text-[11px] font-medium text-emerald-400 hover:text-emerald-300 transition"
+                        className="text-[11px] font-medium text-primary hover:text-primary transition"
                       >
                         {["GLOBAL", "CHARACTER", "ENVIRONMENT", "SCENE", "OUTPUT"].every((s) =>
                           formData.scopes.includes(s)
@@ -878,14 +878,14 @@ export default function ParametersPage() {
                             }}
                             className={`flex items-center gap-2 rounded-xl border px-3 py-2 text-left text-xs transition ${
                               isSelected
-                                ? "border-emerald-500/50 bg-emerald-500/15 text-emerald-300 font-semibold shadow-sm"
+                                ? "border-primary/50 bg-primary/15 text-primary font-semibold shadow-sm"
                                 : "border-white/10 bg-white/[0.02] text-white/60 hover:border-white/20 hover:text-white"
                             }`}
                           >
                             <span
                               className={`flex h-4 w-4 shrink-0 items-center justify-center rounded-md border text-[10px] ${
                                 isSelected
-                                  ? "border-emerald-400 bg-emerald-400 text-black font-bold"
+                                  ? "border-primary bg-primary text-on-primary font-bold"
                                   : "border-white/20 bg-transparent text-transparent"
                               }`}
                             >
@@ -906,7 +906,7 @@ export default function ParametersPage() {
                       id="param-required"
                       checked={formData.required}
                       onChange={(e) => setFormData({ ...formData, required: e.target.checked })}
-                      className="h-4 w-4 rounded accent-emerald-400"
+                      className="h-4 w-4 rounded accent-primary"
                     />
                     <label htmlFor="param-required" className="text-xs text-white/80 cursor-pointer">
                       Parâmetro Obrigatório (bloqueia geração se ausente)
@@ -917,7 +917,7 @@ export default function ParametersPage() {
                   {["SELECT", "MULTISELECT"].includes(formData.type) && (
                     <div className="rounded-2xl border border-white/10 bg-black/30 p-3.5 space-y-3">
                       <div className="flex items-center justify-between">
-                        <span className="text-xs font-semibold uppercase text-emerald-400">
+                        <span className="text-xs font-semibold uppercase text-primary">
                           Opções Disponíveis ({formData.options.length})
                         </span>
                       </div>
@@ -951,7 +951,7 @@ export default function ParametersPage() {
                         <button
                           type="button"
                           onClick={handleAddOption}
-                          className="rounded-lg bg-white/10 px-3 py-1.5 text-xs font-semibold text-white hover:bg-emerald-400 hover:text-black transition"
+                          className="rounded-lg bg-white/10 px-3 py-1.5 text-xs font-semibold text-white hover:bg-primary-fixed hover:text-black transition"
                         >
                           + Adicionar
                         </button>
@@ -990,7 +990,7 @@ export default function ParametersPage() {
 
                   {/* Mapeamento de Prompt */}
                   <div className="rounded-2xl border border-white/10 bg-black/30 p-3.5 space-y-2">
-                    <span className="text-xs font-semibold uppercase text-emerald-400">
+                    <span className="text-xs font-semibold uppercase text-primary">
                       Mapeamento para Composição do Prompt
                     </span>
                     <input
@@ -1004,11 +1004,11 @@ export default function ParametersPage() {
                 </div>
 
                 {/* Coluna 2: Live Preview Interativo em Tempo Real */}
-                <div className="flex flex-col justify-between rounded-3xl border border-emerald-400/20 bg-emerald-950/[0.05] p-6">
+                <div className="flex flex-col justify-between rounded-3xl border border-primary/20 bg-primary/[0.05] p-6">
                   <div>
                     <div className="flex items-center gap-2 mb-4">
-                      <span className="h-2.5 w-2.5 rounded-full bg-emerald-400 animate-pulse" />
-                      <span className="text-xs font-bold uppercase tracking-wider text-emerald-300">
+                      <span className="h-2.5 w-2.5 rounded-full bg-primary animate-pulse" />
+                      <span className="text-xs font-bold uppercase tracking-wider text-primary">
                         Live Preview Interativo
                       </span>
                     </div>
@@ -1036,7 +1036,7 @@ export default function ParametersPage() {
                     <div className="mt-8 rounded-2xl border border-white/10 bg-black/40 p-4 space-y-2 text-xs">
                       <div className="flex justify-between">
                         <span className="text-white/40">Chave:</span>
-                        <code className="text-emerald-400">{formData.key || "—"}</code>
+                        <code className="text-primary">{formData.key || "—"}</code>
                       </div>
                       <div className="flex justify-between">
                         <span className="text-white/40">Escopo:</span>
@@ -1069,7 +1069,7 @@ export default function ParametersPage() {
                     <button
                       type="submit"
                       disabled={submitting}
-                      className="rounded-xl bg-emerald-400 px-6 py-2 text-xs font-semibold text-black hover:bg-emerald-300 transition disabled:opacity-50"
+                      className="rounded-xl bg-primary px-6 py-2 text-xs font-semibold text-on-primary hover:opacity-90 transition disabled:opacity-50 shadow-md shadow-primary/20"
                     >
                       {submitting ? "Salvando..." : editingParam ? "Salvar Alterações" : "Criar Parâmetro"}
                     </button>

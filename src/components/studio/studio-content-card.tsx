@@ -36,9 +36,9 @@ const TYPE_CONFIG = {
   },
   PROMPT: {
     label: "Prompt IA",
-    badgeBg: "bg-emerald-400/10 text-emerald-300 border-emerald-400/30",
+    badgeBg: "bg-primary/10 text-primary border-primary/30",
     icon: "✨",
-    accentGradient: "from-emerald-500/20 via-transparent to-transparent",
+    accentGradient: "from-primary/20 via-transparent to-transparent",
   },
 };
 

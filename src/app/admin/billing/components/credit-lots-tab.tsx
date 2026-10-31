@@ -181,7 +181,7 @@ export function CreditLotsTab() {
   const getStatusBadge = (status: string) => {
     switch (status) {
       case "ACTIVE":
-        return <span className="bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 px-2 py-0.5 rounded text-[10px] font-bold">ATIVO</span>;
+        return <span className="bg-primary/20 text-primary border border-primary/40 px-2 py-0.5 rounded text-[10px] font-bold">ATIVO</span>;
       case "EXHAUSTED":
         return <span className="bg-white/10 text-white/60 border border-white/20 px-2 py-0.5 rounded text-[10px] font-bold">ESGOTADO</span>;
       case "EXPIRED":
@@ -196,7 +196,7 @@ export function CreditLotsTab() {
   const getOriginBadge = (origin: string, isAccumulative: boolean) => {
     let color = "text-amber-300 bg-amber-500/10 border-amber-500/30";
     if (origin === "ADHESION") color = "text-sky-300 bg-sky-500/10 border-sky-500/30";
-    if (origin === "DAILY_RENEWAL") color = "text-emerald-300 bg-emerald-500/10 border-emerald-500/30";
+    if (origin === "DAILY_RENEWAL") color = "text-primary bg-primary/10 border-primary/30";
     if (origin === "PURCHASED") color = "text-purple-300 bg-purple-500/10 border-purple-500/30";
     if (origin === "REFUND") color = "text-blue-300 bg-blue-500/10 border-blue-500/30";
 
@@ -221,7 +221,7 @@ export function CreditLotsTab() {
         <div
           className={`p-4 rounded-xl text-xs flex justify-between items-center transition ${
             notification.type === "success"
-              ? "bg-emerald-950/40 border border-emerald-500/30 text-emerald-300"
+              ? "bg-primary/40 border border-primary/30 text-primary"
               : "bg-rose-950/40 border border-rose-500/30 text-rose-300"
           }`}
         >
@@ -244,7 +244,7 @@ export function CreditLotsTab() {
                   <span
                     className={`rounded px-2 py-0.5 text-[10px] font-bold ${
                       reconSummary.inconsistentWorkspaces === 0
-                        ? "bg-emerald-500/20 text-emerald-300 border border-emerald-500/40"
+                        ? "bg-primary/20 text-primary border border-primary/40"
                         : "bg-rose-500/20 text-rose-300 border border-rose-500/40"
                     }`}
                   >
@@ -273,7 +273,7 @@ export function CreditLotsTab() {
               </div>
               <div className="rounded-xl bg-white/[0.02] p-3 border border-white/5">
                 <span className="text-[10px] text-white/40 block">Totalmente Alinhados</span>
-                <span className="text-lg font-bold font-mono text-emerald-400">{reconSummary.consistentWorkspaces}</span>
+                <span className="text-lg font-bold font-mono text-primary">{reconSummary.consistentWorkspaces}</span>
               </div>
               <div className="rounded-xl bg-white/[0.02] p-3 border border-white/5">
                 <span className="text-[10px] text-white/40 block">Com Divergência</span>
@@ -397,7 +397,7 @@ export function CreditLotsTab() {
                     <td className="p-3.5 text-right font-mono font-bold text-white">
                       +{lot.amountGranted.toLocaleString("pt-BR")}
                     </td>
-                    <td className="p-3.5 text-right font-mono font-bold text-emerald-400">
+                    <td className="p-3.5 text-right font-mono font-bold text-primary">
                       {lot.amountAvailable.toLocaleString("pt-BR")}
                     </td>
                     <td className="p-3.5 text-right font-mono text-white/50">

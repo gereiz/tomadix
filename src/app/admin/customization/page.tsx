@@ -201,7 +201,7 @@ export default function AdminCustomizationPage() {
         <div
           className={`rounded-xl border p-4 text-xs font-medium flex items-center justify-between ${
             feedback.type === "success"
-              ? "border-emerald-500/30 bg-emerald-950/30 text-emerald-300"
+              ? "border-primary/30 bg-primary/30 text-primary"
               : "border-rose-500/30 bg-rose-950/30 text-rose-300"
           }`}
         >

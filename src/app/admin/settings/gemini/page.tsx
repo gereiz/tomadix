@@ -350,7 +350,7 @@ export default function GeminiKeysAdminPage() {
     switch (key.status) {
       case "HEALTHY":
         return (
-          <span className="rounded bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 px-2 py-0.5 text-[10px] font-bold">
+          <span className="rounded bg-primary/20 text-primary border border-primary/40 px-2 py-0.5 text-[10px] font-bold">
             SAUDÁVEL (OPERACIONAL)
           </span>
         );
@@ -390,7 +390,7 @@ export default function GeminiKeysAdminPage() {
         <div
           className={`p-4 rounded-xl text-xs flex justify-between items-center transition ${
             notification.type === "success"
-              ? "bg-emerald-950/40 border border-emerald-500/30 text-emerald-300"
+              ? "bg-primary/40 border border-primary/30 text-primary"
               : "bg-rose-950/40 border border-rose-500/30 text-rose-300"
           }`}
         >
@@ -406,7 +406,7 @@ export default function GeminiKeysAdminPage() {
         <div>
           <h1 className="text-xl font-bold text-white flex items-center gap-2">
             <span>Gerenciamento de APIs Gemini</span>
-            <span className="rounded bg-emerald-500/20 border border-emerald-500/40 px-2 py-0.5 font-mono text-[10px] font-bold text-emerald-300">
+            <span className="rounded bg-primary/20 border border-primary/40 px-2 py-0.5 font-mono text-[10px] font-bold text-primary">
               Multi-Key & Failover Ativo
             </span>
           </h1>
@@ -425,7 +425,7 @@ export default function GeminiKeysAdminPage() {
           </button>
           <button
             onClick={handleOpenCreateModal}
-            className="rounded-xl bg-emerald-400 px-4 py-1.5 text-xs font-bold text-black hover:bg-emerald-300 transition flex items-center gap-1.5 shadow-md shadow-emerald-500/10"
+            className="rounded-xl bg-primary px-4 py-1.5 text-xs font-bold text-on-primary hover:opacity-90 transition flex items-center gap-1.5 shadow-md shadow-primary/10"
           >
             <span>➕</span> Cadastrar Nova API Key
           </button>
@@ -440,7 +440,7 @@ export default function GeminiKeysAdminPage() {
             <span className="text-2xl font-bold font-mono text-white">
               {metrics?.totalRequests ?? 0}
             </span>
-            <span className="text-xs text-emerald-400 font-mono">
+            <span className="text-xs text-primary font-mono">
               ({metrics?.successRate ?? 100}% sucesso)
             </span>
           </div>
@@ -449,15 +449,15 @@ export default function GeminiKeysAdminPage() {
           </span>
         </div>
 
-        <div className="rounded-2xl border border-emerald-500/20 bg-gradient-to-br from-emerald-950/30 to-[#0d111c] p-4">
-          <span className="text-[10px] text-emerald-300 uppercase tracking-wider block font-bold flex items-center gap-1">
+        <div className="rounded-2xl border border-primary/20 bg-gradient-to-br from-primary/10 to-[#0d111c] p-4">
+          <span className="text-[10px] text-primary uppercase tracking-wider block font-bold flex items-center gap-1">
             <span>🛡️</span> Resiliência por Failover
           </span>
           <div className="mt-1 flex items-baseline gap-2">
-            <span className="text-2xl font-bold font-mono text-emerald-300">
+            <span className="text-2xl font-bold font-mono text-primary">
               {metrics?.fallbackRecoveredRequests ?? 0}
             </span>
-            <span className="text-xs text-emerald-400/80">operações salvas</span>
+            <span className="text-xs text-primary/80">operações salvas</span>
           </div>
           <span className="text-[10px] text-white/50 mt-1 block">
             Salvas automaticamente após falha na 1ª chave
@@ -497,7 +497,7 @@ export default function GeminiKeysAdminPage() {
           onClick={() => setActiveTab("keys")}
           className={`rounded-lg px-3 py-1.5 font-semibold transition flex items-center gap-1.5 ${
             activeTab === "keys"
-              ? "bg-emerald-500/20 text-emerald-300 border border-emerald-500/40"
+              ? "bg-primary/20 text-primary border border-primary/40"
               : "text-white/60 hover:text-white hover:bg-white/5"
           }`}
         >
@@ -509,7 +509,7 @@ export default function GeminiKeysAdminPage() {
           onClick={() => setActiveTab("settings")}
           className={`rounded-lg px-3 py-1.5 font-semibold transition flex items-center gap-1.5 ${
             activeTab === "settings"
-              ? "bg-emerald-500/20 text-emerald-300 border border-emerald-500/40"
+              ? "bg-primary/20 text-primary border border-primary/40"
               : "text-white/60 hover:text-white hover:bg-white/5"
           }`}
         >
@@ -521,7 +521,7 @@ export default function GeminiKeysAdminPage() {
           onClick={() => setActiveTab("logs")}
           className={`rounded-lg px-3 py-1.5 font-semibold transition flex items-center gap-1.5 ${
             activeTab === "logs"
-              ? "bg-emerald-500/20 text-emerald-300 border border-emerald-500/40"
+              ? "bg-primary/20 text-primary border border-primary/40"
               : "text-white/60 hover:text-white hover:bg-white/5"
           }`}
         >
@@ -535,7 +535,7 @@ export default function GeminiKeysAdminPage() {
         <div
           className={`p-4 rounded-xl text-xs flex justify-between items-center transition ${
             testResult.success
-              ? "bg-emerald-950/50 border border-emerald-500/40 text-emerald-300"
+              ? "bg-primary/50 border border-primary/40 text-primary"
               : "bg-rose-950/50 border border-rose-500/40 text-rose-300"
           }`}
         >
@@ -592,7 +592,7 @@ export default function GeminiKeysAdminPage() {
                       {/* Prioridade e botões subir/descer */}
                       <td className="p-3.5 text-center">
                         <div className="flex items-center justify-center gap-1">
-                          <span className="flex-shrink-0 flex items-center justify-center w-7 h-7 rounded-lg font-mono text-xs font-bold bg-white/5 border border-white/10 text-emerald-300">
+                          <span className="flex-shrink-0 flex items-center justify-center w-7 h-7 rounded-lg font-mono text-xs font-bold bg-white/5 border border-white/10 text-primary">
                             {index + 1}º
                           </span>
                           <div className="flex flex-col gap-0.5">
@@ -621,7 +621,7 @@ export default function GeminiKeysAdminPage() {
                         <div className="font-bold text-white flex items-center gap-2">
                           <span>{k.name}</span>
                           {index === 0 && (
-                            <span className="rounded bg-emerald-400/20 border border-emerald-400/30 px-1.5 py-0.2 text-[9px] font-bold text-emerald-300">
+                            <span className="rounded bg-primary/20 border border-primary/30 px-1.5 py-0.2 text-[9px] font-bold text-primary">
                               PRINCIPAL
                             </span>
                           )}
@@ -664,7 +664,7 @@ export default function GeminiKeysAdminPage() {
 
                       {/* Sucessos / Falhas */}
                       <td className="p-3.5 text-right font-mono text-[11px]">
-                        <span className="text-emerald-400 font-bold">{k.successCount}</span>
+                        <span className="text-primary font-bold">{k.successCount}</span>
                         <span className="text-white/30 mx-1">/</span>
                         <span className={k.failuresCount > 0 ? "text-rose-400 font-bold" : "text-white/40"}>
                           {k.failuresCount}
@@ -687,7 +687,7 @@ export default function GeminiKeysAdminPage() {
                           <button
                             onClick={() => handleTestKey(k.id)}
                             disabled={testingKeyId === k.id}
-                            className="rounded-lg bg-emerald-500/10 border border-emerald-500/20 px-2.5 py-1 text-[11px] font-semibold text-emerald-300 hover:bg-emerald-500/20 transition"
+                            className="rounded-lg bg-primary/10 border border-primary/20 px-2.5 py-1 text-[11px] font-semibold text-primary hover:bg-primary/20 transition"
                             title="Testar requisição ao vivo no Gemini"
                           >
                             {testingKeyId === k.id ? "Testando..." : "⚡ Testar"}
@@ -879,7 +879,7 @@ export default function GeminiKeysAdminPage() {
               <button
                 type="submit"
                 disabled={savingSettings}
-                className="rounded-xl bg-emerald-400 px-5 py-2 text-xs font-bold text-black hover:bg-emerald-300 transition"
+                className="rounded-xl bg-primary px-5 py-2 text-xs font-bold text-on-primary hover:opacity-90 transition"
               >
                 {savingSettings ? "Salvando..." : "Salvar Configurações"}
               </button>
@@ -947,7 +947,7 @@ export default function GeminiKeysAdminPage() {
 
                       <td className="p-3.5 text-center">
                         {log.usedFallback ? (
-                          <span className="rounded bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 px-2 py-0.5 text-[10px] font-bold">
+                          <span className="rounded bg-primary/20 text-primary border border-primary/40 px-2 py-0.5 text-[10px] font-bold">
                             SIM (Resgatado)
                           </span>
                         ) : (
@@ -961,7 +961,7 @@ export default function GeminiKeysAdminPage() {
 
                       <td className="p-3.5 text-center">
                         {log.success ? (
-                          <span className="rounded bg-emerald-500/20 text-emerald-300 px-2 py-0.5 text-[10px] font-bold">
+                          <span className="rounded bg-primary/20 text-primary px-2 py-0.5 text-[10px] font-bold">
                             SUCESSO
                           </span>
                         ) : (
@@ -1101,7 +1101,7 @@ export default function GeminiKeysAdminPage() {
                 <button
                   type="submit"
                   disabled={savingKey}
-                  className="rounded-xl bg-emerald-400 px-5 py-2 font-bold text-black hover:bg-emerald-300 transition"
+                  className="rounded-xl bg-primary px-5 py-2 font-bold text-on-primary hover:opacity-90 transition"
                 >
                   {savingKey ? "Salvando..." : editingKey ? "Salvar Alterações" : "Cadastrar Chave"}
                 </button>

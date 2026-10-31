@@ -502,7 +502,7 @@ export function QuickCreationBar({
                       onMouseEnter={() => setMentionState((prev) => ({ ...prev, selectedIndex: idx }))}
                       className={`flex items-center gap-2 rounded-lg px-2.5 py-1.5 text-xs text-left transition ${
                         isSelected
-                          ? "bg-primary text-primary-foreground font-semibold"
+                          ? "bg-primary text-on-primary font-semibold"
                           : "text-white/80 hover:bg-white/5"
                       }`}
                     >
@@ -528,7 +528,7 @@ export function QuickCreationBar({
                     onClick={() => setContentType(opt.id as any)}
                     className={`flex items-center gap-1.5 rounded-lg px-2.5 py-1 text-xs font-semibold transition ${
                       isActive
-                        ? "bg-primary text-primary-foreground shadow-sm shadow-primary/25"
+                        ? "bg-primary text-on-primary shadow-sm shadow-primary/25"
                         : "text-white/60 hover:bg-white/5 hover:text-white"
                     }`}
                   >
@@ -605,7 +605,7 @@ export function QuickCreationBar({
               {selectedReferences.environments.map((e) => (
                 <span
                   key={e.id}
-                  className="inline-flex items-center gap-1 rounded-md bg-emerald-500/10 border border-emerald-500/30 px-2 py-0.5 text-[11px] font-medium text-emerald-300"
+                  className="inline-flex items-center gap-1 rounded-md bg-primary/10 border border-primary/30 px-2 py-0.5 text-[11px] font-medium text-primary"
                 >
                   <span>🏙️ #{e.name}</span>
                   <button
@@ -672,7 +672,7 @@ export function QuickCreationBar({
               <button
                 type="submit"
                 disabled={loading || !prompt.trim()}
-                className="flex items-center justify-center gap-1.5 rounded-xl bg-primary px-4 py-2.5 text-xs sm:text-sm font-bold text-primary-foreground transition hover:opacity-95 disabled:opacity-40 flex-shrink-0 shadow-lg shadow-primary/20"
+                className="flex items-center justify-center gap-1.5 rounded-xl bg-primary px-4 py-2.5 text-xs sm:text-sm font-bold text-on-primary transition hover:opacity-95 disabled:opacity-40 flex-shrink-0 shadow-lg shadow-primary/20"
               >
                 {loading ? (
                   <>

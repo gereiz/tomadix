@@ -45,7 +45,7 @@ export default function PrivacyPage() {
       <main className="flex-1 w-full px-4 sm:px-6 lg:px-8 py-12">
         <div className="rounded-2xl border border-white/10 bg-[#0d111c] p-8 md:p-12 space-y-8">
           <div className="border-b border-white/10 pb-6">
-            <span className="text-xs font-mono font-semibold text-emerald-400 tracking-wider uppercase">
+            <span className="text-xs font-mono font-semibold text-primary tracking-wider uppercase">
               Privacidade e Proteção de Dados (LGPD)
             </span>
             <h1 className="text-3xl font-extrabold text-white tracking-tight mt-1">
@@ -121,9 +121,9 @@ export default function PrivacyPage() {
           </section>
 
           {/* Interactive DSR Form */}
-          <section className="rounded-2xl border border-emerald-500/30 bg-emerald-950/15 p-6 space-y-4">
+          <section className="rounded-2xl border border-primary/30 bg-primary/15 p-6 space-y-4">
             <div>
-              <h2 className="text-base font-bold text-emerald-300">
+              <h2 className="text-base font-bold text-primary">
                 Canal de Atendimento ao Titular (DSAR - LGPD)
               </h2>
               <p className="text-xs text-white/70 mt-1">
@@ -135,7 +135,7 @@ export default function PrivacyPage() {
               <div
                 className={`p-3.5 rounded-xl text-xs ${
                   resultMessage.type === "success"
-                    ? "bg-emerald-500/20 border border-emerald-500/40 text-emerald-200"
+                    ? "bg-primary/20 border border-primary/40 text-primary"
                     : "bg-rose-500/20 border border-rose-500/40 text-rose-200"
                 }`}
               >
@@ -153,7 +153,7 @@ export default function PrivacyPage() {
                     placeholder="exemplo@estudio.com"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
-                    className="w-full rounded-xl border border-white/10 bg-white/5 p-2.5 text-white focus:border-emerald-400 focus:outline-none"
+                    className="w-full rounded-xl border border-white/10 bg-white/5 p-2.5 text-white focus:border-primary focus:outline-none"
                   />
                 </div>
 
@@ -162,7 +162,7 @@ export default function PrivacyPage() {
                   <select
                     value={requestType}
                     onChange={(e) => setRequestType(e.target.value)}
-                    className="w-full rounded-xl border border-white/10 bg-white/5 p-2.5 text-white focus:border-emerald-400 focus:outline-none"
+                    className="w-full rounded-xl border border-white/10 bg-white/5 p-2.5 text-white focus:border-primary focus:outline-none"
                   >
                     <option value="ACCESS">Acesso / Confirmação de Tratamento</option>
                     <option value="RECTIFICATION">Correção de Dados Cadastrais</option>
@@ -180,7 +180,7 @@ export default function PrivacyPage() {
                   placeholder="Descreva detalhes específicos da sua solicitação..."
                   value={details}
                   onChange={(e) => setDetails(e.target.value)}
-                  className="w-full rounded-xl border border-white/10 bg-white/5 p-2.5 text-white placeholder-white/30 focus:border-emerald-400 focus:outline-none"
+                  className="w-full rounded-xl border border-white/10 bg-white/5 p-2.5 text-white placeholder-white/30 focus:border-primary focus:outline-none"
                 />
               </div>
 
@@ -188,7 +188,7 @@ export default function PrivacyPage() {
                 <button
                   type="submit"
                   disabled={submitting || !email}
-                  className="rounded-xl bg-emerald-400 px-5 py-2.5 text-xs font-bold text-black hover:bg-emerald-300 disabled:opacity-40 transition"
+                  className="rounded-xl bg-primary px-5 py-2.5 text-xs font-bold text-on-primary hover:opacity-90 disabled:opacity-40 transition shadow-md shadow-primary/20"
                 >
                   {submitting ? "Protocolando..." : "Protocolar Solicitação LGPD"}
                 </button>

@@ -153,7 +153,7 @@ export default function AcceptInvitePage({
     return (
       <div className="min-h-screen bg-[#07090e] px-6 py-20 flex items-center justify-center text-white">
         <div className="mx-auto max-w-md text-center space-y-4">
-          <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-emerald-500/10 border border-emerald-500/30 text-2xl">
+          <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-primary/10 border border-primary/30 text-2xl">
             🎉
           </div>
           <h1 className="text-2xl font-bold">Convite Aceito!</h1>
@@ -170,12 +170,12 @@ export default function AcceptInvitePage({
   return (
     <div className="min-h-screen bg-[#07090e] px-6 py-20 flex items-center justify-center text-white">
       <div className="mx-auto max-w-md w-full rounded-2xl border border-white/15 bg-white/[0.02] p-8 backdrop-blur-md shadow-2xl text-center space-y-6">
-        <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-2xl bg-emerald-400/10 border border-emerald-400/30 text-3xl">
+        <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-2xl bg-primary/10 border border-primary/30 text-3xl">
           🎬
         </div>
 
         <div className="space-y-2">
-          <span className="text-[10px] font-bold uppercase tracking-wider text-emerald-400">
+          <span className="text-[10px] font-bold uppercase tracking-wider text-primary">
             Convite para Colaboração
           </span>
           <h1 className="text-2xl font-extrabold tracking-tight">
@@ -194,7 +194,7 @@ export default function AcceptInvitePage({
           </div>
           <div className="flex justify-between text-white/60">
             <span>Papel Atribuído:</span>
-            <span className="text-emerald-400 font-bold uppercase">{invite.role}</span>
+            <span className="text-primary font-bold uppercase">{invite.role}</span>
           </div>
           <div className="flex justify-between text-white/60">
             <span>Expiração do Convite:</span>
@@ -216,7 +216,7 @@ export default function AcceptInvitePage({
               <button
                 onClick={handleAccept}
                 disabled={actionLoading}
-                className="w-full rounded-xl bg-emerald-400 py-3 text-sm font-bold text-black transition hover:bg-emerald-300 disabled:opacity-50"
+                className="w-full rounded-xl bg-primary py-3 text-sm font-bold text-on-primary transition hover:opacity-90 disabled:opacity-50 shadow-md shadow-primary/20"
               >
                 {actionLoading ? "Aceitando..." : "Aceitar Convite e Entrar"}
               </button>
@@ -235,7 +235,7 @@ export default function AcceptInvitePage({
               </p>
               <Link
                 href={`/login?redirect=/invite/${token}`}
-                className="block w-full rounded-xl bg-emerald-400 py-3 text-sm font-bold text-black transition hover:bg-emerald-300"
+                className="block w-full rounded-xl bg-primary py-3 text-sm font-bold text-on-primary transition hover:opacity-90 shadow-md shadow-primary/20"
               >
                 Fazer Login para Aceitar
               </Link>

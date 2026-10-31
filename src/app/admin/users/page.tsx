@@ -314,7 +314,7 @@ export default function AdminUsersPage() {
         <div
           className={`p-4 rounded-xl text-xs flex justify-between items-center ${
             notification.type === "success"
-              ? "bg-emerald-950/40 border border-emerald-500/30 text-emerald-300"
+              ? "bg-primary/40 border border-primary/30 text-primary"
               : "bg-rose-950/40 border border-rose-500/30 text-rose-300"
           }`}
         >
@@ -433,7 +433,7 @@ export default function AdminUsersPage() {
                         {primaryWs ? (
                           <div className="flex items-center gap-2">
                             <span className="text-white/80">{primaryWs.name}</span>
-                            <span className="rounded bg-emerald-500/10 px-1.5 py-0.5 text-[10px] text-emerald-400 font-mono">
+                            <span className="rounded bg-primary/10 px-1.5 py-0.5 text-[10px] text-primary font-mono">
                               {primaryWs.creditsBalance} cr
                             </span>
                             {primaryWs.subscription && (
@@ -460,7 +460,7 @@ export default function AdminUsersPage() {
                             )}
                           </div>
                         ) : (
-                          <span className="rounded bg-emerald-500/10 border border-emerald-500/30 px-2 py-0.5 text-[10px] text-emerald-400 font-semibold">
+                          <span className="rounded bg-primary/10 border border-primary/30 px-2 py-0.5 text-[10px] text-primary font-semibold">
                             ATIVO
                           </span>
                         )}
@@ -503,7 +503,7 @@ export default function AdminUsersPage() {
                                 userEmail: u.email,
                               })
                             }
-                            className="rounded-lg border border-emerald-500/30 bg-emerald-500/10 px-2 py-1 text-[11px] text-emerald-300 hover:bg-emerald-500/20 transition"
+                            className="rounded-lg border border-primary/30 bg-primary/10 px-2 py-1 text-[11px] text-primary hover:bg-primary/20 transition"
                             title="Ajustar créditos do estúdio"
                           >
                             + Créditos
@@ -513,7 +513,7 @@ export default function AdminUsersPage() {
                         {u.isSuspended ? (
                           <button
                             onClick={() => handleReactivate(u)}
-                            className="rounded-lg border border-emerald-500/30 bg-emerald-500/10 px-2.5 py-1 text-[11px] text-emerald-300 hover:bg-emerald-500/20 font-semibold transition"
+                            className="rounded-lg border border-primary/30 bg-primary/10 px-2.5 py-1 text-[11px] text-primary hover:bg-primary/20 font-semibold transition"
                           >
                             Reativar
                           </button>
@@ -600,7 +600,7 @@ export default function AdminUsersPage() {
                   </div>
                   <div className="rounded-xl border border-white/10 bg-white/5 p-3">
                     <span className="text-white/40">Sessões Ativas</span>
-                    <p className="text-lg font-bold text-emerald-400 mt-1">{userDetails.metrics.activeSessionsCount}</p>
+                    <p className="text-lg font-bold text-primary mt-1">{userDetails.metrics.activeSessionsCount}</p>
                   </div>
                 </div>
 
@@ -642,7 +642,7 @@ export default function AdminUsersPage() {
                         onClick={() => setEditEmailConfirmed(!editEmailConfirmed)}
                         className={`w-full rounded-xl border px-3 py-2 text-xs font-semibold transition ${
                           editEmailConfirmed
-                            ? "bg-emerald-500/20 border-emerald-500/40 text-emerald-300"
+                            ? "bg-primary/20 border-primary/40 text-primary"
                             : "bg-rose-500/20 border-rose-500/40 text-rose-300"
                         }`}
                       >
@@ -726,7 +726,7 @@ export default function AdminUsersPage() {
                             Papel: {m.role} | Plano: {m.workspace.subscription?.planTier || "FREE"}
                           </div>
                         </div>
-                        <span className="rounded bg-emerald-500/10 border border-emerald-500/20 px-2 py-0.5 text-emerald-400 font-mono">
+                        <span className="rounded bg-primary/10 border border-primary/20 px-2 py-0.5 text-primary font-mono">
                           {m.workspace.creditsBalance} créditos
                         </span>
                       </div>
@@ -902,8 +902,8 @@ export default function AdminUsersPage() {
       {/* Modal: Ajustar Créditos */}
       {creditTarget && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4">
-          <div className="max-w-md w-full rounded-2xl border border-emerald-500/30 bg-[#0c1410] p-6 space-y-4">
-            <h3 className="text-base font-bold text-emerald-300">Ajuste de Créditos no Estúdio</h3>
+          <div className="max-w-md w-full rounded-2xl border border-primary/30 bg-[#0c1410] p-6 space-y-4">
+            <h3 className="text-base font-bold text-primary">Ajuste de Créditos no Estúdio</h3>
             <p className="text-xs text-white/70 leading-relaxed">
               Ajustando saldo de créditos para o estúdio{" "}
               <strong className="text-white">{creditTarget.workspaceName}</strong> ({creditTarget.userEmail}).
@@ -917,7 +917,7 @@ export default function AdminUsersPage() {
                 type="number"
                 value={creditAmount}
                 onChange={(e) => setCreditAmount(parseInt(e.target.value, 10) || 0)}
-                className="w-full rounded-xl border border-white/10 bg-white/5 p-2.5 text-xs text-white focus:border-emerald-400 focus:outline-none"
+                className="w-full rounded-xl border border-white/10 bg-white/5 p-2.5 text-xs text-white focus:border-primary focus:outline-none"
               />
             </div>
 
@@ -930,7 +930,7 @@ export default function AdminUsersPage() {
                 placeholder="Ex: Bonificação promocional, compensação por instabilidade..."
                 value={creditReason}
                 onChange={(e) => setCreditReason(e.target.value)}
-                className="w-full rounded-xl border border-white/10 bg-white/5 p-2.5 text-xs text-white placeholder-white/30 focus:border-emerald-400 focus:outline-none"
+                className="w-full rounded-xl border border-white/10 bg-white/5 p-2.5 text-xs text-white placeholder-white/30 focus:border-primary focus:outline-none"
               />
             </div>
 
@@ -947,7 +947,7 @@ export default function AdminUsersPage() {
               <button
                 disabled={adjustingCredit || !creditReason.trim() || creditAmount === 0}
                 onClick={handleAdjustCredits}
-                className="rounded-xl bg-emerald-500 px-4 py-2 text-xs font-bold text-black hover:bg-emerald-400 disabled:opacity-40"
+                className="rounded-xl bg-primary px-4 py-2 text-xs font-bold text-black hover:bg-primary-fixed disabled:opacity-40"
               >
                 {adjustingCredit ? "Aplicando..." : "Aplicar Ajuste"}
               </button>

@@ -156,13 +156,13 @@ export default function PricingPage() {
     <div className="min-h-screen bg-[#07090e] text-white">
       {/* Background gradients */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute -top-40 left-1/2 -translate-x-1/2 w-[900px] h-[500px] bg-gradient-to-b from-emerald-500/10 via-emerald-600/5 to-transparent blur-3xl" />
+        <div className="absolute -top-40 left-1/2 -translate-x-1/2 w-[900px] h-[500px] bg-gradient-to-b from-primary/10 via-primary/5 to-transparent blur-3xl" />
       </div>
 
       <div className="relative w-full px-4 sm:px-6 lg:px-8 py-16 sm:py-24">
         {/* Header */}
         <div className="text-center max-w-3xl mx-auto space-y-4">
-          <div className="inline-flex items-center gap-2 rounded-full border border-emerald-400/30 bg-emerald-400/10 px-3 py-1 text-xs font-semibold text-emerald-300">
+          <div className="inline-flex items-center gap-2 rounded-full border border-primary/30 bg-primary/10 px-3 py-1 text-xs font-semibold text-primary">
             <span>🎬</span> Planos Comerciais Transparentes
           </div>
           <h1 className="text-4xl sm:text-5xl font-extrabold tracking-tight">
@@ -188,7 +188,7 @@ export default function PricingPage() {
               type="button"
               onClick={() => setInterval(interval === "MONTHLY" ? "YEARLY" : "MONTHLY")}
               className={`relative inline-flex h-7 w-14 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none ${
-                interval === "YEARLY" ? "bg-emerald-400" : "bg-white/20"
+                interval === "YEARLY" ? "bg-primary" : "bg-white/20"
               }`}
             >
               <span
@@ -205,7 +205,7 @@ export default function PricingPage() {
               onClick={() => setInterval("YEARLY")}
             >
               Cobrança Anual
-              <span className="rounded-full bg-emerald-400/20 border border-emerald-400/40 px-2 py-0.5 text-[10px] font-bold text-emerald-300">
+              <span className="rounded-full bg-primary/20 border border-primary/40 px-2 py-0.5 text-[10px] font-bold text-primary">
                 17% OFF (2 meses grátis)
               </span>
             </span>
@@ -217,7 +217,7 @@ export default function PricingPage() {
           <div
             className={`mt-8 mx-auto max-w-xl rounded-xl p-4 text-center text-sm font-medium ${
               message.type === "success"
-                ? "bg-emerald-950/60 border border-emerald-500/40 text-emerald-300"
+                ? "bg-primary/20 border border-primary/40 text-primary"
                 : "bg-red-950/60 border border-red-500/40 text-red-300"
             }`}
           >
@@ -246,12 +246,12 @@ export default function PricingPage() {
                   key={plan.tier}
                   className={`relative flex flex-col justify-between rounded-2xl border p-8 transition duration-200 backdrop-blur-sm ${
                     isPopular
-                      ? "border-emerald-400/60 bg-gradient-to-b from-emerald-950/40 via-white/[0.03] to-transparent shadow-xl shadow-emerald-500/10 ring-1 ring-emerald-400/30"
+                      ? "border-primary/60 bg-gradient-to-b from-primary/15 via-white/[0.03] to-transparent shadow-xl shadow-primary/10 ring-1 ring-primary/30"
                       : "border-white/10 bg-white/[0.02] hover:border-white/20"
                   }`}
                 >
                   {badgeText && (
-                    <div className="absolute -top-3.5 left-1/2 -translate-x-1/2 rounded-full bg-emerald-400 px-3.5 py-1 text-xs font-bold text-black uppercase tracking-wider">
+                    <div className="absolute -top-3.5 left-1/2 -translate-x-1/2 rounded-full bg-primary px-3.5 py-1 text-xs font-bold text-on-primary uppercase tracking-wider shadow-md shadow-primary/30">
                       {badgeText}
                     </div>
                   )}
@@ -261,7 +261,7 @@ export default function PricingPage() {
                     <div className="flex items-center justify-between">
                       <h3 className="text-xl font-bold tracking-tight text-white">{plan.name}</h3>
                       {isCurrent && (
-                        <span className="rounded-md bg-emerald-400/20 border border-emerald-400/40 px-2.5 py-0.5 text-xs font-semibold text-emerald-300">
+                        <span className="rounded-md bg-primary/20 border border-primary/40 px-2.5 py-0.5 text-xs font-semibold text-primary">
                           Seu Plano Atual
                         </span>
                       )}
@@ -278,7 +278,7 @@ export default function PricingPage() {
                       )}
                     </div>
                     {interval === "YEARLY" && plan.priceMonthly > 0 && (
-                      <p className="mt-1 text-xs text-emerald-400/80">
+                      <p className="mt-1 text-xs text-primary/80">
                         Cobrado {formatPrice(plan.priceYearly)} anualmente
                       </p>
                     )}
@@ -313,8 +313,8 @@ export default function PricingPage() {
                       </div>
                       {(plan.dailyCredits || 0) > 0 && (
                         <div className="flex items-center justify-between">
-                          <span className="text-emerald-400">Cota Diária de Créditos:</span>
-                          <span className="font-semibold text-emerald-400 font-mono">
+                          <span className="text-primary">Cota Diária de Créditos:</span>
+                          <span className="font-semibold text-primary font-mono">
                             +{plan.dailyCredits} cr/dia
                             <span className="text-[10px] text-white/40 block text-right font-normal">
                               {plan.dailyCreditsAccumulative ? "acumulativo" : "expira às 23:59"}
@@ -378,7 +378,7 @@ export default function PricingPage() {
                       {plan.features.map((feat, idx) => (
                         <li key={idx} className="flex items-start gap-2.5">
                           <svg
-                            className="h-4 w-4 shrink-0 text-emerald-400 mt-0.5"
+                            className="h-4 w-4 shrink-0 text-primary mt-0.5"
                             fill="none"
                             viewBox="0 0 24 24"
                             strokeWidth="2.5"
@@ -411,7 +411,7 @@ export default function PricingPage() {
                         disabled={checkoutLoading !== null}
                         className={`w-full rounded-xl py-3 text-sm font-semibold transition ${
                           isPopular
-                            ? "bg-emerald-400 text-black hover:bg-emerald-300 shadow-lg shadow-emerald-500/20"
+                            ? "bg-primary text-on-primary hover:opacity-90 shadow-lg shadow-primary/20"
                             : "bg-white/10 text-white hover:bg-white/20 border border-white/15"
                         } disabled:opacity-50`}
                       >
@@ -445,7 +445,7 @@ export default function PricingPage() {
                   <th className="px-6 py-4">Recurso / Limite</th>
                   <th className="px-6 py-4 text-center">Free</th>
                   <th className="px-6 py-4 text-center">Pro</th>
-                  <th className="px-6 py-4 text-center text-emerald-400">Team</th>
+                  <th className="px-6 py-4 text-center text-primary">Team</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-white/5">
@@ -453,13 +453,13 @@ export default function PricingPage() {
                   <td className="px-6 py-4 font-medium text-white">Projetos Simultâneos</td>
                   <td className="px-6 py-4 text-center">2 projetos</td>
                   <td className="px-6 py-4 text-center">20 projetos</td>
-                  <td className="px-6 py-4 text-center font-bold text-emerald-400">Ilimitados</td>
+                  <td className="px-6 py-4 text-center font-bold text-primary">Ilimitados</td>
                 </tr>
                 <tr>
                   <td className="px-6 py-4 font-medium text-white">Membros no Workspace</td>
                   <td className="px-6 py-4 text-center">1 membro</td>
                   <td className="px-6 py-4 text-center">Até 3 membros</td>
-                  <td className="px-6 py-4 text-center font-bold text-emerald-400">Até 10 membros</td>
+                  <td className="px-6 py-4 text-center font-bold text-primary">Até 10 membros</td>
                 </tr>
                 <tr>
                   <td className="px-6 py-4 font-medium text-white">Créditos de Adesão (Boas-vindas)</td>
@@ -471,43 +471,43 @@ export default function PricingPage() {
                   <td className="px-6 py-4 font-medium text-white">Créditos de IA Mensais de Ciclo</td>
                   <td className="px-6 py-4 text-center">20 créditos</td>
                   <td className="px-6 py-4 text-center">500 créditos</td>
-                  <td className="px-6 py-4 text-center font-bold text-emerald-400">2.500 créditos</td>
+                  <td className="px-6 py-4 text-center font-bold text-primary">2.500 créditos</td>
                 </tr>
                 <tr>
                   <td className="px-6 py-4 font-medium text-white">Cota Diária de Créditos</td>
                   <td className="px-6 py-4 text-center text-white/40">0 cr/dia</td>
-                  <td className="px-6 py-4 text-center text-emerald-400">10 cr/dia</td>
-                  <td className="px-6 py-4 text-center font-bold text-emerald-400">50 cr/dia</td>
+                  <td className="px-6 py-4 text-center text-primary">10 cr/dia</td>
+                  <td className="px-6 py-4 text-center font-bold text-primary">50 cr/dia</td>
                 </tr>
                 <tr>
                   <td className="px-6 py-4 font-medium text-white">Acúmulo de Cota Diária</td>
                   <td className="px-6 py-4 text-center text-white/40">—</td>
-                  <td className="px-6 py-4 text-center text-emerald-400">Acumulativo</td>
-                  <td className="px-6 py-4 text-center font-bold text-emerald-400">Acumulativo</td>
+                  <td className="px-6 py-4 text-center text-primary">Acumulativo</td>
+                  <td className="px-6 py-4 text-center font-bold text-primary">Acumulativo</td>
                 </tr>
                 <tr>
                   <td className="px-6 py-4 font-medium text-white">Templates Cinematográficos</td>
                   <td className="px-6 py-4 text-center">Básicos</td>
                   <td className="px-6 py-4 text-center">Completos</td>
-                  <td className="px-6 py-4 text-center font-bold text-emerald-400">Completos + Customizados</td>
+                  <td className="px-6 py-4 text-center font-bold text-primary">Completos + Customizados</td>
                 </tr>
                 <tr>
                   <td className="px-6 py-4 font-medium text-white">Bíblia Visual Avançada</td>
                   <td className="px-6 py-4 text-center text-white/30">—</td>
-                  <td className="px-6 py-4 text-center text-emerald-400">✓</td>
-                  <td className="px-6 py-4 text-center text-emerald-400">✓</td>
+                  <td className="px-6 py-4 text-center text-primary">✓</td>
+                  <td className="px-6 py-4 text-center text-primary">✓</td>
                 </tr>
                 <tr>
                   <td className="px-6 py-4 font-medium text-white">Exportação Multi-formato (JSON, CSV, PDF)</td>
                   <td className="px-6 py-4 text-center text-white/30">Apenas JSON</td>
-                  <td className="px-6 py-4 text-center text-emerald-400">✓</td>
-                  <td className="px-6 py-4 text-center text-emerald-400">✓</td>
+                  <td className="px-6 py-4 text-center text-primary">✓</td>
+                  <td className="px-6 py-4 text-center text-primary">✓</td>
                 </tr>
                 <tr>
                   <td className="px-6 py-4 font-medium text-white">Trilha de Auditoria & RBAC</td>
                   <td className="px-6 py-4 text-center text-white/30">—</td>
                   <td className="px-6 py-4 text-center text-white/30">—</td>
-                  <td className="px-6 py-4 text-center text-emerald-400">✓</td>
+                  <td className="px-6 py-4 text-center text-primary">✓</td>
                 </tr>
               </tbody>
             </table>

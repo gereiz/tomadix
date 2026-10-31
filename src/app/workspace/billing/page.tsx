@@ -173,7 +173,7 @@ export default function WorkspaceBillingPage() {
           <div
             className={`mt-6 rounded-xl p-4 text-sm font-medium ${
               message.type === "success"
-                ? "bg-emerald-950/60 border border-emerald-500/40 text-emerald-300"
+                ? "bg-primary/60 border border-primary/40 text-primary"
                 : "bg-red-950/60 border border-red-500/40 text-red-300"
             }`}
           >
@@ -221,7 +221,7 @@ export default function WorkspaceBillingPage() {
                   <span
                     className={`rounded-full px-2.5 py-0.5 text-xs font-bold ${
                       summary.status === "ACTIVE"
-                        ? "bg-emerald-400/20 text-emerald-300 border border-emerald-400/30"
+                        ? "bg-primary/20 text-primary border border-primary/30"
                         : summary.status === "PAST_DUE"
                         ? "bg-red-400/20 text-red-300 border border-red-400/30"
                         : "bg-amber-400/20 text-amber-300 border border-amber-400/30"
@@ -273,7 +273,7 @@ export default function WorkspaceBillingPage() {
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs text-white/80">
                 {summary.features.map((f, i) => (
                   <div key={i} className="flex items-center gap-2">
-                    <span className="text-emerald-400 font-bold">✓</span>
+                    <span className="text-primary font-bold">✓</span>
                     <span>{f}</span>
                   </div>
                 ))}
@@ -282,9 +282,9 @@ export default function WorkspaceBillingPage() {
           </div>
 
           {/* Quick Credit Counter Box */}
-          <div className="rounded-2xl border border-emerald-500/20 bg-gradient-to-b from-emerald-950/20 to-transparent p-6 flex flex-col justify-between">
+          <div className="rounded-2xl border border-primary/20 bg-gradient-to-b from-primary/10 to-transparent p-6 flex flex-col justify-between">
             <div>
-              <span className="text-xs uppercase tracking-wider text-emerald-400/80 font-semibold">
+              <span className="text-xs uppercase tracking-wider text-primary/80 font-semibold">
                 Saldo de Créditos IA
               </span>
               <div className="mt-2 text-4xl font-extrabold text-white">
@@ -296,7 +296,7 @@ export default function WorkspaceBillingPage() {
               </p>
             </div>
 
-            <div className="pt-6 border-t border-emerald-500/10">
+            <div className="pt-6 border-t border-primary/10">
               <div className="text-[11px] text-white/40 flex justify-between mb-1">
                 <span>Cota mensal do plano:</span>
                 <span className="font-semibold text-white">{summary.monthlyCredits} créditos</span>
@@ -324,7 +324,7 @@ export default function WorkspaceBillingPage() {
                   className={`h-full transition-all duration-300 ${
                     summary.maxProjects !== -1 && summary.projectsCount >= summary.maxProjects
                       ? "bg-red-400"
-                      : "bg-emerald-400"
+                      : "bg-primary"
                   }`}
                   style={{
                     width:
@@ -358,7 +358,7 @@ export default function WorkspaceBillingPage() {
                   className={`h-full transition-all duration-300 ${
                     summary.maxMembers !== -1 && summary.membersCount >= summary.maxMembers
                       ? "bg-amber-400"
-                      : "bg-emerald-400"
+                      : "bg-primary"
                   }`}
                   style={{
                     width:
@@ -408,7 +408,7 @@ export default function WorkspaceBillingPage() {
                         <span
                           className={`rounded px-2 py-0.5 text-[10px] font-bold uppercase ${
                             inv.status === "paid"
-                              ? "bg-emerald-400/20 text-emerald-300"
+                              ? "bg-primary/20 text-primary"
                               : "bg-red-400/20 text-red-300"
                           }`}
                         >
@@ -421,7 +421,7 @@ export default function WorkspaceBillingPage() {
                             href={inv.hostedInvoiceUrl}
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="text-emerald-400 hover:underline font-semibold"
+                            className="text-primary hover:underline font-semibold"
                           >
                             Abrir Fatura ↗
                           </a>

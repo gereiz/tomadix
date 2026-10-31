@@ -41,7 +41,7 @@ export default function AdminAuditPage() {
       return "bg-rose-500/15 text-rose-300 border-rose-500/30";
     }
     if (action.includes("REACTIVATE")) {
-      return "bg-emerald-500/15 text-emerald-300 border-emerald-500/30";
+      return "bg-primary/15 text-primary border-primary/30";
     }
     if (action.includes("CREDIT")) {
       return "bg-amber-500/15 text-amber-300 border-amber-500/30";
@@ -165,7 +165,7 @@ export default function AdminAuditPage() {
                       <span
                         className={`rounded px-1.5 py-0.5 text-[10px] font-semibold ${
                           log.result === "SUCCESS"
-                            ? "bg-emerald-500/10 text-emerald-400"
+                            ? "bg-primary/10 text-primary"
                             : "bg-rose-500/10 text-rose-300"
                         }`}
                       >
@@ -264,7 +264,7 @@ export default function AdminAuditPage() {
               <span className="text-white/60 block mb-1.5 font-semibold">
                 Carga de Dados Higienizada (JSON):
               </span>
-              <pre className="rounded-xl border border-white/10 bg-black/50 p-3 font-mono text-[11px] text-emerald-300 overflow-x-auto whitespace-pre-wrap">
+              <pre className="rounded-xl border border-white/10 bg-black/50 p-3 font-mono text-[11px] text-primary overflow-x-auto whitespace-pre-wrap">
                 {JSON.stringify(selectedLog.details, null, 2)}
               </pre>
             </div>
