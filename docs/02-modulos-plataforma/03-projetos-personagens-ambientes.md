@@ -53,5 +53,19 @@ O modelo `Project` centraliza a narrativa do estúdio:
 
 ### Bíblia Visual (`/api/projects/[id]/visual-bible`)
 - `POST /api/projects/[id]/visual-bible/generate`: Compilação e síntese estética completa da Bíblia Visual com IA (`GEN_VISUAL_BIBLE`), gerando conceito de direção de arte, paleta cromática, fotografia e lentes recomendadas.
+
+#### Regra Obrigatória de Pré-requisitos para Compilação da Bíblia Visual
+A Bíblia Visual não pode ser gerada com dados vazios ou incompletos. Para garantir a qualidade de estúdio e não desperdiçar créditos com gerações sem âncora estética, a aplicação e o backend impõem os seguintes **pré-requisitos essenciais**:
+1. **Título do Projeto**: Válido com ao menos 3 caracteres.
+2. **Premissa Dramática / Sinopse**: Preenchida com substância narrativa (mínimo de 10 caracteres).
+3. **Gênero Cinematográfico**: Especificado no projeto.
+4. **Ao menos 1 Personagem Ativo**: Cadastrado na aba de Personagens do projeto para ancorar a caracterização e figurino.
+5. **Ao menos 1 Ambiente / Locação Ativo**: Cadastrado na aba de Ambientes do projeto para ancorar a cenografia e atmosfera.
+
+Se qualquer requisito estiver pendente:
+- O botão "Gerar Bíblia Visual com IA" permanece bloqueado com indicação visual clara (`🔒`).
+- Um **Checklist de Prontidão** interativo exibe o status de cada item com botões de atalho rápido para preenchimento.
+- A API retorna HTTP 422 com o código `PREREQUISITES_NOT_MET` e lista de pendências sem deduzir créditos.
+
 - `POST /api/projects/[id]/environments/[environmentId]/duplicate`: Duplicação de ambiente.
 - `POST /api/projects/[id]/environments/[environmentId]/archive`: Arquivamento controlado.

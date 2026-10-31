@@ -99,6 +99,64 @@ export default function ProjectDetailPage({ params }: { params: Promise<{ id: st
   const [vbLoading, setVbLoading] = useState(false);
   const [vbError, setVbError] = useState<string | null>(null);
 
+  // Modal de Edição Rápida do Projeto (para preencher pré-requisitos)
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [editFormData, setEditFormData] = useState({
+    title: "",
+    description: "",
+    genre: "",
+    aspectRatio: "16:9",
+    colorGrade: "",
+  });
+  const [editSaving, setEditSaving] = useState(false);
+  const [editError, setEditError] = useState<string | null>(null);
+
+  const handleOpenEditProject = () => {
+    if (!project) return;
+    setEditFormData({
+      title: project.title || "",
+      description: project.description || "",
+      genre: project.genre || "Ficção Científica",
+      aspectRatio: project.configuration?.aspectRatio || "16:9",
+      colorGrade: project.configuration?.colorGrade || "",
+    });
+    setEditError(null);
+    setIsEditModalOpen(true);
+  };
+
+  const handleSaveProjectEdit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!project) return;
+    try {
+      setEditSaving(true);
+      setEditError(null);
+      const res = await fetch(`/api/projects/${project.id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          title: editFormData.title.trim(),
+          description: editFormData.description.trim(),
+          genre: editFormData.genre.trim(),
+          configuration: {
+            ...(project.configuration || {}),
+            aspectRatio: editFormData.aspectRatio,
+            colorGrade: editFormData.colorGrade.trim() || undefined,
+          },
+        }),
+      });
+      if (!res.ok) {
+        const d = await res.json().catch(() => ({}));
+        throw new Error(d.error || "Erro ao atualizar dados do projeto.");
+      }
+      setIsEditModalOpen(false);
+      await loadProject(true);
+    } catch (err: any) {
+      setEditError(err.message || "Erro ao salvar alterações.");
+    } finally {
+      setEditSaving(false);
+    }
+  };
+
   const handleSubmitVisualBible = async () => {
     try {
       setVbLoading(true);
@@ -486,88 +544,317 @@ export default function ProjectDetailPage({ params }: { params: Promise<{ id: st
             </div>
 
             {/* Bíblia Visual & Direção de Arte Estética (GEN_VISUAL_BIBLE) */}
-            <div className="rounded-3xl border border-white/10 bg-white/[0.02] p-6 md:p-8">
-              <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-white/10 pb-5">
-                <div>
-                  <h3 className="text-base font-bold text-white flex items-center gap-2">
-                    <span className="text-primary">✨</span> Bíblia Visual & Direção de Arte Estética
-                  </h3>
-                  <p className="mt-1 text-xs text-white/50">
-                    Guia mestre de fotografia, paleta cromática, enquadramento e textura cinematográfica.
-                  </p>
-                </div>
-                <button
-                  onClick={() => setVbModalOpen(true)}
-                  className="flex items-center gap-2 rounded-xl border border-primary/30 bg-primary/10 px-4 py-2 text-xs font-semibold text-primary hover:bg-primary/20 transition shadow-sm self-start md:self-auto"
-                >
-                  <span>✨</span>
-                  {project.visualBible ? "Atualizar com IA" : "Gerar Bíblia Visual com IA"}
-                </button>
-              </div>
+            {(() => {
+              const charCount = project._count?.characters ?? project.characters?.length ?? 0;
+              const envCount = project._count?.environments ?? project.environments?.length ?? 0;
+              const hasValidTitle = Boolean(project.title && project.title.trim().length >= 3);
+              const hasValidDesc = Boolean(project.description && project.description.trim().length >= 10);
+              const hasValidGenre = Boolean(project.genre && project.genre.trim().length > 0);
+              const hasValidChars = charCount >= 1;
+              const hasValidEnvs = envCount >= 1;
+              const isVbReady = hasValidTitle && hasValidDesc && hasValidGenre && hasValidChars && hasValidEnvs;
 
-              {project.visualBible ? (
-                <div className="mt-6 space-y-6">
-                  {/* Conceito de Direção de Arte */}
-                  <div className="rounded-2xl border border-white/5 bg-black/30 p-4">
-                    <span className="text-[10px] font-semibold uppercase tracking-wider text-primary">Conceito de Direção de Arte</span>
-                    <p className="mt-2 text-xs text-white/80 leading-relaxed">
-                      {project.visualBible.artDirectionConcept}
-                    </p>
+              return (
+                <div className="rounded-3xl border border-white/10 bg-white/[0.02] p-6 md:p-8">
+                  <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-white/10 pb-5">
+                    <div>
+                      <div className="flex items-center gap-2">
+                        <span className="text-primary text-base">✨</span>
+                        <h3 className="text-base font-bold text-white">
+                          Bíblia Visual & Direção de Arte Estética
+                        </h3>
+                        <span
+                          className={`rounded-full px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wider border ${
+                            isVbReady
+                              ? "bg-emerald-500/20 text-emerald-400 border-emerald-500/30"
+                              : "bg-amber-500/20 text-amber-400 border-amber-500/30"
+                          }`}
+                        >
+                          {isVbReady ? "✓ Pronta para Compilação" : "Pré-requisitos Pendentes"}
+                        </span>
+                      </div>
+                      <p className="mt-1 text-xs text-white/50">
+                        Guia mestre de fotografia, paleta cromática, enquadramento e textura cinematográfica.
+                      </p>
+                    </div>
+
+                    <button
+                      onClick={() => {
+                        if (!isVbReady) return;
+                        setVbModalOpen(true);
+                      }}
+                      disabled={!isVbReady}
+                      className={`flex items-center gap-2 rounded-xl px-4 py-2 text-xs font-semibold transition shadow-sm self-start md:self-auto ${
+                        isVbReady
+                          ? "border border-primary/40 bg-primary/20 text-primary hover:bg-primary/30 cursor-pointer"
+                          : "border border-white/10 bg-white/5 text-white/40 cursor-not-allowed"
+                      }`}
+                      title={
+                        isVbReady
+                          ? "Compilar Bíblia Visual com IA"
+                          : "Preencha todos os pré-requisitos essenciais abaixo para liberar a geração"
+                      }
+                    >
+                      <span>{isVbReady ? "✨" : "🔒"}</span>
+                      {project.visualBible ? "Atualizar com IA" : "Gerar Bíblia Visual com IA"}
+                    </button>
                   </div>
 
-                  <div className="grid gap-4 sm:grid-cols-3">
-                    {/* Paleta de Cores */}
-                    <div className="rounded-2xl border border-white/5 bg-black/30 p-4">
-                      <span className="text-[10px] font-semibold uppercase tracking-wider text-white/40">Paleta Cromática</span>
-                      <div className="mt-3 space-y-1.5 text-xs">
-                        <div className="text-white/80"><span className="text-white/40">Dominante:</span> {project.visualBible.colorPalette?.dominant}</div>
-                        <div className="text-white/80"><span className="text-white/40">Secundária:</span> {project.visualBible.colorPalette?.secondary}</div>
-                        <div className="text-white/80"><span className="text-white/40">Destaque:</span> {project.visualBible.colorPalette?.accent}</div>
-                        <p className="mt-2 text-[11px] text-white/50">{project.visualBible.colorPalette?.gradingNotes}</p>
+                  {/* Checklist de Pré-requisitos Obrigatórios */}
+                  <div
+                    className={`mt-5 rounded-2xl border p-4 transition ${
+                      isVbReady
+                        ? "border-emerald-500/20 bg-emerald-500/5"
+                        : "border-amber-500/20 bg-amber-500/5"
+                    }`}
+                  >
+                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-white/10 pb-3 mb-3">
+                      <div className="flex items-center gap-2">
+                        <span
+                          className={`h-2 w-2 rounded-full ${
+                            isVbReady ? "bg-emerald-400" : "bg-amber-400 animate-pulse"
+                          }`}
+                        />
+                        <span className="text-xs font-bold uppercase tracking-wider text-white">
+                          Checklist de Prontidão da Bíblia Visual
+                        </span>
                       </div>
+                      <span className="text-[11px] text-white/50">
+                        {isVbReady
+                          ? "Todos os dados essenciais preenchidos. Pronto para compilação."
+                          : "Complete os itens pendentes abaixo para liberar a compilação por IA:"}
+                      </span>
                     </div>
 
-                    {/* Cinematografia & Lentes */}
-                    <div className="rounded-2xl border border-white/5 bg-black/30 p-4">
-                      <span className="text-[10px] font-semibold uppercase tracking-wider text-white/40">Câmeras & Lentes</span>
-                      <div className="mt-3 space-y-1.5 text-xs text-white/80">
-                        <div><span className="text-white/40">Lentes:</span> {project.visualBible.cinematography?.recommendedLenses}</div>
-                        <div><span className="text-white/40">Movimento:</span> {project.visualBible.cinematography?.cameraMovementStyle}</div>
-                        <div><span className="text-white/40">Textura:</span> {project.visualBible.cinematography?.grainAndTexture}</div>
+                    <div className="grid gap-2.5 sm:grid-cols-2">
+                      {/* Requisito 1: Título e Sinopse */}
+                      <div
+                        className={`flex items-center justify-between rounded-xl border p-2.5 text-xs ${
+                          hasValidDesc
+                            ? "border-emerald-500/30 bg-emerald-500/10 text-emerald-300"
+                            : "border-amber-500/30 bg-amber-500/10 text-amber-200"
+                        }`}
+                      >
+                        <div className="flex items-center gap-2">
+                          <span className="font-bold">{hasValidDesc ? "✓" : "○"}</span>
+                          <div>
+                            <div className="font-semibold text-white">Premissa Dramática / Sinopse</div>
+                            <div className="text-[10px] text-white/60">
+                              {hasValidDesc
+                                ? `${project.description?.slice(0, 35)}...`
+                                : "Mínimo de 10 caracteres"}
+                            </div>
+                          </div>
+                        </div>
+                        {!hasValidDesc && (
+                          <button
+                            type="button"
+                            onClick={handleOpenEditProject}
+                            className="rounded-lg bg-amber-400/20 px-2 py-1 text-[10px] font-bold text-amber-300 hover:bg-amber-400/30 transition cursor-pointer"
+                          >
+                            Preencher
+                          </button>
+                        )}
                       </div>
-                    </div>
 
-                    {/* Filosofia de Iluminação */}
-                    <div className="rounded-2xl border border-white/5 bg-black/30 p-4">
-                      <span className="text-[10px] font-semibold uppercase tracking-wider text-white/40">Iluminação & Contraste</span>
-                      <div className="mt-3 space-y-1.5 text-xs text-white/80">
-                        <div><span className="text-white/40">Ratio:</span> {project.visualBible.lightingPhilosophy?.contrastRatio}</div>
-                        <div><span className="text-white/40">Luz Principal:</span> {project.visualBible.lightingPhilosophy?.keyLightStyle}</div>
-                        <div><span className="text-white/40">Sombras:</span> {project.visualBible.lightingPhilosophy?.shadowTreatment}</div>
+                      {/* Requisito 2: Gênero Cinematográfico */}
+                      <div
+                        className={`flex items-center justify-between rounded-xl border p-2.5 text-xs ${
+                          hasValidGenre
+                            ? "border-emerald-500/30 bg-emerald-500/10 text-emerald-300"
+                            : "border-amber-500/30 bg-amber-500/10 text-amber-200"
+                        }`}
+                      >
+                        <div className="flex items-center gap-2">
+                          <span className="font-bold">{hasValidGenre ? "✓" : "○"}</span>
+                          <div>
+                            <div className="font-semibold text-white">Gênero Cinematográfico</div>
+                            <div className="text-[10px] text-white/60">
+                              {hasValidGenre ? project.genre : "Não definido"}
+                            </div>
+                          </div>
+                        </div>
+                        {!hasValidGenre && (
+                          <button
+                            type="button"
+                            onClick={handleOpenEditProject}
+                            className="rounded-lg bg-amber-400/20 px-2 py-1 text-[10px] font-bold text-amber-300 hover:bg-amber-400/30 transition cursor-pointer"
+                          >
+                            Definir
+                          </button>
+                        )}
+                      </div>
+
+                      {/* Requisito 3: Ao menos 1 Personagem */}
+                      <div
+                        className={`flex items-center justify-between rounded-xl border p-2.5 text-xs ${
+                          hasValidChars
+                            ? "border-emerald-500/30 bg-emerald-500/10 text-emerald-300"
+                            : "border-amber-500/30 bg-amber-500/10 text-amber-200"
+                        }`}
+                      >
+                        <div className="flex items-center gap-2">
+                          <span className="font-bold">{hasValidChars ? "✓" : "○"}</span>
+                          <div>
+                            <div className="font-semibold text-white">Personagens Registrados</div>
+                            <div className="text-[10px] text-white/60">
+                              {hasValidChars ? `${charCount} personagem(ns) ativo(s)` : "Cadastre ao menos 1"}
+                            </div>
+                          </div>
+                        </div>
+                        {!hasValidChars && (
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setVisitedTabs((prev) => ({ ...prev, characters: true }));
+                              setActiveTab("characters");
+                            }}
+                            className="rounded-lg bg-amber-400/20 px-2 py-1 text-[10px] font-bold text-amber-300 hover:bg-amber-400/30 transition cursor-pointer"
+                          >
+                            Criar Personagem
+                          </button>
+                        )}
+                      </div>
+
+                      {/* Requisito 4: Ao menos 1 Ambiente */}
+                      <div
+                        className={`flex items-center justify-between rounded-xl border p-2.5 text-xs ${
+                          hasValidEnvs
+                            ? "border-emerald-500/30 bg-emerald-500/10 text-emerald-300"
+                            : "border-amber-500/30 bg-amber-500/10 text-amber-200"
+                        }`}
+                      >
+                        <div className="flex items-center gap-2">
+                          <span className="font-bold">{hasValidEnvs ? "✓" : "○"}</span>
+                          <div>
+                            <div className="font-semibold text-white">Locações / Ambientes</div>
+                            <div className="text-[10px] text-white/60">
+                              {hasValidEnvs ? `${envCount} ambiente(s) ativo(s)` : "Cadastre ao menos 1"}
+                            </div>
+                          </div>
+                        </div>
+                        {!hasValidEnvs && (
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setVisitedTabs((prev) => ({ ...prev, environments: true }));
+                              setActiveTab("environments");
+                            }}
+                            className="rounded-lg bg-amber-400/20 px-2 py-1 text-[10px] font-bold text-amber-300 hover:bg-amber-400/30 transition cursor-pointer"
+                          >
+                            Criar Ambiente
+                          </button>
+                        )}
                       </div>
                     </div>
                   </div>
 
-                  {/* Diretrizes Visuais */}
-                  {project.visualBible.visualDirectives?.length > 0 && (
-                    <div className="rounded-2xl border border-white/5 bg-black/30 p-4">
-                      <span className="text-[10px] font-semibold uppercase tracking-wider text-white/40">Diretrizes Estéticas Oficiais</span>
-                      <ul className="mt-2 space-y-1 text-xs text-white/70 list-disc list-inside">
-                        {project.visualBible.visualDirectives.map((d: string, idx: number) => (
-                          <li key={idx}>{d}</li>
-                        ))}
-                      </ul>
+                  {project.visualBible ? (
+                    <div className="mt-6 space-y-6">
+                      {/* Conceito de Direção de Arte */}
+                      <div className="rounded-2xl border border-white/5 bg-black/30 p-4">
+                        <span className="text-[10px] font-semibold uppercase tracking-wider text-primary">
+                          Conceito de Direção de Arte
+                        </span>
+                        <p className="mt-2 text-xs text-white/80 leading-relaxed">
+                          {project.visualBible.artDirectionConcept}
+                        </p>
+                      </div>
+
+                      <div className="grid gap-4 sm:grid-cols-3">
+                        {/* Paleta de Cores */}
+                        <div className="rounded-2xl border border-white/5 bg-black/30 p-4">
+                          <span className="text-[10px] font-semibold uppercase tracking-wider text-white/40">
+                            Paleta Cromática
+                          </span>
+                          <div className="mt-3 space-y-1.5 text-xs">
+                            <div className="text-white/80">
+                              <span className="text-white/40">Dominante:</span>{" "}
+                              {project.visualBible.colorPalette?.dominant}
+                            </div>
+                            <div className="text-white/80">
+                              <span className="text-white/40">Secundária:</span>{" "}
+                              {project.visualBible.colorPalette?.secondary}
+                            </div>
+                            <div className="text-white/80">
+                              <span className="text-white/40">Destaque:</span>{" "}
+                              {project.visualBible.colorPalette?.accent}
+                            </div>
+                            <p className="mt-2 text-[11px] text-white/50">
+                              {project.visualBible.colorPalette?.gradingNotes}
+                            </p>
+                          </div>
+                        </div>
+
+                        {/* Cinematografia & Lentes */}
+                        <div className="rounded-2xl border border-white/5 bg-black/30 p-4">
+                          <span className="text-[10px] font-semibold uppercase tracking-wider text-white/40">
+                            Câmeras & Lentes
+                          </span>
+                          <div className="mt-3 space-y-1.5 text-xs text-white/80">
+                            <div>
+                              <span className="text-white/40">Lentes:</span>{" "}
+                              {project.visualBible.cinematography?.recommendedLenses}
+                            </div>
+                            <div>
+                              <span className="text-white/40">Movimento:</span>{" "}
+                              {project.visualBible.cinematography?.cameraMovementStyle}
+                            </div>
+                            <div>
+                              <span className="text-white/40">Textura:</span>{" "}
+                              {project.visualBible.cinematography?.grainAndTexture}
+                            </div>
+                          </div>
+                        </div>
+
+                        {/* Filosofia de Iluminação */}
+                        <div className="rounded-2xl border border-white/5 bg-black/30 p-4">
+                          <span className="text-[10px] font-semibold uppercase tracking-wider text-white/40">
+                            Iluminação & Contraste
+                          </span>
+                          <div className="mt-3 space-y-1.5 text-xs text-white/80">
+                            <div>
+                              <span className="text-white/40">Ratio:</span>{" "}
+                              {project.visualBible.lightingPhilosophy?.contrastRatio}
+                            </div>
+                            <div>
+                              <span className="text-white/40">Luz Principal:</span>{" "}
+                              {project.visualBible.lightingPhilosophy?.keyLightStyle}
+                            </div>
+                            <div>
+                              <span className="text-white/40">Sombras:</span>{" "}
+                              {project.visualBible.lightingPhilosophy?.shadowTreatment}
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Diretrizes Visuais */}
+                      {project.visualBible.visualDirectives?.length > 0 && (
+                        <div className="rounded-2xl border border-white/5 bg-black/30 p-4">
+                          <span className="text-[10px] font-semibold uppercase tracking-wider text-white/40">
+                            Diretrizes Estéticas Oficiais
+                          </span>
+                          <ul className="mt-2 space-y-1 text-xs text-white/70 list-disc list-inside">
+                            {project.visualBible.visualDirectives.map((d: string, idx: number) => (
+                              <li key={idx}>{d}</li>
+                            ))}
+                          </ul>
+                        </div>
+                      )}
+                    </div>
+                  ) : (
+                    <div className="mt-6 rounded-2xl border border-dashed border-white/10 bg-white/[0.01] p-8 text-center">
+                      <p className="text-xs text-white/50">
+                        {isVbReady
+                          ? "Todos os pré-requisitos estão atendidos! Clique em 'Gerar Bíblia Visual com IA' para direcionar a estética cinematográfica de toda a produção."
+                          : "Preencha a premissa, gênero, ao menos 1 personagem e 1 ambiente para desbloquear a Bíblia Visual."}
+                      </p>
                     </div>
                   )}
                 </div>
-              ) : (
-                <div className="mt-6 rounded-2xl border border-dashed border-white/10 bg-white/[0.01] p-8 text-center">
-                  <p className="text-xs text-white/50">
-                    Nenhuma Bíblia Visual compilada para este projeto ainda. Gere agora com a IA para direcionar o estilo cinematográfico de todas as gerações.
-                  </p>
-                </div>
-              )}
-            </div>
+              );
+            })()}
           </div>
         </div>
 
@@ -701,6 +988,126 @@ export default function ProjectDetailPage({ params }: { params: Promise<{ id: st
                   </button>
                 </div>
               </div>
+            </div>
+          </div>
+        )}
+
+        {/* Modal de Edição Rápida do Projeto (Para preencher pré-requisitos) */}
+        {isEditModalOpen && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-md p-4">
+            <div className="w-full max-w-xl rounded-3xl border border-white/10 bg-[#0d111c] p-6 shadow-2xl space-y-4">
+              <div className="flex items-center justify-between border-b border-white/10 pb-4">
+                <div>
+                  <h3 className="text-base font-bold text-white">Editar Dados Essenciais do Projeto</h3>
+                  <p className="text-xs text-white/50 mt-0.5">
+                    Atualize os metadados cinematográficos para enriquecer o contexto e a Bíblia Visual.
+                  </p>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setIsEditModalOpen(false)}
+                  className="rounded-lg p-1.5 text-white/50 hover:bg-white/10 hover:text-white transition cursor-pointer"
+                >
+                  ✕
+                </button>
+              </div>
+
+              <form onSubmit={handleSaveProjectEdit} className="space-y-4">
+                <div>
+                  <label className="block text-xs font-semibold text-white/80 mb-1">
+                    Nome / Título do Projeto *
+                  </label>
+                  <input
+                    type="text"
+                    required
+                    value={editFormData.title}
+                    onChange={(e) => setEditFormData({ ...editFormData, title: e.target.value })}
+                    className="w-full rounded-xl border border-white/10 bg-black/60 px-3 py-2 text-xs text-white focus:border-primary focus:outline-none"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-xs font-semibold text-white/80 mb-1">
+                    Sinopse / Premissa Dramática * (Mínimo de 10 caracteres)
+                  </label>
+                  <textarea
+                    required
+                    rows={4}
+                    value={editFormData.description}
+                    onChange={(e) => setEditFormData({ ...editFormData, description: e.target.value })}
+                    placeholder="Descreva o enredo central, tema dramático, tom narrativo e atmosfera pretendida..."
+                    className="w-full rounded-xl border border-white/10 bg-black/60 p-3 text-xs text-white focus:border-primary focus:outline-none resize-none"
+                  />
+                </div>
+
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <label className="block text-xs font-semibold text-white/80 mb-1">
+                      Gênero Cinematográfico *
+                    </label>
+                    <input
+                      type="text"
+                      required
+                      value={editFormData.genre}
+                      onChange={(e) => setEditFormData({ ...editFormData, genre: e.target.value })}
+                      placeholder="Ex: Sci-Fi, Cyberpunk, Noir, Drama..."
+                      className="w-full rounded-xl border border-white/10 bg-black/60 px-3 py-2 text-xs text-white focus:border-primary focus:outline-none"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-semibold text-white/80 mb-1">
+                      Proporção de Tela (Aspect Ratio)
+                    </label>
+                    <select
+                      value={editFormData.aspectRatio}
+                      onChange={(e) => setEditFormData({ ...editFormData, aspectRatio: e.target.value })}
+                      className="w-full rounded-xl border border-white/10 bg-black/60 px-3 py-2 text-xs text-white focus:border-primary focus:outline-none cursor-pointer"
+                    >
+                      <option value="16:9">16:9 (Widescreen Padrão)</option>
+                      <option value="9:16">9:16 (Vertical / Reels / TikTok)</option>
+                      <option value="2.39:1">2.39:1 (Cinemascope Anamórfico)</option>
+                      <option value="4:3">4:3 (Academia / Retrô)</option>
+                      <option value="1:1">1:1 (Quadrado)</option>
+                    </select>
+                  </div>
+                </div>
+
+                <div>
+                  <label className="block text-xs font-semibold text-white/80 mb-1">
+                    Color Grading / Tratamento Cromático (Opcional)
+                  </label>
+                  <input
+                    type="text"
+                    value={editFormData.colorGrade}
+                    onChange={(e) => setEditFormData({ ...editFormData, colorGrade: e.target.value })}
+                    placeholder="Ex: Teal and Orange, Bleach Bypass, Monocromático de alto contraste..."
+                    className="w-full rounded-xl border border-white/10 bg-black/60 px-3 py-2 text-xs text-white focus:border-primary focus:outline-none"
+                  />
+                </div>
+
+                {editError && (
+                  <div className="rounded-xl border border-red-500/30 bg-red-500/10 p-3 text-xs text-red-300">
+                    {editError}
+                  </div>
+                )}
+
+                <div className="flex items-center justify-end gap-2 pt-3 border-t border-white/10">
+                  <button
+                    type="button"
+                    onClick={() => setIsEditModalOpen(false)}
+                    className="rounded-xl px-4 py-2 text-xs font-medium text-white/60 hover:bg-white/10 hover:text-white transition cursor-pointer"
+                  >
+                    Cancelar
+                  </button>
+                  <button
+                    type="submit"
+                    disabled={editSaving}
+                    className="rounded-xl bg-primary px-4 py-2 text-xs font-semibold text-primary-foreground hover:opacity-90 disabled:opacity-50 transition cursor-pointer"
+                  >
+                    {editSaving ? "Salvando..." : "Salvar Alterações"}
+                  </button>
+                </div>
+              </form>
             </div>
           </div>
         )}

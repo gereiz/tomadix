@@ -108,8 +108,30 @@ Este ciclo de melhorias e correções no **Tomadix** abordou problemas estrutura
 
 - **Compilação TypeScript:** `npx tsc --noEmit -p .` executado sem nenhum erro (`0 errors`).
 - **Testes Unitários Automatizados:**
+  - `tests/cinematic-creation-operations.test.ts`: 11/11 aprovados.
   - `tests/credit-execution-and-mentions.test.ts`: 3/3 aprovados.
   - `tests/theme-utils.test.ts`: 3/3 aprovados.
 - **Banco de Dados e Transações:** Proteção com transações atômicas garantindo integridade financeira e impedindo saldos negativos.
 - **Auditoria Administrativa:** Todas as ações de alteração de plano e créditos registram evento formal na tabela de auditoria.
+
+---
+
+## 4. Atualização: Parâmetros do Projeto e Bíblia Visual
+
+### 4.1 — Seleção e Restrição de Parâmetros por Projeto
+- **Modal Novo Projeto e Edição (`src/app/projects/page.tsx`)**: Substituição de campos de texto por uma interface moderna de seleção com checkboxes de todos os parâmetros ativos do estúdio (`studioParams`), filtros por escopo (`GLOBAL`, `CHARACTER`, `ENVIRONMENT`, `SCENE`) e botões rápidos "Selecionar Todos" e "Limpar".
+- **Isolamento de Parâmetros**: Gravado em `project.configuration.parameterSettings.enabledParameterKeys`.
+- **Propagação Estrita**: `ParameterService.resolveForProject` filtra as definições ativas com base nas chaves selecionadas. Ao criar/editar personagens, ambientes e cenas, apenas os parâmetros autorizados no projeto são disponibilizados.
+
+### 4.2 — Validação e Checklist de Pré-requisitos da Bíblia Visual
+- **Validação Servidor (`CinematicCreationService.generateVisualBible`)**: Bloqueio de execução com código HTTP 422 (`PREREQUISITES_NOT_MET`) sem dedução de créditos caso o projeto não atenda:
+  - Título válido ($\ge 3$ caracteres).
+  - Premissa dramática / sinopse detalhada ($\ge 10$ caracteres).
+  - Gênero cinematográfico definido.
+  - Ao menos 1 Personagem registrado (`_count.characters >= 1`).
+  - Ao menos 1 Ambiente registrado (`_count.environments >= 1`).
+- **Interface e Checklist Interativo (`src/app/projects/[id]/page.tsx`)**:
+  - Exibição de um painel de checklist de prontidão com status individual de cada pré-requisito.
+  - Botão "Gerar Bíblia Visual com IA" desabilitado (`🔒`) enquanto houver pendências.
+  - Botões de ação rápida para preencher premissa/gênero através de um novo modal de edição integrado ou alternar diretamente para as abas de Personagens e Ambientes.
 

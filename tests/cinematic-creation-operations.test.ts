@@ -141,5 +141,45 @@ describe("Cinematic Creation Operations & AI Schemas", () => {
       expect(result.result).toEqual({ shotsCreated: 3 });
     });
   });
+
+  describe("Visual Bible Prerequisites & Parameter Settings", () => {
+    it("validates that projectConfigurationSchema accepts parameterSettings.enabledParameterKeys", async () => {
+      const { projectConfigurationSchema } = await import("@/lib/schemas/project");
+      const parsed = projectConfigurationSchema.parse({
+        aspectRatio: "16:9",
+        parameterSettings: {
+          enabledParameterKeys: ["camera_lens", "lighting_style"],
+        },
+      });
+
+      expect(parsed.parameterSettings?.enabledParameterKeys).toEqual(["camera_lens", "lighting_style"]);
+    });
+
+    it("verifies that CinematicCreationService.generateVisualBible rejects execution when prerequisites are missing", async () => {
+      const { CinematicCreationService } = await import("@/modules/cinematic-creation/cinematic-creation.service");
+      const { db } = await import("@/lib/db");
+
+      // Mock project with missing description, 0 characters and 0 environments
+      vi.spyOn(db.project, "findFirst").mockResolvedValue({
+        id: "proj-incomplete",
+        workspaceId: "ws-test",
+        title: "Projeto Sem Dados",
+        description: "",
+        genre: null,
+        characters: [],
+        environments: [],
+      } as any);
+
+      await expect(
+        CinematicCreationService.generateVisualBible("proj-incomplete", "ws-test", {
+          artDirectives: "",
+          cinematographerReference: "",
+        })
+      ).rejects.toMatchObject({
+        statusCode: 422,
+        code: "PREREQUISITES_NOT_MET",
+      });
+    });
+  });
 });
 

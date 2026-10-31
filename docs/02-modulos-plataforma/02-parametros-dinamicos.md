@@ -59,3 +59,14 @@ O motor de resolução avalia os parâmetros aplicáveis para um contexto espec�
 - `PUT /api/parameters/[id]`: Edição com versionamento automático para preservar histórico.
 - `POST /api/parameters/[id]/toggle`: Ativação ou desativação de parâmetro.
 - `POST /api/parameters/reorder`: Reordenação visual da lista de parâmetros.
+
+---
+
+## 5. Seleção e Restrição de Parâmetros por Projeto Cinematográfico
+
+Ao criar um novo projeto (ou editar as configurações de um projeto existente), a aplicação apresenta um seletor visual com **todos os parâmetros disponíveis no estúdio**.
+
+O diretor ou produtor seleciona expressamente quais parâmetros poderão ser utilizados naquele universo narrativo:
+1. **Gravação no Projeto**: Os identificadores dos parâmetros habilitados são salvos em `project.configuration.parameterSettings.enabledParameterKeys`.
+2. **Isolamento Estrito**: As rotas de resolução (`/api/projects/[id]/parameters`) e os componentes de criação de entidades (`EntityParametersSection`) filtram as definições para disponibilizar **exclusivamente os parâmetros selecionados**.
+3. **Prevenção de Poluição de Contexto**: Nenhum parâmetro desmarcado pelo usuário aparece nos formulários de criação de Personagens, Ambientes ou Cenas do projeto, otimizando o foco da equipe e o consumo de tokens nas IAs generativas.

@@ -7,7 +7,11 @@ export const projectConfigurationSchema = z.object({
   pacing: z.string().max(100).optional(),
   soundDesign: z.string().max(500).optional(),
   customNotes: z.string().max(2000).optional(),
-}).default({
+  parameterSettings: z.object({
+    enabledParameterKeys: z.array(z.string()).default([]),
+    enabledParameterIds: z.array(z.string()).optional(),
+  }).optional(),
+}).passthrough().default({
   aspectRatio: "16:9",
   targetPlatform: "Google Flow",
 });

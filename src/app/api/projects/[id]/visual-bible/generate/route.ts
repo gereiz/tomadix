@@ -50,6 +50,12 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
         { status: 400 }
       );
     }
+    if (error?.statusCode === 422 || error?.code === "PREREQUISITES_NOT_MET") {
+      return NextResponse.json(
+        { error: error.message, code: "PREREQUISITES_NOT_MET", missing: error.missing || [] },
+        { status: 422 }
+      );
+    }
     if (error instanceof GeminiError) {
       return NextResponse.json(
         { error: error.message, code: error.code },

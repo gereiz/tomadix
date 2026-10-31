@@ -652,6 +652,36 @@ Crie nome cinematográfico e ficha de direção de arte completa.`;
   ) {
     const project = await this.assertProjectOwnership(projectId, workspaceId);
 
+    // Validação estrita de pré-requisitos essenciais para a Bíblia Visual
+    const missingRequirements: string[] = [];
+    if (!project.title || project.title.trim().length < 3) {
+      missingRequirements.push("Título do projeto (mínimo de 3 caracteres)");
+    }
+    if (!project.description || project.description.trim().length < 10) {
+      missingRequirements.push("Premissa dramática ou sinopse (mínimo de 10 caracteres)");
+    }
+    if (!project.genre || !project.genre.trim()) {
+      missingRequirements.push("Gênero cinematográfico especificado");
+    }
+    if (!project.characters || project.characters.length === 0) {
+      missingRequirements.push("Pelo menos 1 personagem registrado no projeto");
+    }
+    if (!project.environments || project.environments.length === 0) {
+      missingRequirements.push("Pelo menos 1 ambiente/locação registrado no projeto");
+    }
+
+    if (missingRequirements.length > 0) {
+      const error = new Error(
+        `A Bíblia Visual só pode ser gerada após o preenchimento de todos os requisitos essenciais do projeto. Faltando: ${missingRequirements.join(
+          "; "
+        )}.`
+      ) as any;
+      error.statusCode = 422;
+      error.code = "PREREQUISITES_NOT_MET";
+      error.missing = missingRequirements;
+      throw error;
+    }
+
     const outputSchema = z.object({
       artDirectionConcept: z.string(),
       colorPalette: z.object({

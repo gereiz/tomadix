@@ -236,9 +236,11 @@ export default function ProjectsPage() {
   const [formErrors, setFormErrors] = useState<Record<string, string>>({});
   const [submitting, setSubmitting] = useState(false);
 
-  // Parâmetros Globais Dinâmicos
-  const [globalParams, setGlobalParams] = useState<any[]>([]);
-  const [paramValues, setParamValues] = useState<Record<string, any>>({});
+  // Parâmetros do Estúdio e Seleção para o Projeto
+  const [studioParams, setStudioParams] = useState<any[]>([]);
+  const [selectedParamKeys, setSelectedParamKeys] = useState<Set<string>>(new Set());
+  const [paramSearch, setParamSearch] = useState("");
+  const [paramScopeFilter, setParamScopeFilter] = useState<string>("ALL");
 
   // Carregar limites e uso da assinatura
   const loadUsage = useCallback(async () => {
@@ -258,32 +260,21 @@ export default function ProjectsPage() {
   }, [loadUsage]);
 
   useEffect(() => {
-    fetch("/api/parameters?scope=GLOBAL&enabled=true")
+    fetch("/api/parameters?enabled=true")
       .then((res) => res.json())
       .then((json) => {
         const rawList: any[] = json.data || [];
         const seenKeys = new Set<string>();
-        const seenLabels = new Set<string>();
         const list = rawList.filter((p) => {
-          if (!p?.key) return false;
-          const normLabel = String(p.label || "").trim().toLowerCase();
-          if (seenKeys.has(p.key) || (normLabel && seenLabels.has(normLabel))) {
-            return false;
-          }
+          if (!p?.key || seenKeys.has(p.key)) return false;
           seenKeys.add(p.key);
-          if (normLabel) seenLabels.add(normLabel);
           return true;
         });
-        setGlobalParams(list);
-        const defaults: Record<string, any> = {};
-        for (const p of list) {
-          if (p.defaultValue !== undefined && p.defaultValue !== null) {
-            defaults[p.id] = p.defaultValue;
-          }
-        }
-        setParamValues(defaults);
+        setStudioParams(list);
+        // Preselecionar todos por padrão
+        setSelectedParamKeys(new Set(list.map((p) => p.key)));
       })
-      .catch((err) => console.error("Erro ao carregar parâmetros globais:", err));
+      .catch((err) => console.error("Erro ao carregar parâmetros do estúdio:", err));
   }, []);
 
   // Carregar projetos
@@ -413,13 +404,9 @@ export default function ProjectsPage() {
     setFormErrors({});
     setFormSubmitError(null);
     setEditingProject(null);
-    const defaults: Record<string, any> = {};
-    for (const p of globalParams) {
-      if (p.defaultValue !== undefined && p.defaultValue !== null) {
-        defaults[p.id] = p.defaultValue;
-      }
-    }
-    setParamValues(defaults);
+    setSelectedParamKeys(new Set(studioParams.map((p) => p.key)));
+    setParamSearch("");
+    setParamScopeFilter("ALL");
   };
 
   // Abrir modal de edição
@@ -438,6 +425,15 @@ export default function ProjectsPage() {
     });
     setFormErrors({});
     setFormSubmitError(null);
+
+    const savedKeys = (project.configuration as any)?.parameterSettings?.enabledParameterKeys;
+    if (Array.isArray(savedKeys)) {
+      setSelectedParamKeys(new Set(savedKeys));
+    } else {
+      setSelectedParamKeys(new Set(studioParams.map((p) => p.key)));
+    }
+    setParamSearch("");
+    setParamScopeFilter("ALL");
     setIsCreateModalOpen(true);
   };
 
@@ -473,6 +469,9 @@ export default function ProjectsPage() {
           targetPlatform: formData.targetPlatform,
           colorGrade: formData.colorGrade.trim() || undefined,
           pacing: formData.pacing.trim() || undefined,
+          parameterSettings: {
+            enabledParameterKeys: Array.from(selectedParamKeys),
+          },
         },
       };
 
@@ -492,24 +491,7 @@ export default function ProjectsPage() {
           return;
         }
 
-        if (Object.keys(paramValues).length > 0) {
-          await fetch(`/api/projects/${editingProject.id}/parameters`, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-              projectId: editingProject.id,
-              values: Object.entries(paramValues)
-                .filter(([_, val]) => val !== undefined && val !== null && val !== "")
-                .map(([defId, val]) => ({
-                  parameterDefinitionId: defId,
-                  targetType: "PROJECT",
-                  value: val,
-                })),
-            }),
-          }).catch(() => {});
-        }
-
-        showToast("Projeto atualizado com sucesso!");
+        showToast("Projeto e parâmetros atualizados com sucesso!");
       } else {
         // Criar
         const res = await fetch("/api/projects", {
@@ -536,24 +518,6 @@ export default function ProjectsPage() {
             });
           }
           return;
-        }
-
-        const createdProject = (await res.json()).data;
-        if (createdProject?.id && Object.keys(paramValues).length > 0) {
-          await fetch(`/api/projects/${createdProject.id}/parameters`, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-              projectId: createdProject.id,
-              values: Object.entries(paramValues)
-                .filter(([_, val]) => val !== undefined && val !== null && val !== "")
-                .map(([defId, val]) => ({
-                  parameterDefinitionId: defId,
-                  targetType: "PROJECT",
-                  value: val,
-                })),
-            }),
-          });
         }
 
         showToast("Novo projeto criado com sucesso!");
@@ -1543,58 +1507,177 @@ export default function ProjectsPage() {
                 </div>
               </div>
 
-              {/* Parâmetros Cinematográficos Globais */}
-              {globalParams.length > 0 && (
-                <div className="rounded-2xl border border-primary/20 bg-primary/5 p-4">
-                  <div className="flex items-center gap-2 mb-3">
-                    <span className="h-2 w-2 rounded-full bg-primary animate-pulse" />
-                    <h4 className="text-xs font-bold uppercase tracking-[0.15em] text-primary">
-                      Parâmetros Cinematográficos Globais
-                    </h4>
-                    <span className="rounded-full bg-primary/20 px-2 py-0.5 text-[10px] font-semibold text-primary">
-                      {globalParams.length}
-                    </span>
+              {/* Parâmetros Cinematográficos Permitidos no Projeto */}
+              <div className="rounded-2xl border border-primary/20 bg-primary/5 p-4 space-y-3">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-white/10 pb-3">
+                  <div>
+                    <div className="flex items-center gap-2">
+                      <span className="h-2 w-2 rounded-full bg-primary animate-pulse" />
+                      <h4 className="text-xs font-bold uppercase tracking-[0.15em] text-primary">
+                        Parâmetros Permitidos no Projeto
+                      </h4>
+                      <span className="rounded-full bg-primary/20 px-2 py-0.5 text-[10px] font-semibold text-primary">
+                        {selectedParamKeys.size} de {studioParams.length} selecionados
+                      </span>
+                    </div>
+                    <p className="text-[11px] text-white/50 mt-1">
+                      Selecione quais parâmetros do estúdio poderão ser utilizados na criação de personagens, ambientes e cenas deste projeto.
+                    </p>
                   </div>
-                  <div className="grid gap-4 sm:grid-cols-2">
-                    {globalParams.map((param) => (
-                      <div key={param.id} className="space-y-1">
-                        <label className="block text-xs text-white/80 font-medium">
-                          {param.label}
-                          {param.required && <span className="text-primary ml-1 font-bold">*</span>}
-                        </label>
-                        {param.description && (
-                          <p className="text-[10px] text-white/50">{param.description}</p>
-                        )}
-                        {param.type === "SELECT" ? (
-                          <select
-                            value={paramValues[param.id] ?? (param.defaultValue ?? "")}
-                            onChange={(e) =>
-                              setParamValues({ ...paramValues, [param.id]: e.target.value })
-                            }
-                            className="mt-1 w-full rounded-xl border border-white/10 bg-black/60 px-3 py-2 text-xs text-white focus:border-primary focus:outline-none cursor-pointer"
-                          >
-                            <option value="">Selecione uma opção...</option>
-                            {(param.options || []).map((opt: any) => (
-                              <option key={opt.value} value={opt.value}>
-                                {opt.label}
-                              </option>
-                            ))}
-                          </select>
-                        ) : (
-                          <input
-                            type="text"
-                            value={paramValues[param.id] ?? (param.defaultValue ?? "")}
-                            onChange={(e) =>
-                              setParamValues({ ...paramValues, [param.id]: e.target.value })
-                            }
-                            className="mt-1 w-full rounded-xl border border-white/10 bg-black/60 px-3 py-2 text-xs text-white focus:border-primary focus:outline-none"
-                          />
-                        )}
-                      </div>
+
+                  <div className="flex items-center gap-2 self-start sm:self-auto">
+                    <button
+                      type="button"
+                      onClick={() => setSelectedParamKeys(new Set(studioParams.map((p) => p.key)))}
+                      className="rounded-lg border border-primary/30 bg-primary/10 px-2.5 py-1 text-[11px] font-medium text-primary hover:bg-primary/20 transition"
+                    >
+                      Selecionar Todos
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setSelectedParamKeys(new Set())}
+                      className="rounded-lg border border-white/10 bg-white/5 px-2.5 py-1 text-[11px] font-medium text-white/60 hover:bg-white/10 hover:text-white transition"
+                    >
+                      Limpar
+                    </button>
+                  </div>
+                </div>
+
+                {/* Filtros de Parâmetros (Busca e Escopo) */}
+                <div className="flex flex-col sm:flex-row gap-2 pt-1">
+                  <div className="relative flex-1">
+                    <input
+                      type="text"
+                      placeholder="Buscar por nome ou chave de parâmetro..."
+                      value={paramSearch}
+                      onChange={(e) => setParamSearch(e.target.value)}
+                      className="w-full rounded-xl border border-white/10 bg-black/60 px-3 py-1.5 text-xs text-white placeholder-white/30 focus:border-primary focus:outline-none"
+                    />
+                  </div>
+                  <div className="flex flex-wrap gap-1">
+                    {[
+                      { key: "ALL", label: "Todos" },
+                      { key: "GLOBAL", label: "Globais" },
+                      { key: "CHARACTER", label: "Personagem" },
+                      { key: "ENVIRONMENT", label: "Ambiente" },
+                      { key: "SCENE", label: "Cena" },
+                    ].map((tab) => (
+                      <button
+                        key={tab.key}
+                        type="button"
+                        onClick={() => setParamScopeFilter(tab.key)}
+                        className={`rounded-lg px-2.5 py-1 text-[10px] font-semibold transition ${
+                          paramScopeFilter === tab.key
+                            ? "bg-primary text-primary-foreground shadow"
+                            : "bg-white/5 text-white/60 hover:bg-white/10 hover:text-white"
+                        }`}
+                      >
+                        {tab.label}
+                      </button>
                     ))}
                   </div>
                 </div>
-              )}
+
+                {/* Grade de Parâmetros com Seleção por Checkbox */}
+                <div className="max-h-60 overflow-y-auto space-y-2 pr-1 custom-scrollbar">
+                  {studioParams
+                    .filter((param) => {
+                      if (paramScopeFilter !== "ALL") {
+                        const s = String(param.scope || "GLOBAL").toUpperCase();
+                        if (paramScopeFilter === "CHARACTER" && s !== "CHARACTER" && s !== "PERSONAGEM") return false;
+                        if (paramScopeFilter === "ENVIRONMENT" && s !== "ENVIRONMENT" && s !== "AMBIENTE") return false;
+                        if (paramScopeFilter === "SCENE" && s !== "SCENE" && s !== "CENA") return false;
+                        if (paramScopeFilter === "GLOBAL" && s !== "GLOBAL") return false;
+                      }
+                      if (paramSearch.trim()) {
+                        const term = paramSearch.toLowerCase();
+                        const matchLabel = String(param.label || "").toLowerCase().includes(term);
+                        const matchKey = String(param.key || "").toLowerCase().includes(term);
+                        const matchDesc = String(param.description || "").toLowerCase().includes(term);
+                        if (!matchLabel && !matchKey && !matchDesc) return false;
+                      }
+                      return true;
+                    })
+                    .map((param) => {
+                      const isSelected = selectedParamKeys.has(param.key);
+                      const scope = String(param.scope || "GLOBAL").toUpperCase();
+                      const scopeBadgeClass =
+                        scope === "GLOBAL"
+                          ? "bg-emerald-500/20 text-emerald-300 border-emerald-500/30"
+                          : scope === "CHARACTER" || scope === "PERSONAGEM"
+                          ? "bg-blue-500/20 text-blue-300 border-blue-500/30"
+                          : scope === "ENVIRONMENT" || scope === "AMBIENTE"
+                          ? "bg-amber-500/20 text-amber-300 border-amber-500/30"
+                          : scope === "SCENE" || scope === "CENA"
+                          ? "bg-purple-500/20 text-purple-300 border-purple-500/30"
+                          : "bg-slate-500/20 text-slate-300 border-slate-500/30";
+
+                      const scopeLabel =
+                        scope === "GLOBAL"
+                          ? "Global"
+                          : scope === "CHARACTER" || scope === "PERSONAGEM"
+                          ? "Personagem"
+                          : scope === "ENVIRONMENT" || scope === "AMBIENTE"
+                          ? "Ambiente"
+                          : scope === "SCENE" || scope === "CENA"
+                          ? "Cena"
+                          : scope;
+
+                      return (
+                        <div
+                          key={param.id || param.key}
+                          onClick={() => {
+                            const next = new Set(selectedParamKeys);
+                            if (isSelected) {
+                              next.delete(param.key);
+                            } else {
+                              next.add(param.key);
+                            }
+                            setSelectedParamKeys(next);
+                          }}
+                          className={`flex items-start gap-3 rounded-xl border p-2.5 transition cursor-pointer select-none ${
+                            isSelected
+                              ? "border-primary/40 bg-primary/10 shadow-sm"
+                              : "border-white/5 bg-black/40 hover:border-white/20 hover:bg-black/60"
+                          }`}
+                        >
+                          <input
+                            type="checkbox"
+                            checked={isSelected}
+                            onChange={() => {}} // tratado no onClick do container
+                            className="mt-0.5 h-4 w-4 rounded border-white/20 bg-black/60 text-primary accent-emerald-500 focus:ring-0 cursor-pointer"
+                          />
+                          <div className="flex-1 min-w-0">
+                            <div className="flex items-center gap-2 flex-wrap">
+                              <span className="text-xs font-semibold text-white truncate">
+                                {param.label}
+                              </span>
+                              <span
+                                className={`rounded px-1.5 py-0.2 text-[9px] font-bold uppercase tracking-wider border ${scopeBadgeClass}`}
+                              >
+                                {scopeLabel}
+                              </span>
+                              <span className="font-mono text-[10px] text-white/40">
+                                {param.key}
+                              </span>
+                            </div>
+                            {param.description && (
+                              <p className="text-[10px] text-white/50 mt-0.5 line-clamp-1">
+                                {param.description}
+                              </p>
+                            )}
+                          </div>
+                        </div>
+                      );
+                    })}
+
+                  {studioParams.length === 0 && (
+                    <p className="text-center text-xs text-white/40 py-3">
+                      Nenhum parâmetro cadastrado no estúdio.
+                    </p>
+                  )}
+                </div>
+              </div>
 
               {/* Botões do Formulário */}
               <div className="flex items-center justify-end gap-3 pt-4 border-t border-white/10">
