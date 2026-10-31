@@ -1,5 +1,6 @@
 import { GoogleGenAI } from "@google/genai";
 import { z } from "zod";
+import { GeminiMultiProvider } from "./gemini-multi-provider";
 
 export class GeminiError extends Error {
   constructor(message: string, public code: string, public statusCode: number = 500) {
@@ -63,140 +64,136 @@ export async function generateStructuredJson<T>(
     model?: string;
     systemInstruction?: string;
     timeoutMs?: number;
+    feature?: string;
+    operationId?: string;
+    workspaceId?: string;
+    projectId?: string;
+    userId?: string;
   }
 ): Promise<GeminiStructuredOutput<T>> {
-  // Acesso estrito no servidor
-  const apiKey = process.env.GEMINI_API_KEY;
-  if (!apiKey || apiKey.trim() === "") {
-    throw new GeminiAuthError("GEMINI_API_KEY não configurada no servidor.");
-  }
-
   const primaryModel = options?.model || process.env.GEMINI_DEFAULT_MODEL || "gemini-3.5-flash";
   const timeoutMs = options?.timeoutMs || 45000;
+  const feature = options?.feature || "STRUCTURED_GENERATION";
+  const operationId = options?.operationId || `op_${Date.now()}_${Math.random().toString(36).slice(2, 9)}`;
 
-  // Lista de modelos resilientes para contingência automática em picos de alta demanda (503)
-  const candidateModels = Array.from(
-    new Set([primaryModel, "gemini-3.5-flash", "gemini-3.6-flash", "gemini-3.7-flash", "gemini-3.8-flash"])
+  // Delegar ao orquestrador central de failover multi-chaves
+  const failoverResult = await GeminiMultiProvider.executeWithFailover<{
+    data: T;
+    rawText: string;
+    model: string;
+  }>(
+    {
+      feature,
+      model: primaryModel,
+      operationId,
+      workspaceId: options?.workspaceId,
+      projectId: options?.projectId,
+      userId: options?.userId,
+      timeoutMs,
+    },
+    async (activeApiKey, currentSelectedModel) => {
+      // Modelos resilientes para tolerância a picos de demanda 503 dentro da chave ativa
+      const candidateModels = Array.from(
+        new Set([currentSelectedModel, "gemini-3.5-flash", "gemini-3.6-flash", "gemini-3.7-flash", "gemini-3.8-flash"])
+      );
+
+      const ai = new GoogleGenAI({ apiKey: activeApiKey });
+      let lastAttemptError: any = null;
+
+      for (let i = 0; i < candidateModels.length; i++) {
+        const candidateModel = candidateModels[i];
+
+        try {
+          const response = await ai.models.generateContent({
+            model: candidateModel,
+            contents: instructions,
+            config: {
+              responseMimeType: "application/json",
+              systemInstruction: options?.systemInstruction,
+            },
+          });
+
+          const rawText = response.text;
+          if (!rawText || rawText.trim() === "") {
+            throw new GeminiError("O modelo Gemini retornou uma resposta vazia.", "EMPTY_RESPONSE", 502);
+          }
+
+          // Limpar delimitadores markdown se o modelo os incluir
+          let cleanJson = rawText.trim();
+          if (cleanJson.startsWith("```json")) {
+            cleanJson = cleanJson.replace(/^```json\s*/i, "").replace(/\s*```$/, "");
+          } else if (cleanJson.startsWith("```")) {
+            cleanJson = cleanJson.replace(/^```\s*/, "").replace(/\s*```$/, "");
+          }
+
+          let parsed: unknown;
+          try {
+            parsed = JSON.parse(cleanJson);
+          } catch {
+            throw new GeminiInvalidJsonError("Falha ao analisar o JSON retornado pelo Gemini.", rawText);
+          }
+
+          // Validação estrita do schema Zod
+          const validationResult = schema.safeParse(parsed);
+          if (!validationResult.success) {
+            throw new GeminiValidationError(
+              "A resposta gerada pelo Gemini não atende ao schema contratual.",
+              validationResult.error.flatten()
+            );
+          }
+
+          const usage = (response as any).usageMetadata;
+          const tokens = usage
+            ? {
+                inputTokens: usage.promptTokenCount ?? 0,
+                outputTokens: usage.candidatesTokenCount ?? 0,
+              }
+            : undefined;
+
+          return {
+            data: {
+              data: validationResult.data,
+              rawText: cleanJson,
+              model: candidateModel,
+            },
+            tokens,
+          };
+        } catch (error: any) {
+          if (error instanceof GeminiValidationError || error instanceof GeminiInvalidJsonError) {
+            throw error;
+          }
+
+          const msg = error?.message?.toLowerCase() || "";
+          const isUnavailable =
+            error?.status === 503 ||
+            msg.includes("503") ||
+            msg.includes("unavailable") ||
+            msg.includes("high demand") ||
+            msg.includes("overloaded");
+
+          lastAttemptError = error;
+
+          // Se for 503 e houver outro modelo candidato, tenta o próximo modelo com a mesma chave
+          if (isUnavailable && i < candidateModels.length - 1) {
+            console.warn(
+              `[GeminiProvider] Modelo ${candidateModel} sobrecarregado (503). Alternando modelo interno para ${candidateModels[i + 1]}...`
+            );
+            continue;
+          }
+
+          // Caso contrário, lança o erro para ser capturado pelo failover de chaves
+          throw error;
+        }
+      }
+
+      throw lastAttemptError;
+    }
   );
 
-  const ai = new GoogleGenAI({ apiKey });
-  let lastError: any = null;
-
-  for (let i = 0; i < candidateModels.length; i++) {
-    const currentModel = candidateModels[i];
-
-    try {
-      // Envio com timeout
-      const generatePromise = ai.models.generateContent({
-        model: currentModel,
-        contents: instructions,
-        config: {
-          responseMimeType: "application/json",
-          systemInstruction: options?.systemInstruction,
-        },
-      });
-
-      let timeoutTimer: NodeJS.Timeout | null = null;
-      const timeoutPromise = new Promise<never>((_, reject) => {
-        timeoutTimer = setTimeout(() => {
-          reject(new GeminiTimeoutError(`Requisição ao Gemini excedeu o limite de ${timeoutMs / 1000}s.`));
-        }, timeoutMs);
-      });
-
-      const response = await Promise.race([generatePromise, timeoutPromise]).finally(() => {
-        if (timeoutTimer) clearTimeout(timeoutTimer);
-      });
-
-      const rawText = response.text;
-      if (!rawText || rawText.trim() === "") {
-        throw new GeminiError("O modelo Gemini retornou uma resposta vazia.", "EMPTY_RESPONSE", 502);
-      }
-
-      // Limpar possíveis delimitadores markdown de código se o modelo os incluir
-      let cleanJson = rawText.trim();
-      if (cleanJson.startsWith("```json")) {
-        cleanJson = cleanJson.replace(/^```json\s*/i, "").replace(/\s*```$/, "");
-      } else if (cleanJson.startsWith("```")) {
-        cleanJson = cleanJson.replace(/^```\s*/, "").replace(/\s*```$/, "");
-      }
-
-      let parsed: unknown;
-      try {
-        parsed = JSON.parse(cleanJson);
-      } catch {
-        throw new GeminiInvalidJsonError("Falha ao analisar o JSON retornado pelo Gemini.", rawText);
-      }
-
-      // Validação estrita com o Zod schema do template
-      const validationResult = schema.safeParse(parsed);
-      if (!validationResult.success) {
-        throw new GeminiValidationError(
-          "A resposta gerada pelo Gemini não atende ao schema contratual do template.",
-          validationResult.error.flatten()
-        );
-      }
-
-      const usage = (response as any).usageMetadata;
-      const tokens = usage
-        ? {
-            inputTokens: usage.promptTokenCount ?? 0,
-            outputTokens: usage.candidatesTokenCount ?? 0,
-          }
-        : undefined;
-
-      return {
-        data: validationResult.data,
-        rawText: cleanJson,
-        model: currentModel,
-        tokens,
-      };
-    } catch (error: any) {
-      if (error instanceof GeminiValidationError || error instanceof GeminiInvalidJsonError) {
-        throw error;
-      }
-
-      const msg = error?.message?.toLowerCase() || "";
-      const isUnavailable =
-        error?.status === 503 ||
-        msg.includes("503") ||
-        msg.includes("unavailable") ||
-        msg.includes("high demand");
-
-      lastError = error;
-
-      // Se for erro 503 e ainda existirem modelos alternativos disponíveis, tenta o próximo
-      if (isUnavailable && i < candidateModels.length - 1) {
-        console.warn(`[GeminiProvider] Modelo ${currentModel} sobrecarregado (503). Alternando automaticamente para ${candidateModels[i + 1]}...`);
-        continue;
-      }
-
-      if (error instanceof GeminiError) {
-        throw error;
-      }
-
-      if (msg.includes("api_key") || msg.includes("unauthorized") || msg.includes("forbidden") || error?.status === 401 || error?.status === 403) {
-        throw new GeminiAuthError("Chave de API do Gemini inválida ou não autorizada.");
-      }
-
-      if (msg.includes("quota") || msg.includes("resource_exhausted") || error?.status === 429) {
-        throw new GeminiQuotaError("Limite de cota da Gemini API excedido. Tente novamente mais tarde.");
-      }
-
-      if (msg.includes("timeout") || msg.includes("deadline")) {
-        throw new GeminiTimeoutError();
-      }
-
-      if (isUnavailable) {
-        throw new GeminiUnavailableError();
-      }
-
-      throw new GeminiError(
-        `Falha na comunicação com a Gemini API: ${error?.message || "Erro desconhecido."}`,
-        "API_ERROR",
-        error?.status || 500
-      );
-    }
-  }
-
-  throw lastError instanceof GeminiError ? lastError : new GeminiUnavailableError();
+  return {
+    data: failoverResult.data.data,
+    rawText: failoverResult.data.rawText,
+    model: failoverResult.data.model,
+    tokens: failoverResult.tokens,
+  };
 }

@@ -14,6 +14,7 @@ import {
   GeminiAuthError,
   GeminiTimeoutError,
 } from "@/modules/ai/gemini-provider";
+import { GeminiMultiProvider } from "@/modules/ai/gemini-multi-provider";
 
 interface InlineDataPart {
   inlineData: {
@@ -104,12 +105,6 @@ export class CinematicAnalysisService {
     input: CinematicAnalysisInput,
     workspaceId: string
   ): Promise<CinematicAnalysisResult> {
-    const apiKey = process.env.GEMINI_API_KEY;
-    if (!apiKey || apiKey.trim() === "") {
-      throw new GeminiAuthError("GEMINI_API_KEY não configurada no servidor.");
-    }
-
-    const ai = new GoogleGenAI({ apiKey });
     const analysisId = `analysis_${Date.now()}_${crypto.randomBytes(4).toString("hex")}`;
     const selectedModel = input.modelTier === "pro" ? "gemini-2.5-pro" : "gemini-3.5-flash";
 
@@ -229,58 +224,76 @@ Importante: Em "technicalData" e em todos os "prompts", combine os parâmetros g
     contentParts.unshift(primaryImagePart);
     contentParts.unshift(promptInstructions);
 
-    // Modelos com contingência automática
-    const candidateModels = Array.from(
-      new Set([selectedModel, "gemini-3.5-flash", "gemini-2.5-flash", "gemini-3.6-flash"])
-    );
-
     let rawJsonText = "";
     let effectiveModel = selectedModel;
     let tokensUsage: { inputTokens?: number; outputTokens?: number } = {};
 
-    for (let i = 0; i < candidateModels.length; i++) {
-      const modelAttempt = candidateModels[i];
-      try {
-        const timeoutMs = 45000;
-        const generatePromise = ai.models.generateContent({
-          model: modelAttempt,
-          contents: contentParts,
-          config: {
-            responseMimeType: "application/json",
-            systemInstruction,
-          },
-        });
+    try {
+      const failoverResult = await GeminiMultiProvider.executeWithFailover<{
+        text: string;
+        model: string;
+      }>(
+        {
+          feature: "CINEMATIC_ANALYSIS",
+          model: selectedModel,
+          operationId: analysisId,
+          workspaceId,
+          projectId: input.projectId,
+          timeoutMs: 60000,
+        },
+        async (activeApiKey, currentSelectedModel) => {
+          const ai = new GoogleGenAI({ apiKey: activeApiKey });
+          const candidateModels = Array.from(
+            new Set([currentSelectedModel, "gemini-3.5-flash", "gemini-2.5-flash", "gemini-3.6-flash"])
+          );
 
-        let timer: NodeJS.Timeout | null = null;
-        const timeoutPromise = new Promise<never>((_, reject) => {
-          timer = setTimeout(() => reject(new GeminiTimeoutError("Tempo limite excedido na análise multimodal.")), timeoutMs);
-        });
+          let attemptErr: any = null;
+          for (let i = 0; i < candidateModels.length; i++) {
+            const modelAttempt = candidateModels[i];
+            try {
+              const response = await ai.models.generateContent({
+                model: modelAttempt,
+                contents: contentParts,
+                config: {
+                  responseMimeType: "application/json",
+                  systemInstruction,
+                },
+              });
 
-        const response = await Promise.race([generatePromise, timeoutPromise]).finally(() => {
-          if (timer) clearTimeout(timer);
-        });
+              const usage = (response as any).usageMetadata;
+              return {
+                data: {
+                  text: response.text || "",
+                  model: modelAttempt,
+                },
+                tokens: usage
+                  ? {
+                      inputTokens: usage.promptTokenCount ?? 0,
+                      outputTokens: usage.candidatesTokenCount ?? 0,
+                    }
+                  : undefined,
+              };
+            } catch (err: any) {
+              const isUnavailable = err?.status === 503 || err?.message?.includes("503") || err?.message?.includes("unavailable");
+              attemptErr = err;
+              if (isUnavailable && i < candidateModels.length - 1) {
+                console.warn(`[CinematicAnalysis] Modelo ${modelAttempt} sobrecarregado (503). Alternando para ${candidateModels[i + 1]}...`);
+                continue;
+              }
+              throw err;
+            }
+          }
+          throw attemptErr;
+        }
+      );
 
-        rawJsonText = response.text || "";
-        effectiveModel = modelAttempt;
-        const usage = (response as any).usageMetadata;
-        if (usage) {
-          tokensUsage = {
-            inputTokens: usage.promptTokenCount ?? 0,
-            outputTokens: usage.candidatesTokenCount ?? 0,
-          };
-        }
-        break;
-      } catch (err: any) {
-        const isUnavailable = err?.status === 503 || err?.message?.includes("503") || err?.message?.includes("unavailable");
-        if (isUnavailable && i < candidateModels.length - 1) {
-          console.warn(`[CinematicAnalysis] Modelo ${modelAttempt} sobrecarregado (503). Alternando para ${candidateModels[i + 1]}...`);
-          continue;
-        }
-        if (i === candidateModels.length - 1) {
-          console.warn(`[CinematicAnalysis] Falha na chamada da Gemini API (${err?.message || err}). Ativando heurística cinematográfica de contingência.`);
-          break;
-        }
+      rawJsonText = failoverResult.data.text;
+      effectiveModel = failoverResult.data.model;
+      if (failoverResult.tokens) {
+        tokensUsage = failoverResult.tokens;
       }
+    } catch (err: any) {
+      console.warn(`[CinematicAnalysis] Falha persistente no failover da Gemini API (${err?.message || err}). Ativando heurística cinematográfica de contingência.`);
     }
 
     // Tratamento e limpeza do JSON retornado

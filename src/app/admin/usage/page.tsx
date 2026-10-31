@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import Link from "next/link";
 
 export default function AdminUsagePage() {
   const [period, setPeriod] = useState<number>(30);
@@ -93,24 +94,33 @@ export default function AdminUsagePage() {
           </p>
         </div>
 
-        <div className="flex items-center gap-1.5 rounded-xl border border-white/10 bg-white/5 p-1 text-xs">
-          {[
-            { days: 7, label: "7 dias" },
-            { days: 30, label: "30 dias" },
-            { days: 90, label: "90 dias" },
-          ].map((item) => (
-            <button
-              key={item.days}
-              onClick={() => setPeriod(item.days)}
-              className={`rounded-lg px-3 py-1 font-medium transition ${
-                period === item.days
-                  ? "bg-amber-400 text-black font-semibold"
-                  : "text-white/60 hover:text-white"
-              }`}
-            >
-              {item.label}
-            </button>
-          ))}
+        <div className="flex items-center gap-2">
+          <Link
+            href="/admin/settings/gemini"
+            className="rounded-xl bg-emerald-500/20 border border-emerald-500/40 px-3 py-1.5 text-xs font-semibold text-emerald-300 hover:bg-emerald-500/30 transition flex items-center gap-1.5"
+          >
+            <span>✨</span> Gerenciar APIs Gemini (Multi-Key) ↗
+          </Link>
+
+          <div className="flex items-center gap-1.5 rounded-xl border border-white/10 bg-white/5 p-1 text-xs">
+            {[
+              { days: 7, label: "7 dias" },
+              { days: 30, label: "30 dias" },
+              { days: 90, label: "90 dias" },
+            ].map((item) => (
+              <button
+                key={item.days}
+                onClick={() => setPeriod(item.days)}
+                className={`rounded-lg px-3 py-1 font-medium transition ${
+                  period === item.days
+                    ? "bg-amber-400 text-black font-semibold"
+                    : "text-white/60 hover:text-white"
+                }`}
+              >
+                {item.label}
+              </button>
+            ))}
+          </div>
         </div>
       </div>
 

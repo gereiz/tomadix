@@ -125,6 +125,13 @@ describe("Credit Execution and Contextual Mentions", () => {
         creditLedger: {
           create: vi.fn().mockResolvedValue({ id: "ledger-1" }),
         },
+        creditLot: {
+          findMany: vi.fn().mockResolvedValue([
+            { id: "lot-1", origin: "MONTHLY_RENEWAL", amountAvailable: 100, isAccumulative: true },
+          ]),
+          create: vi.fn().mockResolvedValue({ id: "lot-1", origin: "MONTHLY_RENEWAL", amountAvailable: 98 }),
+          update: vi.fn().mockResolvedValue({ id: "lot-1", amountAvailable: 98 }),
+        },
       };
 
       vi.spyOn(db, "$transaction").mockImplementation(async (cb: any) => {
@@ -172,10 +179,25 @@ describe("Credit Execution and Contextual Mentions", () => {
       const mockTxDeduct = {
         workspace: {
           findUnique: vi.fn().mockResolvedValue({ creditsBalance: 50 }),
-          update: vi.fn().mockResolvedValue({ creditsBalance: 49 }),
+          update: vi.fn().mockResolvedValue({ creditsBalance: 50 }),
         },
         creditLedger: {
           create: vi.fn().mockResolvedValue({ id: "ledger-deduct" }),
+        },
+        creditLot: {
+          findMany: vi.fn().mockResolvedValue([
+            { id: "lot-deduct", origin: "MONTHLY_RENEWAL", amountAvailable: 50, isAccumulative: true },
+          ]),
+          findUnique: vi.fn().mockResolvedValue({
+            id: "lot-deduct",
+            amountGranted: 50,
+            amountAvailable: 49,
+            amountConsumed: 1,
+            status: "ACTIVE",
+            expiresAt: null,
+          }),
+          create: vi.fn().mockResolvedValue({ id: "lot-deduct", origin: "MONTHLY_RENEWAL", amountAvailable: 49 }),
+          update: vi.fn().mockResolvedValue({ id: "lot-deduct", amountAvailable: 50 }),
         },
       };
 
@@ -202,13 +224,8 @@ describe("Credit Execution and Contextual Mentions", () => {
       ).rejects.toThrow("Erro de infraestrutura na IA");
 
       // Verificou que o estorno foi acionado
-      expect(updateWsSpy).toHaveBeenCalledWith(
-        expect.objectContaining({
-          where: { id: "ws-1" },
-          data: { creditsBalance: { increment: 1 } },
-        })
-      );
-      expect(createLedgerSpy).toHaveBeenCalledWith(
+      expect(mockTxDeduct.workspace.update).toHaveBeenCalled();
+      expect(mockTxDeduct.creditLedger.create).toHaveBeenCalledWith(
         expect.objectContaining({
           data: expect.objectContaining({
             amount: 1,

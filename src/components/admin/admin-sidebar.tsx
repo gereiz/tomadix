@@ -39,6 +39,7 @@ export const ADMIN_NAV_GROUPS: NavGroup[] = [
       { href: "/admin/customization", label: "Personalização", icon: "🎨" },
       { href: "/admin/settings", label: "Configurações Gerais", icon: "🛠️" },
       { href: "/admin/settings/database", label: "Banco de Dados", icon: "🗄️" },
+      { href: "/admin/settings/gemini", label: "APIs Gemini (Multi-Key)", icon: "✨" },
     ],
   },
   {

@@ -124,6 +124,7 @@ model User {
   dataSubjectRequests         DataSubjectRequest[]
   entitlementOverrides        UserEntitlementOverride[]
   creditLots                  CreditLot[]
+  geminiApiKeys               GeminiApiKey[]       @relation("CreatedGeminiKeys")
   createdAt                   DateTime             @default(now())
   updatedAt                   DateTime             @updatedAt
 
@@ -837,5 +838,130 @@ model ProjectOwnershipTransfer {
   @@index([projectId, transferredAt])
   @@index([fromWorkspaceId])
   @@index([toWorkspaceId])
+}
+
+// ----------------------------------------------------
+// GERENCIAMENTO MULTI-KEY & FAILOVER GEMINI API
+// ----------------------------------------------------
+
+enum GeminiKeyStatus {
+  HEALTHY
+  DEGRADED
+  RATE_LIMITED
+  SUSPENDED
+  INVALID
+}
+
+enum GeminiSelectionStrategy {
+  SEQUENTIAL_PRIORITY
+  BALANCED
+  LEAST_USED
+}
+
+model GeminiApiKey {
+  id                  String                   @id @default(cuid())
+  name                String                   // Identificador descritivo (ex: "Chave Principal GCP Prod", "Chave Backup 1")
+  apiKey              String                   // Chave completa persistida com segurança
+  maskedKey           String                   // Versão mascarada para exibição pública segura (ex: AIzaSy...X9kP)
+  isActive            Boolean                  @default(true)
+  priority            Int                      @default(1) // 1 = maior prioridade
+  status              GeminiKeyStatus          @default(HEALTHY)
+  
+  // Métricas operacionais e contadores
+  requestsCount       Int                      @default(0)
+  successCount        Int                      @default(0)
+  failuresCount       Int                      @default(0)
+  consecutiveFailures Int                      @default(0)
+  
+  // Timestamps de atividade
+  lastUsedAt          DateTime?
+  lastSuccessAt       DateTime?
+  lastFailedAt        DateTime?
+  cooldownUntil       DateTime?                // Timestamp de término de suspensão por circuit breaker ou rate limit
+  
+  // Diagnóstico do último erro
+  lastErrorCode       String?
+  lastErrorMessage    String?
+  
+  // Configurações e restrições
+  allowedModels       String[]                 @default([]) // Vazio = todos os modelos permitidos
+  notes               String?
+  
+  createdAt           DateTime                 @default(now())
+  updatedAt           DateTime                 @updatedAt
+  
+  createdById         String?
+  createdBy           User?                    @relation("CreatedGeminiKeys", fields: [createdById], references: [id], onDelete: SetNull)
+  operationAttempts   GeminiOperationAttempt[]
+
+  @@index([isActive, priority, status])
+  @@index([cooldownUntil])
+}
+
+model GeminiSettings {
+  id                      String                  @id @default(cuid())
+  selectionStrategy       GeminiSelectionStrategy @default(SEQUENTIAL_PRIORITY)
+  maxConsecutiveFailures  Int                     @default(3) // Falhas consecutivas para suspensão temporária
+  cooldownSeconds         Int                     @default(300) // 5 minutos de espera para recuperação
+  requestTimeoutMs        Int                     @default(45000) // 45 segundos de timeout padrão por requisição
+  maxAttemptsPerOperation Int                     @default(3) // Quantidade máxima de chaves alternativas por operação
+  envKeyFallbackAllowed   Boolean                 @default(true) // Permite fallback na process.env.GEMINI_API_KEY
+  updatedAt               DateTime                @updatedAt
+  updatedByUserId         String?
+}
+
+model GeminiOperationLog {
+  id              String                   @id @default(cuid())
+  operationId     String                   @unique // Identificador de rastreamento e idempotência da operação
+  feature         String                   // ex: "CHARACTER_GENERATION", "CINEMATIC_ANALYSIS", "PROMPT_ENGINE", etc.
+  model           String                   // ex: "gemini-3.5-flash", "gemini-2.5-pro"
+  workspaceId     String?
+  projectId       String?
+  userId          String?
+  
+  success         Boolean                  @default(false)
+  usedFallback    Boolean                  @default(false)
+  attemptsCount   Int                      @default(1)
+  
+  primaryKeyName  String?                  // Nome da 1ª chave selecionada
+  finalKeyName    String?                  // Nome da chave que concluiu a operação com sucesso
+  
+  durationMs      Int                      @default(0)
+  inputTokens     Int?
+  outputTokens    Int?
+  
+  statusCode      Int?
+  errorCode       String?
+  errorMessage    String?
+  
+  createdAt       DateTime                 @default(now())
+  attempts        GeminiOperationAttempt[]
+
+  @@index([feature, createdAt(sort: Desc)])
+  @@index([success, usedFallback, createdAt(sort: Desc)])
+  @@index([workspaceId, createdAt(sort: Desc)])
+}
+
+model GeminiOperationAttempt {
+  id             String             @id @default(cuid())
+  logId          String
+  log            GeminiOperationLog @relation(fields: [logId], references: [id], onDelete: Cascade)
+  
+  apiKeyId       String?
+  apiKey         GeminiApiKey?      @relation(fields: [apiKeyId], references: [id], onDelete: SetNull)
+  keyName        String
+  
+  attemptNumber  Int
+  success        Boolean
+  durationMs     Int
+  
+  statusCode     Int?
+  errorCode      String?
+  errorMessage   String?
+  isRecoverable  Boolean            @default(false)
+  
+  createdAt      DateTime           @default(now())
+
+  @@index([logId, attemptNumber])
 }
 
