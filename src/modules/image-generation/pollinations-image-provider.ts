@@ -536,19 +536,33 @@ export class PollinationsImageProvider {
   }
 
   private cleanModelName(rawName?: string, modelId = "", description = ""): string {
-    // Se vier um nome válido e não for uma frase longa de descrição nem o próprio ID com barras
+    const isDescriptiveSentence = (str: string) => {
+      const lower = str.toLowerCase();
+      return (
+        str.length > 28 ||
+        str.includes(",") ||
+        lower.startsWith("instant,") ||
+        lower.includes("budget friendly") ||
+        lower.includes("flagship text-to-image") ||
+        lower.includes("fast text to image") ||
+        lower.includes("image generation and editing") ||
+        lower.includes("editing at 1k")
+      );
+    };
+
+    // Se vier um nome conciso válido que não seja uma sentença de marketing/descrição
     if (
       rawName &&
       rawName.trim().length > 0 &&
       rawName !== description &&
       rawName !== modelId &&
       !rawName.includes("/") &&
-      rawName.length <= 40
+      !isDescriptiveSentence(rawName)
     ) {
       return rawName.trim();
     }
 
-    // Se o modelId tiver barra (ex: black-forest-labs/flux-1-image)
+    // Se o modelId tiver barra (ex: black-forest-labs/flux-1-image ou tongyi-mai/z-image-turbo)
     const baseId = modelId.includes("/") ? modelId.split("/")[1] : modelId;
     return this.formatModelName(baseId);
   }

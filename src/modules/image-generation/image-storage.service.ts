@@ -1,12 +1,22 @@
 import fs from "fs/promises";
+import fsSync from "fs";
 import path from "path";
 import crypto from "crypto";
 
 export class ImageStorageService {
-  private static storageBaseDir = path.join(process.cwd(), "public", "generated-images");
+  /**
+   * Obtém o diretório físico base configurado para persistência de imagens.
+   * Suporta volume persistente na VPS (ex: STORAGE_DIR=/app/uploads no Easypanel).
+   */
+  private static getStorageBaseDir(): string {
+    if (process.env.STORAGE_DIR && process.env.STORAGE_DIR.trim().length > 0) {
+      return path.resolve(process.env.STORAGE_DIR.trim());
+    }
+    return path.join(process.cwd(), "public", "generated-images");
+  }
 
   /**
-   * Garante que o diretório de destino exista.
+   * Garante que o diretório de destino exista com permissão de escrita.
    */
   private static async ensureDirectory(dirPath: string): Promise<void> {
     try {
@@ -30,7 +40,9 @@ export class ImageStorageService {
 
     const now = new Date();
     const yearMonth = `${now.getFullYear()}/${String(now.getMonth() + 1).padStart(2, "0")}`;
-    const targetDir = path.join(this.storageBaseDir, yearMonth);
+    const baseDir = this.getStorageBaseDir();
+    const targetDir = path.join(baseDir, yearMonth);
+
     await this.ensureDirectory(targetDir);
 
     const uniqueId = `${Date.now()}_${crypto.randomBytes(6).toString("hex")}`;
@@ -40,37 +52,45 @@ export class ImageStorageService {
     const publicUrl = `/generated-images/${yearMonth}/${filename}`;
 
     try {
+      let buffer: Buffer | null = null;
+
       if (b64Json) {
-        // Remover prefixo data:image/jpeg;base64, se houver
         const cleanBase64 = b64Json.replace(/^data:image\/\w+;base64,/, "");
-        const buffer = Buffer.from(cleanBase64, "base64");
-        await fs.writeFile(filePath, buffer);
-        return { publicUrl, storageKey };
-      }
-
-      if (imageUrl && imageUrl.startsWith("data:")) {
+        buffer = Buffer.from(cleanBase64, "base64");
+      } else if (imageUrl && imageUrl.startsWith("data:")) {
         const cleanBase64 = imageUrl.replace(/^data:image\/\w+;base64,/, "");
-        const buffer = Buffer.from(cleanBase64, "base64");
-        await fs.writeFile(filePath, buffer);
-        return { publicUrl, storageKey };
-      }
-
-      if (imageUrl && (imageUrl.startsWith("http://") || imageUrl.startsWith("https://"))) {
-        // Download seguro da imagem para evitar dependência de links efêmeros externos
+        buffer = Buffer.from(cleanBase64, "base64");
+      } else if (imageUrl && (imageUrl.startsWith("http://") || imageUrl.startsWith("https://"))) {
         const res = await fetch(imageUrl, {
           headers: { "User-Agent": "Tomadix-Image-Archiver/1.0" },
         });
 
         if (res.ok) {
           const arrayBuffer = await res.arrayBuffer();
-          const buffer = Buffer.from(arrayBuffer);
-          await fs.writeFile(filePath, buffer);
-          return { publicUrl, storageKey };
+          buffer = Buffer.from(arrayBuffer);
         }
+      }
+
+      if (buffer) {
+        // Gravar no diretório principal (STORAGE_DIR ou public/generated-images)
+        await fs.writeFile(filePath, buffer);
+
+        // Se STORAGE_DIR estiver definido e diferente de public/generated-images,
+        // tentar espelhar em public/generated-images se o diretório for acessível
+        const localPublicDir = path.join(process.cwd(), "public", "generated-images", yearMonth);
+        if (localPublicDir !== targetDir) {
+          try {
+            await this.ensureDirectory(localPublicDir);
+            await fs.writeFile(path.join(localPublicDir, filename), buffer);
+          } catch {
+            // Ignorar falha no espelho secundário
+          }
+        }
+
+        return { publicUrl, storageKey };
       }
     } catch (writeError) {
       console.error("[ImageStorageService] Falha ao persistir imagem em disco:", writeError);
-      // Se houver erro de escrita em disco, fallback gracioso para a imagem original em data-uri ou url externa
       if (imageUrl) {
         return { publicUrl: imageUrl, storageKey: "memory/fallback" };
       }
@@ -86,4 +106,3 @@ export class ImageStorageService {
     };
   }
 }
-

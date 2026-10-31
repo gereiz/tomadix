@@ -43,3 +43,4 @@ export async function downloadImage(url: string, filename = "imagem_tomadix.jpg"
     document.body.removeChild(a);
   }
 }
+

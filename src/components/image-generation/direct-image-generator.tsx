@@ -269,8 +269,8 @@ export function DirectImageGenerator({
               className="w-full px-3 py-2 rounded-xl bg-black/40 border border-white/10 text-xs text-white focus:border-amber-400 focus:outline-none"
             >
               {models.map((m) => (
-                <option key={m.id} value={m.id} className="bg-neutral-900 text-white">
-                  {m.name} — {m.quality?.stars || "★★★★★"} {m.quality?.tierLabel || ""} ({m.creditCost} créditos)
+                <option key={m.id} value={m.id} className="bg-neutral-900 text-white font-mono">
+                  {m.quality?.stars || "★★★★★"} {m.name} — ({m.creditCost} cr)
                 </option>
               ))}
             </select>

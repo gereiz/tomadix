@@ -32,20 +32,20 @@ export const duplicateEnvironmentSchema = z.object({
 });
 
 export const environmentPromptOutputSchema = z.object({
-  schemaVersion: z.literal("1.0"),
-  type: z.literal("environment_prompt"),
+  schemaVersion: z.string().default("1.0"),
+  type: z.string().default("environment_prompt"),
   environmentId: z.string(),
   name: z.string(),
   summary: z.string(),
   permanentFeatures: z.object({
-    location: z.string(),
-    architecture: z.string(),
-    props: z.string(),
-    lighting: z.string(),
-    palette: z.string(),
-    atmosphere: z.string(),
-    era: z.string(),
-    style: z.string(),
+    location: z.string().default(""),
+    architecture: z.string().default(""),
+    props: z.string().default(""),
+    lighting: z.string().default(""),
+    palette: z.string().default(""),
+    atmosphere: z.string().default(""),
+    era: z.string().default(""),
+    style: z.string().default(""),
   }),
   compiledPromptText: z.string(),
 });

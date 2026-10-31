@@ -32,18 +32,18 @@ export const duplicateCharacterSchema = z.object({
 });
 
 export const characterPromptOutputSchema = z.object({
-  schemaVersion: z.literal("1.0"),
-  type: z.literal("character_prompt"),
+  schemaVersion: z.string().default("1.0"),
+  type: z.string().default("character_prompt"),
   characterId: z.string(),
   name: z.string(),
   visualSummary: z.string(),
   permanentFeatures: z.object({
-    identity: z.string(),
-    physical: z.string(),
-    hairAndFace: z.string(),
-    costume: z.string(),
-    personality: z.string(),
-    restrictions: z.array(z.string()),
+    identity: z.string().default(""),
+    physical: z.string().default(""),
+    hairAndFace: z.string().default(""),
+    costume: z.string().default(""),
+    personality: z.string().default(""),
+    restrictions: z.array(z.string()).default([]),
   }),
   compiledPromptText: z.string(),
 });

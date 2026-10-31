@@ -180,6 +180,36 @@ export async function generateStructuredJson<T>(
               const thirdAttempt = schema.safeParse({ ...adapted, ...schema.safeParse({}).data });
               if (thirdAttempt.success) {
                 validationResult = thirdAttempt;
+              } else {
+                // Quarta tentativa: auto-reparo cirúrgico orientado pelas issues apontadas pelo Zod
+                const repairedObj: Record<string, any> = { ...adapted };
+                if (!repairedObj.schemaVersion) repairedObj.schemaVersion = "1.0";
+                if (!repairedObj.language) repairedObj.language = "pt-BR";
+
+                for (const issue of thirdAttempt.error.issues) {
+                  const pathKey = issue.path[0];
+                  if (typeof pathKey === "string") {
+                    if (issue.code === "invalid_type") {
+                      if (issue.expected === "string") {
+                        repairedObj[pathKey] = repairedObj[pathKey] !== undefined ? String(repairedObj[pathKey]) : "";
+                      } else if (issue.expected === "array") {
+                        repairedObj[pathKey] = repairedObj[pathKey] ? [String(repairedObj[pathKey])] : [];
+                      } else if (issue.expected === "number") {
+                        repairedObj[pathKey] = parseFloat(String(repairedObj[pathKey])) || 0;
+                      } else if (issue.expected === "boolean") {
+                        repairedObj[pathKey] = Boolean(repairedObj[pathKey]);
+                      }
+                    } else if (issue.code === "invalid_literal") {
+                      repairedObj[pathKey] = (issue as any).expected;
+                    }
+                  }
+                }
+
+                const fourthAttempt = schema.safeParse(repairedObj);
+                if (fourthAttempt.success) {
+                  console.info("[GeminiProvider] Auto-reparo de schema do Zod bem-sucedido.");
+                  validationResult = fourthAttempt;
+                }
               }
             }
           }

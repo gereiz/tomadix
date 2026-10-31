@@ -39,15 +39,27 @@ ENV NODE_ENV=production
 ENV NEXT_TELEMETRY_DISABLED=1
 ENV PORT=3000
 ENV HOSTNAME=0.0.0.0
+ENV STORAGE_DIR=/app/uploads
 
 RUN addgroup --system --gid 1001 nodejs \
     && adduser --system --uid 1001 nextjs
 
-# Next.js standalone
-COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
+# Criação das pastas de persistência de uploads e permissões para o usuário nextjs
+RUN mkdir -p /app/uploads /app/public/generated-images \
+    && chown -R nextjs:nodejs /app/uploads /app/public \
+    && chmod -R 775 /app/uploads
 
-# Arquivos estáticos
+# Copiar arquivos públicos e build estático
+COPY --from=builder --chown=nextjs:nodejs /app/public ./public
+COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
 COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
+
+# Garantir permissão de escrita pós-cópia para o usuário da aplicação
+RUN chown -R nextjs:nodejs /app/uploads /app/public/generated-images \
+    && chmod -R 775 /app/uploads /app/public/generated-images
+
+# Ponto de montagem persistente para Docker / Easypanel
+VOLUME ["/app/uploads"]
 
 USER nextjs
 

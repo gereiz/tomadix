@@ -273,8 +273,8 @@ export function DirectEntityImageModal({
               className="w-full rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-xs text-white focus:border-amber-400 focus:outline-none"
             >
               {models.map((m) => (
-                <option key={m.id} value={m.id} className="bg-[#0f1218]">
-                  {m.name} — {m.quality?.stars || "★★★★★"} {m.quality?.tierLabel || ""} ({m.creditCost} cr)
+                <option key={m.id} value={m.id} className="bg-[#0f1218] font-mono">
+                  {m.quality?.stars || "★★★★★"} {m.name} — ({m.creditCost} cr)
                 </option>
               ))}
             </select>
