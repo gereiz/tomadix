@@ -58,6 +58,18 @@
   --color-emerald-900: color-mix(in srgb, var(--brand-primary) 40%, black);
   --color-emerald-950: var(--brand-surface, #064e3b);
 
+  --color-lime-50: color-mix(in srgb, var(--brand-primary) 10%, white);
+  --color-lime-100: color-mix(in srgb, var(--brand-primary) 20%, white);
+  --color-lime-200: color-mix(in srgb, var(--brand-secondary, #95d3ba) 80%, white);
+  --color-lime-300: var(--brand-secondary, #95d3ba);
+  --color-lime-400: var(--brand-primary, #4edea3);
+  --color-lime-500: var(--brand-primary, #10b981);
+  --color-lime-600: var(--brand-primary, #059669);
+  --color-lime-700: color-mix(in srgb, var(--brand-primary) 80%, black);
+  --color-lime-800: color-mix(in srgb, var(--brand-primary) 60%, black);
+  --color-lime-900: color-mix(in srgb, var(--brand-primary) 40%, black);
+  --color-lime-950: var(--brand-surface, #064e3b);
+
   --font-display-hero: "Plus Jakarta Sans", sans-serif;
   --font-headline-lg: "Plus Jakarta Sans", sans-serif;
   --font-headline-md: "Plus Jakarta Sans", sans-serif;
@@ -97,12 +109,27 @@
   --color-emerald-800: color-mix(in srgb, var(--brand-primary) 60%, black);
   --color-emerald-900: color-mix(in srgb, var(--brand-primary) 40%, black);
   --color-emerald-950: var(--brand-surface);
+
+  --color-lime-50: color-mix(in srgb, var(--brand-primary) 10%, white);
+  --color-lime-100: color-mix(in srgb, var(--brand-primary) 20%, white);
+  --color-lime-200: color-mix(in srgb, var(--brand-secondary) 80%, white);
+  --color-lime-300: var(--brand-secondary);
+  --color-lime-400: var(--brand-primary);
+  --color-lime-500: var(--brand-primary);
+  --color-lime-600: var(--brand-primary);
+  --color-lime-700: color-mix(in srgb, var(--brand-primary) 80%, black);
+  --color-lime-800: color-mix(in srgb, var(--brand-primary) 60%, black);
+  --color-lime-900: color-mix(in srgb, var(--brand-primary) 40%, black);
+  --color-lime-950: var(--brand-surface);
 }
 
 /* Regras de compatibilidade para garantir contraste e herança de marca em classes legadas */
 .bg-emerald-400.text-black,
 .bg-emerald-500.text-white,
 .bg-emerald-500.text-black,
+.bg-lime-400.text-black,
+.bg-lime-500.text-white,
+.bg-lime-500.text-black,
 .bg-primary.text-black,
 .bg-primary.text-white {
   color: var(--brand-on-primary) !important;

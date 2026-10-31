@@ -248,7 +248,7 @@ export function Navbar() {
                   href={link.href}
                   onClick={() => setIsMobileMenuOpen(false)}
                   className={`flex items-center gap-3 rounded-xl px-3 py-2 text-sm font-medium transition ${isActive
-                    ? "bg-lime-400/10 text-lime-400 font-semibold border border-lime-400/20"
+                    ? "bg-primary/10 text-primary font-semibold border border-primary/20"
                     : "text-white/70 hover:bg-white/5 hover:text-white"
                     }`}
                 >

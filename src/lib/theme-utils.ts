@@ -69,7 +69,7 @@ export function generateThemeCss(customization: CustomizationSettings): string {
       --color-outline: ${customization.borderColor};
       --color-outline-variant: ${customization.borderColor};
 
-      /* Aliases automáticos de Tailwind para que classes como text-emerald-400 / bg-emerald-500 herdem a personalização da marca */
+      /* Aliases automáticos de Tailwind para que classes como text-emerald-400 / bg-emerald-500 / text-lime-400 herdem a personalização da marca */
       --color-emerald-50: color-mix(in srgb, ${customization.primaryColor} 10%, white);
       --color-emerald-100: color-mix(in srgb, ${customization.primaryColor} 20%, white);
       --color-emerald-200: color-mix(in srgb, ${customization.secondaryColor} 80%, white);
@@ -81,12 +81,27 @@ export function generateThemeCss(customization: CustomizationSettings): string {
       --color-emerald-800: color-mix(in srgb, ${customization.primaryColor} 60%, black);
       --color-emerald-900: color-mix(in srgb, ${customization.primaryColor} 40%, black);
       --color-emerald-950: ${customization.surfaceColor};
+
+      --color-lime-50: color-mix(in srgb, ${customization.primaryColor} 10%, white);
+      --color-lime-100: color-mix(in srgb, ${customization.primaryColor} 20%, white);
+      --color-lime-200: color-mix(in srgb, ${customization.secondaryColor} 80%, white);
+      --color-lime-300: ${customization.secondaryColor};
+      --color-lime-400: ${customization.primaryColor};
+      --color-lime-500: ${customization.primaryColor};
+      --color-lime-600: ${customization.primaryColor};
+      --color-lime-700: color-mix(in srgb, ${customization.primaryColor} 80%, black);
+      --color-lime-800: color-mix(in srgb, ${customization.primaryColor} 60%, black);
+      --color-lime-900: color-mix(in srgb, ${customization.primaryColor} 40%, black);
+      --color-lime-950: ${customization.surfaceColor};
     }
 
     /* Regras de compatibilidade para garantir contraste legível em botões legados */
     .bg-emerald-400.text-black,
     .bg-emerald-500.text-white,
     .bg-emerald-500.text-black,
+    .bg-lime-400.text-black,
+    .bg-lime-500.text-white,
+    .bg-lime-500.text-black,
     .bg-primary.text-black,
     .bg-primary.text-white {
       color: ${onPrimary} !important;

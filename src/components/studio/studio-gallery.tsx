@@ -92,7 +92,7 @@ export function StudioGallery({ initialProjectId, refreshTrigger }: StudioGaller
                   }}
                   className={`flex items-center gap-1.5 rounded-xl px-3.5 py-1.5 text-xs font-semibold transition ${
                     isActive
-                      ? "bg-white/10 text-lime-400 border border-lime-400/30 shadow-[0_0_15px_rgba(163,230,53,0.1)]"
+                      ? "bg-primary/10 text-primary border border-primary/30 shadow-sm shadow-primary/20"
                       : "text-white/60 hover:bg-white/5 hover:text-white"
                   }`}
                 >
@@ -115,7 +115,7 @@ export function StudioGallery({ initialProjectId, refreshTrigger }: StudioGaller
                   setPage(1);
                 }}
                 placeholder="Buscar na galeria..."
-                className="w-full rounded-xl border border-white/10 bg-[#12151E] pl-8 pr-3 py-1.5 text-xs text-white placeholder-white/30 focus:border-lime-400/50 focus:outline-none transition"
+                className="w-full rounded-xl border border-white/10 bg-[#12151E] pl-8 pr-3 py-1.5 text-xs text-white placeholder-white/30 focus:border-primary/50 focus:outline-none transition"
               />
               {search && (
                 <button
@@ -134,7 +134,7 @@ export function StudioGallery({ initialProjectId, refreshTrigger }: StudioGaller
                 setSortOrder(e.target.value);
                 setPage(1);
               }}
-              className="rounded-xl border border-white/10 bg-[#12151E] px-2.5 py-1.5 text-xs font-medium text-white/80 focus:border-lime-400 focus:outline-none"
+              className="rounded-xl border border-white/10 bg-[#12151E] px-2.5 py-1.5 text-xs font-medium text-white/80 focus:border-primary focus:outline-none"
             >
               <option value="updatedAt_desc">Mais Recentes</option>
               <option value="createdAt_asc">Mais Antigos</option>
@@ -149,7 +149,7 @@ export function StudioGallery({ initialProjectId, refreshTrigger }: StudioGaller
             {loading ? "Carregando conteúdos..." : `${totalCount} item(s) encontrado(s)`}
           </span>
           {initialProjectId && (
-            <span className="text-lime-400 font-mono">Modo: Estúdio Contextual de Projeto</span>
+            <span className="text-primary font-mono">Modo: Estúdio Contextual de Projeto</span>
           )}
         </div>
       </div>
@@ -207,7 +207,7 @@ export function StudioGallery({ initialProjectId, refreshTrigger }: StudioGaller
             <button
               disabled={page <= 1 || loading}
               onClick={() => setPage((p) => Math.max(1, p - 1))}
-              className="rounded-xl border border-white/10 bg-[#12151E] px-3 py-1.5 text-xs font-semibold text-white disabled:opacity-30 hover:border-lime-400 transition"
+              className="rounded-xl border border-white/10 bg-[#12151E] px-3 py-1.5 text-xs font-semibold text-white disabled:opacity-30 hover:border-primary transition"
             >
               ← Anterior
             </button>
@@ -217,7 +217,7 @@ export function StudioGallery({ initialProjectId, refreshTrigger }: StudioGaller
             <button
               disabled={page >= totalPages || loading}
               onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
-              className="rounded-xl border border-white/10 bg-[#12151E] px-3 py-1.5 text-xs font-semibold text-white disabled:opacity-30 hover:border-lime-400 transition"
+              className="rounded-xl border border-white/10 bg-[#12151E] px-3 py-1.5 text-xs font-semibold text-white disabled:opacity-30 hover:border-primary transition"
             >
               Próxima →
             </button>

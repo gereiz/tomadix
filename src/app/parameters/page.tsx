@@ -446,7 +446,7 @@ export default function ParametersPage() {
             <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
               <Link
                 href="/admin/parameters"
-                className="flex items-center justify-center gap-2 rounded-xl border border-lime-500/30 bg-lime-500/10 hover:bg-lime-500/20 px-4 py-2.5 font-semibold text-lime-300 transition text-xs sm:text-sm"
+                className="flex items-center justify-center gap-2 rounded-xl border border-primary/30 bg-primary/10 hover:bg-primary/20 px-4 py-2.5 font-semibold text-primary transition text-xs sm:text-sm shadow-sm"
                 title="Acessar Governança Global das 9 Categorias Cinematográficas"
               >
                 <span>⚙️</span>
@@ -458,7 +458,7 @@ export default function ParametersPage() {
                   resetForm();
                   setIsModalOpen(true);
                 }}
-                className="flex items-center justify-center gap-2 rounded-xl bg-lime-400 px-5 py-2.5 font-semibold text-black transition hover:bg-lime-300 active:scale-[0.98] text-xs sm:text-sm shadow-lg shadow-lime-400/20 cursor-pointer"
+                className="flex items-center justify-center gap-2 rounded-xl bg-primary px-5 py-2.5 font-semibold text-on-primary transition hover:opacity-90 active:scale-[0.98] text-xs sm:text-sm shadow-lg shadow-primary/20 cursor-pointer"
               >
                 <svg className="h-4 w-4 sm:h-5 sm:w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M12 4v16m8-8H4" />

@@ -211,8 +211,8 @@ export function ProjectParameterSettings({ projectId }: ProjectParameterSettings
       {/* Toast flutuante de sucesso */}
       {successMessage && (
         <div className="fixed top-20 right-6 z-50 animate-in fade-in slide-in-from-top-4 duration-300">
-          <div className="flex items-center gap-3 rounded-2xl border border-lime-400/40 bg-[#12151E]/95 p-4 shadow-[0_10px_40px_rgba(163,230,53,0.15)] backdrop-blur-xl">
-            <span className="flex h-7 w-7 items-center justify-center rounded-xl bg-lime-400 font-bold text-black text-xs">
+          <div className="flex items-center gap-3 rounded-2xl border border-primary/40 bg-[#12151E]/95 p-4 shadow-lg shadow-primary/20 backdrop-blur-xl">
+            <span className="flex h-7 w-7 items-center justify-center rounded-xl bg-primary font-bold text-on-primary text-xs shadow-sm shadow-primary/20">
               ✓
             </span>
             <p className="text-xs font-bold text-white">{successMessage}</p>
@@ -224,8 +224,8 @@ export function ProjectParameterSettings({ projectId }: ProjectParameterSettings
       <div className="rounded-3xl border border-white/10 bg-[#12151E] p-6 shadow-2xl backdrop-blur-xl">
         <div className="flex flex-col gap-6 lg:flex-row lg:items-center lg:justify-between">
           <div className="space-y-2">
-            <div className="inline-flex items-center gap-2 rounded-full border border-lime-400/20 bg-lime-400/10 px-3 py-1 text-[11px] font-semibold text-lime-400">
-              <span className="h-2 w-2 rounded-full bg-lime-400 animate-pulse" />
+            <div className="inline-flex items-center gap-2 rounded-full border border-primary/20 bg-primary/10 px-3 py-1 text-[11px] font-semibold text-primary">
+              <span className="h-2 w-2 rounded-full bg-primary animate-pulse" />
               <span>Configuração Cinematográfica do Projeto</span>
             </div>
             <h2 className="text-2xl font-black tracking-tight text-white">
@@ -245,7 +245,7 @@ export function ProjectParameterSettings({ projectId }: ProjectParameterSettings
             </button>
             <button
               onClick={handlePresetEssential}
-              className="rounded-xl border border-lime-400/30 bg-lime-400/10 px-3 py-1.5 text-xs font-semibold text-lime-400 hover:bg-lime-400/20 transition"
+              className="rounded-xl border border-primary/30 bg-primary/10 px-3 py-1.5 text-xs font-semibold text-primary hover:bg-primary/20 transition"
             >
               Modo Cinema Essencial
             </button>
@@ -258,7 +258,7 @@ export function ProjectParameterSettings({ projectId }: ProjectParameterSettings
             <button
               onClick={handleSave}
               disabled={saving}
-              className="ml-2 inline-flex items-center gap-2 rounded-xl bg-lime-400 px-5 py-2 text-xs font-bold text-black shadow-[0_0_20px_rgba(163,230,53,0.3)] hover:bg-lime-300 transition disabled:opacity-50"
+              className="ml-2 inline-flex items-center gap-2 rounded-xl bg-primary px-5 py-2 text-xs font-bold text-on-primary shadow-lg shadow-primary/20 hover:opacity-90 transition disabled:opacity-50"
             >
               {saving ? (
                 <>
@@ -278,11 +278,11 @@ export function ProjectParameterSettings({ projectId }: ProjectParameterSettings
             <span className="text-white/60">
               Cobertura ativa: <strong className="text-white">{activeParamsCount}</strong> de {totalParams} parâmetros
             </span>
-            <span className="font-mono font-bold text-lime-400">{activePercentage}%</span>
+            <span className="font-mono font-bold text-primary">{activePercentage}%</span>
           </div>
           <div className="h-2 w-full overflow-hidden rounded-full bg-white/5">
             <div
-              className="h-full rounded-full bg-gradient-to-r from-lime-500 to-lime-300 transition-all duration-500 shadow-[0_0_12px_rgba(163,230,53,0.5)]"
+              className="h-full rounded-full bg-gradient-to-r from-primary to-secondary transition-all duration-500 shadow-md shadow-primary/30"
               style={{ width: `${activePercentage}%` }}
             />
           </div>
@@ -322,7 +322,7 @@ export function ProjectParameterSettings({ projectId }: ProjectParameterSettings
                       <span
                         className={`text-[10px] font-mono px-2 py-0.5 rounded-full border ${
                           categoryActiveCount > 0
-                            ? "bg-lime-400/10 text-lime-400 border-lime-400/20"
+                            ? "bg-primary/10 text-primary border-primary/20"
                             : "bg-white/5 text-white/40 border-white/10"
                         }`}
                       >
@@ -342,7 +342,7 @@ export function ProjectParameterSettings({ projectId }: ProjectParameterSettings
                       handleToggleCategory(cat);
                     }}
                     className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none ${
-                      isCategoryActive ? "bg-lime-400" : "bg-white/20"
+                      isCategoryActive ? "bg-primary" : "bg-white/20"
                     }`}
                     title={isCategoryActive ? "Desativar categoria inteira" : "Ativar categoria inteira"}
                   >
@@ -400,7 +400,7 @@ export function ProjectParameterSettings({ projectId }: ProjectParameterSettings
                               type="button"
                               onClick={() => handleToggleParameter(param, cat.id)}
                               className={`relative inline-flex h-5 w-9 shrink-0 items-center rounded-full transition-colors focus:outline-none ${
-                                isParamActive ? "bg-lime-400" : "bg-white/20"
+                                isParamActive ? "bg-primary" : "bg-white/20"
                               }`}
                               title={isParamActive ? "Desativar este parâmetro" : "Habilitar este parâmetro"}
                             >
@@ -420,7 +420,7 @@ export function ProjectParameterSettings({ projectId }: ProjectParameterSettings
                                   Valor Padrão no Projeto
                                 </label>
                                 {param.type === "SELECT" && param.options.some((o) => o.imageUrl) && (
-                                  <span className="text-[10px] text-lime-400 font-medium">
+                                  <span className="text-[10px] text-primary font-medium">
                                     ✓ Referências visuais disponíveis
                                   </span>
                                 )}
@@ -432,7 +432,7 @@ export function ProjectParameterSettings({ projectId }: ProjectParameterSettings
                                     <select
                                       value={String(currentVal)}
                                       onChange={(e) => handleValueChange(param.key, e.target.value)}
-                                      className="w-full rounded-xl border border-white/10 bg-[#0B0D12] px-3 py-2 text-xs text-white focus:outline-none focus:border-lime-400 cursor-pointer font-medium"
+                                      className="w-full rounded-xl border border-white/10 bg-[#0B0D12] px-3 py-2 text-xs text-white focus:outline-none focus:border-primary cursor-pointer font-medium"
                                     >
                                       {param.options.map((opt) => (
                                         <option key={opt.value} value={opt.value}>
@@ -454,7 +454,7 @@ export function ProjectParameterSettings({ projectId }: ProjectParameterSettings
                                                 option: activeOpt,
                                               })
                                             }
-                                            className="shrink-0 flex items-center gap-1 rounded-xl border border-lime-400/30 bg-lime-400/10 px-2.5 py-1.5 text-[11px] font-semibold text-lime-300 hover:bg-lime-400/20 transition"
+                                            className="shrink-0 flex items-center gap-1 rounded-xl border border-primary/30 bg-primary/10 px-2.5 py-1.5 text-[11px] font-semibold text-primary hover:bg-primary/20 transition"
                                             title="Ver exemplo visual de referência"
                                           >
                                             <span>👁️</span>
@@ -472,7 +472,7 @@ export function ProjectParameterSettings({ projectId }: ProjectParameterSettings
                                 <div className="space-y-1">
                                   <div className="flex justify-between text-[10px] font-mono text-white/50">
                                     <span>0</span>
-                                    <span className="font-bold text-lime-400">{Number(currentVal) || 0}</span>
+                                    <span className="font-bold text-primary">{Number(currentVal) || 0}</span>
                                     <span>100</span>
                                   </div>
                                   <input
@@ -481,7 +481,7 @@ export function ProjectParameterSettings({ projectId }: ProjectParameterSettings
                                     max="100"
                                     value={Number(currentVal) || 0}
                                     onChange={(e) => handleValueChange(param.key, Number(e.target.value))}
-                                    className="w-full accent-lime-400 cursor-pointer"
+                                    className="w-full accent-primary cursor-pointer"
                                   />
                                 </div>
                               )}
@@ -491,7 +491,7 @@ export function ProjectParameterSettings({ projectId }: ProjectParameterSettings
                                   type="text"
                                   value={String(currentVal || "")}
                                   onChange={(e) => handleValueChange(param.key, e.target.value)}
-                                  className="w-full rounded-xl border border-white/10 bg-[#0B0D12] px-3 py-2 text-xs text-white focus:outline-none focus:border-lime-400"
+                                  className="w-full rounded-xl border border-white/10 bg-[#0B0D12] px-3 py-2 text-xs text-white focus:outline-none focus:border-primary"
                                 />
                               )}
 
@@ -500,7 +500,7 @@ export function ProjectParameterSettings({ projectId }: ProjectParameterSettings
                                   rows={2}
                                   value={String(currentVal || "")}
                                   onChange={(e) => handleValueChange(param.key, e.target.value)}
-                                  className="w-full rounded-xl border border-white/10 bg-[#0B0D12] px-3 py-2 text-xs text-white focus:outline-none focus:border-lime-400"
+                                  className="w-full rounded-xl border border-white/10 bg-[#0B0D12] px-3 py-2 text-xs text-white focus:outline-none focus:border-primary"
                                 />
                               )}
 
@@ -510,7 +510,7 @@ export function ProjectParameterSettings({ projectId }: ProjectParameterSettings
                                   onClick={() => handleValueChange(param.key, !currentVal)}
                                   className={`rounded-xl px-3 py-1.5 text-xs font-semibold transition ${
                                     currentVal
-                                      ? "bg-lime-400 text-black shadow-[0_0_12px_rgba(163,230,53,0.3)]"
+                                      ? "bg-primary text-on-primary shadow-md shadow-primary/20"
                                       : "bg-white/5 text-white/50 border border-white/10"
                                   }`}
                                 >
@@ -542,7 +542,7 @@ export function ProjectParameterSettings({ projectId }: ProjectParameterSettings
           >
             <div className="flex items-center justify-between border-b border-white/5 pb-4">
               <div>
-                <span className="text-[10px] font-mono uppercase text-lime-400">
+                <span className="text-[10px] font-mono uppercase text-primary">
                   {selectedVisualRef.paramLabel}
                 </span>
                 <h3 className="text-lg font-bold text-white">
@@ -580,8 +580,8 @@ export function ProjectParameterSettings({ projectId }: ProjectParameterSettings
               )}
 
               {selectedVisualRef.option.whatToLookFor && (
-                <div className="rounded-xl border border-lime-400/20 bg-lime-400/5 p-3">
-                  <span className="font-bold text-lime-300">O Que Observar:</span>
+                <div className="rounded-xl border border-primary/20 bg-primary/5 p-3">
+                  <span className="font-bold text-primary">O Que Observar:</span>
                   <p className="mt-0.5 text-white/70">{selectedVisualRef.option.whatToLookFor}</p>
                 </div>
               )}

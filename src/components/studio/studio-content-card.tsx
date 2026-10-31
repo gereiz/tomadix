@@ -12,9 +12,9 @@ interface StudioContentCardProps {
 const TYPE_CONFIG = {
   PROJECT: {
     label: "Projeto",
-    badgeBg: "bg-lime-400/10 text-lime-400 border-lime-400/30",
+    badgeBg: "bg-primary/10 text-primary border-primary/30",
     icon: "🎬",
-    accentGradient: "from-lime-500/20 via-transparent to-transparent",
+    accentGradient: "from-primary/20 via-transparent to-transparent",
   },
   CHARACTER: {
     label: "Personagem",
@@ -58,7 +58,7 @@ export function StudioContentCard({ item, onDuplicate, onDelete }: StudioContent
   };
 
   return (
-    <div className="group relative flex flex-col justify-between overflow-hidden rounded-2xl border border-white/10 bg-[#12151E] p-4 transition-all duration-300 hover:-translate-y-1 hover:border-lime-400/40 hover:shadow-[0_8px_30px_rgba(163,230,53,0.08)]">
+    <div className="group relative flex flex-col justify-between overflow-hidden rounded-2xl border border-white/10 bg-[#12151E] p-4 transition-all duration-300 hover:-translate-y-1 hover:border-primary/40 hover:shadow-lg hover:shadow-primary/10">
       {/* Glow de fundo sutil no hover */}
       <div
         className={`absolute inset-0 bg-gradient-to-br ${config.accentGradient} opacity-0 transition-opacity duration-300 group-hover:opacity-100 pointer-events-none`}
@@ -108,7 +108,7 @@ export function StudioContentCard({ item, onDuplicate, onDelete }: StudioContent
 
         {/* Título e Descrição */}
         <div className="mt-3">
-          <Link href={item.href} className="group-hover:text-lime-300 transition-colors">
+          <Link href={item.href} className="group-hover:text-primary transition-colors">
             <h3 className="text-sm font-bold tracking-tight text-white line-clamp-1">
               {item.title}
             </h3>
@@ -148,7 +148,7 @@ export function StudioContentCard({ item, onDuplicate, onDelete }: StudioContent
         {/* Botão de Ação Direta */}
         <Link
           href={item.href}
-          className="inline-flex items-center gap-1 rounded-lg bg-white/5 px-2.5 py-1 text-xs font-semibold text-white/80 transition hover:bg-lime-400 hover:text-black hover:shadow-[0_0_15px_rgba(163,230,53,0.3)]"
+          className="inline-flex items-center gap-1 rounded-lg bg-white/5 px-2.5 py-1 text-xs font-semibold text-white/80 transition hover:bg-primary hover:text-on-primary hover:shadow-lg hover:shadow-primary/20"
         >
           <span>Abrir</span>
           <span className="text-[10px]">→</span>

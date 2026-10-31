@@ -170,15 +170,15 @@ export function EntityParametersSection({
   }
 
   return (
-    <div className="rounded-2xl border border-lime-400/20 bg-[#12151E] p-4 space-y-4">
+    <div className="rounded-2xl border border-primary/20 bg-[#12151E] p-4 space-y-4">
       <div className="flex items-center justify-between border-b border-white/5 pb-3">
         <div>
           <div className="flex items-center gap-2">
-            <span className="h-2 w-2 rounded-full bg-lime-400 animate-pulse" />
-            <h4 className="text-xs font-bold uppercase tracking-wider text-lime-400">
+            <span className="h-2 w-2 rounded-full bg-primary animate-pulse" />
+            <h4 className="text-xs font-bold uppercase tracking-wider text-primary">
               {title}
             </h4>
-            <span className="rounded-full bg-lime-400/10 px-2 py-0.5 text-[10px] font-semibold text-lime-300 border border-lime-400/20">
+            <span className="rounded-full bg-primary/10 px-2 py-0.5 text-[10px] font-semibold text-primary border border-primary/20">
               {paramsList.length} {paramsList.length === 1 ? "parâmetro ativo" : "parâmetros ativos"}
             </span>
           </div>
@@ -194,7 +194,7 @@ export function EntityParametersSection({
           return (
             <div
               key={param.definitionId}
-              className={`rounded-xl border border-white/10 bg-black/40 p-3.5 space-y-2 hover:border-lime-400/30 transition ${
+              className={`rounded-xl border border-white/10 bg-black/40 p-3.5 space-y-2 hover:border-primary/30 transition ${
                 param.type === "SELECT" ? "sm:col-span-2" : ""
               }`}
             >
@@ -203,7 +203,7 @@ export function EntityParametersSection({
                 <div>
                   <label className="text-xs font-semibold text-white flex items-center gap-1.5">
                     {param.label}
-                    {param.required && <span className="text-lime-400 font-bold">*</span>}
+                    {param.required && <span className="text-primary font-bold">*</span>}
                   </label>
                   <code className="text-[10px] text-white/40 font-mono">{param.key}</code>
                 </div>
@@ -225,7 +225,7 @@ export function EntityParametersSection({
                         isExplicitHere
                           ? "bg-indigo-400/20 text-indigo-300 border-indigo-400/30"
                           : param.source === "INHERITED"
-                          ? "bg-lime-400/10 text-lime-300 border-lime-400/20"
+                          ? "bg-primary/10 text-primary border-primary/20"
                           : "bg-white/5 text-white/40 border-white/10"
                       }`}
                     >
@@ -242,7 +242,7 @@ export function EntityParametersSection({
                     <button
                       type="button"
                       onClick={() => onChange(param.definitionId, "")}
-                      className="rounded px-1.5 py-0.5 text-[9px] font-medium text-white/50 hover:text-lime-400 hover:bg-white/5 transition"
+                      className="rounded px-1.5 py-0.5 text-[9px] font-medium text-white/50 hover:text-primary hover:bg-white/5 transition"
                       title="Voltar a herdar o valor padrão do projeto"
                     >
                       ↺ Restaurar Padrão
@@ -276,7 +276,7 @@ export function EntityParametersSection({
                     value={currentValue ?? ""}
                     onChange={(e) => onChange(param.definitionId, e.target.value)}
                     placeholder={`Digite ${param.label.toLowerCase()}...`}
-                    className="w-full rounded-xl border border-white/15 bg-black/80 px-3 py-2 text-xs text-white placeholder-white/30 focus:border-lime-400 focus:outline-none focus:ring-1 focus:ring-lime-400"
+                    className="w-full rounded-xl border border-white/15 bg-black/80 px-3 py-2 text-xs text-white placeholder-white/30 focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
                   />
                 )}
 
@@ -286,7 +286,7 @@ export function EntityParametersSection({
                     value={currentValue ?? ""}
                     onChange={(e) => onChange(param.definitionId, e.target.value)}
                     placeholder={`Descreva ${param.label.toLowerCase()}...`}
-                    className="w-full rounded-xl border border-white/15 bg-black/80 px-3 py-2 text-xs text-white placeholder-white/30 focus:border-lime-400 focus:outline-none focus:ring-1 focus:ring-lime-400"
+                    className="w-full rounded-xl border border-white/15 bg-black/80 px-3 py-2 text-xs text-white placeholder-white/30 focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
                   />
                 )}
 
@@ -301,7 +301,7 @@ export function EntityParametersSection({
                       onChange(param.definitionId, e.target.value === "" ? "" : Number(e.target.value))
                     }
                     placeholder="0"
-                    className="w-full rounded-xl border border-white/15 bg-black/80 px-3 py-2 text-xs text-white font-mono placeholder-white/30 focus:border-lime-400 focus:outline-none focus:ring-1 focus:ring-lime-400"
+                    className="w-full rounded-xl border border-white/15 bg-black/80 px-3 py-2 text-xs text-white font-mono placeholder-white/30 focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
                   />
                 )}
 
@@ -309,7 +309,7 @@ export function EntityParametersSection({
                   <div className="space-y-1.5">
                     <div className="flex justify-between text-[10px] font-mono text-white/60">
                       <span>Mín: {param.validationRules?.min ?? 0}</span>
-                      <span className="font-bold text-lime-400">
+                      <span className="font-bold text-primary">
                         {currentValue ?? param.validationRules?.min ?? 0}
                       </span>
                       <span>Máx: {param.validationRules?.max ?? 100}</span>
@@ -321,7 +321,7 @@ export function EntityParametersSection({
                       step={param.validationRules?.step ?? 1}
                       value={currentValue ?? param.validationRules?.min ?? 0}
                       onChange={(e) => onChange(param.definitionId, Number(e.target.value))}
-                      className="w-full accent-lime-400 cursor-pointer"
+                      className="w-full accent-primary cursor-pointer"
                     />
                   </div>
                 )}
@@ -332,7 +332,7 @@ export function EntityParametersSection({
                       type="button"
                       onClick={() => onChange(param.definitionId, !currentValue)}
                       className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
-                        currentValue ? "bg-lime-400" : "bg-white/20"
+                        currentValue ? "bg-primary" : "bg-white/20"
                       }`}
                     >
                       <span
@@ -357,7 +357,7 @@ export function EntityParametersSection({
                         onChange(param.definitionId, e.target.value === "" ? "" : Number(e.target.value))
                       }
                       placeholder="Ex: 30"
-                      className="w-32 rounded-xl border border-white/15 bg-black/80 px-3 py-2 text-xs text-white font-mono placeholder-white/30 focus:border-lime-400 focus:outline-none focus:ring-1 focus:ring-lime-400"
+                      className="w-32 rounded-xl border border-white/15 bg-black/80 px-3 py-2 text-xs text-white font-mono placeholder-white/30 focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
                     />
                     <span className="text-xs text-white/60">segundos</span>
                   </div>
@@ -368,7 +368,7 @@ export function EntityParametersSection({
                     type="date"
                     value={currentValue ?? ""}
                     onChange={(e) => onChange(param.definitionId, e.target.value)}
-                    className="w-full rounded-xl border border-white/15 bg-black/80 px-3 py-2 text-xs text-white focus:border-lime-400 focus:outline-none"
+                    className="w-full rounded-xl border border-white/15 bg-black/80 px-3 py-2 text-xs text-white focus:border-primary focus:outline-none"
                   />
                 )}
 
@@ -393,7 +393,7 @@ export function EntityParametersSection({
                           }}
                           className={`rounded-lg px-2.5 py-1 text-[11px] font-medium transition ${
                             selected
-                              ? "bg-lime-400 text-black font-semibold shadow-[0_0_10px_rgba(163,230,53,0.3)]"
+                              ? "bg-primary text-on-primary font-semibold shadow-md shadow-primary/20"
                               : "bg-white/10 text-white/70 hover:bg-white/15"
                           }`}
                         >

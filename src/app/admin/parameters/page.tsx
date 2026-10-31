@@ -361,7 +361,7 @@ export default function AdminParametersPage() {
         <div
           className={`fixed bottom-6 right-6 z-50 flex items-center gap-3 px-5 py-3 rounded-xl shadow-2xl border backdrop-blur-md transition-all animate-in fade-in slide-in-from-bottom-4 ${
             toast.type === "success"
-              ? "bg-[#102416]/90 border-lime-500/40 text-lime-300 shadow-lime-950/40"
+              ? "bg-primary/10 border-primary/40 text-primary shadow-primary/40"
               : "bg-[#291014]/90 border-rose-500/40 text-rose-300 shadow-rose-950/40"
           }`}
         >
@@ -373,7 +373,7 @@ export default function AdminParametersPage() {
       {/* Header Principal com Breadcrumbs e Ações */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-white/5 pb-6">
         <div>
-          <div className="flex items-center gap-2 text-xs font-mono text-lime-400 mb-1 tracking-wider uppercase">
+          <div className="flex items-center gap-2 text-xs font-mono text-primary mb-1 tracking-wider uppercase">
             <span>Console Administrativo</span>
             <span>/</span>
             <span className="text-white/60">Governança Cinematográfica</span>
@@ -400,7 +400,7 @@ export default function AdminParametersPage() {
 
           <button
             onClick={openCreateModal}
-            className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-lime-500 hover:bg-lime-400 text-black font-semibold text-xs tracking-wide shadow-lg shadow-lime-500/20 transition-all hover:scale-[1.02] active:scale-[0.98] cursor-pointer"
+            className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-primary hover:opacity-90 text-on-primary font-semibold text-xs tracking-wide shadow-lg shadow-primary/20 transition-all hover:scale-[1.02] active:scale-[0.98] cursor-pointer"
           >
             <span>+</span>
             <span>Novo Parâmetro Global</span>
@@ -412,7 +412,7 @@ export default function AdminParametersPage() {
       {metrics && (
         <div className="grid grid-cols-2 md:grid-cols-5 gap-3 md:gap-4">
           <div className="p-4 rounded-2xl bg-[#0e121b] border border-white/5 relative overflow-hidden group">
-            <div className="absolute top-0 right-0 p-3 text-white/10 group-hover:text-lime-500/20 transition-colors">
+            <div className="absolute top-0 right-0 p-3 text-white/10 group-hover:text-primary/20 transition-colors">
               <span className="text-3xl font-mono">01</span>
             </div>
             <p className="text-xs font-medium text-white/50 uppercase tracking-wider">
@@ -422,7 +422,7 @@ export default function AdminParametersPage() {
               <span className="text-2xl md:text-3xl font-bold text-white tracking-tight">
                 {metrics.totalParameters}
               </span>
-              <span className="text-xs text-lime-400 font-mono">
+              <span className="text-xs text-primary font-mono">
                 {metrics.activeParameters} ativos
               </span>
             </div>
@@ -498,7 +498,7 @@ export default function AdminParametersPage() {
               <span className="text-2xl md:text-3xl font-bold text-primary tracking-tight">
                 100%
               </span>
-              <span className="text-xs text-lime-400 font-mono">Seguro</span>
+              <span className="text-xs text-primary font-mono">Seguro</span>
             </div>
             <p className="text-[11px] text-white/40 mt-1">
               Exclusão destrutiva bloqueada
@@ -523,7 +523,7 @@ export default function AdminParametersPage() {
             onClick={() => setSelectedCategory("ALL")}
             className={`p-3 rounded-xl border text-left transition-all cursor-pointer flex flex-col justify-between ${
               selectedCategory === "ALL"
-                ? "bg-lime-500/10 border-lime-500 text-lime-300 shadow-md shadow-lime-500/10"
+                ? "bg-primary/10 border-primary text-primary shadow-md shadow-primary/10"
                 : "bg-[#0b0e17] border-white/5 text-white/60 hover:border-white/20 hover:text-white"
             }`}
           >
@@ -575,7 +575,7 @@ export default function AdminParametersPage() {
             placeholder="Buscar por rótulo, chave (ex: formato_sensor) ou descrição..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="w-full bg-[#121622] border border-white/10 rounded-xl pl-9 pr-4 py-2 text-xs text-white placeholder-white/40 focus:outline-none focus:border-lime-500/50 transition-colors"
+            className="w-full bg-[#121622] border border-white/10 rounded-xl pl-9 pr-4 py-2 text-xs text-white placeholder-white/40 focus:outline-none focus:border-primary/50 transition-colors"
           />
           {search && (
             <button
@@ -591,7 +591,7 @@ export default function AdminParametersPage() {
         <select
           value={selectedScope}
           onChange={(e) => setSelectedScope(e.target.value)}
-          className="bg-[#121622] border border-white/10 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-lime-500/50 cursor-pointer"
+          className="bg-[#121622] border border-white/10 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-primary/50 cursor-pointer"
         >
           {SCOPE_OPTIONS.map((s) => (
             <option key={s.id} value={s.id} className="bg-[#121622]">
@@ -604,7 +604,7 @@ export default function AdminParametersPage() {
         <select
           value={selectedType}
           onChange={(e) => setSelectedType(e.target.value)}
-          className="bg-[#121622] border border-white/10 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-lime-500/50 cursor-pointer"
+          className="bg-[#121622] border border-white/10 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-primary/50 cursor-pointer"
         >
           {TYPE_OPTIONS.map((t) => (
             <option key={t.id} value={t.id} className="bg-[#121622]">
@@ -617,7 +617,7 @@ export default function AdminParametersPage() {
         <select
           value={selectedOrigin}
           onChange={(e) => setSelectedOrigin(e.target.value as any)}
-          className="bg-[#121622] border border-white/10 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-lime-500/50 cursor-pointer"
+          className="bg-[#121622] border border-white/10 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-primary/50 cursor-pointer"
         >
           <option value="all" className="bg-[#121622]">
             Todas as Origens
@@ -634,7 +634,7 @@ export default function AdminParametersPage() {
         <select
           value={selectedStatus}
           onChange={(e) => setSelectedStatus(e.target.value as any)}
-          className="bg-[#121622] border border-white/10 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-lime-500/50 cursor-pointer"
+          className="bg-[#121622] border border-white/10 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-primary/50 cursor-pointer"
         >
           <option value="all" className="bg-[#121622]">
             Todos os Status
@@ -662,7 +662,7 @@ export default function AdminParametersPage() {
               setSelectedOrigin("all");
               setSelectedStatus("all");
             }}
-            className="text-xs text-lime-400 hover:underline px-2 py-1"
+            className="text-xs text-primary hover:underline px-2 py-1"
           >
             Limpar Filtros
           </button>
@@ -672,7 +672,7 @@ export default function AdminParametersPage() {
       {/* Lista / Grid de Parâmetros */}
       {loading ? (
         <div className="p-16 rounded-2xl bg-[#0b0e17] border border-white/5 flex flex-col items-center justify-center gap-3">
-          <div className="h-8 w-8 animate-spin rounded-full border-2 border-lime-500 border-t-transparent" />
+          <div className="h-8 w-8 animate-spin rounded-full border-2 border-primary border-t-transparent" />
           <p className="text-xs text-white/50 font-mono tracking-wider uppercase">
             Carregando catálogo cinematográfico...
           </p>
@@ -688,7 +688,7 @@ export default function AdminParametersPage() {
           </p>
           <button
             onClick={openCreateModal}
-            className="mt-2 px-4 py-2 rounded-xl bg-lime-500 text-black text-xs font-semibold cursor-pointer"
+            className="mt-2 px-4 py-2 rounded-xl bg-primary text-on-primary text-xs font-semibold cursor-pointer hover:opacity-90"
           >
             + Criar Novo Parâmetro
           </button>
@@ -740,7 +740,7 @@ export default function AdminParametersPage() {
                           )}
                         </div>
                         <div className="flex items-center gap-2 mt-1">
-                          <code className="text-[11px] text-lime-400/90 font-mono bg-lime-950/30 px-1.5 py-0.5 rounded">
+                          <code className="text-[11px] text-primary/90 font-mono bg-primary/10 px-1.5 py-0.5 rounded">
                             {param.key}
                           </code>
                           {param.required && (
@@ -833,7 +833,7 @@ export default function AdminParametersPage() {
                           type="button"
                           onClick={() => handleToggle(param.id, param.enabled)}
                           className={`relative inline-flex h-5 w-9 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none ${
-                            param.enabled ? "bg-lime-500" : "bg-white/10"
+                            param.enabled ? "bg-primary" : "bg-white/10"
                           }`}
                           title={
                             param.enabled
@@ -928,7 +928,7 @@ export default function AdminParametersPage() {
                     placeholder="ex: anamorphic_streak_flare"
                     value={formKey}
                     onChange={(e) => setFormKey(e.target.value)}
-                    className="w-full bg-[#141824] border border-white/10 rounded-xl px-3.5 py-2.5 text-xs text-white font-mono placeholder-white/30 focus:outline-none focus:border-lime-500/50 disabled:opacity-50"
+                    className="w-full bg-[#141824] border border-white/10 rounded-xl px-3.5 py-2.5 text-xs text-white font-mono placeholder-white/30 focus:outline-none focus:border-primary/50 disabled:opacity-50"
                   />
                   <p className="text-[10px] text-white/40 mt-1">
                     Identificador imutável no compilador de prompts.
@@ -945,7 +945,7 @@ export default function AdminParametersPage() {
                     placeholder="ex: Flare Anamórfico Horizontal"
                     value={formLabel}
                     onChange={(e) => setFormLabel(e.target.value)}
-                    className="w-full bg-[#141824] border border-white/10 rounded-xl px-3.5 py-2.5 text-xs text-white placeholder-white/30 focus:outline-none focus:border-lime-500/50"
+                    className="w-full bg-[#141824] border border-white/10 rounded-xl px-3.5 py-2.5 text-xs text-white placeholder-white/30 focus:outline-none focus:border-primary/50"
                   />
                 </div>
               </div>
@@ -960,7 +960,7 @@ export default function AdminParametersPage() {
                   placeholder="Orienta a equipe sobre a função dramática deste parâmetro..."
                   value={formDescription}
                   onChange={(e) => setFormDescription(e.target.value)}
-                  className="w-full bg-[#141824] border border-white/10 rounded-xl px-3.5 py-2 text-xs text-white placeholder-white/30 focus:outline-none focus:border-lime-500/50"
+                  className="w-full bg-[#141824] border border-white/10 rounded-xl px-3.5 py-2 text-xs text-white placeholder-white/30 focus:outline-none focus:border-primary/50"
                 />
               </div>
 
@@ -975,7 +975,7 @@ export default function AdminParametersPage() {
                     onChange={(e) =>
                       setFormCategory(e.target.value as ProjectCinematicCategoryKey)
                     }
-                    className="w-full bg-[#141824] border border-white/10 rounded-xl px-3.5 py-2.5 text-xs text-white focus:outline-none focus:border-lime-500/50 cursor-pointer"
+                    className="w-full bg-[#141824] border border-white/10 rounded-xl px-3.5 py-2.5 text-xs text-white focus:outline-none focus:border-primary/50 cursor-pointer"
                   >
                     {CINEMATIC_CATEGORIES_METADATA.map((c) => (
                       <option key={c.id} value={c.id} className="bg-[#141824]">
@@ -992,7 +992,7 @@ export default function AdminParametersPage() {
                   <select
                     value={formType}
                     onChange={(e) => setFormType(e.target.value)}
-                    className="w-full bg-[#141824] border border-white/10 rounded-xl px-3.5 py-2.5 text-xs text-white focus:outline-none focus:border-lime-500/50 cursor-pointer"
+                    className="w-full bg-[#141824] border border-white/10 rounded-xl px-3.5 py-2.5 text-xs text-white focus:outline-none focus:border-primary/50 cursor-pointer"
                   >
                     <option value="SELECT">Seleção Única (Dropdown / Radio)</option>
                     <option value="MULTISELECT">Múltipla Seleção</option>
@@ -1024,7 +1024,7 @@ export default function AdminParametersPage() {
                         key={s.id}
                         className={`px-3 py-1.5 rounded-xl border text-xs font-medium cursor-pointer transition-all flex items-center gap-2 ${
                           isChecked
-                            ? "bg-lime-500/15 border-lime-500 text-lime-300"
+                            ? "bg-primary/15 border-primary text-primary"
                             : "bg-[#141824] border-white/10 text-white/50 hover:text-white"
                         }`}
                       >
@@ -1068,7 +1068,7 @@ export default function AdminParametersPage() {
                           },
                         ])
                       }
-                      className="px-2.5 py-1 rounded-lg bg-white/5 hover:bg-white/10 text-lime-400 text-xs font-medium cursor-pointer"
+                      className="px-2.5 py-1 rounded-lg bg-white/5 hover:bg-white/10 text-primary text-xs font-medium cursor-pointer"
                     >
                       + Adicionar Opção
                     </button>
@@ -1183,7 +1183,7 @@ export default function AdminParametersPage() {
                     type="checkbox"
                     checked={formRequired}
                     onChange={(e) => setFormRequired(e.target.checked)}
-                    className="rounded border-white/20 text-lime-500 focus:ring-0"
+                    className="rounded border-white/20 text-primary focus:ring-0"
                   />
                   <span>Parâmetro obrigatório nos formulários</span>
                 </label>
@@ -1200,7 +1200,7 @@ export default function AdminParametersPage() {
                 </button>
                 <button
                   type="submit"
-                  className="px-6 py-2.5 rounded-xl bg-lime-500 hover:bg-lime-400 text-black text-xs font-semibold shadow-lg shadow-lime-500/20 cursor-pointer transition-transform active:scale-95"
+                  className="px-6 py-2.5 rounded-xl bg-primary hover:opacity-90 text-on-primary text-xs font-semibold shadow-lg shadow-primary/20 cursor-pointer transition-transform active:scale-95"
                 >
                   {editingParam ? "Salvar Alterações" : "Criar Parâmetro Global"}
                 </button>
@@ -1221,7 +1221,7 @@ export default function AdminParametersPage() {
             <p className="text-xs text-white/70 leading-relaxed">
               Você tem certeza de que deseja excluir permanentemente o parâmetro{" "}
               <strong className="text-white">{deletingParam.label}</strong> (
-              <code className="text-lime-400 font-mono">{deletingParam.key}</code>)?
+              <code className="text-primary font-mono">{deletingParam.key}</code>)?
             </p>
 
             {deletingParam.usageCount > 0 && (

@@ -606,7 +606,7 @@ export function PromptsTab({ projectId, initialSceneId, onStatsUpdate }: Prompts
             <div>
               <label className="block text-xs font-semibold text-white/80 mb-1.5 flex items-center justify-between">
                 <span>Formato de Saída</span>
-                <span className="text-[10px] text-lime-400/90 font-medium">Ambos formatos disponíveis</span>
+                <span className="text-[10px] text-primary font-medium">Ambos formatos disponíveis</span>
               </label>
               <div className="grid grid-cols-2 gap-2">
                 <button
@@ -614,11 +614,11 @@ export function PromptsTab({ projectId, initialSceneId, onStatsUpdate }: Prompts
                   onClick={() => setOutputFormat("json")}
                   className={`rounded-xl p-2.5 text-center text-xs font-medium border transition flex items-center justify-center gap-2 ${
                     outputFormat === "json"
-                      ? "bg-lime-500/20 text-lime-300 border-lime-500/40 font-semibold shadow-sm shadow-lime-500/10"
+                      ? "bg-primary/20 text-primary border-primary/40 font-semibold shadow-sm shadow-primary/10"
                       : "bg-white/5 text-white/60 border-white/10 hover:text-white"
                   }`}
                 >
-                  <span className="font-mono text-lime-400 font-bold">{"{ }"}</span>
+                  <span className="font-mono text-primary font-bold">{"{ }"}</span>
                   <span>JSON Estruturado</span>
                 </button>
                 <button
@@ -626,11 +626,11 @@ export function PromptsTab({ projectId, initialSceneId, onStatsUpdate }: Prompts
                   onClick={() => setOutputFormat("text")}
                   className={`rounded-xl p-2.5 text-center text-xs font-medium border transition flex items-center justify-center gap-2 ${
                     outputFormat === "text"
-                      ? "bg-lime-500/20 text-lime-300 border-lime-500/40 font-semibold shadow-sm shadow-lime-500/10"
+                      ? "bg-primary/20 text-primary border-primary/40 font-semibold shadow-sm shadow-primary/10"
                       : "bg-white/5 text-white/60 border-white/10 hover:text-white"
                   }`}
                 >
-                  <span className="text-lime-400">📝</span>
+                  <span className="text-primary">📝</span>
                   <span>Texto Simples (.txt)</span>
                 </button>
               </div>
@@ -679,11 +679,11 @@ export function PromptsTab({ projectId, initialSceneId, onStatsUpdate }: Prompts
             <button
               onClick={handleGenerate}
               disabled={generating}
-              className="w-full flex items-center justify-center gap-2 rounded-xl bg-lime-400 px-4 py-3 text-xs font-bold text-black shadow-lg shadow-lime-400/20 hover:bg-lime-300 transition disabled:opacity-50 disabled:cursor-not-allowed"
+              className="w-full flex items-center justify-center gap-2 rounded-xl bg-primary px-4 py-3 text-xs font-bold text-on-primary shadow-lg shadow-primary/20 hover:opacity-90 transition disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {generating ? (
                 <>
-                  <div className="h-4 w-4 animate-spin rounded-full border-2 border-black border-t-transparent" />
+                  <div className="h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent" />
                   <span>Compondo e Consultando Gemini...</span>
                 </>
               ) : (
@@ -723,7 +723,7 @@ export function PromptsTab({ projectId, initialSceneId, onStatsUpdate }: Prompts
               <div className="flex flex-wrap items-center justify-between gap-3 pb-4 border-b border-white/10">
                 <div>
                   <div className="flex items-center gap-2">
-                    <span className="rounded-md bg-lime-500/20 border border-lime-500/30 px-2 py-0.5 text-[10px] font-bold text-lime-300 font-mono">
+                    <span className="rounded-md bg-primary/20 border border-primary/30 px-2 py-0.5 text-[10px] font-bold text-primary font-mono">
                       v{currentResult.versionNumber || 1}
                     </span>
                     <h3 className="text-sm font-bold text-white uppercase font-mono">
@@ -733,7 +733,7 @@ export function PromptsTab({ projectId, initialSceneId, onStatsUpdate }: Prompts
                       {currentResult.targetTool}
                     </span>
                     {currentResult.parentVersionId && (
-                      <span className="rounded-md bg-blue-500/20 px-2 py-0.5 text-[10px] font-medium text-blue-300">
+                      <span className="rounded-md bg-primary/20 px-2 py-0.5 text-[10px] font-medium text-primary">
                         ↺ Regenerado
                       </span>
                     )}
@@ -749,7 +749,7 @@ export function PromptsTab({ projectId, initialSceneId, onStatsUpdate }: Prompts
                     onClick={() => setActiveViewTab("json")}
                     className={`rounded-lg px-3 py-1 font-medium transition ${
                       activeViewTab === "json"
-                        ? "bg-lime-500/20 text-lime-300 font-semibold"
+                        ? "bg-primary/20 text-primary font-semibold"
                         : "text-white/60 hover:text-white"
                     }`}
                   >
@@ -759,7 +759,7 @@ export function PromptsTab({ projectId, initialSceneId, onStatsUpdate }: Prompts
                     onClick={() => setActiveViewTab("text")}
                     className={`rounded-lg px-3 py-1 font-medium transition ${
                       activeViewTab === "text"
-                        ? "bg-lime-500/20 text-lime-300 font-semibold"
+                        ? "bg-primary/20 text-primary font-semibold"
                         : "text-white/60 hover:text-white"
                     }`}
                   >
@@ -769,7 +769,7 @@ export function PromptsTab({ projectId, initialSceneId, onStatsUpdate }: Prompts
                     onClick={() => setActiveViewTab("details")}
                     className={`rounded-lg px-3 py-1 font-medium transition ${
                       activeViewTab === "details"
-                        ? "bg-lime-500/20 text-lime-300 font-semibold"
+                        ? "bg-primary/20 text-primary font-semibold"
                         : "text-white/60 hover:text-white"
                     }`}
                   >
@@ -781,25 +781,25 @@ export function PromptsTab({ projectId, initialSceneId, onStatsUpdate }: Prompts
               {/* Corpo de Exibição */}
               {activeViewTab === "json" && (
                 <div className="space-y-3">
-                  <div className="relative rounded-2xl border border-white/10 bg-black/60 p-4 font-mono text-xs text-lime-300/90 max-h-[460px] overflow-y-auto">
+                  <div className="relative rounded-2xl border border-white/10 bg-black/60 p-4 font-mono text-xs text-primary/90 max-h-[460px] overflow-y-auto">
                     <pre>{JSON.stringify(currentResult.outputJson, null, 2)}</pre>
                   </div>
                   <div className="flex flex-wrap items-center justify-between gap-2 pt-2">
                     <div className="flex items-center gap-2">
                       <a
                         href={`/api/projects/${projectId}/prompts/${currentResult.id}/export?format=json&download=true`}
-                        className="flex items-center gap-1.5 rounded-xl border border-white/20 bg-white/5 px-3 py-2 text-xs font-medium text-white hover:bg-white/10 hover:border-lime-500/40 transition"
+                        className="flex items-center gap-1.5 rounded-xl border border-white/20 bg-white/5 px-3 py-2 text-xs font-medium text-white hover:bg-white/10 hover:border-primary/40 transition"
                       >
-                        <svg className="h-3.5 w-3.5 text-lime-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <svg className="h-3.5 w-3.5 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
                         </svg>
                         Baixar .json
                       </a>
                       <a
                         href={`/api/projects/${projectId}/prompts/${currentResult.id}/export?format=txt&download=true`}
-                        className="flex items-center gap-1.5 rounded-xl border border-white/20 bg-white/5 px-3 py-2 text-xs font-medium text-white hover:bg-white/10 hover:border-lime-500/40 transition"
+                        className="flex items-center gap-1.5 rounded-xl border border-white/20 bg-white/5 px-3 py-2 text-xs font-medium text-white hover:bg-white/10 hover:border-primary/40 transition"
                       >
-                        <svg className="h-3.5 w-3.5 text-lime-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <svg className="h-3.5 w-3.5 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                         </svg>
                         Baixar .txt
@@ -811,7 +811,7 @@ export function PromptsTab({ projectId, initialSceneId, onStatsUpdate }: Prompts
                         }}
                         className="flex items-center gap-1.5 rounded-xl border border-white/20 bg-white/5 px-3 py-2 text-xs font-medium text-white hover:bg-white/10 transition"
                       >
-                        <svg className="h-3.5 w-3.5 text-blue-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <svg className="h-3.5 w-3.5 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
                         </svg>
                         Regenerar
@@ -821,7 +821,7 @@ export function PromptsTab({ projectId, initialSceneId, onStatsUpdate }: Prompts
                       onClick={() =>
                         handleCopy(JSON.stringify(currentResult.outputJson, null, 2), "json")
                       }
-                      className="flex items-center gap-1.5 rounded-xl bg-lime-400 px-4 py-2 text-xs font-bold text-black hover:bg-lime-300 transition"
+                      className="flex items-center gap-1.5 rounded-xl bg-primary px-4 py-2 text-xs font-bold text-on-primary hover:opacity-90 shadow-md shadow-primary/20 transition"
                     >
                       {copySuccess === "json" ? "✓ JSON Copiado!" : "Copiar JSON (1-Clique)"}
                     </button>
@@ -839,18 +839,18 @@ export function PromptsTab({ projectId, initialSceneId, onStatsUpdate }: Prompts
                     <div className="flex items-center gap-2">
                       <a
                         href={`/api/projects/${projectId}/prompts/${currentResult.id}/export?format=txt&download=true`}
-                        className="flex items-center gap-1.5 rounded-xl border border-white/20 bg-white/5 px-3 py-2 text-xs font-medium text-white hover:bg-white/10 hover:border-lime-500/40 transition"
+                        className="flex items-center gap-1.5 rounded-xl border border-white/20 bg-white/5 px-3 py-2 text-xs font-medium text-white hover:bg-white/10 hover:border-primary/40 transition"
                       >
-                        <svg className="h-3.5 w-3.5 text-lime-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <svg className="h-3.5 w-3.5 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
                         </svg>
                         Baixar .txt
                       </a>
                       <a
                         href={`/api/projects/${projectId}/prompts/${currentResult.id}/export?format=json&download=true`}
-                        className="flex items-center gap-1.5 rounded-xl border border-white/20 bg-white/5 px-3 py-2 text-xs font-medium text-white hover:bg-white/10 hover:border-lime-500/40 transition"
+                        className="flex items-center gap-1.5 rounded-xl border border-white/20 bg-white/5 px-3 py-2 text-xs font-medium text-white hover:bg-white/10 hover:border-primary/40 transition"
                       >
-                        <svg className="h-3.5 w-3.5 text-lime-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <svg className="h-3.5 w-3.5 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                         </svg>
                         Baixar .json
@@ -862,7 +862,7 @@ export function PromptsTab({ projectId, initialSceneId, onStatsUpdate }: Prompts
                         }}
                         className="flex items-center gap-1.5 rounded-xl border border-white/20 bg-white/5 px-3 py-2 text-xs font-medium text-white hover:bg-white/10 transition"
                       >
-                        <svg className="h-3.5 w-3.5 text-blue-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <svg className="h-3.5 w-3.5 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
                         </svg>
                         Regenerar
@@ -871,7 +871,7 @@ export function PromptsTab({ projectId, initialSceneId, onStatsUpdate }: Prompts
                     {currentResult.outputText && (
                       <button
                         onClick={() => handleCopy(currentResult.outputText!, "text")}
-                        className="flex items-center gap-1.5 rounded-xl bg-lime-400 px-4 py-2 text-xs font-bold text-black hover:bg-lime-300 transition"
+                        className="flex items-center gap-1.5 rounded-xl bg-primary px-4 py-2 text-xs font-bold text-on-primary hover:opacity-90 shadow-md shadow-primary/20 transition"
                       >
                         {copySuccess === "text" ? "✓ Texto Copiado!" : "Copiar Texto (1-Clique)"}
                       </button>
@@ -960,7 +960,7 @@ export function PromptsTab({ projectId, initialSceneId, onStatsUpdate }: Prompts
                       setComparisonResult(null);
                       setCompareModalOpen(true);
                     }}
-                    className="rounded-xl border border-white/20 bg-white/5 px-3 py-1.5 text-xs font-semibold text-lime-300 hover:border-lime-500/40 hover:bg-white/10 transition flex items-center gap-1.5"
+                    className="rounded-xl border border-white/20 bg-white/5 px-3 py-1.5 text-xs font-semibold text-primary hover:border-primary/40 hover:bg-white/10 transition flex items-center gap-1.5"
                   >
                     <svg className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4" />
@@ -1033,7 +1033,7 @@ export function PromptsTab({ projectId, initialSceneId, onStatsUpdate }: Prompts
                     key={ver.id}
                     className={`flex items-center justify-between p-3 rounded-2xl border transition ${
                       currentResult?.id === ver.id
-                        ? "border-lime-500/50 bg-lime-500/10"
+                        ? "border-primary/50 bg-primary/10"
                         : ver.status === "FAILED"
                         ? "border-red-500/20 bg-red-500/5"
                         : "border-white/5 bg-white/[0.02] hover:border-white/20"
@@ -1047,7 +1047,7 @@ export function PromptsTab({ projectId, initialSceneId, onStatsUpdate }: Prompts
                     >
                       <div className="flex items-center gap-2">
                         {ver.status === "SUCCEEDED" ? (
-                          <span className="rounded bg-lime-500/20 px-1.5 py-0.5 text-[10px] font-bold text-lime-300 font-mono">
+                          <span className="rounded bg-primary/20 px-1.5 py-0.5 text-[10px] font-bold text-primary font-mono">
                             v{ver.versionNumber || 1}
                           </span>
                         ) : (
@@ -1085,7 +1085,7 @@ export function PromptsTab({ projectId, initialSceneId, onStatsUpdate }: Prompts
                           <a
                             href={`/api/projects/${projectId}/prompts/${ver.id}/export?format=txt&download=true`}
                             title="Baixar Texto Simples (.txt)"
-                            className="p-1.5 rounded-lg text-white/60 hover:text-lime-400 hover:bg-white/5 transition"
+                            className="p-1.5 rounded-lg text-white/60 hover:text-primary hover:bg-white/5 transition"
                           >
                             <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
@@ -1094,7 +1094,7 @@ export function PromptsTab({ projectId, initialSceneId, onStatsUpdate }: Prompts
                           <a
                             href={`/api/projects/${projectId}/prompts/${ver.id}/export?format=json&download=true`}
                             title="Baixar JSON (.json)"
-                            className="p-1.5 rounded-lg text-white/60 hover:text-lime-400 hover:bg-white/5 transition"
+                            className="p-1.5 rounded-lg text-white/60 hover:text-primary hover:bg-white/5 transition"
                           >
                             <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
@@ -1106,7 +1106,7 @@ export function PromptsTab({ projectId, initialSceneId, onStatsUpdate }: Prompts
                               setRegenerateInstructions("");
                             }}
                             title="Regenerar a partir desta versão"
-                            className="p-1.5 rounded-lg text-white/60 hover:text-blue-400 hover:bg-white/5 transition"
+                            className="p-1.5 rounded-lg text-white/60 hover:text-primary hover:bg-white/5 transition"
                           >
                             <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
@@ -1148,7 +1148,7 @@ export function PromptsTab({ projectId, initialSceneId, onStatsUpdate }: Prompts
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4 backdrop-blur-sm">
           <div className="relative w-full max-w-lg rounded-3xl border border-white/20 bg-[#0f1218] p-6 shadow-2xl space-y-4">
             <h3 className="text-base font-bold text-white flex items-center gap-2">
-              <svg className="h-5 w-5 text-blue-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <svg className="h-5 w-5 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
               </svg>
               Regenerar a partir da Versão v{regeneratingVersion.versionNumber || 1}
@@ -1166,7 +1166,7 @@ export function PromptsTab({ projectId, initialSceneId, onStatsUpdate }: Prompts
                 onChange={(e) => setRegenerateInstructions(e.target.value)}
                 placeholder="Ex: Corrigir velocidade do movimento de câmera, deixar contraste mais intenso..."
                 rows={3}
-                className="w-full rounded-xl border border-white/10 bg-black/60 p-3 text-xs text-white placeholder-white/30 focus:border-blue-500 focus:outline-none resize-none"
+                className="w-full rounded-xl border border-white/10 bg-black/60 p-3 text-xs text-white placeholder-white/30 focus:border-primary focus:outline-none resize-none"
               />
             </div>
 
@@ -1182,7 +1182,7 @@ export function PromptsTab({ projectId, initialSceneId, onStatsUpdate }: Prompts
                 type="button"
                 onClick={handleRegenerateSubmit}
                 disabled={isRegenerating}
-                className="flex items-center gap-2 rounded-xl bg-blue-600 px-4 py-2 text-xs font-bold text-white hover:bg-blue-500 transition disabled:opacity-50"
+                className="flex items-center gap-2 rounded-xl bg-primary px-4 py-2 text-xs font-bold text-on-primary hover:opacity-90 shadow-md shadow-primary/20 transition disabled:opacity-50"
               >
                 {isRegenerating ? (
                   <>
