@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { ImageAspectRatio } from "@/modules/image-generation/image-generation.types";
+import { downloadImage } from "@/lib/utils/download-image";
 
 interface ImageModelOption {
   id: string;
@@ -9,6 +10,14 @@ interface ImageModelOption {
   publisher?: string;
   creditCost: number;
   isDefault: boolean;
+  quality?: {
+    score: number;
+    tier: string;
+    tierLabel: string;
+    badgeColor: string;
+    stars: string;
+    rationale: string;
+  };
 }
 
 interface DirectEntityImageModalProps {
@@ -138,6 +147,13 @@ export function DirectEntityImageModal({
           );
         }
 
+        // Notificar a galeria de imagens para inclusão instantânea
+        if (typeof window !== "undefined") {
+          window.dispatchEvent(
+            new CustomEvent("tomadix:images-updated", { detail: { projectId, imageId: data.image.id } })
+          );
+        }
+
         onImageGenerated({
           imageUrl: data.image.imageUrl,
           imageId: data.image.id,
@@ -178,25 +194,29 @@ export function DirectEntityImageModal({
 
         {/* Preview da Imagem (se já houver) */}
         {generatedUrl && (
-          <div className="relative overflow-hidden rounded-2xl border border-white/10 bg-black/60 group">
+          <div className="relative overflow-hidden rounded-2xl border border-white/10 bg-[#07090e] group p-2">
             <img
               src={generatedUrl}
               alt="Imagem Gerada"
-              className="w-full max-h-72 object-contain mx-auto"
+              className="w-full max-h-72 object-contain mx-auto rounded-xl"
             />
-            <div className="absolute top-3 right-3 flex items-center gap-2">
-              <a
-                href={generatedUrl}
-                download="tomadix-frame.jpg"
-                target="_blank"
-                rel="noreferrer"
-                className="px-3 py-1.5 rounded-lg bg-black/70 backdrop-blur-md text-[11px] font-semibold text-white border border-white/20 hover:bg-black transition flex items-center gap-1.5"
+            <div className="absolute top-4 right-4 flex items-center gap-2">
+              <button
+                type="button"
+                onClick={() =>
+                  downloadImage(
+                    generatedUrl,
+                    `${title.toLowerCase().replace(/[^a-z0-9]/g, "_")}.jpg`
+                  )
+                }
+                className="px-3.5 py-1.5 rounded-xl bg-amber-400 text-black hover:bg-amber-300 font-bold text-xs transition flex items-center gap-1.5 shadow-xl"
+                title="Baixar imagem em resolução máxima"
               >
-                <span>⬇️</span> Baixar
-              </a>
+                <span>⬇️</span> Baixar Imagem
+              </button>
             </div>
-            <div className="absolute bottom-2 left-3">
-              <span className="px-2 py-0.5 rounded bg-emerald-500/20 border border-emerald-500/40 text-emerald-300 font-mono text-[10px]">
+            <div className="absolute bottom-4 left-4">
+              <span className="px-2.5 py-1 rounded-lg bg-emerald-500/25 border border-emerald-500/40 text-emerald-300 font-mono text-[10px] font-semibold backdrop-blur-md">
                 ✓ Imagem vinculada com sucesso
               </span>
             </div>
@@ -254,10 +274,22 @@ export function DirectEntityImageModal({
             >
               {models.map((m) => (
                 <option key={m.id} value={m.id} className="bg-[#0f1218]">
-                  {m.name} ({m.creditCost} cr)
+                  {m.name} — {m.quality?.stars || "★★★★★"} {m.quality?.tierLabel || ""} ({m.creditCost} cr)
                 </option>
               ))}
             </select>
+            {currentModelObj?.quality && (
+              <div className="flex items-center gap-2 pt-1">
+                <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded text-[10px] border ${currentModelObj.quality.badgeColor}`}>
+                  <span>{currentModelObj.quality.stars}</span>
+                  <span>{currentModelObj.quality.tierLabel}</span>
+                  <span className="opacity-75 font-mono">({currentModelObj.quality.score} pts)</span>
+                </span>
+                <span className="text-[10px] text-white/50 line-clamp-1">
+                  {currentModelObj.quality.rationale}
+                </span>
+              </div>
+            )}
           </div>
         </div>
 

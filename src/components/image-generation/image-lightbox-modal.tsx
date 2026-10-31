@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect } from "react";
+import { downloadImage } from "@/lib/utils/download-image";
 
 interface ImageLightboxModalProps {
   isOpen: boolean;
@@ -35,13 +36,8 @@ export function ImageLightboxModal({
 
   if (!isOpen || !imageUrl) return null;
 
-  const handleDownload = () => {
-    const a = document.createElement("a");
-    a.href = imageUrl;
-    a.download = `${title.toLowerCase().replace(/[^a-z0-9]/g, "_")}_image.jpg`;
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
+  const handleDownload = async () => {
+    await downloadImage(imageUrl, `${title.toLowerCase().replace(/[^a-z0-9]/g, "_")}_image.jpg`);
   };
 
   return (
@@ -109,3 +105,4 @@ export function ImageLightboxModal({
     </div>
   );
 }
+

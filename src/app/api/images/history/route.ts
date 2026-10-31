@@ -13,6 +13,7 @@ export async function GET(request: NextRequest) {
     const characterId = searchParams.get("characterId") || undefined;
     const environmentId = searchParams.get("environmentId") || undefined;
     const sceneId = searchParams.get("sceneId") || undefined;
+    const entityType = (searchParams.get("entityType") as any) || undefined;
     const modelId = searchParams.get("modelId") || undefined;
     const page = parseInt(searchParams.get("page") || "1", 10);
     const limit = parseInt(searchParams.get("limit") || "24", 10);
@@ -23,6 +24,7 @@ export async function GET(request: NextRequest) {
       characterId,
       environmentId,
       sceneId,
+      entityType,
       modelId,
       page,
       limit,

@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import { ImageAspectRatio } from "@/modules/image-generation/image-generation.types";
+import { downloadImage } from "@/lib/utils/download-image";
 
 interface ImageModelOption {
   id: string;
@@ -14,6 +15,14 @@ interface ImageModelOption {
   supportsReferenceImage: boolean;
   isDefault: boolean;
   creditCost: number;
+  quality?: {
+    score: number;
+    tier: string;
+    tierLabel: string;
+    badgeColor: string;
+    stars: string;
+    rationale: string;
+  };
 }
 
 interface DirectImageGeneratorProps {
@@ -151,6 +160,13 @@ export function DirectImageGenerator({
           );
         }
 
+        // Notificar galeria de imagens para recarregamento instantâneo
+        if (typeof window !== "undefined") {
+          window.dispatchEvent(
+            new CustomEvent("tomadix:images-updated", { detail: { projectId, imageId: data.image.id } })
+          );
+        }
+
         if (onImageGenerated) {
           onImageGenerated(data.image);
         }
@@ -164,13 +180,8 @@ export function DirectImageGenerator({
     }
   };
 
-  const handleDownload = (url: string, filename = "tomadix-imagem.jpg") => {
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = filename;
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
+  const handleDownload = async (url: string, filename = "tomadix-imagem.jpg") => {
+    await downloadImage(url, filename);
   };
 
   if (loading) {
@@ -259,12 +270,30 @@ export function DirectImageGenerator({
             >
               {models.map((m) => (
                 <option key={m.id} value={m.id} className="bg-neutral-900 text-white">
-                  {m.name} — ({m.creditCost} créditos)
+                  {m.name} — {m.quality?.stars || "★★★★★"} {m.quality?.tierLabel || ""} ({m.creditCost} créditos)
                 </option>
               ))}
             </select>
-            {currentModelObj?.description && (
-              <p className="text-[10px] text-white/50">{currentModelObj.description}</p>
+
+            {/* Informações de Qualidade e Rationale do Modelo */}
+            {currentModelObj?.quality && (
+              <div className="flex flex-col gap-1 pt-1">
+                <div className="flex items-center gap-2">
+                  <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded text-[10px] border ${currentModelObj.quality.badgeColor}`}>
+                    <span>{currentModelObj.quality.stars}</span>
+                    <span>{currentModelObj.quality.tierLabel}</span>
+                    <span className="opacity-75 font-mono">({currentModelObj.quality.score} pts)</span>
+                  </span>
+                  {currentModelObj.publisher && (
+                    <span className="text-[10px] font-mono text-white/40">
+                      Publisher: {currentModelObj.publisher}
+                    </span>
+                  )}
+                </div>
+                <p className="text-[10px] text-white/50 leading-relaxed">
+                  {currentModelObj.quality.rationale || currentModelObj.description}
+                </p>
+              </div>
             )}
           </div>
 

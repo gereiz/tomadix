@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { downloadImage } from "@/lib/utils/download-image";
 
 interface GeneratedImageItem {
   id: string;
@@ -36,6 +37,7 @@ export function GeneratedImagesGallery({
   const [images, setImages] = useState<GeneratedImageItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedImage, setSelectedImage] = useState<GeneratedImageItem | null>(null);
+  const [filterType, setFilterType] = useState<"ALL" | "CHARACTERS" | "ENVIRONMENTS" | "SCENES">("ALL");
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [total, setTotal] = useState(0);
@@ -45,9 +47,15 @@ export function GeneratedImagesGallery({
       setLoading(true);
       const params = new URLSearchParams();
       if (projectId) params.append("projectId", projectId);
-      if (sceneId) params.append("sceneId", sceneId);
-      if (characterId) params.append("characterId", characterId);
-      if (environmentId) params.append("environmentId", environmentId);
+
+      if (filterType !== "ALL") {
+        params.append("entityType", filterType);
+      } else {
+        if (sceneId) params.append("sceneId", sceneId);
+        if (characterId) params.append("characterId", characterId);
+        if (environmentId) params.append("environmentId", environmentId);
+      }
+
       params.append("page", String(pageNum));
       params.append("limit", "18");
 
@@ -69,20 +77,30 @@ export function GeneratedImagesGallery({
 
   useEffect(() => {
     fetchImages(1);
-  }, [projectId, sceneId, characterId, environmentId]);
 
-  const handleDownload = (url: string, id: string) => {
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = `tomadix-${id}.jpg`;
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
+    const handleUpdate = () => {
+      fetchImages(1);
+    };
+
+    if (typeof window !== "undefined") {
+      window.addEventListener("tomadix:images-updated", handleUpdate);
+      window.addEventListener("tomadix:entities-updated", handleUpdate);
+    }
+    return () => {
+      if (typeof window !== "undefined") {
+        window.removeEventListener("tomadix:images-updated", handleUpdate);
+        window.removeEventListener("tomadix:entities-updated", handleUpdate);
+      }
+    };
+  }, [projectId, sceneId, characterId, environmentId, filterType]);
+
+  const handleDownload = async (url: string, id: string) => {
+    await downloadImage(url, `tomadix-${id}.jpg`);
   };
 
   return (
     <div className="space-y-4">
-      <div className="flex items-center justify-between border-b border-white/10 pb-3">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-white/10 pb-3">
         <div>
           <h4 className="text-sm font-bold text-white flex items-center gap-2">
             <span>🖼️</span> Galeria de Imagens Geradas
@@ -95,14 +113,41 @@ export function GeneratedImagesGallery({
           </p>
         </div>
 
-        <button
-          type="button"
-          onClick={() => fetchImages(page)}
-          className="p-1.5 rounded-lg text-xs bg-white/5 hover:bg-white/10 text-white/70 transition"
-          title="Recarregar galeria"
-        >
-          🔄
-        </button>
+        {/* Filtros por Tipo de Criação */}
+        <div className="flex items-center gap-1.5 overflow-x-auto scrollbar-none py-0.5 text-xs">
+          {[
+            { id: "ALL", label: "Todas", icon: "🎬" },
+            { id: "CHARACTERS", label: "Personagens", icon: "👤" },
+            { id: "ENVIRONMENTS", label: "Ambientes", icon: "🏙️" },
+            { id: "SCENES", label: "Cenas", icon: "🎥" },
+          ].map((tab) => {
+            const isActive = filterType === tab.id;
+            return (
+              <button
+                key={tab.id}
+                type="button"
+                onClick={() => setFilterType(tab.id as any)}
+                className={`px-2.5 py-1 rounded-lg font-semibold transition flex items-center gap-1.5 whitespace-nowrap ${
+                  isActive
+                    ? "bg-amber-400 text-black shadow-sm"
+                    : "bg-white/5 text-white/60 hover:text-white hover:bg-white/10"
+                }`}
+              >
+                <span>{tab.icon}</span>
+                <span>{tab.label}</span>
+              </button>
+            );
+          })}
+
+          <button
+            type="button"
+            onClick={() => fetchImages(page)}
+            className="p-1.5 rounded-lg text-xs bg-white/5 hover:bg-white/10 text-white/70 transition ml-1"
+            title="Recarregar galeria"
+          >
+            🔄
+          </button>
+        </div>
       </div>
 
       {loading ? (
@@ -133,7 +178,42 @@ export function GeneratedImagesGallery({
                 loading="lazy"
                 className="w-full h-full object-cover transition duration-300 group-hover:scale-105"
               />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition p-2 flex flex-col justify-end text-[10px]">
+
+              {/* Badges de Origem */}
+              <div className="absolute top-1.5 left-1.5 z-10 flex flex-col gap-1 pointer-events-none">
+                {img.character && (
+                  <span className="text-[9px] px-1.5 py-0.5 rounded bg-black/80 text-primary border border-primary/30 font-semibold backdrop-blur-sm shadow">
+                    👤 {img.character.name}
+                  </span>
+                )}
+                {img.environment && (
+                  <span className="text-[9px] px-1.5 py-0.5 rounded bg-black/80 text-blue-300 border border-blue-500/30 font-semibold backdrop-blur-sm shadow">
+                    🏙️ {img.environment.name}
+                  </span>
+                )}
+                {img.scene && (
+                  <span className="text-[9px] px-1.5 py-0.5 rounded bg-black/80 text-purple-300 border border-purple-500/30 font-semibold backdrop-blur-sm shadow">
+                    🎥 Cena {img.scene.order + 1}
+                  </span>
+                )}
+              </div>
+
+              {/* Botão de Download Rápido */}
+              <div className="absolute top-1.5 right-1.5 z-10 opacity-0 group-hover:opacity-100 transition">
+                <button
+                  type="button"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleDownload(img.imageUrl, img.id);
+                  }}
+                  className="p-1 rounded-lg bg-black/80 hover:bg-black text-amber-400 border border-amber-400/30 text-xs shadow-md transition"
+                  title="Baixar imagem"
+                >
+                  ⬇️
+                </button>
+              </div>
+
+              <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition p-2 flex flex-col justify-end text-[10px]">
                 <span className="font-semibold text-white truncate">{img.modelId}</span>
                 <span className="text-white/60 text-[9px] line-clamp-1">{img.prompt}</span>
               </div>

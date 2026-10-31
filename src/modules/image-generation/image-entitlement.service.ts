@@ -4,6 +4,7 @@ import { EntitlementService } from "@/modules/billing/entitlement.service";
 import { CreditPricingService } from "@/modules/billing/credit-pricing.service";
 import { GeneratedImageService } from "./generated-image.service";
 import { ImageGenerationError } from "./image-generation.types";
+import { rankModelQuality } from "./model-quality-ranker";
 
 export interface ImageEntitlementCheckResult {
   planTier: PlanTier;
@@ -215,14 +216,8 @@ export class ImageEntitlementService {
       // Fallback
     }
 
-    return {
-      enabled: true,
-      planName: plan.name,
-      planTier,
-      imageDailyLimit: plan.imageDailyLimit,
-      imageMonthlyLimit: plan.imageMonthlyLimit,
-      defaultCreditCost: isPlanFree ? 0 : baseCreditCost,
-      models: filtered.map((m) => {
+    const mappedModels = filtered
+      .map((m) => {
         let modelCost = baseCreditCost;
         if (isPlanFree) {
           modelCost = 0;
@@ -231,6 +226,8 @@ export class ImageEntitlementService {
         } else if (m.defaultCreditCost !== null && m.defaultCreditCost !== undefined && m.defaultCreditCost > 0) {
           modelCost = m.defaultCreditCost;
         }
+
+        const quality = rankModelQuality(m.modelId, m.publisher || "", m.name);
 
         return {
           id: m.modelId,
@@ -242,8 +239,35 @@ export class ImageEntitlementService {
           supportsReferenceImage: m.supportsReferenceImage,
           isDefault: m.isDefault,
           creditCost: modelCost,
+          quality: {
+            score: quality.score,
+            tier: quality.tier,
+            tierLabel: quality.tierLabel,
+            badgeColor: quality.badgeColor,
+            stars: quality.stars,
+            rationale: quality.rationale,
+          },
         };
-      }),
+      })
+      .sort((a, b) => {
+        // Modelo padrão da plataforma no topo
+        if (a.isDefault && !b.isDefault) return -1;
+        if (!a.isDefault && b.isDefault) return 1;
+        // Depois ordenado por score de qualidade decrescente
+        if (b.quality.score !== a.quality.score) {
+          return b.quality.score - a.quality.score;
+        }
+        return a.name.localeCompare(b.name);
+      });
+
+    return {
+      enabled: true,
+      planName: plan.name,
+      planTier,
+      imageDailyLimit: plan.imageDailyLimit,
+      imageMonthlyLimit: plan.imageMonthlyLimit,
+      defaultCreditCost: isPlanFree ? 0 : baseCreditCost,
+      models: mappedModels,
     };
   }
 }

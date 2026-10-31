@@ -7,6 +7,7 @@ import { EntityParametersSection } from "@/components/parameters/entity-paramete
 import { VisualParameterSelector } from "@/components/visual-library/visual-parameter-selector";
 import { DirectEntityImageModal } from "@/components/image-generation/direct-entity-image-modal";
 import { ImageLightboxModal } from "@/components/image-generation/image-lightbox-modal";
+import { downloadImage } from "@/lib/utils/download-image";
 
 export interface SceneItem {
   id: string;
@@ -889,6 +890,17 @@ export function ScenesTab({ projectId, onStatsUpdate, onOpenPromptEngine }: Scen
                                 type="button"
                                 onClick={(e) => {
                                   e.stopPropagation();
+                                  downloadImage(config.startFrameUrl!, `cena-${scene.order + 1}-start.jpg`);
+                                }}
+                                className="p-1.5 rounded-lg bg-white/20 text-white text-xs hover:bg-white/30 transition"
+                                title="Baixar imagem inicial"
+                              >
+                                ⬇️
+                              </button>
+                              <button
+                                type="button"
+                                onClick={(e) => {
+                                  e.stopPropagation();
                                   handleOpenSceneImage(scene, "SCENE_START");
                                 }}
                                 className="p-1.5 rounded-lg bg-amber-400 text-black text-xs font-bold hover:bg-amber-300 transition"
@@ -945,6 +957,17 @@ export function ScenesTab({ projectId, onStatsUpdate, onOpenPromptEngine }: Scen
                                 title="Visualizar em tamanho real"
                               >
                                 🔍
+                              </button>
+                              <button
+                                type="button"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  downloadImage(config.endFrameUrl!, `cena-${scene.order + 1}-end.jpg`);
+                                }}
+                                className="p-1.5 rounded-lg bg-white/20 text-white text-xs hover:bg-white/30 transition"
+                                title="Baixar imagem final"
+                              >
+                                ⬇️
                               </button>
                               <button
                                 type="button"

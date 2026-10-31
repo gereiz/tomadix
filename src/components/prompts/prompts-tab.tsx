@@ -522,12 +522,7 @@ export function PromptsTab({ projectId, initialSceneId, onStatsUpdate }: Prompts
       {/* Modalidade: Galeria de Imagens Geradas */}
       {generationMode === "GALLERY" && (
         <div className="rounded-3xl border border-white/10 bg-black/40 p-6">
-          <GeneratedImagesGallery
-            projectId={projectId}
-            sceneId={selectedSceneId || undefined}
-            characterId={selectedCharacterId || undefined}
-            environmentId={selectedEnvironmentId || undefined}
-          />
+          <GeneratedImagesGallery projectId={projectId} />
         </div>
       )}
 
@@ -547,10 +542,7 @@ export function PromptsTab({ projectId, initialSceneId, onStatsUpdate }: Prompts
           />
 
           <div className="rounded-3xl border border-white/10 bg-black/40 p-6">
-            <GeneratedImagesGallery
-              projectId={projectId}
-              sceneId={selectedSceneId || undefined}
-            />
+            <GeneratedImagesGallery projectId={projectId} />
           </div>
         </div>
       )}

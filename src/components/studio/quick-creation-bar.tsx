@@ -406,9 +406,14 @@ export function QuickCreationBar({
         );
       }
 
-      // Notificar outros componentes do estúdio
+      // Notificar outros componentes do estúdio e galeria de imagens
       window.dispatchEvent(
         new CustomEvent("tomadix:entities-updated", {
+          detail: { projectId: effectiveProjectId, type: effectiveType },
+        })
+      );
+      window.dispatchEvent(
+        new CustomEvent("tomadix:images-updated", {
           detail: { projectId: effectiveProjectId, type: effectiveType },
         })
       );

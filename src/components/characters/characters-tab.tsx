@@ -4,6 +4,7 @@ import { useState, useEffect, useCallback } from "react";
 import { EntityParametersSection } from "@/components/parameters/entity-parameters-section";
 import { DirectEntityImageModal } from "@/components/image-generation/direct-entity-image-modal";
 import { ImageLightboxModal } from "@/components/image-generation/image-lightbox-modal";
+import { downloadImage } from "@/lib/utils/download-image";
 
 export interface CharacterItem {
   id: string;
@@ -514,6 +515,15 @@ export function CharactersTab({ projectId, onStatsUpdate }: CharactersTabProps) 
                         >
                           <span>🔍</span>
                           <span>Ampliar</span>
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => downloadImage(attrs.imageUrl!, `${char.name.toLowerCase().replace(/[^a-z0-9]/g, "_")}.jpg`)}
+                          className="flex items-center gap-1.5 rounded-xl bg-white/20 hover:bg-white/30 px-3 py-1.5 text-xs font-semibold text-white border border-white/20 transition shadow-lg backdrop-blur-sm"
+                          title="Baixar imagem no computador"
+                        >
+                          <span>⬇️</span>
+                          <span>Baixar</span>
                         </button>
                         <button
                           type="button"

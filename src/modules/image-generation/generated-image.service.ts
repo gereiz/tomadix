@@ -35,6 +35,7 @@ export interface ListGeneratedImagesFilters {
   characterId?: string;
   environmentId?: string;
   sceneId?: string;
+  entityType?: "ALL" | "CHARACTERS" | "ENVIRONMENTS" | "SCENES";
   modelId?: string;
   status?: string;
   limit?: number;
@@ -121,6 +122,7 @@ export class GeneratedImageService {
       characterId,
       environmentId,
       sceneId,
+      entityType,
       modelId,
       status,
       limit = 20,
@@ -138,6 +140,14 @@ export class GeneratedImageService {
     if (sceneId) where.sceneId = sceneId;
     if (modelId) where.modelId = modelId;
     if (status) where.status = status;
+
+    if (entityType === "CHARACTERS") {
+      where.characterId = { not: null };
+    } else if (entityType === "ENVIRONMENTS") {
+      where.environmentId = { not: null };
+    } else if (entityType === "SCENES") {
+      where.sceneId = { not: null };
+    }
 
     const safeLimit = Math.max(1, Math.min(100, limit));
     const skip = (Math.max(1, page) - 1) * safeLimit;
