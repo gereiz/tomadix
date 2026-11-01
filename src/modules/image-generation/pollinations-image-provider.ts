@@ -280,7 +280,9 @@ export class PollinationsImageProvider {
     if (negativePrompt) {
       payload.negative_prompt = negativePrompt.trim();
     }
-    if (referenceImageUrl) {
+    // Modelos estritamente text-to-image (ex: FLUX 1.1 Pro) não aceitam o campo "image" no payload
+    const isStrictTextOnly = effectiveModel.includes("flux.1.1-pro") || effectiveModel.includes("turbo");
+    if (referenceImageUrl && !isStrictTextOnly) {
       payload.image = await this.resolveImageReference(referenceImageUrl);
     }
 
@@ -319,6 +321,15 @@ export class PollinationsImageProvider {
             `[PollinationsImageProvider] Modelo "${payload.model}" não aceito pela Pollinations. Acionando fallback automático para "flux"...`
           );
           payload.model = "flux";
+          retryNeeded = true;
+        }
+
+        // Caso 3: Modelo não aceita imagem de referência (ex: black-forest-labs/flux.1.1-pro)
+        if (errorPeek.includes("does not accept image input") && payload.image) {
+          console.warn(
+            `[PollinationsImageProvider] Modelo "${payload.model}" não aceita imagem de entrada. Removendo imagem de referência e reexecutando...`
+          );
+          delete payload.image;
           retryNeeded = true;
         }
 
@@ -494,13 +505,9 @@ export class PollinationsImageProvider {
           const hasImageInput = Array.isArray(item.input_modalities) && item.input_modalities.includes("image");
           const hasMaxRef = typeof item.max_reference_images === "number" && item.max_reference_images > 0;
           const hasEditEndpoint = Array.isArray(item.supported_endpoints) && item.supported_endpoints.some((e: string) => e.includes("/edits"));
+          const isExplicitNonImage = modelId.toLowerCase().includes("flux.1.1-pro") || modelId.toLowerCase().includes("turbo");
           const supportsReferenceImage = Boolean(
-            item.supportsReferenceImage ||
-            hasImageInput ||
-            hasMaxRef ||
-            hasEditEndpoint ||
-            modelId.toLowerCase().includes("image") ||
-            modelId.toLowerCase().includes("flux")
+            !isExplicitNonImage && (item.supportsReferenceImage || hasImageInput || hasMaxRef || hasEditEndpoint)
           );
 
           const supportsImageEditing = Boolean(item.supportsImageEditing || hasEditEndpoint);
@@ -599,11 +606,11 @@ export class PollinationsImageProvider {
         name: "FLUX 1.1 Pro",
         publisher: "Black Forest Labs",
         description: "Qualidade profissional máxima, iluminação volumétrica e fidelidade fotográfica cinematográfica.",
-        capabilities: ["TEXT_TO_IMAGE", "REFERENCE_IMAGE"],
+        capabilities: ["TEXT_TO_IMAGE"],
         supportedSizes: ["1024x1024", "1344x768", "768x1344", "1344x576", "1024x768"],
-        supportsReferenceImage: true,
+        supportsReferenceImage: false,
         supportsImageEditing: false,
-        pricingInfo: { paidOnly: true, costPollen: "4 pollen", maxReferenceImages: 10 },
+        pricingInfo: { paidOnly: true, costPollen: "4 pollen", maxReferenceImages: 0 },
         isAvailable: true,
         isEnabled: true,
         isDefault: false,
