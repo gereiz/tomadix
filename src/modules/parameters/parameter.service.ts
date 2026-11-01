@@ -118,6 +118,8 @@ export class ParameterService {
           { value: "extreme_close_up", label: "Plano Detalhe / Extreme Close-Up" },
           { value: "close_up", label: "Primeiro Plano / Close-Up Intenso" },
           { value: "plano_medio", label: "Plano Médio (Cintura para Cima)" },
+          { value: "plano_americano", label: "Plano Americano (Joelhos para Cima)" },
+          { value: "plano_inteiro", label: "Plano Inteiro / Corpo Inteiro (Cabeça aos Pés)" },
           { value: "plano_geral", label: "Plano Geral / Wide Shot Estabelecedor" },
           { value: "extreme_wide", label: "Plano Muito Aberto / Paisagem Épica" },
           { value: "dutch_angle", label: "Plano Holandês / Dutch Angle Inclinado" },

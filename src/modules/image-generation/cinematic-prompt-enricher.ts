@@ -61,7 +61,17 @@ export class CinematicPromptEnricher {
    */
   static hasUserAngle(prompt: string): boolean {
     const norm = normalizeForSearch(prompt);
-    return /\b(angulo|angle|enquadramento|framing|plano|shot|close-?up|wide shot|plano geral|plano medio|low angle|high angle|contra-?plongee|plongee|zenital|top-?down|bird'?s eye|dutch angle|ponto de vista|pov|vista aerea|primeiro plano|plano detalhe|plano americano)\b/i.test(
+    return /\b(angulo|angle|enquadramento|framing|plano|shot|close-?up|wide shot|plano geral|plano medio|plano americano|plano inteiro|corpo inteiro|corpo todo|full body|full length|full shot|head to toe|da cabeca aos pes|pes a cabeca|de pe|mostrar os pes|low angle|high angle|contra-?plongee|plongee|zenital|top-?down|bird'?s eye|dutch angle|ponto de vista|pov|vista aerea|primeiro plano|plano detalhe)\b/i.test(
+      norm
+    );
+  }
+
+  /**
+   * Verifica se o usuário ou a configuração solicita enquadramento de corpo inteiro.
+   */
+  static isFullBodyRequested(prompt: string): boolean {
+    const norm = normalizeForSearch(prompt);
+    return /\b(corpo inteiro|corpo todo|full body|full length|full shot|plano inteiro|head to toe|da cabeca aos pes|pes a cabeca|de corpo inteiro|mostrar os pes|dos pes a cabeca)\b/i.test(
       norm
     );
   }
@@ -277,23 +287,44 @@ export class CinematicPromptEnricher {
     }
 
     // 5. Avaliação e Injeção de Ângulo e Enquadramento (Angle / Framing)
+    const rawAngle = String(
+      paramValuesMap["angulo_camera_posicao"] ||
+      vb.angle ||
+      tech.cameraAngle ||
+      "nivel_olhos"
+    ).toLowerCase();
+    const rawFraming = String(
+      sceneConfig.framing ||
+      paramValuesMap["tipo_de_plano"] ||
+      vb.framing ||
+      tech.framing ||
+      "plano_medio"
+    ).toLowerCase();
+
+    const userWantsFullBody = CinematicPromptEnricher.isFullBodyRequested(userPrompt);
+    const configWantsFullBody =
+      rawFraming.includes("inteiro") ||
+      rawFraming.includes("corpo") ||
+      rawFraming.includes("full_shot") ||
+      rawFraming.includes("full_body");
+
+    // Se o usuário ou o projeto exigirem corpo inteiro, proteger contra cortes indesejados no negative prompt
+    if (userWantsFullBody || configWantsFullBody) {
+      const fullBodyNegatives =
+        "cropped legs, cut off feet, out of frame feet, close-up, cropped body, waist up, half body, torso shot, cut off head, truncated body";
+      negativePrompt = negativePrompt
+        ? `${negativePrompt}, ${fullBodyNegatives}`
+        : fullBodyNegatives;
+    }
+
     if (this.hasUserAngle(userPrompt)) {
       skippedDirectives.push("ângulo/enquadramento (já declarado no prompt pelo usuário)");
+      if (userWantsFullBody) {
+        appliedDirectives.push(
+          "enquadramento em plano inteiro de corpo inteiro da cabeça aos pés (full-length body shot showing entire figure from head to toe, ground visible, feet completely in frame)"
+        );
+      }
     } else {
-      const rawAngle = String(
-        paramValuesMap["angulo_camera_posicao"] ||
-        vb.angle ||
-        tech.cameraAngle ||
-        "nivel_olhos"
-      ).toLowerCase();
-      const rawFraming = String(
-        sceneConfig.framing ||
-        paramValuesMap["tipo_de_plano"] ||
-        vb.framing ||
-        tech.framing ||
-        "plano_medio"
-      ).toLowerCase();
-
       let angleText = "ângulo ao nível dos olhos (eye-level)";
       if (rawAngle.includes("contra_plongee") || rawAngle.includes("low")) {
         angleText = "ângulo em contra-plongée (low angle shot de baixo para cima conferindo imponência)";
@@ -306,11 +337,20 @@ export class CinematicPromptEnricher {
       }
 
       let framingText = "enquadramento em plano médio cinematográfico";
-      if (rawFraming.includes("extreme_close_up")) framingText = "plano detalhe extremo (extreme close-up)";
-      else if (rawFraming.includes("close_up") || rawFraming.includes("close-up") || rawFraming.includes("fechado")) framingText = "primeiro plano dramático (close-up)";
-      else if (rawFraming.includes("plano_americano") || rawFraming.includes("medium_long")) framingText = "plano americano (medium long shot)";
-      else if (rawFraming.includes("plano_geral") || rawFraming.includes("wide")) framingText = "plano geral cinematográfico (wide shot estabelecedor)";
-      else if (rawFraming.includes("extreme_wide")) framingText = "plano muito aberto panorâmico épico";
+      if (configWantsFullBody) {
+        framingText =
+          "enquadramento em plano inteiro de corpo inteiro da cabeça aos pés (full-length body shot showing entire figure from head to toe, ground visible, feet completely in frame)";
+      } else if (rawFraming.includes("extreme_close_up")) {
+        framingText = "plano detalhe extremo (extreme close-up)";
+      } else if (rawFraming.includes("close_up") || rawFraming.includes("close-up") || rawFraming.includes("fechado")) {
+        framingText = "primeiro plano dramático (close-up)";
+      } else if (rawFraming.includes("plano_americano") || rawFraming.includes("medium_long")) {
+        framingText = "plano americano (medium long shot, joelhos para cima)";
+      } else if (rawFraming.includes("plano_geral") || rawFraming.includes("wide")) {
+        framingText = "plano geral cinematográfico (wide shot estabelecedor)";
+      } else if (rawFraming.includes("extreme_wide")) {
+        framingText = "plano muito aberto panorâmico épico";
+      }
 
       const angleDirective = `${angleText}, ${framingText}`;
       appliedDirectives.push(angleDirective);

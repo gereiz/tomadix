@@ -39,6 +39,8 @@ describe("CinematicPromptEnricher Keyword Detection", () => {
     expect(CinematicPromptEnricher.hasUserAngle("close-up dramático no rosto do personagem")).toBe(true);
     expect(CinematicPromptEnricher.hasUserAngle("plano geral da montanha")).toBe(true);
     expect(CinematicPromptEnricher.hasUserAngle("ângulo plongée contra o chão")).toBe(true);
+    expect(CinematicPromptEnricher.hasUserAngle("um homem de corpo inteiro caminhando")).toBe(true);
+    expect(CinematicPromptEnricher.hasUserAngle("foto full body de uma modelo")).toBe(true);
     expect(CinematicPromptEnricher.hasUserAngle("um homem tomando café")).toBe(false);
   });
 
@@ -227,6 +229,41 @@ describe("CinematicPromptEnricher Parameter Inheritance", () => {
     expect(result.enrichedPrompt).toContain("Cinematográfico Moody / Editorial Vintage");
     expect(result.enrichedPrompt).toContain("30%");
     expect(result.enrichedNegativePrompt).toContain("oversaturated colors");
+  });
+
+  it("enforces full body framing and anti-crop negative prompt when requested by user or project", async () => {
+    (db.project.findUnique as any).mockResolvedValue({
+      id: "proj-full-body",
+      title: "Projeto Corpo Inteiro",
+      configuration: {},
+      parameterValues: [
+        {
+          definition: { key: "tipo_de_plano" },
+          value: "plano_inteiro",
+        },
+      ],
+    });
+
+    // Test 1: Via project configuration
+    const resultFromConfig = await CinematicPromptEnricher.enrich({
+      userPrompt: "Um guerreiro medieval com espada",
+      projectId: "proj-full-body",
+      workspaceId: "ws-1",
+    });
+
+    expect(resultFromConfig.enrichedPrompt).toContain("corpo inteiro da cabeça aos pés");
+    expect(resultFromConfig.enrichedNegativePrompt).toContain("cropped legs");
+    expect(resultFromConfig.enrichedNegativePrompt).toContain("waist up");
+
+    // Test 2: Via user explicit prompt
+    const resultFromUser = await CinematicPromptEnricher.enrich({
+      userPrompt: "Um guerreiro medieval de corpo inteiro com armadura",
+      projectId: "proj-full-body",
+      workspaceId: "ws-1",
+    });
+
+    expect(resultFromUser.enrichedPrompt).toContain("corpo inteiro da cabeça aos pés");
+    expect(resultFromUser.enrichedNegativePrompt).toContain("cropped legs");
   });
 });
 
