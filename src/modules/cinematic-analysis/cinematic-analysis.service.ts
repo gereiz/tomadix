@@ -24,6 +24,39 @@ interface InlineDataPart {
   };
 }
 
+function toSafeString(val: unknown, fallback: string = ""): string {
+  if (val === null || val === undefined) return fallback;
+  if (typeof val === "string") return val.trim() || fallback;
+  if (typeof val === "number" || typeof val === "boolean") return String(val);
+  if (Array.isArray(val)) {
+    const joined = val.map((v) => toSafeString(v)).filter(Boolean).join(", ");
+    return joined || fallback;
+  }
+  if (typeof val === "object") {
+    const obj = val as Record<string, unknown>;
+    const candidate =
+      obj.value ??
+      obj.label ??
+      obj.name ??
+      obj.scale ??
+      obj.type ??
+      obj.description ??
+      obj.text ??
+      obj.title ??
+      obj.style;
+    if (candidate !== undefined && candidate !== null) {
+      return toSafeString(candidate, fallback);
+    }
+    try {
+      const stringValues = Object.values(obj).filter((v) => typeof v === "string" || typeof v === "number");
+      if (stringValues.length > 0) return String(stringValues[0]);
+    } catch {
+      // ignore
+    }
+  }
+  return fallback;
+}
+
 // Minimal valid PNG buffer in base64 (10x10 pixel fallback for SVGs and mock paths)
 const SAMPLE_CINEMATIC_PNG_BASE64 =
   "iVBORw0KGgoAAAANSUhEUgAAAAoAAAAKCAYAAACNMs+9AAAAFUlEQVR42mNk+M9Qz0AEYBxVGDUAAAnBAgGBV9JmAAAAAElFTkSuQmCC";
@@ -373,70 +406,93 @@ Importante: Em "technicalData" e em todos os "prompts", combine os parâmetros g
       };
     }
 
+    const rawTD = (parsedResult && typeof parsedResult === "object" ? parsedResult.technicalData : null) || {};
+    const rawPrompts = (parsedResult && typeof parsedResult === "object" ? parsedResult.prompts : null) || {};
+
     const technicalData: TechnicalData = {
-      cameraSensor: parsedResult.technicalData?.cameraSensor || "Full Frame 35mm",
-      lensFocalLength: parsedResult.technicalData?.lensFocalLength || "35mm",
-      aperture: parsedResult.technicalData?.aperture || "f/1.8",
-      framing: parsedResult.technicalData?.framing || "Plano Médio",
-      cameraAngle: parsedResult.technicalData?.cameraAngle || "Eye-level",
-      cameraMovement: parsedResult.technicalData?.cameraMovement || "Estático com respiração orgânica",
-      lightingStyle: parsedResult.technicalData?.lightingStyle || "Luz Natural Suave",
-      lightingSetup: parsedResult.technicalData?.lightingSetup || "Key Light 45°, Fill sutil",
-      colorTemperature: parsedResult.technicalData?.colorTemperature || "5600K",
-      colorPalette: Array.isArray(parsedResult.technicalData?.colorPalette)
-        ? parsedResult.technicalData.colorPalette
+      cameraSensor: toSafeString(rawTD.cameraSensor, "Full Frame 35mm"),
+      lensFocalLength: toSafeString(rawTD.lensFocalLength, "35mm"),
+      aperture: toSafeString(rawTD.aperture, "f/1.8"),
+      framing: toSafeString(rawTD.framing, "Plano Médio"),
+      cameraAngle: toSafeString(rawTD.cameraAngle, "Eye-level"),
+      cameraMovement: toSafeString(rawTD.cameraMovement, "Estático com respiração orgânica"),
+      lightingStyle: toSafeString(rawTD.lightingStyle, "Luz Natural Suave"),
+      lightingSetup: toSafeString(rawTD.lightingSetup, "Key Light 45°, Fill sutil"),
+      colorTemperature: toSafeString(rawTD.colorTemperature, "5600K"),
+      colorPalette: Array.isArray(rawTD.colorPalette)
+        ? rawTD.colorPalette.map((c: any) => toSafeString(c)).filter(Boolean)
         : ["#101418", "#10B981", "#E0E3E8", "#F59E0B", "#3B82F6"],
-      colorHarmony: parsedResult.technicalData?.colorHarmony || "Teal & Orange",
-      filmGrain: typeof parsedResult.technicalData?.filmGrain === "number" ? parsedResult.technicalData.filmGrain : 25,
-      visualAesthetic: parsedResult.technicalData?.visualAesthetic || "Cinematográfico Realista",
-      aspectRatio: parsedResult.technicalData?.aspectRatio || "16:9",
-      summaryDescription: parsedResult.technicalData?.summaryDescription || "Tomada cinematográfica decupada.",
+      colorHarmony: toSafeString(
+        rawTD.colorHarmony,
+        isBWHint ? "Preto e Branco Monocromático Analógico" : "Luz Natural Cinematográfica"
+      ),
+      filmGrain: typeof rawTD.filmGrain === "number" ? rawTD.filmGrain : Number(rawTD.filmGrain) || (isBWHint ? 45 : 25),
+      visualAesthetic: toSafeString(
+        rawTD.visualAesthetic,
+        isBWHint ? "Fotografia Preto e Branco Cinematográfica Vintage" : "Cinematográfico Realista"
+      ),
+      aspectRatio: toSafeString(rawTD.aspectRatio, "16:9"),
+      summaryDescription: toSafeString(rawTD.summaryDescription, "Tomada cinematográfica decupada."),
     };
 
     const prompts: ReverseEngineeredPrompts = {
-      midjourney: parsedResult.prompts?.midjourney || "Cinematic shot --ar 16:9 --style raw --v 6.1",
-      flux: parsedResult.prompts?.flux || "A cinematic still with 35mm lens.",
-      sdxl: parsedResult.prompts?.sdxl || "cinematic still, 8k, photorealistic",
-      videoGenerators: parsedResult.prompts?.videoGenerators || "Smooth dolly in camera movement, 24fps.",
-      negativePrompt: parsedResult.prompts?.negativePrompt || "deformed, blurry, bad anatomy",
-      narrativeDescriptionPt: parsedResult.prompts?.narrativeDescriptionPt || "Cena cinematográfica.",
-      englishPrompt: parsedResult.prompts?.englishPrompt || "Cinematic film still.",
+      midjourney: toSafeString(rawPrompts.midjourney, "Cinematic shot --ar 16:9 --style raw --v 6.1"),
+      flux: toSafeString(rawPrompts.flux, "A cinematic still with 35mm lens."),
+      sdxl: toSafeString(rawPrompts.sdxl, "cinematic still, 8k, photorealistic"),
+      videoGenerators: toSafeString(rawPrompts.videoGenerators, "Smooth dolly in camera movement, 24fps."),
+      negativePrompt: toSafeString(rawPrompts.negativePrompt, "deformed, blurry, bad anatomy"),
+      narrativeDescriptionPt: toSafeString(rawPrompts.narrativeDescriptionPt, "Cena cinematográfica."),
+      englishPrompt: toSafeString(rawPrompts.englishPrompt, "Cinematic film still."),
     };
 
+    const rawCR = (parsedResult && typeof parsedResult === "object" ? parsedResult.continuityReport : null) || {};
     const continuityReport: ContinuityReport | undefined = (input.mode === "VISUAL_CONTINUITY" || parsedResult.continuityReport)
       ? {
-          score: parsedResult.continuityReport?.score ?? 85,
-          characterConsistency: parsedResult.continuityReport?.characterConsistency ?? "Consistência de figurino e feições preservada.",
-          lightingConsistency: parsedResult.continuityReport?.lightingConsistency ?? "Raccord de luz compatível com a tomada anterior.",
-          spatialConsistency: parsedResult.continuityReport?.spatialConsistency ?? "Geometria cênica correspondente.",
-          discrepancies: Array.isArray(parsedResult.continuityReport?.discrepancies) ? parsedResult.continuityReport.discrepancies : [],
-          alignmentRecommendations: Array.isArray(parsedResult.continuityReport?.alignmentRecommendations)
-            ? parsedResult.continuityReport.alignmentRecommendations
+          score: typeof rawCR.score === "number" ? rawCR.score : 85,
+          characterConsistency: toSafeString(rawCR.characterConsistency, "Consistência de figurino e feições preservada."),
+          lightingConsistency: toSafeString(rawCR.lightingConsistency, "Raccord de luz compatível com a tomada anterior."),
+          spatialConsistency: toSafeString(rawCR.spatialConsistency, "Geometria cênica correspondente."),
+          discrepancies: Array.isArray(rawCR.discrepancies) ? rawCR.discrepancies.map((d: any) => toSafeString(d)) : [],
+          alignmentRecommendations: Array.isArray(rawCR.alignmentRecommendations)
+            ? rawCR.alignmentRecommendations.map((r: any) => toSafeString(r))
             : ["Manter mesma direção de luz-chave na próxima cena."],
         }
       : undefined;
 
     // Mapeamento automático dos parâmetros extraídos para o catálogo do Tomadix V1
+    const framingLow = technicalData.framing.toLowerCase();
+    const lensLow = technicalData.lensFocalLength.toLowerCase();
+    const apertureStr = technicalData.aperture.toLowerCase();
+    const angleLow = technicalData.cameraAngle.toLowerCase();
+    const movementLow = technicalData.cameraMovement.toLowerCase();
+    const lightingLow = technicalData.lightingStyle.toLowerCase();
+    const tempLow = technicalData.colorTemperature.toLowerCase();
+    const harmonyLow = technicalData.colorHarmony.toLowerCase();
+
     const mappedParameters: Record<string, unknown> = {
       formato_sensor_camera: "full_frame_35mm",
-      distancia_focal_lente: technicalData.lensFocalLength.toLowerCase().includes("50mm")
+      distancia_focal_lente: lensLow.includes("50mm")
         ? "50mm_normal"
-        : technicalData.lensFocalLength.toLowerCase().includes("85mm")
+        : lensLow.includes("85mm")
         ? "85mm_teleobjetiva"
         : "35mm_grande_angular_moderada",
-      profundidade_campo_foco: technicalData.aperture.includes("1.") ? "foco_raso_bokeh" : "profundidade_media",
-      tipo_de_plano: technicalData.framing.toLowerCase().includes("close")
+      profundidade_campo_foco: apertureStr.includes("1.") || apertureStr.includes("f/1") ? "foco_raso_bokeh" : "profundidade_media",
+      tipo_de_plano: framingLow.includes("close")
         ? "close_up"
-        : technicalData.framing.toLowerCase().includes("geral")
+        : framingLow.includes("geral") || framingLow.includes("wide")
         ? "plano_geral"
         : "plano_medio",
-      angulo_camera_posicao: technicalData.cameraAngle.toLowerCase().includes("low") ? "contra_plongee_baixo" : "nivel_olhos_neutro",
-      movimento_camera: technicalData.cameraMovement.toLowerCase().includes("hand") ? "handheld_organico" : "estatica_tripé",
-      estilo_iluminacao: technicalData.lightingStyle.toLowerCase().includes("chiaroscuro") ? "chiaroscuro_dramatico" : "luz_natural_suave",
-      temperatura_cor_iluminacao: technicalData.colorTemperature.toLowerCase().includes("3200") ? "quente_tungstenio_3200k" : "neutra_5600k",
+      angulo_camera_posicao: angleLow.includes("low") || angleLow.includes("contra") ? "contra_plongee_baixo" : "nivel_olhos_neutro",
+      movimento_camera: movementLow.includes("hand") ? "handheld_organico" : "estatica_tripé",
+      estilo_iluminacao: lightingLow.includes("chiaroscuro") ? "chiaroscuro_dramatico" : "luz_natural_suave",
+      temperatura_cor_iluminacao: tempLow.includes("3200") || tempLow.includes("quente") ? "quente_tungstenio_3200k" : "neutra_5600k",
       estilo_cinematografico_visual: "realista_contemporaneo",
       nivel_granulacao_pelicula: technicalData.filmGrain,
-      paleta_cor_dominante: technicalData.colorHarmony.toLowerCase().includes("teal") ? "teal_and_orange" : "tons_terrosos_organicos",
+      paleta_cor_dominante: harmonyLow.includes("teal")
+        ? "teal_and_orange"
+        : harmonyLow.includes("preto e branco") || harmonyLow.includes("monocrom") || isBWHint
+        ? "preto_e_branco_tonal"
+        : "tons_terrosos_organicos",
       proibir_elementos_negativos: prompts.negativePrompt,
     };
 
