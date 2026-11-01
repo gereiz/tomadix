@@ -16,12 +16,13 @@ import {
   ReactFlowProvider,
   useReactFlow,
   NodeProps,
+  NodeResizer,
 } from "@xyflow/react";
 import "@xyflow/react/dist/style.css";
 import { DirectEntityImageModal } from "@/components/image-generation/direct-entity-image-modal";
 
 // ============================================================================
-// CUSTOM NODE COMPONENTS
+// CUSTOM NODE COMPONENTS COM SUPORTE A REDIMENSIONAMENTO (NodeResizer)
 // ============================================================================
 
 function ImageBoardNode({ id, data, selected }: NodeProps) {
@@ -30,17 +31,6 @@ function ImageBoardNode({ id, data, selected }: NodeProps) {
   const label = d.label || d.modelId || "Imagem IA";
   const prompt = d.prompt || "";
   const aspectRatio = d.aspectRatio || "1:1";
-
-  const aspectClass =
-    aspectRatio === "9:16"
-      ? "aspect-[9/16] w-[240px]"
-      : aspectRatio === "16:9"
-      ? "aspect-[16/9] w-[340px]"
-      : aspectRatio === "21:9"
-      ? "aspect-[21/9] w-[380px]"
-      : aspectRatio === "4:3"
-      ? "aspect-[4/3] w-[300px]"
-      : "aspect-square w-[260px]";
 
   const handleDownload = (e: React.MouseEvent) => {
     e.stopPropagation();
@@ -57,12 +47,21 @@ function ImageBoardNode({ id, data, selected }: NodeProps) {
   };
 
   return (
-    <div className="group relative select-none">
+    <div className="group relative select-none h-full w-full flex flex-col min-w-[180px] min-h-[180px]">
+      <NodeResizer
+        isVisible={Boolean(selected)}
+        minWidth={160}
+        minHeight={160}
+        color="#10b981"
+        handleClassName="!h-2.5 !w-2.5 !rounded-full !bg-primary !border-2 !border-white shadow-md"
+        lineClassName="!border-primary/50"
+      />
+
       {/* Top Floating Label (Magnific style) */}
-      <div className="mb-1.5 flex items-center justify-between px-1 text-[11px] font-medium text-on-surface-variant">
+      <div className="mb-1.5 flex items-center justify-between px-1 text-[11px] font-medium text-on-surface-variant shrink-0">
         <span className="flex items-center gap-1.5 truncate max-w-[200px]">
           <span className="text-xs">🖼️</span>
-          <span className="font-mono font-semibold">{label}</span>
+          <span className="font-mono font-semibold truncate">{label}</span>
         </span>
         {d.onDeleteNode && (
           <button
@@ -72,7 +71,7 @@ function ImageBoardNode({ id, data, selected }: NodeProps) {
               d.onDeleteNode(id);
             }}
             className="opacity-0 group-hover:opacity-100 rounded px-1.5 py-0.5 text-[10px] text-red-400 hover:bg-red-500/15 transition"
-            title="Remover do board"
+            title="Remover do board (Delete)"
           >
             ✕
           </button>
@@ -81,7 +80,7 @@ function ImageBoardNode({ id, data, selected }: NodeProps) {
 
       {/* Main Image Card */}
       <div
-        className={`relative overflow-hidden rounded-2xl border bg-[#0e121b] shadow-xl transition-all ${aspectClass} ${
+        className={`relative flex-1 w-full h-full min-h-0 overflow-hidden rounded-2xl border bg-[#0e121b] shadow-xl transition-all ${
           selected
             ? "border-primary ring-2 ring-primary/40 shadow-primary/20"
             : "border-outline-variant/40 hover:border-outline"
@@ -101,7 +100,7 @@ function ImageBoardNode({ id, data, selected }: NodeProps) {
         )}
 
         {/* Hover Overlay with Prompt & Download */}
-        <div className=" theme-preserve-dark absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/90 via-black/60 to-transparent p-3 opacity-0 transition-opacity duration-200 group-hover:opacity-100">
+        <div className="theme-preserve-dark absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/90 via-black/60 to-transparent p-3 opacity-0 transition-opacity duration-200 group-hover:opacity-100">
           {prompt && (
             <p className="line-clamp-3 text-[11px] leading-snug text-white/90">
               {prompt}
@@ -164,14 +163,23 @@ function VideoGeneratorBoardNode({ id, data, selected }: NodeProps) {
   };
 
   return (
-    <div className="group relative select-none w-[300px]">
+    <div className="group relative select-none h-full w-full flex flex-col min-w-[260px] min-h-[340px]">
+      <NodeResizer
+        isVisible={Boolean(selected)}
+        minWidth={240}
+        minHeight={300}
+        color="#a855f7"
+        handleClassName="!h-2.5 !w-2.5 !rounded-full !bg-purple-500 !border-2 !border-white shadow-md"
+        lineClassName="!border-purple-500/50"
+      />
+
       {/* Top Floating Label (Magnific style) */}
-      <div className="mb-1.5 flex items-center justify-between px-1 text-[11px] font-medium text-on-surface-variant">
-        <span className="flex items-center gap-1.5">
+      <div className="mb-1.5 flex items-center justify-between px-1 text-[11px] font-medium text-on-surface-variant shrink-0">
+        <span className="flex items-center gap-1.5 truncate">
           <span>🎬</span>
-          <span className="font-mono font-semibold">{label}</span>
+          <span className="font-mono font-semibold truncate">{label}</span>
         </span>
-        <div className="flex items-center gap-1">
+        <div className="flex items-center gap-1 shrink-0">
           <span className="rounded-full bg-purple-500/15 border border-purple-500/30 px-2 py-0.5 text-[9px] font-bold text-purple-400">
             VÍDEO IA
           </span>
@@ -183,7 +191,7 @@ function VideoGeneratorBoardNode({ id, data, selected }: NodeProps) {
                 d.onDeleteNode(id);
               }}
               className="opacity-0 group-hover:opacity-100 rounded px-1.5 py-0.5 text-[10px] text-red-400 hover:bg-red-500/15 transition"
-              title="Remover do board"
+              title="Remover do board (Delete)"
             >
               ✕
             </button>
@@ -193,14 +201,14 @@ function VideoGeneratorBoardNode({ id, data, selected }: NodeProps) {
 
       {/* Video Card Container */}
       <div
-        className={`theme-preserve-dark relative overflow-hidden rounded-2xl border bg-[#0d111a] text-white shadow-2xl transition-all ${
+        className={`theme-preserve-dark relative flex-1 w-full min-h-0 flex flex-col overflow-hidden rounded-2xl border bg-[#0d111a] text-white shadow-2xl transition-all ${
           selected
             ? "border-purple-400 ring-2 ring-purple-500/40"
             : "border-white/15 hover:border-purple-400/50"
         }`}
       >
         {/* Visual Frame Area */}
-        <div className="relative aspect-[9/14] w-full overflow-hidden bg-gradient-to-br from-indigo-950/80 via-[#0b0f19] to-purple-950/70">
+        <div className="relative flex-1 w-full min-h-0 overflow-hidden bg-gradient-to-br from-indigo-950/80 via-[#0b0f19] to-purple-950/70">
           {previewUrl ? (
             <img
               src={previewUrl}
@@ -209,21 +217,21 @@ function VideoGeneratorBoardNode({ id, data, selected }: NodeProps) {
               draggable={false}
             />
           ) : (
-            <div className="flex h-full w-full flex-col items-center justify-center p-6 text-center">
-              <div className="mb-3 flex h-14 w-14 items-center justify-center rounded-full border border-white/20 bg-white/10 text-2xl shadow-inner backdrop-blur-md">
+            <div className="flex h-full w-full flex-col items-center justify-center p-4 text-center">
+              <div className="mb-2 flex h-12 w-12 items-center justify-center rounded-full border border-white/20 bg-white/10 text-xl shadow-inner backdrop-blur-md">
                 ▶
               </div>
               <p className="text-xs font-semibold text-white/90">
                 Pipeline de Vídeo Preparado
               </p>
-              <p className="mt-1 text-[11px] text-white/55">
+              <p className="mt-1 text-[10px] text-white/55 leading-tight">
                 Conecte imagens como Frame Inicial / Final nos conectores à esquerda
               </p>
             </div>
           )}
 
           {/* Top Ratio & Status Pill */}
-          <div className="absolute top-3 left-3 right-3 flex items-center justify-between">
+          <div className="absolute top-2.5 left-2.5 right-2.5 flex items-center justify-between pointer-events-auto">
             <select
               value={localRatio}
               onChange={(e) => {
@@ -231,21 +239,21 @@ function VideoGeneratorBoardNode({ id, data, selected }: NodeProps) {
                 commitChange(localPrompt, e.target.value);
               }}
               onClick={(e) => e.stopPropagation()}
-              className="rounded-lg border border-white/20 bg-black/60 px-2 py-1 text-[10px] font-mono text-white backdrop-blur-md focus:outline-none"
+              className="rounded-lg border border-white/20 bg-black/60 px-2 py-0.5 text-[10px] font-mono text-white backdrop-blur-md focus:outline-none"
             >
               <option value="9:16">9:16 Vertical</option>
               <option value="16:9">16:9 Cinema</option>
               <option value="1:1">1:1 Square</option>
             </select>
-            <span className="rounded-lg bg-black/60 border border-white/15 px-2 py-1 text-[9px] font-mono uppercase tracking-wider text-amber-300 backdrop-blur-md">
+            <span className="rounded-lg bg-black/60 border border-white/15 px-2 py-0.5 text-[9px] font-mono uppercase tracking-wider text-amber-300 backdrop-blur-md">
               ⚡ Em Breve
             </span>
           </div>
 
           {/* Bottom Motion Prompt Overlay (matches Magnific screenshot) */}
-          <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/95 via-black/80 to-transparent p-3.5 pt-8">
+          <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/95 via-black/80 to-transparent p-3 pt-6 pointer-events-auto">
             <textarea
-              rows={3}
+              rows={2}
               value={localPrompt}
               onChange={(e) => setLocalPrompt(e.target.value)}
               onBlur={() => commitChange(localPrompt, localRatio)}
@@ -315,8 +323,17 @@ function PromptBoardNode({ id, data, selected }: NodeProps) {
   };
 
   return (
-    <div className="group relative w-[310px] select-none">
-      <div className="mb-1 flex items-center justify-between px-1 text-[11px] font-medium text-on-surface-variant">
+    <div className="group relative select-none h-full w-full flex flex-col min-w-[240px] min-h-[160px]">
+      <NodeResizer
+        isVisible={Boolean(selected)}
+        minWidth={200}
+        minHeight={140}
+        color="#10b981"
+        handleClassName="!h-2.5 !w-2.5 !rounded-full !bg-primary !border-2 !border-white shadow-md"
+        lineClassName="!border-primary/50"
+      />
+
+      <div className="mb-1 flex items-center justify-between px-1 text-[11px] font-medium text-on-surface-variant shrink-0">
         <span className="flex items-center gap-1.5 truncate">
           <span>📜</span>
           <span className="font-semibold truncate">{label}</span>
@@ -329,6 +346,7 @@ function PromptBoardNode({ id, data, selected }: NodeProps) {
               d.onDeleteNode(id);
             }}
             className="opacity-0 group-hover:opacity-100 rounded px-1.5 py-0.5 text-[10px] text-red-400 hover:bg-red-500/15 transition"
+            title="Remover do board (Delete)"
           >
             ✕
           </button>
@@ -336,27 +354,26 @@ function PromptBoardNode({ id, data, selected }: NodeProps) {
       </div>
 
       <div
-        className={`rounded-2xl border bg-surface-container p-3.5 shadow-lg transition-all ${
+        className={`flex-1 w-full min-h-0 flex flex-col rounded-2xl border bg-surface-container p-3 shadow-lg transition-all ${
           selected
             ? "border-primary ring-2 ring-primary/30"
             : "border-outline-variant/40 hover:border-outline"
         }`}
       >
         <textarea
-          rows={4}
           value={promptText}
           onChange={(e) => setPromptText(e.target.value)}
           onBlur={handleBlur}
           onClick={(e) => e.stopPropagation()}
           placeholder="Escreva ou edite o prompt..."
-          className="w-full resize-none rounded-xl border border-outline-variant/30 bg-surface-container-low p-2.5 text-xs leading-relaxed text-on-surface focus:border-primary focus:outline-none"
+          className="flex-1 w-full min-h-0 resize-none rounded-xl border border-outline-variant/30 bg-surface-container-low p-2.5 text-xs leading-relaxed text-on-surface focus:border-primary focus:outline-none"
         />
 
-        <div className="mt-2.5 flex items-center justify-between gap-2">
+        <div className="mt-2 flex items-center justify-between gap-2 shrink-0">
           <button
             type="button"
             onClick={handleCopy}
-            className="rounded-lg border border-outline-variant/30 bg-surface-container-high px-2.5 py-1 text-[11px] font-medium text-on-surface-variant hover:text-on-surface"
+            className="rounded-lg border border-outline-variant/30 bg-surface-container-high px-2 py-1 text-[10px] font-medium text-on-surface-variant hover:text-on-surface"
           >
             {copied ? "✓ Copiado" : "📋 Copiar"}
           </button>
@@ -368,7 +385,7 @@ function PromptBoardNode({ id, data, selected }: NodeProps) {
                 e.stopPropagation();
                 d.onGenerateFromPrompt(promptText, id);
               }}
-              className="rounded-lg bg-primary/15 border border-primary/30 px-2.5 py-1 text-[11px] font-semibold text-primary hover:bg-primary/25 transition"
+              className="rounded-lg bg-primary/15 border border-primary/30 px-2.5 py-1 text-[10px] font-semibold text-primary hover:bg-primary/25 transition"
             >
               🎨 Gerar Imagem
             </button>
@@ -401,8 +418,17 @@ function EntityBoardNode({ id, data, selected }: NodeProps) {
       : { icon: "🎬", label: "Cena", color: "text-amber-400 bg-amber-500/10 border-amber-500/30" };
 
   return (
-    <div className="group relative w-[270px] select-none">
-      <div className="mb-1 flex items-center justify-between px-1 text-[11px] text-on-surface-variant">
+    <div className="group relative select-none h-full w-full flex flex-col min-w-[220px] min-h-[160px]">
+      <NodeResizer
+        isVisible={Boolean(selected)}
+        minWidth={180}
+        minHeight={140}
+        color="#06b6d4"
+        handleClassName="!h-2.5 !w-2.5 !rounded-full !bg-cyan-500 !border-2 !border-white shadow-md"
+        lineClassName="!border-cyan-500/50"
+      />
+
+      <div className="mb-1 flex items-center justify-between px-1 text-[11px] text-on-surface-variant shrink-0">
         <span className={`inline-flex items-center gap-1 rounded-md border px-1.5 py-0.5 text-[10px] font-semibold ${badge.color}`}>
           <span>{badge.icon}</span>
           <span>{badge.label}</span>
@@ -415,6 +441,7 @@ function EntityBoardNode({ id, data, selected }: NodeProps) {
               d.onDeleteNode(id);
             }}
             className="opacity-0 group-hover:opacity-100 rounded px-1.5 py-0.5 text-[10px] text-red-400 hover:bg-red-500/15 transition"
+            title="Remover do board (Delete)"
           >
             ✕
           </button>
@@ -422,14 +449,14 @@ function EntityBoardNode({ id, data, selected }: NodeProps) {
       </div>
 
       <div
-        className={`overflow-hidden rounded-2xl border bg-surface-container p-3.5 shadow-lg transition-all ${
+        className={`flex-1 w-full min-h-0 flex flex-col overflow-hidden rounded-2xl border bg-surface-container p-3 shadow-lg transition-all ${
           selected
             ? "border-primary ring-2 ring-primary/30"
             : "border-outline-variant/40 hover:border-outline"
         }`}
       >
         {d.imageUrl && (
-          <div className="mb-2.5 aspect-[16/10] w-full overflow-hidden rounded-xl bg-black/30">
+          <div className="mb-2 flex-1 w-full min-h-[90px] overflow-hidden rounded-xl bg-black/30">
             <img
               src={d.imageUrl}
               alt={d.title || d.label}
@@ -437,11 +464,11 @@ function EntityBoardNode({ id, data, selected }: NodeProps) {
             />
           </div>
         )}
-        <h4 className="text-sm font-bold text-on-surface truncate">
+        <h4 className="text-xs font-bold text-on-surface truncate shrink-0">
           {d.title || d.label || "Elemento"}
         </h4>
         {d.description && (
-          <p className="mt-1 line-clamp-3 text-xs text-on-surface-variant leading-relaxed">
+          <p className="mt-1 line-clamp-3 text-[11px] text-on-surface-variant leading-relaxed">
             {d.description}
           </p>
         )}
@@ -471,13 +498,22 @@ function NoteBoardNode({ id, data, selected }: NodeProps) {
 
   return (
     <div
-      className={`group relative w-[240px] rounded-2xl border p-3.5 shadow-lg transition-all ${
+      className={`group relative select-none h-full w-full flex flex-col min-w-[180px] min-h-[140px] rounded-2xl border p-3 shadow-lg transition-all ${
         selected
           ? "border-amber-400 ring-2 ring-amber-400/30"
           : "border-amber-500/30"
       } bg-amber-500/10 backdrop-blur-md`}
     >
-      <div className="mb-1.5 flex items-center justify-between text-[10px] font-bold uppercase tracking-wider text-amber-400">
+      <NodeResizer
+        isVisible={Boolean(selected)}
+        minWidth={160}
+        minHeight={120}
+        color="#f59e0b"
+        handleClassName="!h-2.5 !w-2.5 !rounded-full !bg-amber-400 !border-2 !border-white shadow-md"
+        lineClassName="!border-amber-400/50"
+      />
+
+      <div className="mb-1 flex items-center justify-between text-[10px] font-bold uppercase tracking-wider text-amber-400 shrink-0">
         <span>📝 Nota da Equipe</span>
         {d.onDeleteNode && (
           <button
@@ -487,19 +523,19 @@ function NoteBoardNode({ id, data, selected }: NodeProps) {
               d.onDeleteNode(id);
             }}
             className="opacity-0 group-hover:opacity-100 text-red-400 hover:text-red-300"
+            title="Remover do board (Delete)"
           >
             ✕
           </button>
         )}
       </div>
       <textarea
-        rows={4}
         value={text}
         onChange={(e) => setText(e.target.value)}
         onBlur={() => d.onUpdateNodeData?.(id, { ...d, text })}
         onClick={(e) => e.stopPropagation()}
         placeholder="Escreva uma anotação ou direção criativa..."
-        className="w-full resize-none bg-transparent text-xs leading-relaxed text-on-surface placeholder:text-on-surface-variant/50 focus:outline-none"
+        className="flex-1 w-full min-h-0 resize-none bg-transparent text-xs leading-relaxed text-on-surface placeholder:text-on-surface-variant/50 focus:outline-none"
       />
       <Handle
         type="target"
@@ -543,6 +579,16 @@ function SpaceBoardCanvasInner({
 
   const [nodes, setNodes, onNodesChange] = useNodesState<Node>([]);
   const [edges, setEdges, onEdgesChange] = useEdgesState<Edge>([]);
+
+  // Context Menu & Drag-to-Empty-Space Connection states
+  const [contextMenu, setContextMenu] = useState<{
+    x: number;
+    y: number;
+    flowPos: { x: number; y: number };
+    sourceNodeId?: string | null;
+  } | null>(null);
+  const connectingNodeIdRef = useRef<string | null>(null);
+  const genTargetPosRef = useRef<{ x: number; y: number } | null>(null);
 
   // Library drawer state
   const [isLibraryOpen, setIsLibraryOpen] = useState<boolean>(false);
@@ -595,24 +641,81 @@ function SpaceBoardCanvasInner({
   const handleGenerateFromPrompt = useCallback((promptText: string, sourceNodeId: string) => {
     setGenInitialPrompt(promptText);
     setGenSourceNodeId(sourceNodeId);
+    genTargetPosRef.current = null;
     setIsGenModalOpen(true);
   }, []);
 
+  // Atalho de teclado global: tecla Delete e Backspace apaga nós/arestas selecionados (sem interferir em digitação)
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape") {
+        setContextMenu(null);
+        return;
+      }
+      if (e.key !== "Delete" && e.key !== "Backspace") return;
+      const target = e.target as HTMLElement | null;
+      if (
+        target &&
+        (target.tagName === "INPUT" ||
+          target.tagName === "TEXTAREA" ||
+          target.isContentEditable ||
+          target.closest("input") ||
+          target.closest("textarea"))
+      ) {
+        return;
+      }
+      if (!canEdit) return;
+
+      setNodes((nds) => {
+        const selectedNodes = nds.filter((n) => n.selected);
+        if (selectedNodes.length === 0) return nds;
+        const selectedIds = new Set(selectedNodes.map((n) => n.id));
+        setEdges((eds) =>
+          eds.filter(
+            (ed) =>
+              !ed.selected &&
+              !selectedIds.has(ed.source) &&
+              !selectedIds.has(ed.target)
+          )
+        );
+        setSaveStatus("unsaved");
+        return nds.filter((n) => !n.selected);
+      });
+
+      setEdges((eds) => {
+        const selectedEdges = eds.filter((e) => e.selected);
+        if (selectedEdges.length > 0) {
+          setSaveStatus("unsaved");
+          return eds.filter((e) => !e.selected);
+        }
+        return eds;
+      });
+    };
+
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [canEdit, setNodes, setEdges]);
+
   const decorateNodes = useCallback(
     (rawNodes: any[]): Node[] => {
-      return (rawNodes || []).map((n) => ({
-        id: n.id,
-        type: n.type || "IMAGE",
-        position: { x: Number(n.x) || 0, y: Number(n.y) || 0 },
-        data: {
-          ...(n.data || {}),
-          refType: n.refType,
-          refId: n.refId,
-          onDeleteNode: handleDeleteNode,
-          onUpdateNodeData: handleUpdateNodeData,
-          onGenerateFromPrompt: handleGenerateFromPrompt,
-        },
-      }));
+      return (rawNodes || []).map((n) => {
+        const w = n.data?.width || n.width;
+        const h = n.data?.height || n.height;
+        return {
+          id: n.id,
+          type: n.type || "IMAGE",
+          position: { x: Number(n.x) || 0, y: Number(n.y) || 0 },
+          style: w && h ? { width: w, height: h } : undefined,
+          data: {
+            ...(n.data || {}),
+            refType: n.refType,
+            refId: n.refId,
+            onDeleteNode: handleDeleteNode,
+            onUpdateNodeData: handleUpdateNodeData,
+            onGenerateFromPrompt: handleGenerateFromPrompt,
+          },
+        };
+      });
     },
     [handleDeleteNode, handleUpdateNodeData, handleGenerateFromPrompt]
   );
@@ -675,7 +778,7 @@ function SpaceBoardCanvasInner({
     fetchBoardsAndLibrary();
   }, [fetchBoardsAndLibrary]);
 
-  // Save current board state to server
+  // Save current board state to server (incluindo dimensões redimensionadas)
   const persistBoardNow = useCallback(
     async (currentNodes: Node[], currentEdges: Edge[]) => {
       if (!activeBoardId || !canEdit) return;
@@ -693,6 +796,15 @@ function SpaceBoardCanvasInner({
               refId,
               ...cleanData
             } = (n.data || {}) as Record<string, any>;
+            const measuredW =
+              n.measured?.width ||
+              (typeof n.style?.width === "number" ? n.style.width : undefined) ||
+              (typeof n.width === "number" ? n.width : undefined);
+            const measuredH =
+              n.measured?.height ||
+              (typeof n.style?.height === "number" ? n.style.height : undefined) ||
+              (typeof n.height === "number" ? n.height : undefined);
+
             return {
               id: n.id,
               type: n.type || "IMAGE",
@@ -701,7 +813,11 @@ function SpaceBoardCanvasInner({
               zIndex: index,
               refType: refType || null,
               refId: refId || null,
-              data: cleanData,
+              data: {
+                ...cleanData,
+                width: measuredW ? Math.round(measuredW) : cleanData.width,
+                height: measuredH ? Math.round(measuredH) : cleanData.height,
+              },
             };
           }),
           edges: currentEdges.map((e) => ({
@@ -845,84 +961,152 @@ function SpaceBoardCanvasInner({
     };
   };
 
-  // Add specialized nodes from toolbar or library
-  const addVideoGeneratorNode = () => {
+  const handleCreateVideoNodeAt = (pos: { x: number; y: number }, sourceNodeId?: string | null) => {
     if (!canEdit) return;
-    const pos = getNextCanvasPosition();
     const videoCount = nodes.filter((n) => n.type === "VIDEO").length + 1;
+    const newNodeId = `node-video-${Date.now()}`;
     const newNode: Node = {
-      id: `node-video-${Date.now()}`,
+      id: newNodeId,
       type: "VIDEO",
       position: pos,
+      style: { width: 300, height: 460 },
       data: {
         label: `Gerador de vídeos #${videoCount}`,
         aspectRatio: "9:16",
         prompt:
           "High-altitude drone shot descending rapidly in a vertical tilt-down camera movement over a futuristic cyberpunk city...",
+        width: 300,
+        height: 460,
         onDeleteNode: handleDeleteNode,
         onUpdateNodeData: handleUpdateNodeData,
       },
     };
     setNodes((nds) => [...nds, newNode]);
+    if (sourceNodeId) {
+      setEdges((eds) => [
+        ...eds,
+        {
+          id: `edge-${sourceNodeId}-${newNodeId}`,
+          source: sourceNodeId,
+          target: newNodeId,
+          animated: true,
+          style: { stroke: "#a855f7", strokeWidth: 2.2 },
+        },
+      ]);
+    }
     setSaveStatus("unsaved");
   };
 
-  const addPromptNode = (customPrompt = "", customLabel = "Prompt Cinematográfico") => {
+  const handleCreatePromptNodeAt = (
+    pos: { x: number; y: number },
+    sourceNodeId?: string | null,
+    customPrompt = "",
+    customLabel = "Prompt Cinematográfico"
+  ) => {
     if (!canEdit) return;
-    const pos = getNextCanvasPosition();
+    const newNodeId = `node-prompt-${Date.now()}`;
     const newNode: Node = {
-      id: `node-prompt-${Date.now()}`,
+      id: newNodeId,
       type: "PROMPT",
       position: pos,
+      style: { width: 320, height: 220 },
       data: {
         label: customLabel,
         prompt: customPrompt,
+        width: 320,
+        height: 220,
         onDeleteNode: handleDeleteNode,
         onUpdateNodeData: handleUpdateNodeData,
         onGenerateFromPrompt: handleGenerateFromPrompt,
       },
     };
     setNodes((nds) => [...nds, newNode]);
+    if (sourceNodeId) {
+      setEdges((eds) => [
+        ...eds,
+        {
+          id: `edge-${sourceNodeId}-${newNodeId}`,
+          source: sourceNodeId,
+          target: newNodeId,
+          animated: true,
+          style: { stroke: "#6366f1", strokeWidth: 2.2 },
+        },
+      ]);
+    }
     setSaveStatus("unsaved");
   };
 
-  const addNoteNode = () => {
+  const handleCreateNoteNodeAt = (pos: { x: number; y: number }, sourceNodeId?: string | null) => {
     if (!canEdit) return;
-    const pos = getNextCanvasPosition();
+    const newNodeId = `node-note-${Date.now()}`;
     const newNode: Node = {
-      id: `node-note-${Date.now()}`,
+      id: newNodeId,
       type: "TEXT_NOTE",
       position: pos,
+      style: { width: 240, height: 180 },
       data: {
         text: "",
+        width: 240,
+        height: 180,
         onDeleteNode: handleDeleteNode,
         onUpdateNodeData: handleUpdateNodeData,
       },
     };
     setNodes((nds) => [...nds, newNode]);
+    if (sourceNodeId) {
+      setEdges((eds) => [
+        ...eds,
+        {
+          id: `edge-${sourceNodeId}-${newNodeId}`,
+          source: sourceNodeId,
+          target: newNodeId,
+          animated: true,
+          style: { stroke: "#f59e0b", strokeWidth: 2.2 },
+        },
+      ]);
+    }
     setSaveStatus("unsaved");
+  };
+
+  // Add specialized nodes from toolbar or library
+  const addVideoGeneratorNode = () => {
+    handleCreateVideoNodeAt(getNextCanvasPosition());
+  };
+
+  const addPromptNode = (customPrompt = "", customLabel = "Prompt Cinematográfico") => {
+    handleCreatePromptNodeAt(getNextCanvasPosition(), null, customPrompt, customLabel);
+  };
+
+  const addNoteNode = () => {
+    handleCreateNoteNodeAt(getNextCanvasPosition());
   };
 
   const addLibraryItemToBoard = (
     itemType: "IMAGE" | "PROMPT" | "CHARACTER" | "ENVIRONMENT" | "SCENE",
     item: any,
-    customPos?: { x: number; y: number }
+    customPos?: { x: number; y: number },
+    sourceNodeId?: string | null
   ) => {
     if (!canEdit) return;
     const pos = customPos || getNextCanvasPosition();
     const idSuffix = `${Date.now()}-${Math.random().toString(36).slice(2, 6)}`;
+    let createdNodeId = "";
 
     if (itemType === "IMAGE") {
+      createdNodeId = `node-img-${idSuffix}`;
       const newNode: Node = {
-        id: `node-img-${idSuffix}`,
+        id: createdNodeId,
         type: "IMAGE",
         position: pos,
+        style: { width: 300, height: 300 },
         data: {
           label: `#${nodes.filter((n) => n.type === "IMAGE").length + 1} · ${item.modelId || "Imagem"}`,
           imageUrl: item.imageUrl,
           prompt: item.prompt,
           modelId: item.modelId,
           aspectRatio: item.aspectRatio || "1:1",
+          width: 300,
+          height: 300,
           refType: "GENERATED_IMAGE",
           refId: item.id,
           onDeleteNode: handleDeleteNode,
@@ -931,13 +1115,17 @@ function SpaceBoardCanvasInner({
       };
       setNodes((nds) => [...nds, newNode]);
     } else if (itemType === "PROMPT") {
+      createdNodeId = `node-prompt-${idSuffix}`;
       const newNode: Node = {
-        id: `node-prompt-${idSuffix}`,
+        id: createdNodeId,
         type: "PROMPT",
         position: pos,
+        style: { width: 320, height: 220 },
         data: {
           label: `Cena ${item.sceneOrder || ""}: ${item.sceneTitle || "Prompt"} (v${item.version || 1})`,
           prompt: item.promptText,
+          width: 320,
+          height: 220,
           refType: "PROMPT_VERSION",
           refId: item.id,
           onDeleteNode: handleDeleteNode,
@@ -947,15 +1135,19 @@ function SpaceBoardCanvasInner({
       };
       setNodes((nds) => [...nds, newNode]);
     } else {
+      createdNodeId = `node-ent-${idSuffix}`;
       const newNode: Node = {
-        id: `node-ent-${idSuffix}`,
+        id: createdNodeId,
         type: itemType,
         position: pos,
+        style: { width: 270, height: 240 },
         data: {
           entityType: itemType,
           label: item.name || item.title,
           title: item.name || item.title,
           description: item.description || "",
+          width: 270,
+          height: 240,
           refType: itemType,
           refId: item.id,
           onDeleteNode: handleDeleteNode,
@@ -964,8 +1156,86 @@ function SpaceBoardCanvasInner({
       };
       setNodes((nds) => [...nds, newNode]);
     }
+
+    if (sourceNodeId && createdNodeId) {
+      setEdges((eds) => [
+        ...eds,
+        {
+          id: `edge-${sourceNodeId}-${createdNodeId}`,
+          source: sourceNodeId,
+          target: createdNodeId,
+          animated: true,
+          style: { stroke: "#6366f1", strokeWidth: 2.2 },
+        },
+      ]);
+    }
+
     setSaveStatus("unsaved");
   };
+
+  // Botão direito do mouse no canvas (abre menu de criação na posição do clique)
+  const onPaneContextMenu = useCallback(
+    (event: React.MouseEvent | MouseEvent) => {
+      event.preventDefault();
+      if (!canEdit) return;
+      const clientX = event.clientX;
+      const clientY = event.clientY;
+      const flowPos = reactFlowInstance.screenToFlowPosition({ x: clientX, y: clientY });
+      setContextMenu({
+        x: clientX,
+        y: clientY,
+        flowPos,
+        sourceNodeId: null,
+      });
+    },
+    [canEdit, reactFlowInstance]
+  );
+
+  // Arrastar conector para espaço vazio abre menu para criar nó conectado
+  const onConnectStart = useCallback(
+    (_event: any, params: { nodeId: string | null }) => {
+      connectingNodeIdRef.current = params.nodeId;
+    },
+    []
+  );
+
+  const onConnectEnd = useCallback(
+    (event: MouseEvent | TouchEvent) => {
+      const sourceNodeId = connectingNodeIdRef.current;
+      connectingNodeIdRef.current = null;
+      if (!sourceNodeId || !canEdit) return;
+
+      const target = event.target as HTMLElement | null;
+      const isPane =
+        target?.classList?.contains("react-flow__pane") ||
+        Boolean(target?.closest(".react-flow__pane")) ||
+        target?.tagName === "svg";
+
+      if (isPane) {
+        const clientX =
+          "clientX" in event
+            ? event.clientX
+            : "touches" in event && event.touches?.[0]
+            ? event.touches[0].clientX
+            : 0;
+        const clientY =
+          "clientY" in event
+            ? event.clientY
+            : "touches" in event && event.touches?.[0]
+            ? event.touches[0].clientY
+            : 0;
+        const flowPos = reactFlowInstance.screenToFlowPosition({ x: clientX, y: clientY });
+
+        setContextMenu({
+          x: clientX,
+          y: clientY,
+          flowPos,
+          sourceNodeId,
+        });
+      }
+    },
+    [canEdit, reactFlowInstance]
+  );
 
   // Drag & Drop from Library Drawer onto ReactFlow Canvas
   const onDragOver = useCallback((event: React.DragEvent) => {
@@ -1452,9 +1722,28 @@ function SpaceBoardCanvasInner({
           nodes={nodes}
           edges={edges}
           nodeTypes={nodeTypes}
+          deleteKeyCode={["Delete", "Backspace"]}
+          onNodesDelete={(deletedNodes) => {
+            if (!canEdit) return;
+            const deletedIds = new Set(deletedNodes.map((n) => n.id));
+            setEdges((eds) => eds.filter((e) => !deletedIds.has(e.source) && !deletedIds.has(e.target)));
+            setSaveStatus("unsaved");
+          }}
+          onEdgesDelete={() => {
+            if (!canEdit) return;
+            setSaveStatus("unsaved");
+          }}
           onNodesChange={(changes) => {
             onNodesChange(changes);
-            if (canEdit && changes.some((c) => c.type === "position" || c.type === "remove")) {
+            if (
+              canEdit &&
+              changes.some(
+                (c) =>
+                  c.type === "position" ||
+                  c.type === "remove" ||
+                  c.type === "dimensions"
+              )
+            ) {
               setSaveStatus("unsaved");
             }
           }}
@@ -1463,8 +1752,13 @@ function SpaceBoardCanvasInner({
             if (canEdit) setSaveStatus("unsaved");
           }}
           onConnect={onConnect}
+          onConnectStart={onConnectStart}
+          onConnectEnd={onConnectEnd}
+          onPaneContextMenu={onPaneContextMenu}
+          onPaneClick={() => setContextMenu(null)}
           onNodeDragStart={() => {
             isInteractingRef.current = true;
+            setContextMenu(null);
           }}
           onNodeDragStop={() => {
             isInteractingRef.current = false;
@@ -1472,6 +1766,7 @@ function SpaceBoardCanvasInner({
           }}
           onMove={(_evt, viewport) => {
             setZoomPercent(Math.round((viewport.zoom || 1) * 100));
+            if (contextMenu) setContextMenu(null);
           }}
           onDragOver={onDragOver}
           onDrop={onDrop}
@@ -1493,10 +1788,187 @@ function SpaceBoardCanvasInner({
         </ReactFlow>
       )}
 
+      {/* Menu de Contexto Flutuante (Botão Direito ou Arrastar Linha para Espaço Vazio) */}
+      {contextMenu && (
+        <div
+          style={{
+            position: "fixed",
+            left: Math.min(contextMenu.x, (typeof window !== "undefined" ? window.innerWidth : 1200) - 290),
+            top: Math.min(contextMenu.y, (typeof window !== "undefined" ? window.innerHeight : 800) - 400),
+            zIndex: 100,
+          }}
+          onClick={(e) => e.stopPropagation()}
+          className="theme-preserve-dark w-64 rounded-2xl border border-white/20 bg-[#0e131f]/95 p-2 shadow-2xl backdrop-blur-xl animate-in fade-in zoom-in-95 duration-150 text-white select-none"
+        >
+          {/* Header */}
+          <div className="flex items-center justify-between border-b border-white/10 px-2 py-1.5 mb-1.5">
+            <div className="flex items-center gap-1.5">
+              <span className="text-xs">{contextMenu.sourceNodeId ? "⚡" : "✨"}</span>
+              <span className="text-[11px] font-bold uppercase tracking-wider text-white/90">
+                {contextMenu.sourceNodeId ? "Conectar a Novo Nó" : "Criar no Board"}
+              </span>
+            </div>
+            <button
+              type="button"
+              onClick={() => setContextMenu(null)}
+              className="rounded p-0.5 text-xs text-white/40 hover:bg-white/10 hover:text-white"
+            >
+              ✕
+            </button>
+          </div>
+
+          {contextMenu.sourceNodeId && (
+            <div className="mb-2 rounded-lg bg-indigo-500/20 border border-indigo-500/30 px-2 py-1 text-[10px] text-indigo-300">
+              Conexão automática a partir do nó selecionado
+            </div>
+          )}
+
+          {/* Opções de Criação Rápida */}
+          <div className="space-y-1">
+            <button
+              type="button"
+              onClick={() => {
+                const flowPos = contextMenu.flowPos;
+                const srcId = contextMenu.sourceNodeId;
+                setContextMenu(null);
+                genTargetPosRef.current = flowPos;
+                setGenSourceNodeId(srcId || null);
+                setGenInitialPrompt("");
+                setIsGenModalOpen(true);
+              }}
+              className="flex w-full items-center gap-2.5 rounded-xl px-2 py-1.5 text-left text-xs font-medium text-white hover:bg-primary/20 hover:text-primary transition group"
+            >
+              <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-primary/20 text-primary text-sm group-hover:scale-110 transition shrink-0">
+                🎨
+              </span>
+              <div className="flex-1 min-w-0">
+                <div className="font-semibold text-white group-hover:text-primary">Gerar Imagem IA</div>
+                <div className="text-[10px] text-white/50 truncate">Flux, Pollinations, Imagen</div>
+              </div>
+            </button>
+
+            <button
+              type="button"
+              onClick={() => {
+                handleCreateVideoNodeAt(contextMenu.flowPos, contextMenu.sourceNodeId);
+                setContextMenu(null);
+              }}
+              className="flex w-full items-center gap-2.5 rounded-xl px-2 py-1.5 text-left text-xs font-medium text-white hover:bg-purple-500/20 hover:text-purple-300 transition group"
+            >
+              <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-purple-500/20 text-purple-400 text-sm group-hover:scale-110 transition shrink-0">
+                🎬
+              </span>
+              <div className="flex-1 min-w-0">
+                <div className="font-semibold text-white group-hover:text-purple-300">Gerador de Vídeo IA</div>
+                <div className="text-[10px] text-white/50 truncate">Pipeline start/end frame</div>
+              </div>
+            </button>
+
+            <button
+              type="button"
+              onClick={() => {
+                handleCreatePromptNodeAt(contextMenu.flowPos, contextMenu.sourceNodeId);
+                setContextMenu(null);
+              }}
+              className="flex w-full items-center gap-2.5 rounded-xl px-2 py-1.5 text-left text-xs font-medium text-white hover:bg-emerald-500/20 hover:text-emerald-300 transition group"
+            >
+              <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-emerald-500/20 text-emerald-400 text-sm group-hover:scale-110 transition shrink-0">
+                📜
+              </span>
+              <div className="flex-1 min-w-0">
+                <div className="font-semibold text-white group-hover:text-emerald-300">Prompt Cinematográfico</div>
+                <div className="text-[10px] text-white/50 truncate">Bloco de prompt conectável</div>
+              </div>
+            </button>
+
+            <button
+              type="button"
+              onClick={() => {
+                handleCreateNoteNodeAt(contextMenu.flowPos, contextMenu.sourceNodeId);
+                setContextMenu(null);
+              }}
+              className="flex w-full items-center gap-2.5 rounded-xl px-2 py-1.5 text-left text-xs font-medium text-white hover:bg-amber-500/20 hover:text-amber-300 transition group"
+            >
+              <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-amber-500/20 text-amber-400 text-sm group-hover:scale-110 transition shrink-0">
+                💬
+              </span>
+              <div className="flex-1 min-w-0">
+                <div className="font-semibold text-white group-hover:text-amber-300">Nota da Equipe</div>
+                <div className="text-[10px] text-white/50 truncate">Post-it colaborativo</div>
+              </div>
+            </button>
+          </div>
+
+          {/* Inserir da Biblioteca do Projeto se disponível */}
+          {(library.characters.length > 0 || library.environments.length > 0 || library.scenes.length > 0) && (
+            <div className="mt-2 pt-2 border-t border-white/10">
+              <div className="px-2 pb-1 text-[9px] font-bold uppercase tracking-wider text-white/40">
+                Inserir do Projeto
+              </div>
+              <div className="grid grid-cols-3 gap-1">
+                {library.characters.length > 0 && (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      addLibraryItemToBoard("CHARACTER", library.characters[0], contextMenu.flowPos, contextMenu.sourceNodeId);
+                      setContextMenu(null);
+                    }}
+                    className="rounded-lg bg-white/5 p-1.5 text-center hover:bg-white/10 transition"
+                    title={`Inserir ${library.characters[0]?.name}`}
+                  >
+                    <div className="text-sm">👤</div>
+                    <div className="text-[9px] font-medium text-white/70 truncate">Personagem</div>
+                  </button>
+                )}
+
+                {library.environments.length > 0 && (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      addLibraryItemToBoard("ENVIRONMENT", library.environments[0], contextMenu.flowPos, contextMenu.sourceNodeId);
+                      setContextMenu(null);
+                    }}
+                    className="rounded-lg bg-white/5 p-1.5 text-center hover:bg-white/10 transition"
+                    title={`Inserir ${library.environments[0]?.name}`}
+                  >
+                    <div className="text-sm">🏛️</div>
+                    <div className="text-[9px] font-medium text-white/70 truncate">Ambiente</div>
+                  </button>
+                )}
+
+                {library.scenes.length > 0 && (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      addLibraryItemToBoard("SCENE", library.scenes[0], contextMenu.flowPos, contextMenu.sourceNodeId);
+                      setContextMenu(null);
+                    }}
+                    className="rounded-lg bg-white/5 p-1.5 text-center hover:bg-white/10 transition"
+                    title={`Inserir Cena ${library.scenes[0]?.order}`}
+                  >
+                    <div className="text-sm">🎬</div>
+                    <div className="text-[9px] font-medium text-white/70 truncate">Cena</div>
+                  </button>
+                )}
+              </div>
+            </div>
+          )}
+
+          {/* Atalho dica */}
+          <div className="mt-2 border-t border-white/10 px-2 pt-1.5 text-[9px] text-white/40 flex items-center justify-between">
+            <span>Selecione e tecle <kbd className="font-mono text-white/70 bg-white/10 px-1 rounded">Delete</kbd></span>
+            <span>Esc fecha</span>
+          </div>
+        </div>
+      )}
+
       {/* Modal de Geração de Imagem Direta no Board */}
       <DirectEntityImageModal
         isOpen={isGenModalOpen}
-        onClose={() => setIsGenModalOpen(false)}
+        onClose={() => {
+          setIsGenModalOpen(false);
+          genTargetPosRef.current = null;
+        }}
         projectId={projectId}
         entityType="SCENE_START"
         title="Gerar Imagem no Space Board"
@@ -1515,18 +1987,23 @@ function SpaceBoardCanvasInner({
             images: [newImgObj, ...prev.images],
           }));
 
-          const pos = getNextCanvasPosition();
+          const pos = genTargetPosRef.current || getNextCanvasPosition();
+          genTargetPosRef.current = null;
+
           const newImgNodeId = `node-img-${result.imageId || Date.now()}`;
           const newNode: Node = {
             id: newImgNodeId,
             type: "IMAGE",
             position: pos,
+            style: { width: 320, height: 260 },
             data: {
               label: `#${nodes.filter((n) => n.type === "IMAGE").length + 1} · Imagem IA`,
               imageUrl: result.imageUrl,
               prompt: genInitialPrompt,
               modelId: "IA",
               aspectRatio: "16:9",
+              width: 320,
+              height: 260,
               refType: "GENERATED_IMAGE",
               refId: result.imageId,
               onDeleteNode: handleDeleteNode,

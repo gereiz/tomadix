@@ -95,6 +95,33 @@ export default function ProjectDetailPage({ params }: { params: Promise<{ id: st
   const [actionLoading, setActionLoading] = useState(false);
   const [refreshKey, setRefreshKey] = useState(0);
   const [isShareModalOpen, setIsShareModalOpen] = useState(false);
+  const [isAdmin, setIsAdmin] = useState(false);
+
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const sp = new URLSearchParams(window.location.search);
+      const tabParam = sp.get("tab") as TabType | null;
+      if (tabParam) {
+        setActiveTab(tabParam);
+        setVisitedTabs((prev) => ({ ...prev, [tabParam]: true }));
+      }
+    }
+  }, []);
+
+  useEffect(() => {
+    fetch("/api/auth/me")
+      .then((res) => (res.ok ? res.json() : null))
+      .then((data) => {
+        if (data?.authenticated && data.user) {
+          const isPlatform = Boolean(data.user.isPlatformAdmin);
+          const isWsAdmin = data.user.memberships?.some(
+            (m: any) => m.role === "OWNER" || m.role === "ADMIN"
+          );
+          setIsAdmin(isPlatform || isWsAdmin);
+        }
+      })
+      .catch(() => {});
+  }, []);
 
   // Modal de Bíblia Visual com IA (GEN_VISUAL_BIBLE)
   const [vbModalOpen, setVbModalOpen] = useState(false);
@@ -352,17 +379,19 @@ export default function ProjectDetailPage({ params }: { params: Promise<{ id: st
             </span>
           </div>
 
-          {/* Seletor de Modo: Board Colaborativo vs Estúdio Detalhado + Botão Compartilhar */}
+          {/* Seletor de Modo: Ordem exata solicitada (Personagens, Ambientes, Cenas, Prompts, Board Colaborativo, Detalhes + Parâmetros para Admins) */}
           <div className="flex items-center gap-2 overflow-x-auto no-scrollbar">
             <div className="flex items-center rounded-xl border border-white/10 bg-white/[0.03] p-1 gap-1">
               {[
-                { id: "board", label: "✨ Board Colaborativo", count: null },
                 { id: "characters", label: "👤 Personagens", count: project._count.characters },
                 { id: "environments", label: "🏛️ Ambientes", count: project._count.environments },
                 { id: "scenes", label: "🎬 Cenas", count: project._count.scenes },
                 { id: "prompts", label: "📜 Prompts", count: project._count.generations },
-                { id: "parameters", label: "⚙️ Parâmetros", count: project._count.parameterValues },
+                { id: "board", label: "✨ Board Colaborativo", count: null },
                 { id: "overview", label: "📊 Detalhes", count: null },
+                ...(isAdmin
+                  ? [{ id: "parameters", label: "⚙️ Parâmetros", count: project._count.parameterValues }]
+                  : []),
               ].map((tab) => {
                 const isActive = activeTab === tab.id;
                 return (
@@ -945,7 +974,7 @@ export default function ProjectDetailPage({ params }: { params: Promise<{ id: st
           </div>
         )}
 
-        {visitedTabs["parameters"] && (
+        {visitedTabs["parameters"] && isAdmin && (
           <div className={activeTab === "parameters" ? "block" : "hidden"}>
             <ProjectParameterSettings projectId={project.id} />
           </div>
