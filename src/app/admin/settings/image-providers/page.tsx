@@ -107,7 +107,7 @@ export default function ImageProvidersAdminPage() {
   // Filtro e Ordenação de modelos por qualidade e precificação da Pollinations
   const [modelSearch, setModelSearch] = useState("");
   const [sortBy, setSortBy] = useState<"quality" | "cost" | "name">("quality");
-  const [pricingFilter, setPricingFilter] = useState<"all" | "free" | "paid" | "ref">("all");
+  const [pricingFilter, setPricingFilter] = useState<"all" | "available" | "free" | "paid" | "ref">("all");
   const [batchLoading, setBatchLoading] = useState(false);
   const [cleaningRetention, setCleaningRetention] = useState(false);
 
@@ -389,6 +389,7 @@ export default function ImageProvidersAdminPage() {
     return false;
   };
 
+  const availableCount = models.filter((m) => m.isAvailable).length;
   const freeCount = models.filter((m) => !isModelPaid(m)).length;
   const paidCount = models.filter((m) => isModelPaid(m)).length;
   const refCount = models.filter((m) => m.supportsReferenceImage).length;
@@ -401,6 +402,7 @@ export default function ImageProvidersAdminPage() {
         (m.publisher && m.publisher.toLowerCase().includes(modelSearch.toLowerCase()));
       if (!matchesSearch) return false;
 
+      if (pricingFilter === "available") return m.isAvailable;
       if (pricingFilter === "free") return !isModelPaid(m);
       if (pricingFilter === "paid") return isModelPaid(m);
       if (pricingFilter === "ref") return m.supportsReferenceImage;
@@ -799,6 +801,19 @@ export default function ImageProvidersAdminPage() {
                       }`}
                     >
                       Todos ({models.length})
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setPricingFilter("available")}
+                      className={`px-2.5 py-1 rounded-lg text-[11px] font-semibold transition flex items-center gap-1.5 ${
+                        pricingFilter === "available"
+                          ? "bg-teal-500/25 text-teal-300 font-bold border border-teal-500/40 shadow-sm"
+                          : "bg-teal-500/10 text-teal-400/70 hover:text-teal-300 hover:bg-teal-500/20"
+                      }`}
+                      title="Exibir somente os modelos online e disponíveis para geração na API da Pollinations"
+                    >
+                      <span>⚡ Somente Disponíveis</span>
+                      <span className="font-mono text-[10px]">({availableCount})</span>
                     </button>
                     <button
                       type="button"
