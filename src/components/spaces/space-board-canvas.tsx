@@ -121,17 +121,23 @@ function ImageBoardNode({ id, data, selected }: NodeProps) {
         </div>
       </div>
 
-      {/* Handles */}
+      {/* Handles Aumentados para Fácil Conexão */}
       <Handle
         type="target"
         position={Position.Left}
-        className="!h-4 !w-4 !rounded-full !border-2 !border-primary !bg-surface-container shadow-md"
-      />
+        className="!h-7 !w-7 !rounded-full !border-[3px] !border-emerald-400 !bg-[#0b101b] shadow-lg shadow-emerald-500/30 transition-transform hover:scale-125 cursor-crosshair flex items-center justify-center group/handle"
+        title="Ponto de conexão (Entrada)"
+      >
+        <span className="h-2 w-2 rounded-full bg-emerald-400 pointer-events-none group-hover/handle:scale-125 transition-transform" />
+      </Handle>
       <Handle
         type="source"
         position={Position.Right}
-        className="!h-4 !w-4 !rounded-full !border-2 !border-primary !bg-surface-container shadow-md"
-      />
+        className="!h-7 !w-7 !rounded-full !border-[3px] !border-emerald-400 !bg-[#0b101b] shadow-lg shadow-emerald-500/30 transition-transform hover:scale-125 cursor-crosshair flex items-center justify-center group/handle"
+        title="Puxar conexão para outro nó ou espaço vazio"
+      >
+        <span className="h-2 w-2 rounded-full bg-emerald-400 pointer-events-none group-hover/handle:scale-125 transition-transform" />
+      </Handle>
     </div>
   );
 }
@@ -272,29 +278,38 @@ function VideoGeneratorBoardNode({ id, data, selected }: NodeProps) {
         position={Position.Left}
         style={{ top: "30%" }}
         title="Conectar Frame Inicial (Imagem)"
-        className="!h-4 !w-4 !rounded-full !border-2 !border-purple-400 !bg-surface-container shadow-md"
-      />
+        className="!h-7 !w-7 !rounded-full !border-[3px] !border-purple-400 !bg-[#0b101b] shadow-lg shadow-purple-500/30 transition-transform hover:scale-125 cursor-crosshair flex items-center justify-center group/handle"
+      >
+        <span className="h-2 w-2 rounded-full bg-purple-400 pointer-events-none group-hover/handle:scale-125 transition-transform" />
+      </Handle>
       <Handle
         type="target"
         id="end-frame"
         position={Position.Left}
         style={{ top: "65%" }}
         title="Conectar Frame Final (Imagem)"
-        className="!h-4 !w-4 !rounded-full !border-2 !border-purple-400 !bg-surface-container shadow-md"
-      />
+        className="!h-7 !w-7 !rounded-full !border-[3px] !border-purple-400 !bg-[#0b101b] shadow-lg shadow-purple-500/30 transition-transform hover:scale-125 cursor-crosshair flex items-center justify-center group/handle"
+      >
+        <span className="h-2 w-2 rounded-full bg-purple-400 pointer-events-none group-hover/handle:scale-125 transition-transform" />
+      </Handle>
       <Handle
         type="target"
         id="motion-prompt"
         position={Position.Left}
         style={{ top: "85%" }}
         title="Conectar Prompt de Movimento"
-        className="!h-4 !w-4 !rounded-full !border-2 !border-amber-400 !bg-surface-container shadow-md"
-      />
+        className="!h-7 !w-7 !rounded-full !border-[3px] !border-amber-400 !bg-[#0b101b] shadow-lg shadow-amber-500/30 transition-transform hover:scale-125 cursor-crosshair flex items-center justify-center group/handle"
+      >
+        <span className="h-2 w-2 rounded-full bg-amber-400 pointer-events-none group-hover/handle:scale-125 transition-transform" />
+      </Handle>
       <Handle
         type="source"
         position={Position.Right}
-        className="!h-4 !w-4 !rounded-full !border-2 !border-purple-400 !bg-surface-container shadow-md"
-      />
+        className="!h-7 !w-7 !rounded-full !border-[3px] !border-purple-400 !bg-[#0b101b] shadow-lg shadow-purple-500/30 transition-transform hover:scale-125 cursor-crosshair flex items-center justify-center group/handle"
+        title="Puxar conexão para outro nó ou espaço vazio"
+      >
+        <span className="h-2 w-2 rounded-full bg-purple-400 pointer-events-none group-hover/handle:scale-125 transition-transform" />
+      </Handle>
     </div>
   );
 }
@@ -396,13 +411,19 @@ function PromptBoardNode({ id, data, selected }: NodeProps) {
       <Handle
         type="target"
         position={Position.Left}
-        className="!h-3.5 !w-3.5 !rounded-full !border-2 !border-primary !bg-surface-container"
-      />
+        className="!h-7 !w-7 !rounded-full !border-[3px] !border-emerald-400 !bg-[#0b101b] shadow-lg shadow-emerald-500/30 transition-transform hover:scale-125 cursor-crosshair flex items-center justify-center group/handle"
+        title="Ponto de conexão (Entrada)"
+      >
+        <span className="h-2 w-2 rounded-full bg-emerald-400 pointer-events-none group-hover/handle:scale-125 transition-transform" />
+      </Handle>
       <Handle
         type="source"
         position={Position.Right}
-        className="!h-3.5 !w-3.5 !rounded-full !border-2 !border-primary !bg-surface-container"
-      />
+        className="!h-7 !w-7 !rounded-full !border-[3px] !border-emerald-400 !bg-[#0b101b] shadow-lg shadow-emerald-500/30 transition-transform hover:scale-125 cursor-crosshair flex items-center justify-center group/handle"
+        title="Puxar conexão para outro nó ou espaço vazio"
+      >
+        <span className="h-2 w-2 rounded-full bg-emerald-400 pointer-events-none group-hover/handle:scale-125 transition-transform" />
+      </Handle>
     </div>
   );
 }
@@ -477,13 +498,19 @@ function EntityBoardNode({ id, data, selected }: NodeProps) {
       <Handle
         type="target"
         position={Position.Left}
-        className="!h-3.5 !w-3.5 !rounded-full !border-2 !border-primary !bg-surface-container"
-      />
+        className="!h-7 !w-7 !rounded-full !border-[3px] !border-emerald-400 !bg-[#0b101b] shadow-lg shadow-emerald-500/30 transition-transform hover:scale-125 cursor-crosshair flex items-center justify-center group/handle"
+        title="Ponto de conexão (Entrada)"
+      >
+        <span className="h-2 w-2 rounded-full bg-emerald-400 pointer-events-none group-hover/handle:scale-125 transition-transform" />
+      </Handle>
       <Handle
         type="source"
         position={Position.Right}
-        className="!h-3.5 !w-3.5 !rounded-full !border-2 !border-primary !bg-surface-container"
-      />
+        className="!h-7 !w-7 !rounded-full !border-[3px] !border-emerald-400 !bg-[#0b101b] shadow-lg shadow-emerald-500/30 transition-transform hover:scale-125 cursor-crosshair flex items-center justify-center group/handle"
+        title="Puxar conexão para outro nó ou espaço vazio"
+      >
+        <span className="h-2 w-2 rounded-full bg-emerald-400 pointer-events-none group-hover/handle:scale-125 transition-transform" />
+      </Handle>
     </div>
   );
 }
@@ -540,13 +567,19 @@ function NoteBoardNode({ id, data, selected }: NodeProps) {
       <Handle
         type="target"
         position={Position.Left}
-        className="!h-3 !w-3 !rounded-full !border-2 !border-amber-400 !bg-surface-container"
-      />
+        className="!h-7 !w-7 !rounded-full !border-[3px] !border-amber-400 !bg-[#0b101b] shadow-lg shadow-amber-500/30 transition-transform hover:scale-125 cursor-crosshair flex items-center justify-center group/handle"
+        title="Ponto de conexão (Entrada)"
+      >
+        <span className="h-2 w-2 rounded-full bg-amber-400 pointer-events-none group-hover/handle:scale-125 transition-transform" />
+      </Handle>
       <Handle
         type="source"
         position={Position.Right}
-        className="!h-3 !w-3 !rounded-full !border-2 !border-amber-400 !bg-surface-container"
-      />
+        className="!h-7 !w-7 !rounded-full !border-[3px] !border-amber-400 !bg-[#0b101b] shadow-lg shadow-amber-500/30 transition-transform hover:scale-125 cursor-crosshair flex items-center justify-center group/handle"
+        title="Puxar conexão para outro nó ou espaço vazio"
+      >
+        <span className="h-2 w-2 rounded-full bg-amber-400 pointer-events-none group-hover/handle:scale-125 transition-transform" />
+      </Handle>
     </div>
   );
 }
@@ -1773,6 +1806,7 @@ function SpaceBoardCanvasInner({
           nodesDraggable={canEdit}
           nodesConnectable={canEdit}
           elementsSelectable={true}
+          connectionLineStyle={{ stroke: "#10b981", strokeWidth: 2.5 }}
           fitView
           fitViewOptions={{ padding: 0.22 }}
           minZoom={0.15}
