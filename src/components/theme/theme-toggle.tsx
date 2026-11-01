@@ -9,19 +9,19 @@ export { resolveEffectiveTheme, applyDomTheme };
 const STORAGE_KEY = "tomadix_theme";
 
 export function ThemeToggle({ compact = false }: { compact?: boolean }) {
-  const [mode, setMode] = useState<ThemeMode>("system");
+  const [mode, setMode] = useState<ThemeMode>("dark");
   const [effective, setEffective] = useState<"light" | "dark">("dark");
   const [isOpen, setIsOpen] = useState(false);
 
   const syncFromStorage = useCallback(() => {
     try {
-      const saved = (localStorage.getItem(STORAGE_KEY) as ThemeMode | null) || "system";
+      const saved = (localStorage.getItem(STORAGE_KEY) as ThemeMode | null) || "dark";
       const validMode: ThemeMode =
-        saved === "light" || saved === "dark" || saved === "system" ? saved : "system";
+        saved === "light" || saved === "dark" || saved === "system" ? saved : "dark";
       setMode(validMode);
       setEffective(applyDomTheme(validMode));
     } catch {
-      setEffective(applyDomTheme("system"));
+      setEffective(applyDomTheme("dark"));
     }
   }, []);
 
@@ -30,7 +30,7 @@ export function ThemeToggle({ compact = false }: { compact?: boolean }) {
 
     const mql = window.matchMedia("(prefers-color-scheme: light)");
     const handleMediaChange = () => {
-      const currentMode = (localStorage.getItem(STORAGE_KEY) as ThemeMode | null) || "system";
+      const currentMode = (localStorage.getItem(STORAGE_KEY) as ThemeMode | null) || "dark";
       if (currentMode === "system") {
         setEffective(applyDomTheme("system"));
       }

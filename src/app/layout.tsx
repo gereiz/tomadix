@@ -32,7 +32,7 @@ export default async function RootLayout({ children }: Readonly<{ children: Reac
       <head>
         <script
           dangerouslySetInnerHTML={{
-            __html: `(function(){try{var m=localStorage.getItem("tomadix_theme")||"system";var eff=m==="light"||m==="dark"?m:(window.matchMedia&&window.matchMedia("(prefers-color-scheme: light)").matches?"light":"dark");var r=document.documentElement;r.setAttribute("data-theme",eff);r.setAttribute("data-theme-mode",m);if(eff==="light"){r.classList.remove("dark");r.classList.add("light");}else{r.classList.remove("light");r.classList.add("dark");}}catch(e){}})();`,
+            __html: `(function(){try{var m=localStorage.getItem("tomadix_theme")||"dark";var eff=m==="light"||m==="dark"?m:(window.matchMedia&&window.matchMedia("(prefers-color-scheme: light)").matches?"light":"dark");var r=document.documentElement;r.setAttribute("data-theme",eff);r.setAttribute("data-theme-mode",m);if(eff==="light"){r.classList.remove("dark");r.classList.add("light");}else{r.classList.remove("light");r.classList.add("dark");}}catch(e){}})();`,
           }}
         />
         <link rel="preconnect" href="https://fonts.googleapis.com" />

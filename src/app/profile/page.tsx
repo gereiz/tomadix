@@ -77,7 +77,7 @@ export default function ProfilePage() {
   const [confirmPassword, setConfirmPassword] = useState("");
 
   // Preferências
-  const [theme, setTheme] = useState<ThemeMode>("system");
+  const [theme, setTheme] = useState<ThemeMode>("dark");
   const [defaultViewMode, setDefaultViewMode] = useState<"cards" | "table">("cards");
   const [compactView, setCompactView] = useState(false);
   const [language, setLanguage] = useState<"pt-BR" | "en-US">("pt-BR");
@@ -122,7 +122,7 @@ export default function ProfilePage() {
       const savedLocalTheme =
         (typeof window !== "undefined" ? (localStorage.getItem("tomadix_theme") as ThemeMode | null) : null) ||
         prefs.theme ||
-        "system";
+        "dark";
       setTheme(savedLocalTheme);
       setDefaultViewMode(prefs.defaultViewMode || "cards");
       setCompactView(Boolean(prefs.compactView));
