@@ -24,8 +24,8 @@ export class PollinationsImageProvider {
       supportedAspectRatios: ["1:1", "16:9", "9:16", "4:3", "3:4", "21:9"],
       supportedResolutions: [
         "1024x1024",
-        "1280x720",
-        "720x1280",
+        "1344x768",
+        "768x1344",
         "1024x768",
         "768x1024",
         "1344x576",
@@ -35,29 +35,44 @@ export class PollinationsImageProvider {
   }
 
   /**
-   * Converte proporção e resolução em width e height numéricos.
+   * Garante que uma dimensão seja estritamente múltiplo de 32 (exigência do FLUX e SDXL).
+   */
+  private alignTo32(val: number): number {
+    return Math.max(32, Math.round(val / 32) * 32);
+  }
+
+  /**
+   * Converte proporção e resolução em width e height numéricos em múltiplos estritos de 32.
    */
   private resolveDimensions(aspectRatio?: ImageAspectRatio, resolution?: string): { width: number; height: number; size: string } {
     if (resolution && resolution.includes("x")) {
-      const [w, h] = resolution.split("x").map(Number);
-      if (!isNaN(w) && !isNaN(h) && w > 0 && h > 0) {
+      const [rawW, rawH] = resolution.split("x").map(Number);
+      if (!isNaN(rawW) && !isNaN(rawH) && rawW > 0 && rawH > 0) {
+        const w = this.alignTo32(rawW);
+        const h = this.alignTo32(rawH);
         return { width: w, height: h, size: `${w}x${h}` };
       }
     }
 
     switch (aspectRatio) {
       case "16:9":
-        return { width: 1280, height: 720, size: "1280x720" };
+        // 1344 e 768 são múltiplos exatos de 32 (1344/32=42, 768/32=24), proporção widescreen cinema 1.75
+        return { width: 1344, height: 768, size: "1344x768" };
       case "9:16":
-        return { width: 720, height: 1280, size: "720x1280" };
+        // 768 e 1344 são múltiplos exatos de 32 (768/32=24, 1344/32=42)
+        return { width: 768, height: 1344, size: "768x1344" };
       case "4:3":
+        // 1024 e 768 são múltiplos exatos de 32 (1024/32=32, 768/32=24)
         return { width: 1024, height: 768, size: "1024x768" };
       case "3:4":
+        // 768 e 1024 são múltiplos exatos de 32 (768/32=24, 1024/32=32)
         return { width: 768, height: 1024, size: "768x1024" };
       case "21:9":
+        // 1344 e 576 são múltiplos exatos de 32 (1344/32=42, 576/32=18)
         return { width: 1344, height: 576, size: "1344x576" };
       case "1:1":
       default:
+        // 1024 e 1024 são múltiplos exatos de 32 (1024/32=32)
         return { width: 1024, height: 1024, size: "1024x1024" };
     }
   }
@@ -243,14 +258,19 @@ export class PollinationsImageProvider {
 
     const startTime = Date.now();
     const effectiveBaseUrl = baseUrl || this.defaultBaseUrl;
-    const { width, height, size } = this.resolveDimensions(aspectRatio, resolution);
+    const rawDim = this.resolveDimensions(aspectRatio, resolution);
+    const finalWidth = this.alignTo32(rawDim.width);
+    const finalHeight = this.alignTo32(rawDim.height);
+    const finalSize = `${finalWidth}x${finalHeight}`;
 
-    // Preparar payload compatível OpenAI
+    // Preparar payload compatível OpenAI com dimensões em múltiplos estritos de 32
     const payload: Record<string, any> = {
       model: effectiveModel || "flux",
       prompt: effectivePrompt.trim(),
       n: 1,
-      size,
+      size: finalSize,
+      width: finalWidth,
+      height: finalHeight,
       response_format: options.responseFormat || "b64_json",
     };
 
@@ -279,14 +299,30 @@ export class PollinationsImageProvider {
         signal: controller.signal,
       });
 
-      // Se a Pollinations rejeitar o modelo como inválido (HTTP 400), tentar fallback imediato para "flux"
+      // Se a Pollinations rejeitar com HTTP 400, verificar motivos recuperáveis
       if (!response.ok && response.status === 400) {
         const errorPeek = await response.clone().text().catch(() => "");
+        let retryNeeded = false;
+
+        // Caso 1: Dimensões não aceitas como múltiplos de 32 pelo modelo (ex: FLUX 1.1 Pro)
+        if (errorPeek.includes("multiples of 32") || errorPeek.includes("multiple of 32")) {
+          console.warn("[PollinationsImageProvider] Dimensões ajustadas para múltiplos estritos de 32 (1024x1024 / 1344x768)...");
+          payload.width = 1024;
+          payload.height = 1024;
+          payload.size = "1024x1024";
+          retryNeeded = true;
+        }
+
+        // Caso 2: Modelo rejeitado pela rota
         if (errorPeek.includes("Invalid model or alias") && payload.model !== "flux") {
           console.warn(
-            `[PollinationsImageProvider] Modelo "${payload.model}" não aceito pela Pollinations. Acionando fallback automático transparente para "flux"...`
+            `[PollinationsImageProvider] Modelo "${payload.model}" não aceito pela Pollinations. Acionando fallback automático para "flux"...`
           );
           payload.model = "flux";
+          retryNeeded = true;
+        }
+
+        if (retryNeeded) {
           response = await fetch(endpoint, {
             method: "POST",
             headers: {
@@ -331,8 +367,8 @@ export class PollinationsImageProvider {
           durationMs,
           externalCost,
           externalCostUnit,
-          width,
-          height,
+          width: finalWidth,
+          height: finalHeight,
           seed,
         };
       }
@@ -346,8 +382,8 @@ export class PollinationsImageProvider {
           durationMs,
           externalCost,
           externalCostUnit,
-          width,
-          height,
+          width: finalWidth,
+          height: finalHeight,
           seed,
         };
       }
@@ -439,7 +475,7 @@ export class PollinationsImageProvider {
             publisher: "Pollinations.ai",
             description: this.getDefaultDescription(item),
             capabilities: ["TEXT_TO_IMAGE"],
-            supportedSizes: ["1024x1024", "1280x720", "720x1280"],
+            supportedSizes: ["1024x1024", "1344x768", "768x1344", "1024x768", "1344x576"],
             supportsReferenceImage: item.toLowerCase().includes("flux"),
             supportsImageEditing: false,
             isAvailable: true,
@@ -503,18 +539,19 @@ export class PollinationsImageProvider {
             rawPricing: item.pricing || {},
           };
 
+          const isAvailable = item.available !== false;
           list.push({
             modelId,
             name,
             publisher,
             description,
             capabilities: Array.isArray(item.capabilities) ? item.capabilities : ["TEXT_TO_IMAGE"],
-            supportedSizes: Array.isArray(item.sizes) ? item.sizes : ["1024x1024", "1280x720", "720x1280"],
+            supportedSizes: Array.isArray(item.sizes) ? item.sizes : ["1024x1024", "1344x768", "768x1344", "1024x768", "1344x576"],
             supportsReferenceImage,
             supportsImageEditing,
             pricingInfo,
-            isAvailable: item.available !== false,
-            isEnabled: true,
+            isAvailable,
+            isEnabled: isAvailable,
             isDefault: item.isDefault || modelId === "flux" || modelId.includes("flux-1-image"),
             displayOrder: index,
           });
@@ -547,7 +584,7 @@ export class PollinationsImageProvider {
         publisher: "Black Forest Labs",
         description: "Modelo cinematográfico principal de alta fidelidade e aderência detalhada ao prompt.",
         capabilities: ["TEXT_TO_IMAGE", "REFERENCE_IMAGE"],
-        supportedSizes: ["1024x1024", "1280x720", "720x1280", "1344x576", "1024x768"],
+        supportedSizes: ["1024x1024", "1344x768", "768x1344", "1344x576", "1024x768"],
         supportsReferenceImage: true,
         supportsImageEditing: false,
         pricingInfo: { paidOnly: false, costPollen: "Gratuito (0 pollen)", maxReferenceImages: 10 },
@@ -563,7 +600,7 @@ export class PollinationsImageProvider {
         publisher: "Black Forest Labs",
         description: "Qualidade profissional máxima, iluminação volumétrica e fidelidade fotográfica cinematográfica.",
         capabilities: ["TEXT_TO_IMAGE", "REFERENCE_IMAGE"],
-        supportedSizes: ["1024x1024", "1280x720", "720x1280"],
+        supportedSizes: ["1024x1024", "1344x768", "768x1344", "1344x576", "1024x768"],
         supportsReferenceImage: true,
         supportsImageEditing: false,
         pricingInfo: { paidOnly: true, costPollen: "4 pollen", maxReferenceImages: 10 },
@@ -579,7 +616,7 @@ export class PollinationsImageProvider {
         publisher: "Alibaba",
         description: "Geração ultrarrápida e econômica com imagens nítidas e renderização rápida.",
         capabilities: ["TEXT_TO_IMAGE"],
-        supportedSizes: ["1024x1024", "1280x720", "720x1280"],
+        supportedSizes: ["1024x1024", "1344x768", "768x1344", "1344x576", "1024x768"],
         supportsReferenceImage: false,
         supportsImageEditing: false,
         pricingInfo: { paidOnly: false, costPollen: "0.004 pollen (Free)", maxReferenceImages: 0 },
@@ -595,7 +632,7 @@ export class PollinationsImageProvider {
         publisher: "ByteDance",
         description: "Geração de imagem de alta velocidade em 1K ou 2K com composição balanceada.",
         capabilities: ["TEXT_TO_IMAGE", "REFERENCE_IMAGE"],
-        supportedSizes: ["1024x1024", "1280x720", "720x1280"],
+        supportedSizes: ["1024x1024", "1344x768", "768x1344", "1344x576", "1024x768"],
         supportsReferenceImage: true,
         supportsImageEditing: false,
         pricingInfo: { paidOnly: true, costPollen: "0.03 pollen", maxReferenceImages: 10 },
@@ -611,7 +648,7 @@ export class PollinationsImageProvider {
         publisher: "Recraft",
         description: "Estilos visuais flexíveis com geração rápida e refinamento estético.",
         capabilities: ["TEXT_TO_IMAGE"],
-        supportedSizes: ["1024x1024", "1280x720", "720x1280"],
+        supportedSizes: ["1024x1024", "1344x768", "768x1344", "1344x576", "1024x768"],
         supportsReferenceImage: false,
         supportsImageEditing: false,
         pricingInfo: { paidOnly: true, costPollen: "0.02 pollen", maxReferenceImages: 0 },
@@ -689,7 +726,7 @@ export class PollinationsImageProvider {
     }
     if (status === 402) {
       throw new ImageGenerationError(
-        "Saldo ou orçamento insuficiente na conta da Pollinations para processar a requisição.",
+        "O modelo selecionado requer saldo de Pollen na conta da Pollinations (HTTP 402). Escolha um modelo gratuito (Pollen Free como o FLUX.1 Schnell) ou recarregue seu saldo de Pollen.",
         "INSUFFICIENT_PROVIDER_BALANCE",
         402
       );

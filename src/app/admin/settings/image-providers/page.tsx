@@ -900,13 +900,20 @@ export default function ImageProvidersAdminPage() {
                     </thead>
                     <tbody className="divide-y divide-white/5">
                       {rankedModels.map((item) => (
-                        <tr key={item.id} className="hover:bg-white/[0.02] transition">
+                        <tr
+                          key={item.id}
+                          className={`transition ${
+                            !item.isAvailable
+                              ? "opacity-60 bg-red-500/[0.03] hover:opacity-80"
+                              : "hover:bg-white/[0.02]"
+                          }`}
+                        >
                           <td className="py-3 px-3">
                             <div className="flex flex-col">
                               <span className="font-semibold text-white flex items-center gap-1.5">
                                 {item.name}
                                 {!item.isAvailable && (
-                                  <span className="text-[9px] px-1.5 py-0.2 rounded bg-red-500/20 text-red-300 font-mono">
+                                  <span className="text-[9px] px-1.5 py-0.2 rounded bg-red-500/20 text-red-300 font-mono font-bold">
                                     INDISPONÍVEL
                                   </span>
                                 )}
@@ -989,9 +996,10 @@ export default function ImageProvidersAdminPage() {
                             ) : (
                               <button
                                 type="button"
+                                disabled={!item.isAvailable}
                                 onClick={() => handleSetDefaultModel(item.modelId)}
-                                className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-[10px] font-semibold bg-white/5 border border-white/10 text-white/60 hover:text-white hover:bg-white/15 hover:border-amber-400/40 transition"
-                                title="Definir este modelo como o padrão da plataforma"
+                                className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-[10px] font-semibold bg-white/5 border border-white/10 text-white/60 hover:text-white hover:bg-white/15 hover:border-amber-400/40 transition disabled:opacity-30 disabled:cursor-not-allowed"
+                                title={item.isAvailable ? "Definir este modelo como o padrão da plataforma" : "Modelo indisponível no provedor upstream"}
                               >
                                 Tornar Padrão
                               </button>
@@ -1001,14 +1009,24 @@ export default function ImageProvidersAdminPage() {
                           <td className="py-3 px-3 text-right">
                             <button
                               type="button"
-                              onClick={() => handleToggleModel(item.modelId, item.isEnabled)}
+                              disabled={!item.isAvailable}
+                              onClick={() => {
+                                if (!item.isAvailable) {
+                                  alert("Este modelo está marcado como indisponível pela Pollinations e não pode ser ativado.");
+                                  return;
+                                }
+                                handleToggleModel(item.modelId, item.isEnabled);
+                              }}
                               className={`px-2.5 py-1 rounded-lg text-[10px] font-bold font-mono transition ${
-                                item.isEnabled
+                                !item.isAvailable
+                                  ? "bg-red-500/10 text-red-400/60 border border-red-500/20 cursor-not-allowed opacity-50"
+                                  : item.isEnabled
                                   ? "bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 hover:bg-emerald-500/30"
                                   : "bg-white/10 text-white/40 border border-white/10 hover:bg-white/20"
                               }`}
+                              title={!item.isAvailable ? "Modelo indisponível no upstream da Pollinations" : item.isEnabled ? "Clique para desativar" : "Clique para ativar"}
                             >
-                              {item.isEnabled ? "ATIVO" : "INATIVO"}
+                              {!item.isAvailable ? "INDISPONÍVEL" : item.isEnabled ? "ATIVO" : "INATIVO"}
                             </button>
                           </td>
                         </tr>

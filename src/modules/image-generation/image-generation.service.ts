@@ -5,6 +5,7 @@ import { ImageProviderRegistryService } from "./image-provider-registry.service"
 import { ImageEntitlementService } from "./image-entitlement.service";
 import { ImageStorageService } from "./image-storage.service";
 import { GeneratedImageService } from "./generated-image.service";
+import { CinematicPromptEnricher } from "./cinematic-prompt-enricher";
 import {
   ImageGenerationOptions,
   ImageGenerationResult,
@@ -88,6 +89,35 @@ export class ImageGenerationService {
       throw new ImageGenerationError("O prompt da imagem é obrigatório.", "EMPTY_PROMPT", 400);
     }
 
+    // 0. Resolver projeto vinculado caso venha de cena, personagem ou ambiente
+    let effectiveProjectId = projectId;
+    if (!effectiveProjectId) {
+      if (sceneId) {
+        const sc = await db.scene.findUnique({ where: { id: sceneId }, select: { projectId: true } });
+        if (sc?.projectId) effectiveProjectId = sc.projectId;
+      } else if (characterId) {
+        const ch = await db.character.findUnique({ where: { id: characterId }, select: { projectId: true } });
+        if (ch?.projectId) effectiveProjectId = ch.projectId;
+      } else if (environmentId) {
+        const env = await db.environment.findUnique({ where: { id: environmentId }, select: { projectId: true } });
+        if (env?.projectId) effectiveProjectId = env.projectId;
+      }
+    }
+
+    // 0.1 Enriquecimento cinematográfico consistente herdando os parâmetros do projeto (exceto o que o usuário já especificou)
+    const enrichment = await CinematicPromptEnricher.enrich({
+      userPrompt: prompt,
+      projectId: effectiveProjectId,
+      workspaceId,
+      characterId,
+      environmentId,
+      sceneId,
+      negativePrompt,
+      aspectRatio,
+    });
+    const effectivePrompt = enrichment.enrichedPrompt;
+    const effectiveNegativePrompt = enrichment.enrichedNegativePrompt || negativePrompt;
+
     // 1. Obter provedor e suas configurações
     const providerConfig = await ImageProviderRegistryService.getProviderConfig(providerId);
     if (!providerConfig.isActive) {
@@ -113,7 +143,7 @@ export class ImageGenerationService {
         workspaceId,
         operationCode: "GEN_IMAGE_DIRECT",
         description: `Geração Direta de Imagem (${selectedModel})`,
-        projectId,
+        projectId: effectiveProjectId,
         userId,
         idempotencyKey: operationId,
         metadata: {
@@ -122,16 +152,18 @@ export class ImageGenerationService {
           providerId,
           aspectRatio,
           resolution,
+          appliedDirectives: enrichment.appliedDirectives,
+          skippedDirectives: enrichment.skippedDirectives,
         },
       },
       async () => {
         // Chamada real ao provedor externo (Pollinations)
         const genOptions: ImageGenerationOptions = {
-          prompt,
+          prompt: effectivePrompt,
           model: selectedModel,
           aspectRatio,
           resolution,
-          negativePrompt,
+          negativePrompt: effectiveNegativePrompt,
           referenceImageUrl,
           seed,
           responseFormat: "b64_json",
@@ -154,10 +186,13 @@ export class ImageGenerationService {
     });
 
     // 5. Gravar registro definitivo no histórico de imagens geradas
+    const finalRevisedPrompt =
+      generationResult.revisedPrompt || (effectivePrompt !== prompt ? effectivePrompt : undefined);
+
     const generatedRecord = await GeneratedImageService.recordGeneratedImage({
       userId,
       workspaceId,
-      projectId,
+      projectId: effectiveProjectId,
       characterId,
       environmentId,
       sceneId,
@@ -165,12 +200,14 @@ export class ImageGenerationService {
       providerId,
       modelId: selectedModel,
       prompt,
-      revisedPrompt: generationResult.revisedPrompt,
-      negativePrompt,
+      revisedPrompt: finalRevisedPrompt,
+      negativePrompt: effectiveNegativePrompt,
       parameters: {
         aspectRatio,
         resolution,
         seed: generationResult.seed,
+        appliedDirectives: enrichment.appliedDirectives,
+        skippedDirectives: enrichment.skippedDirectives,
       },
       aspectRatio,
       resolution,
@@ -181,7 +218,11 @@ export class ImageGenerationService {
       externalCostUnit: generationResult.externalCostUnit,
       status: "SUCCEEDED",
       generationTimeMs: durationMs,
-      metadata,
+      metadata: {
+        ...metadata,
+        appliedDirectives: enrichment.appliedDirectives,
+        skippedDirectives: enrichment.skippedDirectives,
+      },
     });
 
     // 5.1 Atualizar vínculo visual nas entidades do projeto (personagem, ambiente, cena)

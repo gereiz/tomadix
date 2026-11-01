@@ -233,7 +233,7 @@ export class ImageProviderRegistryService {
       const existing = existingMap.get(model.modelId);
 
       if (existing) {
-        // Atualizar informações da API preservando switches do admin
+        // Atualizar informações da API preservando switches do admin, desabilitando modelos indisponíveis
         await db.imageModelConfig.update({
           where: { id: existing.id },
           data: {
@@ -245,7 +245,8 @@ export class ImageProviderRegistryService {
             supportsReferenceImage: model.supportsReferenceImage,
             supportsImageEditing: model.supportsImageEditing,
             pricingInfo: (model.pricingInfo || existing.pricingInfo || {}) as any,
-            isAvailable: true,
+            isAvailable: model.isAvailable,
+            isEnabled: model.isAvailable ? existing.isEnabled : false,
             lastSyncedAt: new Date(),
           },
         });

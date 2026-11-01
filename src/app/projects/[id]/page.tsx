@@ -113,11 +113,9 @@ export default function ProjectDetailPage({ params }: { params: Promise<{ id: st
       .then((res) => (res.ok ? res.json() : null))
       .then((data) => {
         if (data?.authenticated && data.user) {
+          // Apenas administradores da plataforma visualizam a aba técnica de Parâmetros
           const isPlatform = Boolean(data.user.isPlatformAdmin);
-          const isWsAdmin = data.user.memberships?.some(
-            (m: any) => m.role === "OWNER" || m.role === "ADMIN"
-          );
-          setIsAdmin(isPlatform || isWsAdmin);
+          setIsAdmin(isPlatform);
         }
       })
       .catch(() => {});

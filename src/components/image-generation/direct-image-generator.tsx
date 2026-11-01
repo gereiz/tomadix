@@ -337,9 +337,9 @@ export function DirectImageGenerator({
               ))}
             </div>
             <p className="text-[10px] text-white/40 font-mono">
-              {aspectRatio === "16:9" && "1280x720 — Cinema Widescreen / Vídeo"}
+              {aspectRatio === "16:9" && "1344x768 — Cinema Widescreen / Vídeo"}
               {aspectRatio === "1:1" && "1024x1024 — Quadrado / Personagem"}
-              {aspectRatio === "9:16" && "720x1280 — Vertical / Stories"}
+              {aspectRatio === "9:16" && "768x1344 — Vertical / Stories"}
               {aspectRatio === "4:3" && "1024x768 — Formato Clássico"}
               {aspectRatio === "21:9" && "1344x576 — Cinemascope Ultra-wide"}
             </p>
