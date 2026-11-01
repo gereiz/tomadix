@@ -15,6 +15,7 @@ import {
   GeminiTimeoutError,
 } from "@/modules/ai/gemini-provider";
 import { GeminiMultiProvider } from "@/modules/ai/gemini-multi-provider";
+import { ParameterService } from "@/modules/parameters/parameter.service";
 
 interface InlineDataPart {
   inlineData: {
@@ -457,51 +458,251 @@ Importante: Em "technicalData" e em todos os "prompts", combine os parâmetros g
   }
 
   /**
-   * Aplica diretamente os parâmetros extraídos da análise à configuração do projeto selecionado.
+   * Aplica diretamente os parâmetros extraídos da análise à configuração e aos registros
+   * de parâmetros do projeto selecionado (ProjectParameterValue e Bíblia Visual).
    */
   static async applyToProject(
     projectId: string,
     workspaceId: string,
-    parameterSettings: Record<string, unknown>
+    parameterSettings: Record<string, unknown> = {},
+    technicalData?: Record<string, unknown>,
+    prompts?: Record<string, unknown>,
+    analysisId?: string
   ): Promise<{ success: boolean; appliedCount: number; message: string }> {
     const project = await db.project.findFirst({
       where: { id: projectId, workspaceId },
-      select: { id: true, configuration: true },
+      include: {
+        parameterValues: {
+          include: { definition: true },
+        },
+      },
     });
 
     if (!project) {
       throw new Error("Projeto não encontrado ou sem permissão de acesso.");
     }
 
-    const currentConfig = (project.configuration as any) || {};
-    const currentParams = currentConfig.parameterSettings || {};
+    const tech = (technicalData || {}) as Record<string, any>;
+    const pr = (prompts || {}) as Record<string, any>;
 
-    // Atualiza a configuração do projeto com os novos parâmetros cinematográficos
+    // 1. Mapeamento semântico completo e robusto das características técnicas analisadas
+    const unifiedParams: Record<string, unknown> = {
+      ...parameterSettings,
+    };
+
+    if (tech.cameraSensor && !unifiedParams["formato_sensor_camera"]) {
+      const s = String(tech.cameraSensor).toLowerCase();
+      if (s.includes("imax") || s.includes("70mm")) unifiedParams["formato_sensor_camera"] = "imax_70mm";
+      else if (s.includes("16mm")) unifiedParams["formato_sensor_camera"] = "pelicula_16mm_vintage";
+      else if (s.includes("medio") || s.includes("medium")) unifiedParams["formato_sensor_camera"] = "medio_formato";
+      else if (s.includes("super 35") || s.includes("super_35")) unifiedParams["formato_sensor_camera"] = "super_35";
+      else unifiedParams["formato_sensor_camera"] = "full_frame_35mm";
+    }
+
+    if (tech.lensFocalLength && !unifiedParams["distancia_focal_lente"]) {
+      const l = String(tech.lensFocalLength).toLowerCase();
+      if (l.includes("24mm") || l.includes("grande angular")) unifiedParams["distancia_focal_lente"] = "24mm_grande_angular";
+      else if (l.includes("50mm")) unifiedParams["distancia_focal_lente"] = "50mm_olho_humano";
+      else if (l.includes("85mm")) unifiedParams["distancia_focal_lente"] = "85mm_retrato";
+      else if (l.includes("135mm") || l.includes("tele")) unifiedParams["distancia_focal_lente"] = "135mm_teleobjetiva";
+      else unifiedParams["distancia_focal_lente"] = "35mm_narrativa";
+    }
+
+    if (tech.aperture && !unifiedParams["profundidade_campo_foco"]) {
+      const a = String(tech.aperture).toLowerCase();
+      if (a.includes("1.") || a.includes("2.0") || a.includes("bokeh") || a.includes("raso")) {
+        unifiedParams["profundidade_campo_foco"] = "foco_raso_bokeh";
+      } else if (a.includes("8") || a.includes("11") || a.includes("16") || a.includes("deep") || a.includes("profundo")) {
+        unifiedParams["profundidade_campo_foco"] = "foco_profundo_deep";
+      } else {
+        unifiedParams["profundidade_campo_foco"] = "profundidade_media";
+      }
+    }
+
+    if (tech.framing && !unifiedParams["tipo_de_plano"]) {
+      const f = String(tech.framing).toLowerCase();
+      if (f.includes("extreme close") || f.includes("detalhe")) unifiedParams["tipo_de_plano"] = "extreme_close_up";
+      else if (f.includes("close")) unifiedParams["tipo_de_plano"] = "close_up";
+      else if (f.includes("americano") || f.includes("medium long")) unifiedParams["tipo_de_plano"] = "plano_americano";
+      else if (f.includes("muito aberto") || f.includes("extreme wide")) unifiedParams["tipo_de_plano"] = "plano_muito_aberto";
+      else if (f.includes("geral") || f.includes("wide")) unifiedParams["tipo_de_plano"] = "plano_geral";
+      else unifiedParams["tipo_de_plano"] = "plano_medio";
+    }
+
+    if (tech.cameraAngle && !unifiedParams["angulo_camera_posicao"]) {
+      const ang = String(tech.cameraAngle).toLowerCase();
+      if (ang.includes("low") || ang.includes("contra")) unifiedParams["angulo_camera_posicao"] = "contra_plongee";
+      else if (ang.includes("high") || ang.includes("plongee") || ang.includes("cima")) unifiedParams["angulo_camera_posicao"] = "plongee";
+      else if (ang.includes("zenital") || ang.includes("top") || ang.includes("bird")) unifiedParams["angulo_camera_posicao"] = "zenital";
+      else if (ang.includes("dutch") || ang.includes("holandes")) unifiedParams["angulo_camera_posicao"] = "dutch_angle";
+      else if (ang.includes("pov") || ang.includes("primeira pessoa")) unifiedParams["angulo_camera_posicao"] = "ponto_de_vista_pov";
+      else unifiedParams["angulo_camera_posicao"] = "nivel_olhos";
+    }
+
+    if (tech.cameraMovement && !unifiedParams["movimento_camera"]) {
+      const m = String(tech.cameraMovement).toLowerCase();
+      if (m.includes("hand") || m.includes("mao") || m.includes("organico")) unifiedParams["movimento_camera"] = "handheld_organico";
+      else if (m.includes("dolly in")) unifiedParams["movimento_camera"] = "dolly_in";
+      else if (m.includes("dolly out")) unifiedParams["movimento_camera"] = "dolly_out";
+      else if (m.includes("travel") || m.includes("lateral")) unifiedParams["movimento_camera"] = "travelling_lateral";
+      else if (m.includes("grua") || m.includes("jib")) unifiedParams["movimento_camera"] = "grua_jib";
+      else unifiedParams["movimento_camera"] = "estatica_tripé";
+    }
+
+    if (tech.lightingStyle && !unifiedParams["estilo_iluminacao"]) {
+      const l = String(tech.lightingStyle).toLowerCase();
+      if (l.includes("chiaroscuro") || l.includes("noir")) unifiedParams["estilo_iluminacao"] = "chiaroscuro_dramatico";
+      else if (l.includes("golden") || l.includes("dourad")) unifiedParams["estilo_iluminacao"] = "golden_hour";
+      else if (l.includes("neon") || l.includes("cyberpunk")) unifiedParams["estilo_iluminacao"] = "neon_cyberpunk";
+      else if (l.includes("dura") || l.includes("sol") || l.includes("hard")) unifiedParams["estilo_iluminacao"] = "hard_sunlight";
+      else if (l.includes("rim") || l.includes("recorte")) unifiedParams["estilo_iluminacao"] = "rim_light_recorte";
+      else unifiedParams["estilo_iluminacao"] = "luz_natural_suave";
+    }
+
+    if (tech.colorTemperature && !unifiedParams["temperatura_cor_iluminacao"]) {
+      const t = String(tech.colorTemperature).toLowerCase();
+      if (t.includes("3200") || t.includes("quente") || t.includes("tungst")) unifiedParams["temperatura_cor_iluminacao"] = "quente_tungstenio_3200k";
+      else if (t.includes("7000") || t.includes("fria") || t.includes("azul")) unifiedParams["temperatura_cor_iluminacao"] = "fria_azulada_7000k";
+      else if (t.includes("bicolor")) unifiedParams["temperatura_cor_iluminacao"] = "bicolor_contrastante";
+      else unifiedParams["temperatura_cor_iluminacao"] = "neutra_5600k";
+    }
+
+    if (tech.visualAesthetic && !unifiedParams["estilo_cinematografico_visual"]) {
+      const a = String(tech.visualAesthetic).toLowerCase();
+      if (a.includes("cyberpunk") || a.includes("neo-noir")) unifiedParams["estilo_cinematografico_visual"] = "cyberpunk_neonoir";
+      else if (a.includes("fantasia") || a.includes("epica")) unifiedParams["estilo_cinematografico_visual"] = "fantasia_epica";
+      else if (a.includes("document")) unifiedParams["estilo_cinematografico_visual"] = "documentario_cru";
+      else if (a.includes("retro") || a.includes("vintage") || a.includes("technicolor") || a.includes("70s") || a.includes("nostalgico")) {
+        unifiedParams["estilo_cinematografico_visual"] = "retro_technicolor_70s";
+      } else {
+        unifiedParams["estilo_cinematografico_visual"] = "realista_contemporaneo";
+      }
+    }
+
+    if (tech.colorHarmony && !unifiedParams["paleta_cor_dominante"]) {
+      const h = String(tech.colorHarmony).toLowerCase();
+      if (h.includes("teal") || h.includes("orange")) unifiedParams["paleta_cor_dominante"] = "teal_and_orange";
+      else if (h.includes("monocrom") || h.includes("dessaturad") || h.includes("preto e branco") || h.includes("peb")) {
+        unifiedParams["paleta_cor_dominante"] = "monocromatico_dessaturado";
+      } else if (h.includes("terros") || h.includes("ocre") || h.includes("warm") || h.includes("analogo")) {
+        unifiedParams["paleta_cor_dominante"] = "tons_terrosos_organicos";
+      } else if (h.includes("vivid") || h.includes("saturad") || h.includes("colorid")) {
+        unifiedParams["paleta_cor_dominante"] = "cores_vividas_saturadas";
+      } else {
+        unifiedParams["paleta_cor_dominante"] = "tons_terrosos_organicos";
+      }
+    }
+
+    if (tech.filmGrain !== undefined && unifiedParams["nivel_granulacao_pelicula"] === undefined) {
+      unifiedParams["nivel_granulacao_pelicula"] = Number(tech.filmGrain) || 25;
+    }
+
+    if (tech.aspectRatio && !unifiedParams["proporcao_tela_aspect_ratio"]) {
+      unifiedParams["proporcao_tela_aspect_ratio"] = tech.aspectRatio;
+    }
+
+    if (pr.negativePrompt && !unifiedParams["proibir_elementos_negativos"]) {
+      unifiedParams["proibir_elementos_negativos"] = pr.negativePrompt;
+    }
+
+    // 2. Garantir parâmetros padrão no workspace e sincronizar definições
+    await ParameterService.ensureDefaultParameters(workspaceId);
+    const allDefs = await ParameterService.listParameters(workspaceId, { enabled: true });
+    const defsByKey = new Map(allDefs.map((d: any) => [d.key, d]));
+
+    // 3. Salvar valores diretamente no banco relacional (ParameterValue)
+    const valuesToSave: Array<{
+      parameterDefinitionId: string;
+      targetType: "PROJECT";
+      targetId: null;
+      value: unknown;
+    }> = [];
+
+    for (const [key, val] of Object.entries(unifiedParams)) {
+      const def = defsByKey.get(key);
+      if (def && val !== undefined && val !== null) {
+        valuesToSave.push({
+          parameterDefinitionId: def.id,
+          targetType: "PROJECT",
+          targetId: null,
+          value: val,
+        });
+      }
+    }
+
+    if (valuesToSave.length > 0) {
+      await ParameterService.saveValues(projectId, workspaceId, valuesToSave);
+    }
+
+    // 4. Atualizar a configuração global, Bíblia Visual e metadados do projeto
+    const currentConfig = (project.configuration as any) || {};
     const updatedConfig = {
       ...currentConfig,
+      colorGrade: tech.colorHarmony || tech.visualAesthetic || currentConfig.colorGrade,
+      aspectRatio: tech.aspectRatio || currentConfig.aspectRatio,
+      colorPalette: tech.colorPalette || currentConfig.colorPalette,
+      filmGrain: tech.filmGrain !== undefined ? Number(tech.filmGrain) : currentConfig.filmGrain,
       parameterSettings: {
-        ...currentParams,
+        ...(currentConfig.parameterSettings || {}),
         values: {
-          ...(currentParams.values || {}),
-          ...parameterSettings,
+          ...((currentConfig.parameterSettings as any)?.values || {}),
+          ...unifiedParams,
         },
+        enabledParameterKeys: Array.from(
+          new Set([
+            ...(((currentConfig.parameterSettings as any)?.enabledParameterKeys) || []),
+            ...Object.keys(unifiedParams),
+          ])
+        ),
         appliedFromAnalysisAt: new Date().toISOString(),
+        analysisId,
+      },
+      visualBible: {
+        ...(currentConfig.visualBible || {}),
+        source: "CINEMATIC_ANALYSIS",
+        appliedAt: new Date().toISOString(),
+        analysisId,
+        technicalData: tech,
+        reversePrompts: pr,
+        summaryDescription: tech.summaryDescription,
+        aesthetic: tech.visualAesthetic,
+        lighting: tech.lightingStyle,
+        lightingSetup: tech.lightingSetup,
+        colorTemperature: tech.colorTemperature,
+        camera: tech.cameraSensor,
+        lens: tech.lensFocalLength,
+        aperture: tech.aperture,
+        framing: tech.framing,
+        angle: tech.cameraAngle,
+        movement: tech.cameraMovement,
+        colorGrade: tech.colorHarmony,
+        palette: tech.colorPalette,
+        filmGrain: tech.filmGrain,
+        aspectRatio: tech.aspectRatio,
+        negativePrompt: pr.negativePrompt,
       },
     };
 
+    const updateData: any = {
+      configuration: updatedConfig,
+      visualBible: updatedConfig.visualBible,
+      updatedAt: new Date(),
+    };
+
+    if ((!project.description || project.description.trim() === "") && tech.summaryDescription) {
+      updateData.description = String(tech.summaryDescription).slice(0, 500);
+    }
+
     await db.project.update({
       where: { id: projectId },
-      data: {
-        configuration: updatedConfig,
-        updatedAt: new Date(),
-      },
+      data: updateData,
     });
 
-    const appliedCount = Object.keys(parameterSettings).length;
+    const appliedCount = Object.keys(unifiedParams).length;
     return {
       success: true,
       appliedCount,
-      message: `${appliedCount} parâmetros cinematográficos aplicados com sucesso à Bíblia Visual do projeto!`,
+      message: `${appliedCount} parâmetros cinematográficos aplicados com sucesso à Bíblia Visual e ao catálogo técnico do projeto!`,
     };
   }
 

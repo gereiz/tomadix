@@ -5,7 +5,10 @@ import { z } from "zod";
 
 const ApplyInputSchema = z.object({
   projectId: z.string().min(1, "projectId é obrigatório"),
-  parameterSettings: z.record(z.string(), z.unknown()),
+  parameterSettings: z.record(z.string(), z.unknown()).optional().default({}),
+  technicalData: z.record(z.string(), z.unknown()).optional(),
+  prompts: z.record(z.string(), z.unknown()).optional(),
+  analysisId: z.string().optional(),
 });
 
 export async function POST(request: NextRequest) {
@@ -24,7 +27,10 @@ export async function POST(request: NextRequest) {
     const result = await CinematicAnalysisService.applyToProject(
       parsed.data.projectId,
       workspace.id,
-      parsed.data.parameterSettings
+      parsed.data.parameterSettings,
+      parsed.data.technicalData,
+      parsed.data.prompts,
+      parsed.data.analysisId
     );
 
     return NextResponse.json(result);

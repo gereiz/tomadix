@@ -628,11 +628,17 @@ export function CinematicStudioWorkflow() {
       const res = await fetch("/api/cinematic-analysis/apply", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ projectId, parameterSettings: result.parameterSettings }),
+        body: JSON.stringify({
+          projectId,
+          parameterSettings: result.parameterSettings,
+          technicalData: result.technicalData,
+          prompts: result.prompts,
+          analysisId: result.id,
+        }),
       });
       const data = await res.json().catch(() => ({}));
       if (!res.ok) throw new Error(data.error || "Erro ao aplicar parâmetros.");
-      notify(data.message || "Parâmetros aplicados ao projeto!");
+      notify(data.message || "Parâmetros cinematográficos aplicados ao projeto com sucesso!");
     } catch (err: any) {
       notify(err?.message || "Falha ao aplicar parâmetros.", "error");
     } finally {

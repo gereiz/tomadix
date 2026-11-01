@@ -147,6 +147,53 @@ describe("CinematicPromptEnricher Parameter Inheritance", () => {
     expect(result.enrichedPrompt.toLowerCase()).toMatch(/black and white|preto e branco|monochrome/);
     expect(result.enrichedNegativePrompt?.toLowerCase()).toMatch(/color|saturated|chromatic/);
   });
+
+  it("inherits full visual identity from applied cinematic analysis (visualBible, lighting setup, palette, aesthetic, aperture)", async () => {
+    (db.project.findUnique as any).mockResolvedValue({
+      id: "proj-analysis",
+      title: "Moody Vintage Project",
+      configuration: {
+        colorGrade: "Análogo Terroso Dessaturado",
+        colorPalette: ["#2d2521", "#7a5d47", "#a6836c", "#d3c5ba", "#ede8e3"],
+        filmGrain: 30,
+        visualBible: {
+          source: "CINEMATIC_ANALYSIS",
+          aesthetic: "Cinematográfico Moody / Editorial Vintage",
+          lighting: "Soft Ambient Daylight",
+          lightingSetup: "Key Light: Luz natural difusa pela janela lateral",
+          colorTemperature: "4500K Warm Neutral",
+          camera: "Full Frame 35mm",
+          lens: "35mm",
+          aperture: "f/2.0",
+          framing: "Close-Up",
+          angle: "Low-angle",
+          palette: ["#2d2521", "#7a5d47", "#a6836c", "#d3c5ba", "#ede8e3"],
+          negativePrompt: "blurry, low quality, oversaturated colors",
+        },
+      },
+      parameterValues: [],
+    });
+
+    const result = await CinematicPromptEnricher.enrich({
+      userPrompt: "Um homem olhando para o horizonte",
+      projectId: "proj-analysis",
+      workspaceId: "ws-1",
+    });
+
+    expect(result.enrichedPrompt).toContain("Um homem olhando para o horizonte");
+    expect(result.enrichedPrompt).toContain("Soft Ambient Daylight");
+    expect(result.enrichedPrompt).toContain("Key Light: Luz natural difusa pela janela lateral");
+    expect(result.enrichedPrompt).toContain("4500K");
+    expect(result.enrichedPrompt).toContain("abertura f/2.0");
+    expect(result.enrichedPrompt).toContain("Full Frame 35mm");
+    expect(result.enrichedPrompt).toContain("contra-plongée (low angle");
+    expect(result.enrichedPrompt).toContain("primeiro plano dramático (close-up)");
+    expect(result.enrichedPrompt).toContain("Análogo Terroso Dessaturado");
+    expect(result.enrichedPrompt).toContain("#2d2521");
+    expect(result.enrichedPrompt).toContain("Cinematográfico Moody / Editorial Vintage");
+    expect(result.enrichedPrompt).toContain("30%");
+    expect(result.enrichedNegativePrompt).toContain("oversaturated colors");
+  });
 });
 
 describe("PollinationsImageProvider Strict 32-Multiples Alignment", () => {
