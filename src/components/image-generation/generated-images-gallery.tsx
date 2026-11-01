@@ -258,15 +258,15 @@ export function GeneratedImagesGallery({
                 )}
               </div>
 
-              {/* Botões Rápidos no Card (Download e Excluir) - Sempre visíveis */}
-              <div className="absolute top-1.5 right-1.5 z-20 flex items-center gap-1 bg-black/70 backdrop-blur-md p-1 rounded-lg border border-white/10 shadow-lg">
+              {/* Botões Rápidos no Card (Download e Excluir) */}
+              <div className="absolute top-1.5 right-1.5 z-10 opacity-0 group-hover:opacity-100 transition flex items-center gap-1">
                 <button
                   type="button"
                   onClick={(e) => {
                     e.stopPropagation();
                     handleDownload(img.imageUrl, img.id);
                   }}
-                  className="h-6 w-6 rounded flex items-center justify-center bg-white/10 hover:bg-amber-400 hover:text-black text-amber-300 text-xs transition"
+                  className="p-1 rounded-lg bg-black/80 hover:bg-black text-amber-400 border border-amber-400/30 text-xs shadow-md transition"
                   title="Baixar imagem"
                 >
                   ⬇️
@@ -278,7 +278,7 @@ export function GeneratedImagesGallery({
                     e.stopPropagation();
                     handleDeleteImage(img.id);
                   }}
-                  className="h-6 w-6 rounded flex items-center justify-center bg-red-500/20 hover:bg-red-500 hover:text-white text-red-300 border border-red-500/30 text-xs transition disabled:opacity-40"
+                  className="p-1 rounded-lg bg-black/80 hover:bg-red-950 text-red-400 border border-red-500/30 text-xs shadow-md transition disabled:opacity-40"
                   title="Excluir imagem do servidor"
                 >
                   {deletingId === img.id ? (
@@ -289,11 +289,9 @@ export function GeneratedImagesGallery({
                 </button>
               </div>
 
-              {/* Informações da Imagem no Rodapé - Sempre visível */}
-              <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/95 via-black/80 to-transparent p-2 flex flex-col justify-end text-[10px] pointer-events-none">
-                <span className="font-bold text-amber-300 truncate drop-shadow-sm flex items-center gap-1" title={img.modelId}>
-                  <span>✨</span>
-                  <span>{formatFriendlyModelName(img.modelId, img.modelName)}</span>
+              <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/30 to-transparent opacity-0 group-hover:opacity-100 transition p-2 flex flex-col justify-end text-[10px]">
+                <span className="font-bold text-amber-300 truncate" title={img.modelId}>
+                  {formatFriendlyModelName(img.modelId, img.modelName)}
                 </span>
                 <span className="text-white/60 text-[9px] line-clamp-1">{img.prompt}</span>
               </div>
