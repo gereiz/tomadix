@@ -169,13 +169,57 @@ export class GeneratedImageService {
       db.generatedImage.count({ where }),
     ]);
 
+    // Buscar mapa de nomes cadastrados no catálogo para exibir o nome completo
+    const uniqueModelIds = Array.from(new Set(items.map((i) => i.modelId)));
+    const modelConfigs = await db.imageModelConfig.findMany({
+      where: { modelId: { in: uniqueModelIds } },
+      select: { modelId: true, name: true },
+    });
+    const modelNameMap = new Map(modelConfigs.map((m) => [m.modelId, m.name]));
+
+    const enrichedItems = items.map((item) => {
+      const friendlyName = modelNameMap.get(item.modelId) || this.formatFriendlyModelName(item.modelId);
+      return {
+        ...item,
+        modelName: friendlyName,
+      };
+    });
+
     return {
-      items,
+      items: enrichedItems,
       total,
       page,
       limit: safeLimit,
       totalPages: Math.ceil(total / safeLimit),
     };
+  }
+
+  /**
+   * Converte IDs técnicos em nomes amigáveis legíveis caso não esteja cadastrado no catálogo.
+   */
+  static formatFriendlyModelName(modelId: string): string {
+    if (!modelId) return "Modelo Desconhecido";
+    const clean = modelId.split("/").pop() || modelId;
+    if (clean === "flux") return "FLUX.1 Schnell";
+    if (clean === "flux-realism") return "FLUX Realism";
+    if (clean === "flux-anime") return "FLUX Anime";
+    if (clean === "flux-3-max" || clean === "flux.3-max") return "FLUX 3 Max";
+    if (clean === "flux-2-max" || clean === "flux.2-max") return "FLUX.2 Max";
+    if (clean === "flux-1.1-pro" || clean === "flux.1.1-pro") return "FLUX 1.1 Pro";
+    if (clean === "flux-3-image-klein") return "FLUX.3 Image Klein";
+    if (clean === "flux-3-image") return "FLUX.3 Image";
+    if (clean === "z-image-turbo" || clean === "turbo") return "Z-Image Turbo";
+    if (clean === "seedream-5.0-flash") return "Seedream 5.0 Flash";
+    if (clean === "seedream-5.0-pro") return "Seedream 5.0 Pro";
+    if (clean === "seedream-3.0-lite") return "Seedream 3.0 Lite";
+    if (clean === "qwen-image-2.1-pro") return "Qwen Image 2.1 Pro";
+    if (clean === "qwen-image-2.1-turbo") return "Qwen Image 2.1 Turbo";
+    if (clean === "grok-imagine-2.0") return "Grok Imagine Image 2.0";
+    if (clean === "grok-imagine-pro") return "Grok Imagine Pro";
+
+    return clean
+      .replace(/[-_.]/g, " ")
+      .replace(/\b\w/g, (c) => c.toUpperCase());
   }
 
   /**

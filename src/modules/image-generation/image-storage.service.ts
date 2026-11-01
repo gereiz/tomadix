@@ -105,4 +105,45 @@ export class ImageStorageService {
       storageKey: "unknown",
     };
   }
+
+  /**
+   * Remove o arquivo físico de uma imagem gerada do disco da aplicação.
+   */
+  static async deleteImage(imageUrlOrStorageKey: string): Promise<boolean> {
+    if (!imageUrlOrStorageKey || imageUrlOrStorageKey.startsWith("http://") || imageUrlOrStorageKey.startsWith("https://") || imageUrlOrStorageKey.startsWith("data:")) {
+      return false;
+    }
+
+    // Normalizar caminho relativo: "/generated-images/2026/11/abc.jpg" -> "2026/11/abc.jpg"
+    const cleanRelative = imageUrlOrStorageKey
+      .replace(/^\/?generated-images\//, "")
+      .replace(/^\//, "");
+
+    const baseDir = this.getStorageBaseDir();
+    const primaryPath = path.join(baseDir, cleanRelative);
+
+    let deleted = false;
+
+    try {
+      if (fsSync.existsSync(primaryPath)) {
+        await fs.unlink(primaryPath);
+        deleted = true;
+      }
+    } catch (err) {
+      console.warn("[ImageStorageService] Falha ao excluir arquivo primário:", primaryPath, err);
+    }
+
+    // Tentar excluir também do espelho secundário em public/generated-images se existir
+    try {
+      const localPublicDir = path.join(process.cwd(), "public", "generated-images", cleanRelative);
+      if (localPublicDir !== primaryPath && fsSync.existsSync(localPublicDir)) {
+        await fs.unlink(localPublicDir);
+        deleted = true;
+      }
+    } catch {
+      // Ignorar falha no espelho
+    }
+
+    return deleted;
+  }
 }

@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { CreditDailyMaintenanceService } from "@/modules/billing/credit-daily-maintenance.service";
+import { ImageRetentionCleanupService } from "@/modules/image-generation/image-retention-cleanup.service";
 
 export async function POST(request: NextRequest) {
   try {
@@ -14,12 +15,18 @@ export async function POST(request: NextRequest) {
     const body = await request.json().catch(() => ({}));
     const customDateKey = typeof body.dateKey === "string" ? body.dateKey : undefined;
 
-    const result = await CreditDailyMaintenanceService.executeDailyMaintenance(customDateKey);
+    const [creditsResult, imagesCleanupResult] = await Promise.all([
+      CreditDailyMaintenanceService.executeDailyMaintenance(customDateKey),
+      ImageRetentionCleanupService.cleanupExpiredImages(),
+    ]);
 
     return NextResponse.json({
       success: true,
-      message: "Rotina diária de manutenção de lotes e concessão de cotas executada com sucesso.",
-      result,
+      message: "Rotina diária de manutenção de lotes, créditos e limpeza de retenção de imagens executada com sucesso.",
+      result: {
+        credits: creditsResult,
+        imagesCleanup: imagesCleanupResult,
+      },
     });
   } catch (error: any) {
     console.error("Erro na rota do cron de manutenção de créditos:", error);

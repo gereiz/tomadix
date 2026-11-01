@@ -298,6 +298,8 @@ model Plan {
   imageMaxBatchSize         Int            @default(1)
   imageAllowedResolutions   Json           @default("[\"1024x1024\", \"1280x720\", \"720x1280\"]")
   imageAllowReferenceImages Boolean        @default(false)
+  imageRetentionDays        Int            @default(15) // Dias que as imagens geradas ficam armazenadas no servidor
+  unlimitedImageRetention   Boolean        @default(false) // Armazenamento vitalício sem expiração de imagens
   customRules           Json?          @default("{}")
   gatewayProductId      String?
   gatewayPriceIdMonthly String?

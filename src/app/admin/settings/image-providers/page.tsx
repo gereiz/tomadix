@@ -109,6 +109,33 @@ export default function ImageProvidersAdminPage() {
   const [sortBy, setSortBy] = useState<"quality" | "cost" | "name">("quality");
   const [pricingFilter, setPricingFilter] = useState<"all" | "free" | "paid" | "ref">("all");
   const [batchLoading, setBatchLoading] = useState(false);
+  const [cleaningRetention, setCleaningRetention] = useState(false);
+
+  const handleCleanupRetention = async () => {
+    if (!confirm("Deseja executar a limpeza de imagens expiradas de acordo com as políticas de retenção de cada plano agora?")) {
+      return;
+    }
+    try {
+      setCleaningRetention(true);
+      setNotification(null);
+      const res = await fetch("/api/admin/image-providers/cleanup-retention", {
+        method: "POST",
+      });
+      const data = await res.json();
+      if (res.ok && data.success) {
+        setNotification({
+          type: "success",
+          text: data.message || "Limpeza de retenção concluída com sucesso!",
+        });
+      } else {
+        setNotification({ type: "error", text: data.error || "Erro ao executar limpeza de retenção." });
+      }
+    } catch {
+      setNotification({ type: "error", text: "Falha de rede ao acionar limpeza de retenção." });
+    } finally {
+      setCleaningRetention(false);
+    }
+  };
 
   const handleBatchAction = async (action: "ENABLE_ALL" | "DISABLE_ALL" | "DISABLE_PAID" | "ENABLE_FREE") => {
     try {
@@ -335,7 +362,31 @@ export default function ImageProvidersAdminPage() {
 
   const isModelPaid = (m: ImageModelItem) => {
     const pricing = (m.pricingInfo as any) || {};
-    return pricing.paidOnly === true || pricing.costType === "PAID";
+    const tokens = parseFloat(pricing.completionImageTokens || pricing.promptImageTokens || "0");
+    if (tokens > 0) return true;
+    if (pricing.paidOnly === true || pricing.costType === "PAID") return true;
+    if (pricing.costPollen && !pricing.costPollen.toLowerCase().includes("gratuito") && !pricing.costPollen.toLowerCase().includes("0 pollen")) {
+      return true;
+    }
+    const lowerId = m.modelId.toLowerCase();
+    if (
+      lowerId.includes("flux.2") ||
+      lowerId.includes("flux-2") ||
+      lowerId.includes("flux.3") ||
+      lowerId.includes("flux-3") ||
+      lowerId.includes("flux.1.1") ||
+      lowerId.includes("flux-1.1") ||
+      lowerId.includes("seedream-5.0-pro") ||
+      lowerId.includes("qwen-image-2.1-pro") ||
+      lowerId.includes("recraft-v4.1-flash") ||
+      lowerId.includes("mai-image-2.6") ||
+      (lowerId.includes("max") && !lowerId.includes("schnell")) ||
+      (lowerId.includes("flex") && !lowerId.includes("schnell")) ||
+      (lowerId.includes("pro") && !lowerId.includes("schnell"))
+    ) {
+      return true;
+    }
+    return false;
   };
 
   const freeCount = models.filter((m) => !isModelPaid(m)).length;
@@ -404,6 +455,21 @@ export default function ImageProvidersAdminPage() {
               <span>⚡</span>
             )}
             Testar Conexão
+          </button>
+
+          <button
+            type="button"
+            onClick={handleCleanupRetention}
+            disabled={cleaningRetention}
+            className="flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-semibold bg-red-500/15 border border-red-500/30 text-red-300 hover:bg-red-500/25 transition disabled:opacity-40"
+            title="Exclui imagens expiradas de acordo com as políticas de retenção de cada plano para liberar espaço em disco"
+          >
+            {cleaningRetention ? (
+              <span className="animate-spin inline-block h-3.5 w-3.5 border-2 border-red-300 border-t-transparent rounded-full" />
+            ) : (
+              <span>🧹</span>
+            )}
+            Limpar Imagens Expiradas
           </button>
 
           <button
@@ -804,10 +870,10 @@ export default function ImageProvidersAdminPage() {
                   Nenhum modelo de imagem corresponde ao filtro.
                 </div>
               ) : (
-                <div className="overflow-x-auto">
+                <div className="overflow-x-auto max-h-[620px] overflow-y-auto rounded-xl border border-white/10 scrollbar-thin scrollbar-thumb-white/20 scrollbar-track-transparent">
                   <table className="w-full text-left text-xs">
-                    <thead>
-                      <tr className="border-b border-white/10 text-[10px] font-mono text-white/40 uppercase">
+                    <thead className="sticky top-0 bg-[#0e121b] z-20 shadow-md border-b border-white/10 backdrop-blur-md">
+                      <tr className="text-[10px] font-mono text-white/40 uppercase">
                         <th className="py-2.5 px-3">Modelo</th>
                         <th className="py-2.5 px-3">Ranking de Qualidade</th>
                         <th className="py-2.5 px-3">Custo Pollen (Provedor)</th>

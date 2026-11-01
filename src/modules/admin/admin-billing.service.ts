@@ -65,6 +65,8 @@ export interface PlanInput {
   imageMaxBatchSize?: number;
   imageAllowedResolutions?: string[];
   imageAllowReferenceImages?: boolean;
+  imageRetentionDays?: number;
+  unlimitedImageRetention?: boolean;
   customRules?: Record<string, any>;
   gatewayProductId?: string | null;
   gatewayPriceIdMonthly?: string | null;
@@ -292,6 +294,8 @@ export class AdminBillingService {
       imageMaxBatchSize: data.imageMaxBatchSize !== undefined ? Number(data.imageMaxBatchSize) : (existingPlan?.imageMaxBatchSize ?? 1),
       imageAllowedResolutions: (data.imageAllowedResolutions ?? existingPlan?.imageAllowedResolutions ?? ["1024x1024", "1280x720", "720x1280"]) as Prisma.InputJsonValue,
       imageAllowReferenceImages: data.imageAllowReferenceImages ?? existingPlan?.imageAllowReferenceImages ?? false,
+      imageRetentionDays: data.imageRetentionDays !== undefined ? Math.max(0, Number(data.imageRetentionDays)) : (existingPlan?.imageRetentionDays ?? 15),
+      unlimitedImageRetention: data.unlimitedImageRetention ?? existingPlan?.unlimitedImageRetention ?? false,
       customRules: (data.customRules || {}) as Prisma.InputJsonValue,
       gatewayProductId: data.gatewayProductId || null,
       gatewayPriceIdMonthly: data.gatewayPriceIdMonthly || null,

@@ -29,6 +29,35 @@ export async function POST(
 
     let updatedCount = 0;
 
+    const isModelPaid = (m: any) => {
+      const pricing = (m.pricingInfo as any) || {};
+      const tokens = parseFloat(pricing.completionImageTokens || pricing.promptImageTokens || "0");
+      if (tokens > 0) return true;
+      if (pricing.paidOnly === true || pricing.costType === "PAID") return true;
+      if (pricing.costPollen && !pricing.costPollen.toLowerCase().includes("gratuito") && !pricing.costPollen.toLowerCase().includes("0 pollen")) {
+        return true;
+      }
+      const lowerId = (m.modelId || "").toLowerCase();
+      if (
+        lowerId.includes("flux.2") ||
+        lowerId.includes("flux-2") ||
+        lowerId.includes("flux.3") ||
+        lowerId.includes("flux-3") ||
+        lowerId.includes("flux.1.1") ||
+        lowerId.includes("flux-1.1") ||
+        lowerId.includes("seedream-5.0-pro") ||
+        lowerId.includes("qwen-image-2.1-pro") ||
+        lowerId.includes("recraft-v4.1-flash") ||
+        lowerId.includes("mai-image-2.6") ||
+        (lowerId.includes("max") && !lowerId.includes("schnell")) ||
+        (lowerId.includes("flex") && !lowerId.includes("schnell")) ||
+        (lowerId.includes("pro") && !lowerId.includes("schnell"))
+      ) {
+        return true;
+      }
+      return false;
+    };
+
     if (validated.action === "ENABLE_ALL") {
       const res = await db.imageModelConfig.updateMany({
         where: { providerConfigId: providerConfig.id },
@@ -47,10 +76,7 @@ export async function POST(
     } else if (validated.action === "DISABLE_PAID") {
       // Identificar modelos pagos
       const paidIds = allModels
-        .filter((m) => {
-          const pricing = (m.pricingInfo as any) || {};
-          return pricing.paidOnly === true || pricing.costType === "PAID";
-        })
+        .filter((m) => isModelPaid(m))
         .map((m) => m.id);
 
       if (paidIds.length > 0) {
@@ -66,10 +92,7 @@ export async function POST(
     } else if (validated.action === "ENABLE_FREE") {
       // Identificar modelos gratuitos
       const freeIds = allModels
-        .filter((m) => {
-          const pricing = (m.pricingInfo as any) || {};
-          return pricing.paidOnly !== true && pricing.costType !== "PAID";
-        })
+        .filter((m) => !isModelPaid(m))
         .map((m) => m.id);
 
       if (freeIds.length > 0) {

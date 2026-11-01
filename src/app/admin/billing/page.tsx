@@ -1451,38 +1451,89 @@ export default function AdminBillingPage() {
                 </div>
 
                 {editingPlan.hasImageGeneration && (
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-3 pt-2">
-                    <div>
-                      <label className="text-white/60 block mb-1">Custo Padrão (Créditos)</label>
-                      <input
-                        type="number"
-                        min="0"
-                        value={editingPlan.imageDefaultCost ?? 10}
-                        onChange={(e) => setEditingPlan({ ...editingPlan, imageDefaultCost: parseInt(e.target.value || "10") })}
-                        className="w-full rounded-xl border border-white/10 bg-white/5 p-2 text-white font-mono"
-                      />
+                  <div className="space-y-3 pt-2">
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+                      <div>
+                        <label className="text-white/60 block mb-1">Custo Padrão (Créditos)</label>
+                        <input
+                          type="number"
+                          min="0"
+                          value={editingPlan.imageDefaultCost ?? 10}
+                          onChange={(e) => setEditingPlan({ ...editingPlan, imageDefaultCost: parseInt(e.target.value || "10") })}
+                          className="w-full rounded-xl border border-white/10 bg-white/5 p-2 text-white font-mono"
+                        />
+                      </div>
+                      <div>
+                        <label className="text-white/60 block mb-1">Limite Diário (vazio = ilimitado)</label>
+                        <input
+                          type="number"
+                          min="0"
+                          value={editingPlan.imageDailyLimit ?? ""}
+                          onChange={(e) => setEditingPlan({ ...editingPlan, imageDailyLimit: e.target.value ? parseInt(e.target.value) : null })}
+                          placeholder="Ilimitado"
+                          className="w-full rounded-xl border border-white/10 bg-white/5 p-2 text-white font-mono"
+                        />
+                      </div>
+                      <div>
+                        <label className="text-white/60 block mb-1">Limite Mensal (vazio = ilimitado)</label>
+                        <input
+                          type="number"
+                          min="0"
+                          value={editingPlan.imageMonthlyLimit ?? ""}
+                          onChange={(e) => setEditingPlan({ ...editingPlan, imageMonthlyLimit: e.target.value ? parseInt(e.target.value) : null })}
+                          placeholder="Ilimitado"
+                          className="w-full rounded-xl border border-white/10 bg-white/5 p-2 text-white font-mono"
+                        />
+                      </div>
                     </div>
-                    <div>
-                      <label className="text-white/60 block mb-1">Limite Diário (vazio = ilimitado)</label>
-                      <input
-                        type="number"
-                        min="0"
-                        value={editingPlan.imageDailyLimit ?? ""}
-                        onChange={(e) => setEditingPlan({ ...editingPlan, imageDailyLimit: e.target.value ? parseInt(e.target.value) : null })}
-                        placeholder="Ilimitado"
-                        className="w-full rounded-xl border border-white/10 bg-white/5 p-2 text-white font-mono"
-                      />
-                    </div>
-                    <div>
-                      <label className="text-white/60 block mb-1">Limite Mensal (vazio = ilimitado)</label>
-                      <input
-                        type="number"
-                        min="0"
-                        value={editingPlan.imageMonthlyLimit ?? ""}
-                        onChange={(e) => setEditingPlan({ ...editingPlan, imageMonthlyLimit: e.target.value ? parseInt(e.target.value) : null })}
-                        placeholder="Ilimitado"
-                        className="w-full rounded-xl border border-white/10 bg-white/5 p-2 text-white font-mono"
-                      />
+
+                    {/* Retenção de Imagens no Servidor */}
+                    <div className="pt-2 border-t border-white/10 grid grid-cols-1 sm:grid-cols-2 gap-4">
+                      <div>
+                        <div className="flex justify-between items-center mb-1">
+                          <label className="text-white/80 font-medium">Retenção no Servidor (Dias)</label>
+                          <label className="text-[10px] text-amber-400 flex items-center gap-1 cursor-pointer">
+                            <input
+                              type="checkbox"
+                              checked={editingPlan.unlimitedImageRetention ?? false}
+                              onChange={(e) =>
+                                setEditingPlan({
+                                  ...editingPlan,
+                                  unlimitedImageRetention: e.target.checked,
+                                  imageRetentionDays: e.target.checked ? 0 : (editingPlan.imageRetentionDays || 15),
+                                })
+                              }
+                            />
+                            Ilimitado (Sem Excluir)
+                          </label>
+                        </div>
+                        <input
+                          type="number"
+                          min="1"
+                          max="365"
+                          disabled={editingPlan.unlimitedImageRetention ?? false}
+                          value={editingPlan.unlimitedImageRetention ? "" : (editingPlan.imageRetentionDays ?? 15)}
+                          onChange={(e) =>
+                            setEditingPlan({
+                              ...editingPlan,
+                              imageRetentionDays: Math.max(1, parseInt(e.target.value || "1")),
+                            })
+                          }
+                          placeholder="Ex: 7 (dias)"
+                          className="w-full rounded-xl border border-white/10 bg-white/5 p-2 text-white font-mono disabled:opacity-40"
+                        />
+                        <span className="text-[10px] text-white/40 mt-1 block">
+                          Após esse período, imagens geradas são excluídas automaticamente para liberar espaço no disco da VPS.
+                        </span>
+                      </div>
+
+                      <div className="flex flex-col justify-center p-3 rounded-xl bg-black/30 border border-white/5 text-[11px] text-white/60 space-y-1">
+                        <span className="font-semibold text-white/90">💾 Políticas recomendadas:</span>
+                        <p>• Plano Free: 7 dias de armazenamento</p>
+                        <p>• Plano Pro: 15 dias de armazenamento</p>
+                        <p>• Plano Team: 30 dias de armazenamento</p>
+                        <p>• Plano Enterprise: Ilimitado (Vitalício)</p>
+                      </div>
                     </div>
                   </div>
                 )}

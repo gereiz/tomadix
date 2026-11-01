@@ -36,6 +36,68 @@ export class CreditDailyMaintenanceService {
   }
 
   /**
+   * Garante a concessão Just-In-Time (JIT) de créditos diários para um workspace individual.
+   * Chamado transparentemente sempre que o workspace acessa o sistema, consulta saldo ou executa operações.
+   */
+  static async ensureDailyCreditsForWorkspace(workspaceId: string, customDateKey?: string) {
+    if (!workspaceId) return null;
+
+    const dateKey = customDateKey || this.getTodayDateKey();
+    const eventId = `daily_${workspaceId}_${dateKey}`;
+
+    // 1. Verificar se o lote diário de hoje já foi concedido
+    const existingLot = await db.creditLot.findFirst({
+      where: { eventId },
+    });
+
+    if (existingLot) {
+      return existingLot;
+    }
+
+    // 2. Buscar assinatura ativa do workspace e o plano correspondente
+    const sub = await db.subscription.findFirst({
+      where: {
+        workspaceId,
+        status: { in: [SubscriptionStatus.ACTIVE, SubscriptionStatus.TRIALING] },
+      },
+      include: { plan: true },
+    });
+
+    if (!sub || !sub.plan || sub.plan.dailyCredits <= 0) {
+      return null;
+    }
+
+    const plan = sub.plan;
+    const dailyAmount = plan.dailyCredits;
+    const isAccumulative = Boolean(plan.dailyCreditsAccumulative);
+    const endOfDay = this.getEndOfDayDate(dateKey);
+
+    try {
+      const lot = await CreditLotService.grantLot({
+        workspaceId,
+        origin: CreditOrigin.DAILY_RENEWAL,
+        amount: dailyAmount,
+        planTier: plan.tier,
+        subscriptionId: sub.id,
+        isAccumulative,
+        expiresAt: isAccumulative ? null : endOfDay,
+        eventId,
+        reason: `Concessão de cota diária de créditos (${dateKey}) [Plano: ${plan.name}]`,
+        metadata: {
+          dateKey,
+          dailyCreditsAccumulative: isAccumulative,
+          planTier: plan.tier,
+        },
+      });
+
+      return lot;
+    } catch (err) {
+      console.error(`[CreditDailyMaintenance] Erro ao conceder créditos diários JIT para ${workspaceId}:`, err);
+      return null;
+    }
+  }
+
+  /**
    * Executa a rotina unificada de manutenção diária de créditos:
    * 1. Concede créditos diários idempotentes a todos os workspaces com assinaturas ativas e dailyCredits > 0.
    * 2. Expira lotes vencidos e diários não-acumulativos cujo prazo se encerrou.

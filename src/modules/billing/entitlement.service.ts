@@ -2,6 +2,7 @@ import { db } from "@/lib/db";
 import { getPlanConfig } from "./plans.config";
 import { PlanTier, SubscriptionStatus, BillingInterval, WorkspaceUsageSummary } from "./billing.types";
 import { WorkspaceRole } from "@prisma/client";
+import { CreditDailyMaintenanceService } from "./credit-daily-maintenance.service";
 
 export class EntitlementError extends Error {
   statusCode: number;
@@ -63,6 +64,18 @@ export class EntitlementService {
 
     if (!workspace) {
       throw new EntitlementError("Workspace não encontrado.", "WORKSPACE_NOT_FOUND", 404);
+    }
+
+    // Garantir concessão transparente de créditos diários para o workspace
+    const dailyGranted = await CreditDailyMaintenanceService.ensureDailyCreditsForWorkspace(workspaceId).catch((err) => {
+      console.warn("[EntitlementService] Concessão JIT de créditos diários adiada:", err?.message);
+      return null;
+    });
+
+    let currentCreditsBalance = workspace.creditsBalance;
+    if (dailyGranted) {
+      const freshWs = await db.workspace.findUnique({ where: { id: workspaceId }, select: { creditsBalance: true } });
+      if (freshWs) currentCreditsBalance = freshWs.creditsBalance;
     }
 
     const sub = workspace.subscription || (await this.getWorkspaceSubscription(workspaceId));
@@ -152,7 +165,7 @@ export class EntitlementService {
 
     const projectsCount = workspace._count.projects;
     const membersCount = workspace._count.memberships;
-    const creditsBalance = workspace.creditsBalance;
+    const creditsBalance = currentCreditsBalance;
 
     const isUnlimitedProjects = maxProjects === -1;
     const isUnlimitedMembers = maxMembers === -1;

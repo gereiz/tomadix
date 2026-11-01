@@ -9,6 +9,7 @@ interface GeneratedImageItem {
   prompt: string;
   revisedPrompt?: string;
   modelId: string;
+  modelName?: string;
   providerId: string;
   aspectRatio?: string;
   resolution?: string;
@@ -19,6 +20,32 @@ interface GeneratedImageItem {
   environment?: { id: string; name: string } | null;
   scene?: { id: string; title: string; order: number } | null;
   user?: { id: string; displayName: string | null; email: string } | null;
+}
+
+export function formatFriendlyModelName(modelId: string, modelName?: string): string {
+  if (modelName && modelName.trim().length > 0) return modelName;
+  if (!modelId) return "Modelo Desconhecido";
+  const clean = modelId.split("/").pop() || modelId;
+  if (clean === "flux") return "FLUX.1 Schnell";
+  if (clean === "flux-realism") return "FLUX Realism";
+  if (clean === "flux-anime") return "FLUX Anime";
+  if (clean === "flux-3-max" || clean === "flux.3-max") return "FLUX 3 Max";
+  if (clean === "flux-2-max" || clean === "flux.2-max") return "FLUX.2 Max";
+  if (clean === "flux-1.1-pro" || clean === "flux.1.1-pro") return "FLUX 1.1 Pro";
+  if (clean === "flux-3-image-klein") return "FLUX.3 Image Klein";
+  if (clean === "flux-3-image") return "FLUX.3 Image";
+  if (clean === "z-image-turbo" || clean === "turbo") return "Z-Image Turbo";
+  if (clean === "seedream-5.0-flash") return "Seedream 5.0 Flash";
+  if (clean === "seedream-5.0-pro") return "Seedream 5.0 Pro";
+  if (clean === "seedream-3.0-lite") return "Seedream 3.0 Lite";
+  if (clean === "qwen-image-2.1-pro") return "Qwen Image 2.1 Pro";
+  if (clean === "qwen-image-2.1-turbo") return "Qwen Image 2.1 Turbo";
+  if (clean === "grok-imagine-2.0") return "Grok Imagine Image 2.0";
+  if (clean === "grok-imagine-pro") return "Grok Imagine Pro";
+
+  return clean
+    .replace(/[-_.]/g, " ")
+    .replace(/\b\w/g, (c) => c.toUpperCase());
 }
 
 interface GeneratedImagesGalleryProps {
@@ -41,6 +68,39 @@ export function GeneratedImagesGallery({
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [total, setTotal] = useState(0);
+  const [deletingId, setDeletingId] = useState<string | null>(null);
+
+  const handleDeleteImage = async (imageId: string) => {
+    if (!window.confirm("Deseja realmente excluir esta imagem gerada permanentemente? O arquivo será removido do servidor.")) {
+      return;
+    }
+
+    try {
+      setDeletingId(imageId);
+      const res = await fetch(`/api/images/${imageId}`, {
+        method: "DELETE",
+      });
+      const data = await res.json();
+
+      if (res.ok && data.success) {
+        setImages((prev) => prev.filter((img) => img.id !== imageId));
+        setTotal((prev) => Math.max(0, prev - 1));
+        if (selectedImage?.id === imageId) {
+          setSelectedImage(null);
+        }
+        if (typeof window !== "undefined") {
+          window.dispatchEvent(new CustomEvent("tomadix:images-updated"));
+          window.dispatchEvent(new CustomEvent("tomadix:entities-updated"));
+        }
+      } else {
+        alert(data.error || "Erro ao excluir imagem.");
+      }
+    } catch {
+      alert("Falha de rede ao tentar excluir imagem.");
+    } finally {
+      setDeletingId(null);
+    }
+  };
 
   const fetchImages = async (pageNum = 1) => {
     try {
@@ -198,8 +258,8 @@ export function GeneratedImagesGallery({
                 )}
               </div>
 
-              {/* Botão de Download Rápido */}
-              <div className="absolute top-1.5 right-1.5 z-10 opacity-0 group-hover:opacity-100 transition">
+              {/* Botões Rápidos no Card (Download e Excluir) */}
+              <div className="absolute top-1.5 right-1.5 z-10 opacity-0 group-hover:opacity-100 transition flex items-center gap-1">
                 <button
                   type="button"
                   onClick={(e) => {
@@ -211,10 +271,28 @@ export function GeneratedImagesGallery({
                 >
                   ⬇️
                 </button>
+                <button
+                  type="button"
+                  disabled={deletingId === img.id}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleDeleteImage(img.id);
+                  }}
+                  className="p-1 rounded-lg bg-black/80 hover:bg-red-950 text-red-400 border border-red-500/30 text-xs shadow-md transition disabled:opacity-40"
+                  title="Excluir imagem do servidor"
+                >
+                  {deletingId === img.id ? (
+                    <span className="animate-spin inline-block h-3 w-3 border border-red-400 border-t-transparent rounded-full" />
+                  ) : (
+                    "🗑️"
+                  )}
+                </button>
               </div>
 
-              <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition p-2 flex flex-col justify-end text-[10px]">
-                <span className="font-semibold text-white truncate">{img.modelId}</span>
+              <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/30 to-transparent opacity-0 group-hover:opacity-100 transition p-2 flex flex-col justify-end text-[10px]">
+                <span className="font-bold text-amber-300 truncate" title={img.modelId}>
+                  {formatFriendlyModelName(img.modelId, img.modelName)}
+                </span>
                 <span className="text-white/60 text-[9px] line-clamp-1">{img.prompt}</span>
               </div>
             </div>
@@ -285,7 +363,10 @@ export function GeneratedImagesGallery({
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 text-[11px] font-mono text-white/60 bg-white/[0.02] p-3 rounded-xl border border-white/5">
               <div>
                 <span className="text-white/40 block text-[9px] uppercase">Modelo</span>
-                <span className="text-white font-semibold">{selectedImage.modelId}</span>
+                <span className="text-amber-300 font-bold block truncate" title={selectedImage.modelId}>
+                  {formatFriendlyModelName(selectedImage.modelId, selectedImage.modelName)}
+                </span>
+                <span className="text-[9px] text-white/40 block truncate">{selectedImage.modelId}</span>
               </div>
               <div>
                 <span className="text-white/40 block text-[9px] uppercase">Provedor</span>
@@ -306,7 +387,16 @@ export function GeneratedImagesGallery({
               <p className="italic text-white/90 select-text">{selectedImage.prompt}</p>
             </div>
 
-            <div className="flex items-center justify-end gap-3 pt-2 border-t border-white/10">
+            <div className="flex items-center justify-between pt-2 border-t border-white/10">
+              <button
+                type="button"
+                disabled={deletingId === selectedImage.id}
+                onClick={() => handleDeleteImage(selectedImage.id)}
+                className="px-3 py-2 rounded-xl text-xs font-semibold bg-red-500/15 border border-red-500/30 text-red-300 hover:bg-red-500/25 transition flex items-center gap-1.5 disabled:opacity-40"
+              >
+                <span>🗑️</span> Excluir Imagem
+              </button>
+
               <button
                 type="button"
                 onClick={() => handleDownload(selectedImage.imageUrl, selectedImage.id)}

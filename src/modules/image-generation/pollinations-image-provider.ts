@@ -469,14 +469,32 @@ export class PollinationsImageProvider {
 
           const supportsImageEditing = Boolean(item.supportsImageEditing || hasEditEndpoint);
 
-          const paidOnly = Boolean(item.paid_only);
-          const pollenTokens = item.pricing?.completionImageTokens;
-          const costPollen = pollenTokens ? `${pollenTokens} pollen` : (paidOnly ? "Pollen requerido" : "Gratuito (0 pollen)");
+          const rawTokens = item.pricing?.completionImageTokens || item.pricing?.promptImageTokens;
+          const tokenNum = rawTokens ? parseFloat(rawTokens) : 0;
+          const hasTokenCost = tokenNum > 0;
+
+          const modelIdLower = modelId.toLowerCase();
+          const isExplicitPaidLine =
+            modelIdLower.includes("flux.2") ||
+            modelIdLower.includes("flux-2") ||
+            modelIdLower.includes("flux.3") ||
+            modelIdLower.includes("flux-3") ||
+            modelIdLower.includes("flux.1.1") ||
+            modelIdLower.includes("flux-1.1") ||
+            (modelIdLower.includes("pro") && !modelIdLower.includes("schnell")) ||
+            (modelIdLower.includes("max") && !modelIdLower.includes("schnell")) ||
+            (modelIdLower.includes("flex") && !modelIdLower.includes("schnell"));
+
+          const paidOnly = Boolean(item.paid_only || hasTokenCost || isExplicitPaidLine);
+          const costPollen = hasTokenCost
+            ? `${tokenNum} pollen`
+            : (paidOnly ? "Pollen pago requerido" : "Gratuito (0 pollen)");
 
           const pricingInfo = {
             paidOnly,
             currency: item.pricing?.currency || "pollen",
-            completionImageTokens: pollenTokens || null,
+            completionImageTokens: item.pricing?.completionImageTokens || null,
+            promptImageTokens: item.pricing?.promptImageTokens || null,
             costPollen,
             costType: paidOnly ? "PAID" : "FREE",
             maxReferenceImages: item.max_reference_images || (hasImageInput ? 10 : 0),

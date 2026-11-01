@@ -32,6 +32,8 @@ export async function PATCH(
       imageMaxBatchSize,
       imageAllowedResolutions,
       imageAllowReferenceImages,
+      imageRetentionDays,
+      unlimitedImageRetention,
     } = body;
 
     const updated = await db.plan.update({
@@ -46,6 +48,8 @@ export async function PATCH(
         ...(imageMaxBatchSize !== undefined ? { imageMaxBatchSize: Number(imageMaxBatchSize) } : {}),
         ...(imageAllowedResolutions !== undefined ? { imageAllowedResolutions } : {}),
         ...(imageAllowReferenceImages !== undefined ? { imageAllowReferenceImages: Boolean(imageAllowReferenceImages) } : {}),
+        ...(imageRetentionDays !== undefined ? { imageRetentionDays: Math.max(0, Number(imageRetentionDays)) } : {}),
+        ...(unlimitedImageRetention !== undefined ? { unlimitedImageRetention: Boolean(unlimitedImageRetention) } : {}),
       },
     });
 
