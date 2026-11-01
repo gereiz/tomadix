@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getCurrentWorkspace, AuthorizationError, AuthenticationError } from "@/lib/auth";
+import { getCurrentWorkspace, assertSpaceAccess, AuthorizationError, AuthenticationError, NotFoundError } from "@/lib/auth";
 import { ProjectService } from "@/modules/projects/project.service";
 import { updateProjectSchema } from "@/lib/schemas/project";
 import { ZodError } from "zod";
@@ -11,8 +11,9 @@ type RouteParams = {
 export async function GET(_request: NextRequest, { params }: RouteParams) {
   try {
     const { id } = await params;
-    const { workspace } = await getCurrentWorkspace(null, "projects:read");
+    const { workspace, user, role } = await getCurrentWorkspace(null, "projects:read");
 
+    await assertSpaceAccess(id, workspace.id, user?.id, role, "view");
     const project = await ProjectService.getProjectById(id, workspace.id);
     if (!project) {
       return NextResponse.json({ error: "Projeto não encontrado." }, { status: 404 });
@@ -26,6 +27,9 @@ export async function GET(_request: NextRequest, { params }: RouteParams) {
     if (error instanceof AuthorizationError) {
       return NextResponse.json({ error: error.message }, { status: 403 });
     }
+    if (error instanceof NotFoundError) {
+      return NextResponse.json({ error: error.message }, { status: 404 });
+    }
     console.error("Erro ao obter projeto:", error);
     return NextResponse.json({ error: "Erro interno ao buscar projeto." }, { status: 500 });
   }
@@ -34,11 +38,12 @@ export async function GET(_request: NextRequest, { params }: RouteParams) {
 export async function PATCH(request: NextRequest, { params }: RouteParams) {
   try {
     const { id } = await params;
-    const { workspace } = await getCurrentWorkspace(null, "projects:update");
+    const { workspace, user, role } = await getCurrentWorkspace(null, "projects:update");
 
     const body = await request.json();
     const validatedData = updateProjectSchema.parse(body);
 
+    await assertSpaceAccess(id, workspace.id, user?.id, role, "edit");
     const existing = await ProjectService.getProjectById(id, workspace.id);
     if (!existing) {
       return NextResponse.json({ error: "Projeto não encontrado ou acesso negado." }, { status: 404 });
@@ -56,6 +61,9 @@ export async function PATCH(request: NextRequest, { params }: RouteParams) {
     }
     if (error instanceof AuthorizationError) {
       return NextResponse.json({ error: error.message }, { status: 403 });
+    }
+    if (error instanceof NotFoundError) {
+      return NextResponse.json({ error: error.message }, { status: 404 });
     }
     if (error instanceof ZodError) {
       return NextResponse.json(

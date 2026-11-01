@@ -5,6 +5,7 @@ import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { WorkspaceSelector } from "./workspace-selector";
 import { CreditBadge } from "./credit-badge";
+import { ThemeToggle } from "@/components/theme/theme-toggle";
 
 interface AuthUser {
   id: string;
@@ -52,9 +53,9 @@ export function Navbar() {
 
   const navLinks = [
     { href: "/dashboard", label: "Dashboard", icon: "📊" },
+    { href: "/projects", label: "Spaces", icon: "✨" },
     { href: "/studio", label: "Análise Cinematográfica", icon: "🎞️" },
     { href: "/workspace", label: "Workspaces", icon: "🗂️" },
-    { href: "/projects", label: "Projetos", icon: "🎬" },
     ...(user?.isPlatformAdmin
       ? [{ href: "/parameters", label: "Parâmetros", icon: "⚙️" }]
       : []),
@@ -101,6 +102,7 @@ export function Navbar() {
 
         {/* Lado Direito Desktop */}
         <div className="hidden md:flex items-center gap-3">
+          <ThemeToggle />
           {user ? (
             <>
               <WorkspaceSelector />
@@ -184,6 +186,7 @@ export function Navbar() {
 
         {/* Lado Direito Mobile (< md) */}
         <div className="flex md:hidden items-center gap-2">
+          <ThemeToggle compact />
           {user && (
             <>
               <div className="max-w-[110px] sm:max-w-[140px] truncate">

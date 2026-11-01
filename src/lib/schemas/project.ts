@@ -26,6 +26,8 @@ export const createProjectSchema = z.object({
   genre: z.string().trim().max(80).optional(),
   language: z.string().trim().default("pt-BR"),
   durationSeconds: z.coerce.number().int().positive("A duração deve ser positiva.").max(86400).optional().nullable(),
+  visibility: z.enum(["PRIVATE", "TEAM", "SELECTED"]).optional(),
+  thumbnailUrl: z.string().optional().nullable(),
   configuration: projectConfigurationSchema.optional(),
 });
 
@@ -40,6 +42,7 @@ export const duplicateProjectSchema = z.object({
 export const listProjectsQuerySchema = z.object({
   search: z.string().optional(),
   status: z.enum(["active", "archived", "all"]).default("active"),
+  boardFilter: z.enum(["all", "mine", "shared"]).optional(),
   sort: z
     .enum(["updatedAt_desc", "updatedAt_asc", "title_asc", "title_desc", "createdAt_desc"])
     .default("updatedAt_desc"),

@@ -257,6 +257,72 @@ export async function assertProjectAccess(projectId: string, workspaceId: string
 }
 
 /**
+ * Valida se o usuário atual possui acesso (visualização ou edição) ao Space (Project),
+ * considerando a visibilidade (PRIVATE, TEAM, SELECTED) e a lista de SpaceMembers.
+ */
+export async function assertSpaceAccess(
+  projectId: string,
+  workspaceId: string,
+  userId?: string,
+  workspaceRole?: string,
+  mode: "view" | "edit" = "view"
+) {
+  const project = await db.project.findFirst({
+    where: {
+      id: projectId,
+      workspaceId,
+    },
+    include: {
+      spaceMembers: true,
+    },
+  });
+
+  if (!project) {
+    throw new NotFoundError("Space não encontrado ou acesso não permitido.");
+  }
+
+  if (!userId) {
+    return project;
+  }
+
+  const isWorkspaceAdmin = workspaceRole === "OWNER" || workspaceRole === "ADMIN";
+  const isOwner = project.ownerUserId === userId || (!project.ownerUserId && isWorkspaceAdmin);
+
+  if (isWorkspaceAdmin || isOwner) {
+    return project;
+  }
+
+  if (project.visibility === "PRIVATE") {
+    if (!project.ownerUserId) {
+      // Projetos legados sem owner definido permitem acesso da equipe
+      if (mode === "edit" && workspaceRole === "VIEWER") {
+        throw new AuthorizationError("Seu papel de visualizador não permite editar este Space.");
+      }
+      return project;
+    }
+    throw new AuthorizationError("Este Space é privado e visível apenas para o seu criador.");
+  }
+
+  if (project.visibility === "SELECTED") {
+    const memberAccess = project.spaceMembers.find((m) => m.userId === userId);
+    if (!memberAccess) {
+      throw new AuthorizationError("Você não está na lista de membros autorizados a visualizar este Space.");
+    }
+    if (mode === "edit" && (!memberAccess.canEdit || workspaceRole === "VIEWER")) {
+      throw new AuthorizationError("Você possui apenas permissão de leitura neste Space.");
+    }
+    return project;
+  }
+
+  // visibility === "TEAM"
+  if (mode === "edit" && workspaceRole === "VIEWER") {
+    throw new AuthorizationError("Seu papel de visualizador não permite editar este Space.");
+  }
+
+  return project;
+}
+
+/**
  * Extrai o contexto do cliente (IP e User-Agent) a partir dos headers da requisição.
  */
 export async function getClientContext() {

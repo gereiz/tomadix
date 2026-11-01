@@ -97,6 +97,12 @@ enum CreditLotStatus {
   CANCELLED
 }
 
+enum SpaceVisibility {
+  PRIVATE
+  TEAM
+  SELECTED
+}
+
 model User {
   id                          String             @id @default(cuid())
   authSubject                 String             @unique
@@ -126,6 +132,7 @@ model User {
   creditLots                  CreditLot[]
   geminiApiKeys               GeminiApiKey[]       @relation("CreatedGeminiKeys")
   generatedImages             GeneratedImage[]
+  spaceMemberships            SpaceMember[]
   createdAt                   DateTime             @default(now())
   updatedAt                   DateTime             @updatedAt
 
@@ -462,18 +469,21 @@ model WorkspaceInvite {
 }
 
 model Project {
-  id              String        @id @default(cuid())
+  id              String          @id @default(cuid())
   workspaceId     String
+  ownerUserId     String?
   title           String
-  description     String        @default("")
+  description     String          @default("")
   genre           String?
-  language        String        @default("pt-BR")
+  language        String          @default("pt-BR")
   durationSeconds Int?
-  configuration   Json          @default("{}")
+  configuration   Json            @default("{}")
   visualBible     Json?
-  isArchived      Boolean       @default(false)
+  visibility      SpaceVisibility @default(TEAM)
+  thumbnailUrl    String?
+  isArchived      Boolean         @default(false)
   archivedAt      DateTime?
-  workspace       Workspace     @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  workspace       Workspace       @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
   parameterValues ParameterValue[]
   characters      Character[]
   environments    Environment[]
@@ -481,11 +491,81 @@ model Project {
   generations     GenerationJob[]
   transfers       ProjectOwnershipTransfer[]
   generatedImages GeneratedImage[]
-  createdAt       DateTime      @default(now())
-  updatedAt       DateTime      @updatedAt
+  spaceMembers    SpaceMember[]
+  boards          SpaceBoard[]
+  createdAt       DateTime        @default(now())
+  updatedAt       DateTime        @updatedAt
 
   @@index([workspaceId, updatedAt])
   @@index([workspaceId, isArchived])
+  @@index([workspaceId, visibility])
+  @@index([ownerUserId])
+}
+
+model SpaceMember {
+  id        String   @id @default(cuid())
+  projectId String
+  userId    String
+  canEdit   Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  project   Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([projectId, userId])
+  @@index([userId])
+}
+
+model SpaceBoard {
+  id        String      @id @default(cuid())
+  projectId String
+  name      String      @default("Page 1")
+  order     Int         @default(0)
+  viewport  Json        @default("{\"x\":0,\"y\":0,\"zoom\":1}")
+  nodes     BoardNode[]
+  edges     BoardEdge[]
+  project   Project     @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  createdAt DateTime    @default(now())
+  updatedAt DateTime    @updatedAt
+
+  @@index([projectId, order])
+}
+
+model BoardNode {
+  id        String     @id @default(cuid())
+  boardId   String
+  type      String     // "IMAGE" | "PROMPT" | "TEXT_NOTE" | "CHARACTER" | "ENVIRONMENT" | "SCENE" | "VIDEO"
+  x         Float      @default(0)
+  y         Float      @default(0)
+  width     Float?
+  height    Float?
+  zIndex    Int        @default(0)
+  refType   String?    // "GENERATED_IMAGE" | "PROMPT_VERSION" | "CHARACTER" | "ENVIRONMENT" | "SCENE"
+  refId     String?
+  data      Json       @default("{}")
+  board     SpaceBoard @relation(fields: [boardId], references: [id], onDelete: Cascade)
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+
+  @@index([boardId])
+  @@index([refType, refId])
+}
+
+model BoardEdge {
+  id           String     @id @default(cuid())
+  boardId      String
+  sourceNodeId String
+  targetNodeId String
+  sourceHandle String?
+  targetHandle String?
+  label        String?
+  animated     Boolean    @default(false)
+  data         Json       @default("{}")
+  board        SpaceBoard @relation(fields: [boardId], references: [id], onDelete: Cascade)
+  createdAt    DateTime   @default(now())
+  updatedAt    DateTime   @updatedAt
+
+  @@index([boardId])
 }
 
 model ParameterDefinition {

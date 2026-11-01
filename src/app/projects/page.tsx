@@ -3,6 +3,7 @@
 import { useEffect, useState, useMemo, useCallback, useRef } from "react";
 import Link from "next/link";
 import { TransferProjectModal } from "@/components/projects/transfer-project-modal";
+import { SpaceShareModal, SpaceVisibilityType } from "@/components/spaces/space-share-modal";
 import { ToastNotification } from "@/components/ui/toast";
 import { PlanLimitModal } from "@/components/ui/plan-limit-modal";
 
@@ -26,6 +27,9 @@ interface ProjectCounts {
   scenes: number;
   parameterValues: number;
   generations: number;
+  generatedImages?: number;
+  boards?: number;
+  spaceMembers?: number;
 }
 
 interface ProjectConfig {
@@ -40,18 +44,37 @@ interface ProjectConfig {
 interface Project {
   id: string;
   workspaceId: string;
+  ownerUserId?: string | null;
   userId: string;
   title: string;
   description: string;
   genre: string | null;
   language: string;
   durationSeconds: number | null;
+  visibility?: SpaceVisibilityType;
+  thumbnailUrl?: string | null;
   configuration: ProjectConfig;
   isArchived: boolean;
   archivedAt: string | null;
   createdAt: string;
   updatedAt: string;
   _count: ProjectCounts;
+  generatedImages?: Array<{
+    id: string;
+    imageUrl: string;
+    prompt: string;
+    aspectRatio?: string | null;
+    modelId?: string;
+  }>;
+  spaceMembers?: Array<{
+    userId: string;
+    canEdit: boolean;
+    user?: {
+      id: string;
+      displayName: string | null;
+      email: string;
+    };
+  }>;
 }
 
 const GENRE_OPTIONS = [
@@ -174,6 +197,7 @@ export default function ProjectsPage() {
   // Filtros e ordenação
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState<"active" | "archived" | "all">("active");
+  const [boardFilter, setBoardFilter] = useState<"all" | "mine" | "shared">("all");
   const [sortOrder, setSortOrder] = useState<string>("updatedAt_desc");
   const [viewMode, setViewMode] = useState<"cards" | "table">("cards");
 
@@ -187,6 +211,7 @@ export default function ProjectsPage() {
   const [editingProject, setEditingProject] = useState<Project | null>(null);
   const [projectToDelete, setProjectToDelete] = useState<Project | null>(null);
   const [projectToTransfer, setProjectToTransfer] = useState<Project | null>(null);
+  const [projectToShare, setProjectToShare] = useState<Project | null>(null);
   const [duplicatingId, setDuplicatingId] = useState<string | null>(null);
 
   // Informações de Uso e Limites do Workspace
@@ -228,6 +253,7 @@ export default function ProjectsPage() {
     genre: "Ficção Científica",
     language: "pt-BR",
     durationSeconds: "",
+    visibility: "TEAM" as SpaceVisibilityType,
     aspectRatio: "16:9",
     targetPlatform: "Google Flow",
     colorGrade: "",
@@ -277,7 +303,7 @@ export default function ProjectsPage() {
       .catch((err) => console.error("Erro ao carregar parâmetros do estúdio:", err));
   }, []);
 
-  // Carregar projetos
+  // Carregar projetos (Spaces)
   const fetchProjects = useCallback(async () => {
     try {
       setLoading(true);
@@ -285,11 +311,12 @@ export default function ProjectsPage() {
       const params = new URLSearchParams();
       if (search.trim()) params.append("search", search.trim());
       params.append("status", statusFilter);
+      if (boardFilter !== "all") params.append("boardFilter", boardFilter);
       params.append("sort", sortOrder);
 
       const res = await fetch(`/api/projects?${params.toString()}`);
       if (!res.ok) {
-        throw new Error("Não foi possível carregar os projetos.");
+        throw new Error("Não foi possível carregar os Spaces.");
       }
       const data = await res.json();
       setProjects(data.data || []);
@@ -298,7 +325,7 @@ export default function ProjectsPage() {
     } finally {
       setLoading(false);
     }
-  }, [search, statusFilter, sortOrder]);
+  }, [search, statusFilter, boardFilter, sortOrder]);
 
   useEffect(() => {
     const handler = setTimeout(() => {
@@ -379,6 +406,7 @@ export default function ProjectsPage() {
       genre: preset.genre,
       language: "pt-BR",
       durationSeconds: preset.durationSeconds,
+      visibility: "TEAM",
       aspectRatio: preset.aspectRatio,
       targetPlatform: preset.targetPlatform,
       colorGrade: preset.colorGrade,
@@ -396,6 +424,7 @@ export default function ProjectsPage() {
       genre: "Ficção Científica",
       language: "pt-BR",
       durationSeconds: "",
+      visibility: "TEAM",
       aspectRatio: "16:9",
       targetPlatform: "Google Flow",
       colorGrade: "",
@@ -418,6 +447,7 @@ export default function ProjectsPage() {
       genre: project.genre || "Ficção Científica",
       language: project.language || "pt-BR",
       durationSeconds: project.durationSeconds ? String(project.durationSeconds) : "",
+      visibility: project.visibility || "TEAM",
       aspectRatio: project.configuration?.aspectRatio || "16:9",
       targetPlatform: project.configuration?.targetPlatform || "Google Flow",
       colorGrade: project.configuration?.colorGrade || "",
@@ -464,6 +494,7 @@ export default function ProjectsPage() {
         genre: formData.genre,
         language: formData.language,
         durationSeconds: formData.durationSeconds ? Number(formData.durationSeconds) : null,
+        visibility: formData.visibility,
         configuration: {
           aspectRatio: formData.aspectRatio,
           targetPlatform: formData.targetPlatform,
@@ -638,29 +669,26 @@ export default function ProjectsPage() {
       <div className="pointer-events-none absolute top-28 right-12 w-72 h-72 bg-secondary-container/15 rounded-full blur-2xl" />
 
       <main className="relative w-full px-4 sm:px-6 lg:px-8 pt-8 pb-20 flex flex-col gap-8">
-        {/* CABEÇALHO DA PÁGINA (HERO COM BADGES E AÇÕES) */}
+        {/* CABEÇALHO DA PÁGINA (ESTILO MAGNIFIC SPACES) */}
         <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-6">
           <div className="flex flex-col gap-2 max-w-3xl">
             <div className="flex items-center flex-wrap gap-2.5">
               <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-surface-container-high/80 border border-outline-variant/30 backdrop-blur-md shadow-sm">
                 <span className="w-1.5 h-1.5 rounded-full bg-primary animate-pulse" />
                 <span className="font-label-caps text-xs text-primary tracking-widest uppercase font-bold">
-                  Pré-Produção Audiovisual
+                  Boards Colaborativos • IA Generativa
                 </span>
               </span>
               <span className="px-2.5 py-0.5 rounded-full bg-surface-container-highest/60 font-label-code text-xs text-on-surface-variant border border-outline-variant/20">
-                {projects.length} {projects.length === 1 ? "projeto ativo" : "projetos ativos"}
-              </span>
-              <span className="hidden sm:inline-flex items-center gap-1 font-label-code text-xs text-secondary-fixed-dim bg-secondary-container/40 border border-secondary/30 px-2 py-0.5 rounded-full">
-                <span className="material-symbols-outlined text-[14px]">bolt</span> Engine v2.4
+                {projects.length} {projects.length === 1 ? "space ativo" : "spaces ativos"}
               </span>
             </div>
 
             <h1 className="font-display-hero text-3xl sm:text-4xl lg:text-5xl font-bold text-on-surface tracking-tight mt-1">
-              Projetos Cinematográficos
+              Spaces
             </h1>
             <p className="font-body-lg text-sm sm:text-base text-on-surface-variant max-w-2xl">
-              Gerencie contêineres de universo, consistência visual, personagens, cenas e prompts cinematográficos com IA generativa de alta fidelidade.
+              Crie fluxos de trabalho generativos baseados em nós e dê vida às suas ideias. Arraste imagens, prompts, personagens e cenas em boards colaborativos com sua equipe.
             </p>
           </div>
 
@@ -670,7 +698,7 @@ export default function ProjectsPage() {
               className="px-4 py-2.5 rounded-xl bg-surface-container-high/70 hover:bg-surface-container-highest border border-outline-variant/30 text-on-surface font-body-sm text-sm transition-all flex items-center gap-2 shadow-sm"
             >
               <span className="material-symbols-outlined text-[18px] text-secondary">tune</span>
-              <span>Presets Rápidos</span>
+              <span>Modelos & Presets</span>
             </button>
 
             <button
@@ -678,8 +706,8 @@ export default function ProjectsPage() {
                 if (usageSummary && !usageSummary.canCreateProject) {
                   setPlanLimitModal({
                     isOpen: true,
-                    title: "Limite de Projetos Atingido",
-                    message: `Seu estúdio utilizou todos os ${usageSummary.projectsCount} de ${usageSummary.maxProjects} projetos do ${usageSummary.planName}. Faça upgrade para continuar criando novos projetos sem limites.`,
+                    title: "Limite de Spaces Atingido",
+                    message: `Seu estúdio utilizou todos os ${usageSummary.projectsCount} de ${usageSummary.maxProjects} spaces do ${usageSummary.planName}. Faça upgrade para continuar criando novos spaces sem limites.`,
                     planName: usageSummary.planName,
                     currentUsage: usageSummary.projectsCount,
                     maxLimit: usageSummary.maxProjects,
@@ -692,7 +720,7 @@ export default function ProjectsPage() {
               className="group relative px-5 py-2.5 rounded-xl bg-primary hover:bg-primary-fixed text-on-primary font-headline-sm font-semibold transition-all duration-200 flex items-center gap-2 shadow-lg shadow-primary/20 hover:shadow-primary/35"
             >
               <span className="material-symbols-outlined text-[20px] transition-transform group-hover:rotate-90 duration-300">add</span>
-              <span>Novo Projeto</span>
+              <span>Novo quadro</span>
               <span className="ml-1 px-1.5 py-0.5 rounded bg-on-primary/15 font-label-code text-[11px] text-on-primary">N</span>
             </button>
           </div>
@@ -775,43 +803,61 @@ export default function ProjectsPage() {
           </div>
 
           <div className="flex items-center flex-wrap sm:flex-nowrap gap-2 sm:gap-3">
-            {/* Abas de Estado */}
-            <div className="flex items-center p-1 rounded-xl bg-surface-container-lowest/70 border border-outline-variant/20" role="tablist">
+            {/* Abas estilo Magnific Spaces: Meus quadros / Compartilhado / Todos / Arquivados */}
+            <div className="flex items-center p-1 rounded-xl bg-surface-container-lowest/70 border border-outline-variant/20 overflow-x-auto no-scrollbar" role="tablist">
               <button
-                onClick={() => setStatusFilter("all")}
-                className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${
-                  statusFilter === "all"
+                onClick={() => {
+                  setStatusFilter("active");
+                  setBoardFilter("mine");
+                }}
+                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold whitespace-nowrap transition-all ${
+                  statusFilter === "active" && boardFilter === "mine"
                     ? "bg-surface-container-high text-primary shadow-sm"
                     : "text-on-surface-variant hover:text-on-surface"
                 }`}
               >
-                Todos <span className="ml-1 opacity-70 font-label-code text-[10px]">{projects.length}</span>
+                <span>👤</span>
+                <span>Meus quadros do Spaces</span>
               </button>
               <button
-                onClick={() => setStatusFilter("active")}
-                className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${
-                  statusFilter === "active"
+                onClick={() => {
+                  setStatusFilter("active");
+                  setBoardFilter("shared");
+                }}
+                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold whitespace-nowrap transition-all ${
+                  statusFilter === "active" && boardFilter === "shared"
                     ? "bg-surface-container-high text-primary shadow-sm"
                     : "text-on-surface-variant hover:text-on-surface"
                 }`}
               >
-                Ativos{" "}
-                <span className="ml-1 opacity-70 font-label-code text-[10px]">
-                  {projects.filter((p) => !p.isArchived).length}
-                </span>
+                <span>👥</span>
+                <span>Compartilhado</span>
               </button>
               <button
-                onClick={() => setStatusFilter("archived")}
-                className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${
+                onClick={() => {
+                  setStatusFilter("active");
+                  setBoardFilter("all");
+                }}
+                className={`px-3 py-1.5 rounded-lg text-xs font-semibold whitespace-nowrap transition-all ${
+                  statusFilter === "active" && boardFilter === "all"
+                    ? "bg-surface-container-high text-primary shadow-sm"
+                    : "text-on-surface-variant hover:text-on-surface"
+                }`}
+              >
+                Todos <span className="ml-1 opacity-70 font-label-code text-[10px]">{projects.filter((p) => !p.isArchived).length}</span>
+              </button>
+              <button
+                onClick={() => {
+                  setStatusFilter("archived");
+                  setBoardFilter("all");
+                }}
+                className={`px-3 py-1.5 rounded-lg text-xs font-semibold whitespace-nowrap transition-all ${
                   statusFilter === "archived"
                     ? "bg-surface-container-high text-amber-300 shadow-sm"
                     : "text-on-surface-variant hover:text-on-surface"
                 }`}
               >
-                Arquivados{" "}
-                <span className="ml-1 opacity-70 font-label-code text-[10px]">
-                  {projects.filter((p) => p.isArchived).length}
-                </span>
+                Arquivados
               </button>
             </div>
 
@@ -938,182 +984,284 @@ export default function ProjectsPage() {
             </div>
           </div>
         ) : viewMode === "cards" ? (
-          /* GRID DE CARDS CINEMATOGRÁFICOS 16:9 (REDESIGN COMPLETO) */
-          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+          /* GRID DE QUADROS DO SPACES (ESTILO MAGNIFIC SPACES BOARD PREVIEW) */
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
             {projects.map((project) => {
-              const visual = getGenreVisual(project.genre);
               const isStarred = starredProjectIds.has(project.id);
+              const previewImages = project.generatedImages || [];
+              const vis = project.visibility || "TEAM";
+              const visBadge =
+                vis === "PRIVATE"
+                  ? { icon: "🔒", label: "Privado", cls: "text-amber-400 bg-amber-500/10 border-amber-500/25" }
+                  : vis === "SELECTED"
+                  ? {
+                      icon: "🎯",
+                      label: `${project._count?.spaceMembers || project.spaceMembers?.length || 0} membro(s)`,
+                      cls: "text-purple-400 bg-purple-500/10 border-purple-500/25",
+                    }
+                  : { icon: "👥", label: "Equipe", cls: "text-primary bg-primary/10 border-primary/25" };
 
               return (
                 <article
                   key={project.id}
-                  className={`project-card group relative flex flex-col justify-between rounded-2xl bg-surface-container/60 hover:bg-surface-container/90 border transition-all duration-300 shadow-md hover:shadow-2xl hover:-translate-y-1 overflow-hidden ${
-                    project.isArchived
-                      ? "border-amber-500/30 opacity-75"
-                      : "border-outline-variant/30 hover:border-primary/50"
-                  }`}
+                  className="group flex flex-col gap-2.5"
                 >
-                  {/* Topo Widescreen 16:9 */}
+                  {/* Mini-Board Visual Preview Box (Estilo Magnific Spaces) */}
                   <div
-                    className={`relative w-full aspect-[16/9] overflow-hidden bg-gradient-to-br ${visual.gradient}`}
-                    style={{ backgroundImage: visual.bgPattern }}
+                    className={`relative aspect-[4/3] w-full overflow-hidden rounded-2xl border bg-surface-container-low transition-all duration-300 group-hover:shadow-2xl group-hover:-translate-y-0.5 ${
+                      project.isArchived
+                        ? "border-amber-500/30 opacity-75"
+                        : "border-outline-variant/30 group-hover:border-primary/50"
+                    }`}
+                    style={{
+                      backgroundImage:
+                        "radial-gradient(rgba(148, 163, 184, 0.25) 1px, transparent 1px)",
+                      backgroundSize: "16px 16px",
+                    }}
                   >
-                    <div className="absolute inset-0 bg-gradient-to-t from-surface-container via-surface-container/20 to-transparent" />
+                    <Link
+                      href={`/projects/${project.id}`}
+                      className="absolute inset-0 z-10 flex items-center justify-center p-5"
+                    >
+                      {previewImages.length >= 3 ? (
+                        /* Collage estilo fluxo de nós com linhas conectoras */
+                        <div className="relative flex h-full w-full items-center justify-center gap-3">
+                          <svg
+                            className="pointer-events-none absolute inset-0 h-full w-full opacity-60"
+                            viewBox="0 0 300 200"
+                          >
+                            <path
+                              d="M 75 100 C 115 100, 115 65, 150 65"
+                              fill="none"
+                              stroke="#6366f1"
+                              strokeWidth="2"
+                            />
+                            <path
+                              d="M 75 100 C 115 100, 115 135, 150 135"
+                              fill="none"
+                              stroke="#6366f1"
+                              strokeWidth="2"
+                            />
+                            <path
+                              d="M 190 65 C 215 65, 215 100, 240 100"
+                              fill="none"
+                              stroke="#6366f1"
+                              strokeWidth="2"
+                            />
+                          </svg>
 
-                    {/* Tags do Topo */}
-                    <div className="absolute top-3 left-3 right-3 flex items-center justify-between pointer-events-none">
-                      <div className="flex items-center gap-1.5 flex-wrap">
-                        <span className={`px-2.5 py-0.5 rounded-md backdrop-blur-md font-label-caps text-[10px] font-bold tracking-wide uppercase shadow-sm ${visual.badge}`}>
-                          {project.genre || "Cinema Geral"}
-                        </span>
-                        <span className="px-2 py-0.5 rounded-md bg-surface-container-lowest/80 backdrop-blur-md font-label-code text-[10px] text-on-surface-variant">
-                          {project.configuration?.aspectRatio || "16:9"}
-                        </span>
-                      </div>
+                          <div className="relative z-10 h-28 w-20 overflow-hidden rounded-xl border border-white/20 shadow-lg">
+                            <img
+                              src={previewImages[0].imageUrl}
+                              alt=""
+                              className="h-full w-full object-cover"
+                            />
+                          </div>
 
-                      <span className="px-2 py-0.5 rounded-md bg-surface-container-lowest/85 backdrop-blur-md font-label-code text-[10px] text-primary flex items-center gap-1">
-                        <span className="w-1.5 h-1.5 rounded-full bg-primary" />
-                        {project.configuration?.targetPlatform || "Google Flow"}
-                      </span>
+                          <div className="relative z-10 flex flex-col gap-2">
+                            <div className="h-16 w-24 overflow-hidden rounded-xl border border-white/20 shadow-lg">
+                              <img
+                                src={previewImages[1].imageUrl}
+                                alt=""
+                                className="h-full w-full object-cover"
+                              />
+                            </div>
+                            <div className="h-16 w-24 overflow-hidden rounded-xl border border-white/20 shadow-lg">
+                              <img
+                                src={previewImages[2].imageUrl}
+                                alt=""
+                                className="h-full w-full object-cover"
+                              />
+                            </div>
+                          </div>
+
+                          {previewImages[3] && (
+                            <div className="relative z-10 h-32 w-20 overflow-hidden rounded-xl border border-white/20 shadow-lg">
+                              <img
+                                src={previewImages[3].imageUrl}
+                                alt=""
+                                className="h-full w-full object-cover"
+                              />
+                            </div>
+                          )}
+                        </div>
+                      ) : previewImages.length > 0 ? (
+                        <div className="relative flex h-full w-full items-center justify-center gap-3">
+                          {previewImages.slice(0, 2).map((img, i) => (
+                            <div
+                              key={img.id}
+                              className={`overflow-hidden rounded-xl border border-white/20 shadow-xl ${
+                                i === 0 ? "h-36 w-28" : "h-28 w-36"
+                              }`}
+                            >
+                              <img
+                                src={img.imageUrl}
+                                alt=""
+                                className="h-full w-full object-cover"
+                              />
+                            </div>
+                          ))}
+                        </div>
+                      ) : (
+                        /* Mini diagrama de nós estilizado quando o Space ainda não tem imagens */
+                        <div className="relative flex h-full w-full items-center justify-center">
+                          <svg
+                            className="pointer-events-none absolute inset-0 h-full w-full opacity-50"
+                            viewBox="0 0 300 200"
+                          >
+                            <path
+                              d="M 90 100 C 130 100, 130 75, 175 75"
+                              fill="none"
+                              stroke="#6366f1"
+                              strokeWidth="2"
+                              strokeDasharray="4 3"
+                            />
+                            <path
+                              d="M 90 100 C 130 100, 130 130, 175 130"
+                              fill="none"
+                              stroke="#4edea3"
+                              strokeWidth="2"
+                            />
+                          </svg>
+                          <div className="flex items-center gap-5">
+                            <div className="flex flex-col items-center justify-center rounded-xl border border-outline-variant/40 bg-surface-container px-3 py-2.5 shadow-md">
+                              <span className="text-base">📜</span>
+                              <span className="mt-1 text-[9px] font-mono text-on-surface-variant">
+                                {project._count.scenes} Cenas
+                              </span>
+                            </div>
+                            <div className="flex flex-col gap-2">
+                              <div className="flex items-center gap-1.5 rounded-xl border border-outline-variant/40 bg-surface-container px-3 py-2 shadow-md">
+                                <span className="text-xs">👤</span>
+                                <span className="text-[9px] font-mono text-on-surface-variant">
+                                  {project._count.characters} Personagens
+                                </span>
+                              </div>
+                              <div className="flex items-center gap-1.5 rounded-xl border border-purple-500/30 bg-purple-500/10 px-3 py-2 shadow-md">
+                                <span className="text-xs">🎬</span>
+                                <span className="text-[9px] font-mono text-purple-400">
+                                  Vídeo & Imagem
+                                </span>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      )}
+                    </Link>
+
+                    {/* Top-Right Hover Quick Actions */}
+                    <div className="absolute top-2.5 right-2.5 z-20 flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                      <button
+                        type="button"
+                        onClick={(e) => toggleStarProject(project.id, e)}
+                        className="flex h-7 w-7 items-center justify-center rounded-lg border border-outline-variant/30 bg-surface-container/90 text-xs text-on-surface-variant backdrop-blur-md hover:text-primary"
+                        title={isStarred ? "Remover dos favoritos" : "Favoritar Space"}
+                      >
+                        {isStarred ? "★" : "☆"}
+                      </button>
+                      <button
+                        type="button"
+                        onClick={(e) => {
+                          e.preventDefault();
+                          e.stopPropagation();
+                          setProjectToShare(project);
+                        }}
+                        className="flex h-7 items-center gap-1 rounded-lg border border-outline-variant/30 bg-surface-container/90 px-2 text-[10px] font-semibold text-on-surface backdrop-blur-md hover:border-primary hover:text-primary"
+                        title="Configurar compartilhamento deste Space com a equipe"
+                      >
+                        <span>🔗</span>
+                        <span>Compartilhar</span>
+                      </button>
+                      <button
+                        type="button"
+                        onClick={(e) => {
+                          e.preventDefault();
+                          e.stopPropagation();
+                          handleOpenEdit(project);
+                        }}
+                        className="flex h-7 w-7 items-center justify-center rounded-lg border border-outline-variant/30 bg-surface-container/90 text-xs text-on-surface-variant backdrop-blur-md hover:text-on-surface"
+                        title="Editar configurações"
+                      >
+                        ✎
+                      </button>
                     </div>
 
-                    {/* Duração Estimada Inferior */}
-                    <div className="absolute bottom-3 right-3 pointer-events-none">
-                      <span className="px-2 py-0.5 rounded-full bg-surface-container-lowest/90 font-label-code text-[11px] text-on-surface flex items-center gap-1">
-                        <span className="material-symbols-outlined text-[13px] text-tertiary">timer</span>
-                        {project.durationSeconds ? `${project.durationSeconds}s` : "30s est."}
-                      </span>
+                    {/* Bottom Status & Visibility Pill inside Canvas Box (Magnific style) */}
+                    <div className="pointer-events-none absolute bottom-2.5 left-2.5 right-2.5 z-20 flex items-center justify-between">
+                      <div className="inline-flex items-center gap-1.5 rounded-lg border border-outline-variant/30 bg-surface-container/90 px-2.5 py-1 text-[10px] font-medium text-on-surface-variant shadow-sm backdrop-blur-md">
+                        <span
+                          className={`h-2 w-2 rounded-full ${
+                            project.isArchived ? "bg-amber-400" : "bg-emerald-400"
+                          }`}
+                        />
+                        <span>{project.isArchived ? "Arquivado" : "Status"}</span>
+                        <span className="opacity-40">•</span>
+                        <span>📄 {project._count.boards || 1}</span>
+                      </div>
+
+                      <button
+                        type="button"
+                        onClick={(e) => {
+                          e.preventDefault();
+                          e.stopPropagation();
+                          setProjectToShare(project);
+                        }}
+                        className={`pointer-events-auto inline-flex items-center gap-1 rounded-lg border px-2 py-0.5 text-[10px] font-semibold backdrop-blur-md transition hover:opacity-90 ${visBadge.cls}`}
+                        title="Alterar quem pode visualizar este Space"
+                      >
+                        <span>{visBadge.icon}</span>
+                        <span>{visBadge.label}</span>
+                      </button>
                     </div>
                   </div>
 
-                  {/* Corpo do Card */}
-                  <div className="p-5 flex flex-col flex-1 justify-between gap-4">
-                    <div>
-                      <div className="flex items-center justify-between mb-1.5">
-                        <Link href={`/projects/${project.id}`} className="group-hover:text-primary transition-colors flex-1">
-                          <h2 className="font-headline-md text-base sm:text-lg font-bold text-on-surface line-clamp-1">
-                            {project.title}
-                          </h2>
-                        </Link>
-
-                        {/* Botão de Estrela (Favorito) */}
-                        <button
-                          onClick={(e) => toggleStarProject(project.id, e)}
-                          className="p-1 rounded text-on-surface-variant hover:text-primary transition-colors"
-                          title={isStarred ? "Remover dos favoritos" : "Marcar como favorito"}
-                        >
-                          <span
-                            className="material-symbols-outlined text-[18px]"
-                            style={{
-                              fontVariationSettings: isStarred ? "'FILL' 1" : "'FILL' 0",
-                              color: isStarred ? "var(--brand-primary, #4edea3)" : undefined,
-                            }}
-                          >
-                            star
-                          </span>
-                        </button>
-                      </div>
-
-                      <p className="font-body-sm text-xs text-on-surface-variant line-clamp-2 min-h-[32px]">
-                        {project.description || "Nenhuma descrição fornecida para este projeto cinematográfico."}
-                      </p>
-                    </div>
-
-                    {/* Box com os 4 Contadores de Módulos */}
-                    <div className="grid grid-cols-4 gap-1 p-2 rounded-xl bg-surface-container-lowest/80 border border-outline-variant/20 text-center font-label-code text-xs">
-                      <div className="flex flex-col py-1">
-                        <span className="text-on-surface font-semibold text-sm">{project._count.characters}</span>
-                        <span className="text-on-surface-variant text-[9px] uppercase">Persona</span>
-                      </div>
-                      <div className="flex flex-col py-1">
-                        <span className="text-on-surface font-semibold text-sm">{project._count.environments}</span>
-                        <span className="text-on-surface-variant text-[9px] uppercase">Ambiente</span>
-                      </div>
-                      <div className="flex flex-col py-1">
-                        <span className="text-on-surface font-semibold text-sm">{project._count.scenes}</span>
-                        <span className="text-on-surface-variant text-[9px] uppercase">Cena</span>
-                      </div>
-                      <div className="flex flex-col py-1">
-                        <span className="text-primary font-bold text-sm">{project._count.parameterValues}</span>
-                        <span className="text-on-surface-variant text-[9px] uppercase">Parâmetros</span>
+                  {/* Abaixo do Card: Título, Tempo e Ações Secundárias (Magnific style) */}
+                  <div className="flex items-start justify-between gap-2 px-1">
+                    <div className="min-w-0 flex-1">
+                      <Link
+                        href={`/projects/${project.id}`}
+                        className="block truncate text-sm font-bold text-on-surface hover:text-primary transition-colors"
+                      >
+                        {project.title || "Sem título"}
+                      </Link>
+                      <div className="mt-0.5 flex items-center gap-2 text-[11px] text-on-surface-variant">
+                        <span>{formatDate(project.updatedAt)}</span>
+                        {project.genre && (
+                          <>
+                            <span>•</span>
+                            <span className="truncate">{project.genre}</span>
+                          </>
+                        )}
                       </div>
                     </div>
 
-                    {/* Rodapé do Card com Ações */}
-                    <div className="flex flex-col gap-3 pt-1 border-t border-outline-variant/20">
-                      <div className="flex items-center justify-between font-label-code text-[11px] text-on-surface-variant/70">
-                        <span className="flex items-center gap-1">
-                          <span className="material-symbols-outlined text-[13px]">schedule</span>
-                          {formatDate(project.updatedAt)}
-                        </span>
-                        <span className={project.isArchived ? "text-amber-400" : "text-primary"}>
-                          {project.isArchived ? "Arquivado" : "Pronto para render"}
-                        </span>
-                      </div>
-
-                      <div className="flex items-center justify-between gap-2">
-                        <Link
-                          href={`/projects/${project.id}`}
-                          className="flex-1 py-2 px-3 rounded-xl bg-primary/10 hover:bg-primary text-primary hover:text-on-primary font-headline-sm text-xs font-semibold flex items-center justify-center gap-1.5 transition-all shadow-sm"
-                        >
-                          <span>Abrir Módulos</span>
-                          <span className="material-symbols-outlined text-[16px]">arrow_forward</span>
-                        </Link>
-
-                        <div className="flex items-center gap-1">
-                          {/* Editar */}
-                          <button
-                            onClick={() => handleOpenEdit(project)}
-                            title="Editar configurações"
-                            className="p-2 rounded-xl bg-surface-container-high/60 hover:bg-surface-container-high text-on-surface-variant hover:text-on-surface transition-colors"
-                          >
-                            <span className="material-symbols-outlined text-[16px]">edit</span>
-                          </button>
-
-                          {/* Duplicar */}
-                          <button
-                            onClick={() => handleDuplicate(project)}
-                            disabled={duplicatingId === project.id}
-                            title="Duplicar projeto"
-                            className="p-2 rounded-xl bg-surface-container-high/60 hover:bg-surface-container-high text-on-surface-variant hover:text-primary transition-colors disabled:opacity-50"
-                          >
-                            {duplicatingId === project.id ? (
-                              <div className="h-4 w-4 animate-spin rounded-full border-2 border-primary border-t-transparent" />
-                            ) : (
-                              <span className="material-symbols-outlined text-[16px]">content_copy</span>
-                            )}
-                          </button>
-
-                          {/* Arquivar / Restaurar */}
-                          <button
-                            onClick={() => handleToggleArchive(project)}
-                            title={project.isArchived ? "Restaurar projeto" : "Arquivar projeto"}
-                            className="p-2 rounded-xl bg-surface-container-high/60 hover:bg-surface-container-high text-on-surface-variant hover:text-amber-400 transition-colors"
-                          >
-                            <span className="material-symbols-outlined text-[16px]">
-                              {project.isArchived ? "unarchive" : "archive"}
-                            </span>
-                          </button>
-
-                          {/* Transferir */}
-                          <button
-                            onClick={() => setProjectToTransfer(project)}
-                            title="Transferir para outro Workspace"
-                            className="p-2 rounded-xl bg-surface-container-high/60 hover:bg-surface-container-high text-on-surface-variant hover:text-secondary transition-colors"
-                          >
-                            <span className="material-symbols-outlined text-[16px]">swap_horiz</span>
-                          </button>
-
-                          {/* Excluir */}
-                          <button
-                            onClick={() => setProjectToDelete(project)}
-                            title="Excluir projeto"
-                            className="p-2 rounded-xl bg-surface-container-high/60 hover:bg-surface-container-high text-on-surface-variant hover:text-error transition-colors"
-                          >
-                            <span className="material-symbols-outlined text-[16px]">delete</span>
-                          </button>
-                        </div>
-                      </div>
+                    {/* Menu compacto de ações */}
+                    <div className="flex items-center gap-0.5 opacity-70 group-hover:opacity-100 transition-opacity">
+                      <button
+                        type="button"
+                        onClick={() => handleDuplicate(project)}
+                        disabled={duplicatingId === project.id}
+                        title="Duplicar Space"
+                        className="rounded-lg p-1.5 text-xs text-on-surface-variant hover:bg-surface-container-high hover:text-primary"
+                      >
+                        ⧉
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => handleToggleArchive(project)}
+                        title={project.isArchived ? "Restaurar Space" : "Arquivar Space"}
+                        className="rounded-lg p-1.5 text-xs text-on-surface-variant hover:bg-surface-container-high hover:text-amber-400"
+                      >
+                        📦
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setProjectToDelete(project)}
+                        title="Excluir Space"
+                        className="rounded-lg p-1.5 text-xs text-on-surface-variant hover:bg-surface-container-high hover:text-error"
+                      >
+                        🗑️
+                      </button>
                     </div>
                   </div>
                 </article>
@@ -1397,6 +1545,42 @@ export default function ProjectsPage() {
                   onChange={(e) => setFormData({ ...formData, description: e.target.value })}
                   className="mt-2 w-full rounded-xl border border-white/10 bg-black/40 px-4 py-2.5 text-sm text-white placeholder-white/30 focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
                 />
+              </div>
+
+              {/* Visibilidade e Compartilhamento no Workspace */}
+              <div>
+                <label className="block text-xs font-semibold uppercase tracking-wider text-white/70">
+                  Compartilhamento do Space no Time
+                </label>
+                <div className="mt-2 grid grid-cols-1 sm:grid-cols-3 gap-2">
+                  {(
+                    [
+                      { id: "TEAM" as const, icon: "👥", label: "Toda a Equipe", sub: "Visível ao time" },
+                      { id: "PRIVATE" as const, icon: "🔒", label: "Privado", sub: "Somente você" },
+                      { id: "SELECTED" as const, icon: "🎯", label: "Selecionados", sub: "Escolher membros" },
+                    ]
+                  ).map((opt) => {
+                    const active = formData.visibility === opt.id;
+                    return (
+                      <button
+                        key={opt.id}
+                        type="button"
+                        onClick={() => setFormData({ ...formData, visibility: opt.id })}
+                        className={`flex items-center gap-2.5 rounded-xl border p-2.5 text-left transition ${
+                          active
+                            ? "border-primary bg-primary/15 text-white"
+                            : "border-white/10 bg-black/30 text-white/60 hover:bg-white/5"
+                        }`}
+                      >
+                        <span className="text-base">{opt.icon}</span>
+                        <div>
+                          <div className="text-xs font-bold">{opt.label}</div>
+                          <div className="text-[10px] opacity-70">{opt.sub}</div>
+                        </div>
+                      </button>
+                    );
+                  })}
+                </div>
               </div>
 
               {/* Grid: Gênero, Idioma, Duração */}
@@ -1748,6 +1932,20 @@ export default function ProjectsPage() {
             </div>
           </div>
         </div>
+      )}
+
+      {/* Modal de Compartilhamento do Space */}
+      {projectToShare && (
+        <SpaceShareModal
+          projectId={projectToShare.id}
+          projectTitle={projectToShare.title}
+          isOpen={Boolean(projectToShare)}
+          onClose={() => setProjectToShare(null)}
+          onUpdated={() => {
+            showToast("Configurações de compartilhamento do Space atualizadas!");
+            fetchProjects();
+          }}
+        />
       )}
 
       {/* Modal de Transferência de Projeto entre Workspaces */}

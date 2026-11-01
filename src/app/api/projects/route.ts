@@ -7,19 +7,24 @@ import { ZodError } from "zod";
 
 export async function GET(request: NextRequest) {
   try {
-    const { workspace } = await getCurrentWorkspace(null, "projects:read");
+    const { workspace, user, role } = await getCurrentWorkspace(null, "projects:read");
     const { searchParams } = new URL(request.url);
 
     const query = listProjectsQuerySchema.parse({
       search: searchParams.get("search") ?? undefined,
       status: searchParams.get("status") ?? "active",
+      boardFilter: searchParams.get("boardFilter") ?? undefined,
       sort: searchParams.get("sort") ?? "updatedAt_desc",
       genre: searchParams.get("genre") ?? undefined,
       page: searchParams.get("page") ?? undefined,
       limit: searchParams.get("limit") ?? undefined,
     });
 
-    const result = await ProjectService.listProjects(workspace.id, query);
+    const result = await ProjectService.listProjects(
+      workspace.id,
+      query,
+      user ? { userId: user.id, role } : undefined
+    );
     const hasPaginationMeta = (result as any).total !== undefined && query.limit !== undefined;
 
     return NextResponse.json({
@@ -46,11 +51,11 @@ export async function GET(request: NextRequest) {
 
 export async function POST(request: NextRequest) {
   try {
-    const { workspace } = await getCurrentWorkspace(null, "projects:create");
+    const { workspace, user } = await getCurrentWorkspace(null, "projects:create");
     const body = await request.json();
     const validatedData = createProjectSchema.parse(body);
 
-    const newProject = await ProjectService.createProject(workspace.id, validatedData);
+    const newProject = await ProjectService.createProject(workspace.id, validatedData, user?.id);
 
     return NextResponse.json(
       {

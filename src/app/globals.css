@@ -166,3 +166,163 @@ body {
   -ms-overflow-style: none;
   scrollbar-width: none;
 }
+
+/* ==========================================================================
+   SISTEMA DE TEMA CLARO / ESCURO (LIGHT & DARK MODE)
+   ========================================================================== */
+
+html[data-theme="light"] {
+  color-scheme: light;
+  --brand-background: #f8fafc;
+  --brand-surface: #f1f5f9;
+  --brand-card: #ffffff;
+  --brand-text-primary: #0f172a;
+  --brand-text-secondary: #475569;
+  --brand-border: #cbd5e1;
+
+  --color-background: #f8fafc;
+  --color-surface: #f1f5f9;
+  --color-surface-dim: #e2e8f0;
+  --color-surface-bright: #ffffff;
+  --color-surface-container-lowest: #ffffff;
+  --color-surface-container-low: #f8fafc;
+  --color-surface-container: #ffffff;
+  --color-surface-container-high: #f1f5f9;
+  --color-surface-container-highest: #e2e8f0;
+
+  --color-on-surface: #0f172a;
+  --color-on-background: #0f172a;
+  --color-on-surface-variant: #475569;
+
+  --color-outline: #94a3b8;
+  --color-outline-variant: #cbd5e1;
+}
+
+/* Remapeamento inteligente de utilitários escuros legados quando em modo claro */
+html[data-theme="light"] body {
+  background-color: #f8fafc !important;
+  color: #0f172a !important;
+}
+
+/* Textos claros mapeados para tons escuros legíveis no modo claro (exceto botões coloridos ou elementos com .theme-preserve-dark) */
+html[data-theme="light"] .text-white:not(.bg-primary):not(.bg-emerald-500):not(.bg-emerald-600):not(.bg-blue-600):not(.bg-red-600):not(.bg-amber-600):not(.bg-purple-600):not(.theme-preserve-dark):not(.theme-preserve-dark *) {
+  color: #0f172a !important;
+}
+html[data-theme="light"] .text-white\/90:not(.theme-preserve-dark *),
+html[data-theme="light"] .text-white\/85:not(.theme-preserve-dark *),
+html[data-theme="light"] .text-white\/80:not(.theme-preserve-dark *) {
+  color: #1e293b !important;
+}
+html[data-theme="light"] .text-white\/75:not(.theme-preserve-dark *),
+html[data-theme="light"] .text-white\/70:not(.theme-preserve-dark *),
+html[data-theme="light"] .text-white\/60:not(.theme-preserve-dark *) {
+  color: #334155 !important;
+}
+html[data-theme="light"] .text-white\/50:not(.theme-preserve-dark *),
+html[data-theme="light"] .text-white\/45:not(.theme-preserve-dark *),
+html[data-theme="light"] .text-white\/40:not(.theme-preserve-dark *) {
+  color: #64748b !important;
+}
+html[data-theme="light"] .text-white\/35:not(.theme-preserve-dark *),
+html[data-theme="light"] .text-white\/30:not(.theme-preserve-dark *),
+html[data-theme="light"] .text-white\/25:not(.theme-preserve-dark *),
+html[data-theme="light"] .text-white\/20:not(.theme-preserve-dark *) {
+  color: #94a3b8 !important;
+}
+
+/* Ajuste de contraste de textos semânticos em modo claro */
+html[data-theme="light"] .text-amber-300:not(.theme-preserve-dark *),
+html[data-theme="light"] .text-amber-200:not(.theme-preserve-dark *) {
+  color: #b45309 !important;
+}
+html[data-theme="light"] .text-emerald-300:not(.theme-preserve-dark *),
+html[data-theme="light"] .text-emerald-200:not(.theme-preserve-dark *) {
+  color: #047857 !important;
+}
+html[data-theme="light"] .text-cyan-300:not(.theme-preserve-dark *),
+html[data-theme="light"] .text-cyan-200:not(.theme-preserve-dark *) {
+  color: #0e7490 !important;
+}
+html[data-theme="light"] .text-purple-300:not(.theme-preserve-dark *),
+html[data-theme="light"] .text-purple-200:not(.theme-preserve-dark *) {
+  color: #6d28d9 !important;
+}
+html[data-theme="light"] .text-red-300:not(.theme-preserve-dark *),
+html[data-theme="light"] .text-red-200:not(.theme-preserve-dark *) {
+  color: #b91c1c !important;
+}
+
+/* Superfícies translúcidas brancas ou pretas adaptadas para modo claro */
+html[data-theme="light"] .bg-white\/\[0\.02\]:not(.theme-preserve-dark *),
+html[data-theme="light"] .bg-white\/\[0\.03\]:not(.theme-preserve-dark *),
+html[data-theme="light"] .bg-white\/\[0\.04\]:not(.theme-preserve-dark *),
+html[data-theme="light"] .bg-white\/5:not(.theme-preserve-dark *) {
+  background-color: #ffffff !important;
+}
+html[data-theme="light"] .bg-white\/10:not(.theme-preserve-dark *),
+html[data-theme="light"] .bg-white\/15:not(.theme-preserve-dark *),
+html[data-theme="light"] .bg-white\/20:not(.theme-preserve-dark *) {
+  background-color: #f1f5f9 !important;
+}
+
+html[data-theme="light"] .bg-black\/20:not(.theme-preserve-dark *),
+html[data-theme="light"] .bg-black\/25:not(.theme-preserve-dark *),
+html[data-theme="light"] .bg-black\/30:not(.theme-preserve-dark *),
+html[data-theme="light"] .bg-black\/40:not(.theme-preserve-dark *),
+html[data-theme="light"] .bg-black\/50:not(.theme-preserve-dark *) {
+  background-color: #f8fafc !important;
+}
+
+/* Fundos escuros hardcoded convertidos em superfícies claras limpas */
+html[data-theme="light"] [class*="bg-[#090"]:not(.theme-preserve-dark *),
+html[data-theme="light"] [class*="bg-[#0a0"]:not(.theme-preserve-dark *),
+html[data-theme="light"] [class*="bg-[#0b0"]:not(.theme-preserve-dark *),
+html[data-theme="light"] [class*="bg-[#0c1"]:not(.theme-preserve-dark *),
+html[data-theme="light"] [class*="bg-[#0d1"]:not(.theme-preserve-dark *),
+html[data-theme="light"] [class*="bg-[#0e1"]:not(.theme-preserve-dark *),
+html[data-theme="light"] [class*="bg-[#101"]:not(.theme-preserve-dark *),
+html[data-theme="light"] [class*="bg-[#111"]:not(.theme-preserve-dark *),
+html[data-theme="light"] [class*="bg-[#121"]:not(.theme-preserve-dark *),
+html[data-theme="light"] [class*="bg-[#141"]:not(.theme-preserve-dark *),
+html[data-theme="light"] [class*="bg-[#161"]:not(.theme-preserve-dark *),
+html[data-theme="light"] [class*="bg-[#181"]:not(.theme-preserve-dark *),
+html[data-theme="light"] [class*="bg-[#1c2"]:not(.theme-preserve-dark *) {
+  background-color: #ffffff !important;
+}
+
+/* Bordas sutis em modo claro */
+html[data-theme="light"] .border-white\/5:not(.theme-preserve-dark *),
+html[data-theme="light"] .border-white\/8:not(.theme-preserve-dark *),
+html[data-theme="light"] .border-white\/10:not(.theme-preserve-dark *),
+html[data-theme="light"] .border-white\/15:not(.theme-preserve-dark *),
+html[data-theme="light"] .border-white\/20:not(.theme-preserve-dark *),
+html[data-theme="light"] .border-white\/25:not(.theme-preserve-dark *),
+html[data-theme="light"] .border-white\/30:not(.theme-preserve-dark *) {
+  border-color: #e2e8f0 !important;
+}
+
+/* Inputs, selects e textareas em modo claro */
+html[data-theme="light"] input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not(.theme-preserve-dark *),
+html[data-theme="light"] select:not(.theme-preserve-dark *),
+html[data-theme="light"] textarea:not(.theme-preserve-dark *) {
+  background-color: #ffffff;
+  color: #0f172a;
+  border-color: #cbd5e1;
+}
+html[data-theme="light"] input::placeholder,
+html[data-theme="light"] textarea::placeholder {
+  color: #94a3b8 !important;
+}
+
+/* Ajustes para o React Flow (Spaces Board) */
+.react-flow__attribution {
+  display: none !important;
+}
+.react-flow__edge-path {
+  stroke-width: 2.2px;
+}
+.react-flow__controls {
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.25) !important;
+  border-radius: 12px !important;
+  overflow: hidden;
+}

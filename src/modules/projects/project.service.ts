@@ -32,12 +32,14 @@ export type PaginatedProjectList = ProjectWithCounts[] & {
 
 export class ProjectService {
   /**
-   * Lista os projetos de um workspace com suporte a filtros, busca e ordenação.
+   * Lista os projetos (Spaces) de um workspace com suporte a filtros, busca, visibilidade e ordenação.
    */
   static async listProjects(
     workspaceId: string,
-    query: ListProjectsQuery
+    query: ListProjectsQuery,
+    viewer?: { userId: string; role: string }
   ): Promise<PaginatedProjectList> {
+    const andConditions: Prisma.ProjectWhereInput[] = [];
     const where: Prisma.ProjectWhereInput = {
       workspaceId,
     };
@@ -52,10 +54,52 @@ export class ProjectService {
     // Busca textual por nome ou descrição
     if (query.search && query.search.trim() !== "") {
       const term = query.search.trim();
-      where.OR = [
-        { title: { contains: term, mode: "insensitive" } },
-        { description: { contains: term, mode: "insensitive" } },
-      ];
+      andConditions.push({
+        OR: [
+          { title: { contains: term, mode: "insensitive" } },
+          { description: { contains: term, mode: "insensitive" } },
+        ],
+      });
+    }
+
+    // Filtro por visibilidade do membro (quando não é OWNER nem ADMIN do workspace)
+    if (viewer?.userId && viewer.role !== "OWNER" && viewer.role !== "ADMIN") {
+      andConditions.push({
+        OR: [
+          { visibility: "TEAM" },
+          { ownerUserId: viewer.userId },
+          { ownerUserId: null },
+          {
+            visibility: "SELECTED",
+            spaceMembers: {
+              some: { userId: viewer.userId },
+            },
+          },
+        ],
+      });
+    }
+
+    // Filtro de aba do Spaces ("mine" vs "shared")
+    if (viewer?.userId && query.boardFilter === "mine") {
+      andConditions.push({
+        OR: [{ ownerUserId: viewer.userId }, { ownerUserId: null }],
+      });
+    } else if (viewer?.userId && query.boardFilter === "shared") {
+      andConditions.push({
+        OR: [
+          { visibility: "TEAM" },
+          {
+            visibility: "SELECTED",
+            spaceMembers: {
+              some: { userId: viewer.userId },
+            },
+          },
+        ],
+      });
+    }
+
+    if (andConditions.length > 0) {
+      where.AND = andConditions;
     }
 
     // Filtro por gênero
@@ -87,6 +131,44 @@ export class ProjectService {
     const page = query.page || 1;
     const limit = query.limit;
 
+    const projectInclude = {
+      _count: {
+        select: {
+          characters: true,
+          environments: true,
+          scenes: true,
+          parameterValues: true,
+          generations: true,
+          generatedImages: true,
+          boards: true,
+          spaceMembers: true,
+        },
+      },
+      spaceMembers: {
+        include: {
+          user: {
+            select: {
+              id: true,
+              displayName: true,
+              email: true,
+            },
+          },
+        },
+      },
+      generatedImages: {
+        where: { status: "SUCCEEDED" },
+        take: 6,
+        orderBy: { createdAt: "desc" as const },
+        select: {
+          id: true,
+          imageUrl: true,
+          prompt: true,
+          aspectRatio: true,
+          modelId: true,
+        },
+      },
+    };
+
     if (limit) {
       const skip = (page - 1) * limit;
       const [projects, total] = await Promise.all([
@@ -95,17 +177,7 @@ export class ProjectService {
           orderBy,
           skip,
           take: limit,
-          include: {
-            _count: {
-              select: {
-                characters: true,
-                environments: true,
-                scenes: true,
-                parameterValues: true,
-                generations: true,
-              },
-            },
-          },
+          include: projectInclude,
         }),
         db.project.count({ where }),
       ]);
@@ -129,17 +201,7 @@ export class ProjectService {
     const projects = await db.project.findMany({
       where,
       orderBy,
-      include: {
-        _count: {
-          select: {
-            characters: true,
-            environments: true,
-            scenes: true,
-            parameterValues: true,
-            generations: true,
-          },
-        },
-      },
+      include: projectInclude,
     });
 
     return projects.map((p) => {
@@ -168,6 +230,29 @@ export class ProjectService {
             scenes: true,
             parameterValues: true,
             generations: true,
+            generatedImages: true,
+            boards: true,
+            spaceMembers: true,
+          },
+        },
+        spaceMembers: {
+          include: {
+            user: {
+              select: {
+                id: true,
+                displayName: true,
+                email: true,
+              },
+            },
+          },
+        },
+        boards: {
+          orderBy: { order: "asc" },
+          select: {
+            id: true,
+            name: true,
+            order: true,
+            updatedAt: true,
           },
         },
         characters: {
@@ -195,24 +280,34 @@ export class ProjectService {
   }
 
   /**
-   * Cria um novo projeto associado ao workspace.
+   * Cria um novo projeto (Space) associado ao workspace e inicializa sua primeira página de board.
    */
-  static async createProject(workspaceId: string, data: CreateProjectInput) {
+  static async createProject(workspaceId: string, data: CreateProjectInput, ownerUserId?: string) {
     // Validar limites comerciais e direitos do plano (Entitlements)
     await EntitlementService.assertCanCreateProject(workspaceId);
 
     return db.project.create({
       data: {
         workspaceId,
+        ownerUserId: ownerUserId ?? null,
         title: data.title,
         description: data.description ?? "",
         genre: data.genre ?? null,
         language: data.language ?? "pt-BR",
         durationSeconds: data.durationSeconds ?? null,
+        visibility: data.visibility ?? "TEAM",
+        thumbnailUrl: data.thumbnailUrl ?? null,
         configuration: (data.configuration ?? {
           aspectRatio: "16:9",
           targetPlatform: "Google Flow",
         }) as Prisma.InputJsonValue,
+        boards: {
+          create: {
+            name: "Page 1",
+            order: 0,
+            viewport: { x: 0, y: 0, zoom: 1 },
+          },
+        },
       },
       include: {
         _count: {
@@ -239,6 +334,8 @@ export class ProjectService {
     if (data.genre !== undefined) updateData.genre = data.genre;
     if (data.language !== undefined) updateData.language = data.language;
     if (data.durationSeconds !== undefined) updateData.durationSeconds = data.durationSeconds;
+    if (data.visibility !== undefined) updateData.visibility = data.visibility;
+    if (data.thumbnailUrl !== undefined) updateData.thumbnailUrl = data.thumbnailUrl;
     if (data.configuration !== undefined) {
       updateData.configuration = data.configuration as Prisma.InputJsonValue;
     }

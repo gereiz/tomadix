@@ -3,6 +3,7 @@
 import { useState, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { ToastNotification } from "@/components/ui/toast";
+import { applyDomTheme, ThemeMode } from "@/components/theme/theme-toggle";
 
 interface UserProfile {
   id: string;
@@ -10,7 +11,7 @@ interface UserProfile {
   displayName: string;
   emailConfirmed: boolean;
   preferences: {
-    theme?: "dark" | "system";
+    theme?: ThemeMode;
     compactView?: boolean;
     defaultViewMode?: "cards" | "table";
     language?: "pt-BR" | "en-US";
@@ -76,7 +77,7 @@ export default function ProfilePage() {
   const [confirmPassword, setConfirmPassword] = useState("");
 
   // Preferências
-  const [theme, setTheme] = useState<"dark" | "system">("dark");
+  const [theme, setTheme] = useState<ThemeMode>("system");
   const [defaultViewMode, setDefaultViewMode] = useState<"cards" | "table">("cards");
   const [compactView, setCompactView] = useState(false);
   const [language, setLanguage] = useState<"pt-BR" | "en-US">("pt-BR");
@@ -118,7 +119,11 @@ export default function ProfilePage() {
       setDisplayName(p.displayName || "");
 
       const prefs = p.preferences || {};
-      setTheme(prefs.theme || "dark");
+      const savedLocalTheme =
+        (typeof window !== "undefined" ? (localStorage.getItem("tomadix_theme") as ThemeMode | null) : null) ||
+        prefs.theme ||
+        "system";
+      setTheme(savedLocalTheme);
       setDefaultViewMode(prefs.defaultViewMode || "cards");
       setCompactView(Boolean(prefs.compactView));
       setLanguage(prefs.language || "pt-BR");
@@ -502,11 +507,20 @@ export default function ProfilePage() {
                     <label className="block text-xs font-semibold text-white/70">Tema Visual</label>
                     <select
                       value={theme}
-                      onChange={(e: any) => setTheme(e.target.value)}
+                      onChange={(e: any) => {
+                        const nextMode = e.target.value as ThemeMode;
+                        setTheme(nextMode);
+                        try {
+                          localStorage.setItem("tomadix_theme", nextMode);
+                        } catch {}
+                        applyDomTheme(nextMode);
+                        window.dispatchEvent(new CustomEvent("tomadix:theme-changed", { detail: nextMode }));
+                      }}
                       className="mt-2 w-full rounded-xl border border-white/10 bg-black/40 px-3 py-2 text-xs text-white focus:border-primary focus:outline-none"
                     >
-                      <option value="dark">Escuro Cinema (Padrão)</option>
-                      <option value="system">Seguir Sistema Operacional</option>
+                      <option value="system">💻 Seguir Sistema Operacional (Auto)</option>
+                      <option value="light">☀️ Modo Claro</option>
+                      <option value="dark">🌙 Modo Escuro Cinema</option>
                     </select>
                   </div>
 

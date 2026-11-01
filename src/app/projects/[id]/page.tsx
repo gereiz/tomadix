@@ -9,6 +9,8 @@ import { ScenesTab } from "@/components/scenes/scenes-tab";
 import { PromptsTab } from "@/components/prompts/prompts-tab";
 import { ProjectParameterSettings } from "@/components/parameters/project-parameter-settings";
 import { QuickCreationBar } from "@/components/studio/quick-creation-bar";
+import { SpaceBoardCanvas } from "@/components/spaces/space-board-canvas";
+import { SpaceShareModal, SpaceVisibilityType } from "@/components/spaces/space-share-modal";
 
 interface SceneCharacterLink {
   character: {
@@ -63,6 +65,7 @@ interface ProjectDetail {
     customNotes?: string;
   };
   visualBible?: any;
+  visibility?: SpaceVisibilityType;
   isArchived: boolean;
   archivedAt: string | null;
   createdAt: string;
@@ -79,7 +82,7 @@ interface ProjectDetail {
   scenes: SceneItem[];
 }
 
-type TabType = "overview" | "characters" | "environments" | "scenes" | "parameters" | "prompts";
+type TabType = "board" | "overview" | "characters" | "environments" | "scenes" | "parameters" | "prompts";
 
 export default function ProjectDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const resolvedParams = use(params);
@@ -87,10 +90,11 @@ export default function ProjectDetailPage({ params }: { params: Promise<{ id: st
   const [project, setProject] = useState<ProjectDetail | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [activeTab, setActiveTab] = useState<TabType>("overview");
-  const [visitedTabs, setVisitedTabs] = useState<Record<string, boolean>>({ overview: true });
+  const [activeTab, setActiveTab] = useState<TabType>("board");
+  const [visitedTabs, setVisitedTabs] = useState<Record<string, boolean>>({ board: true, overview: true });
   const [actionLoading, setActionLoading] = useState(false);
   const [refreshKey, setRefreshKey] = useState(0);
+  const [isShareModalOpen, setIsShareModalOpen] = useState(false);
 
   // Modal de Bíblia Visual com IA (GEN_VISUAL_BIBLE)
   const [vbModalOpen, setVbModalOpen] = useState(false);
@@ -320,18 +324,98 @@ export default function ProjectDetailPage({ params }: { params: Promise<{ id: st
 
   return (
     <div className="min-h-screen bg-[#0b0d12] text-white">
-      <main className="w-full px-4 sm:px-6 lg:px-8 pt-8 pb-28">
-        {/* Navegação Breadcrumb & Voltar */}
-        <div className="flex items-center gap-2 text-xs text-white/50">
-          <Link href="/projects" className="hover:text-primary transition">
-            Projetos
-          </Link>
-          <span>/</span>
-          <span className="text-white/80 font-medium truncate max-w-xs">{project.title}</span>
+      <main className={`w-full px-4 sm:px-6 lg:px-8 ${activeTab === "board" ? "pt-3 pb-6" : "pt-6 pb-28"}`}>
+        {/* Barra Superior Compacta do Space (Estilo Magnific Spaces) */}
+        <div className="flex flex-wrap items-center justify-between gap-3 border-b border-white/10 pb-3">
+          <div className="flex items-center gap-2.5 text-xs">
+            <Link
+              href="/projects"
+              className="flex h-7 w-7 items-center justify-center rounded-lg border border-white/10 bg-white/5 text-white/70 hover:bg-white/10 hover:text-white transition"
+              title="Voltar para todos os Spaces"
+            >
+              ‹
+            </Link>
+            <Link href="/projects" className="text-white/50 hover:text-primary transition font-medium">
+              Spaces
+            </Link>
+            <span className="text-white/25">›</span>
+            <span className="flex items-center gap-1.5 text-white font-bold truncate max-w-[240px] sm:max-w-md">
+              <span>✨</span>
+              <span className="truncate">{project.title}</span>
+            </span>
+            <span className="hidden md:inline-flex items-center gap-1 rounded-md border border-white/10 bg-white/5 px-2 py-0.5 text-[10px] text-white/60">
+              {project.visibility === "PRIVATE"
+                ? "🔒 Privado"
+                : project.visibility === "SELECTED"
+                ? "🎯 Membros Selecionados"
+                : "👥 Equipe"}
+            </span>
+          </div>
+
+          {/* Seletor de Modo: Board Colaborativo vs Estúdio Detalhado + Botão Compartilhar */}
+          <div className="flex items-center gap-2 overflow-x-auto no-scrollbar">
+            <div className="flex items-center rounded-xl border border-white/10 bg-white/[0.03] p-1 gap-1">
+              {[
+                { id: "board", label: "✨ Board Colaborativo", count: null },
+                { id: "characters", label: "👤 Personagens", count: project._count.characters },
+                { id: "environments", label: "🏛️ Ambientes", count: project._count.environments },
+                { id: "scenes", label: "🎬 Cenas", count: project._count.scenes },
+                { id: "prompts", label: "📜 Prompts", count: project._count.generations },
+                { id: "parameters", label: "⚙️ Parâmetros", count: project._count.parameterValues },
+                { id: "overview", label: "📊 Detalhes", count: null },
+              ].map((tab) => {
+                const isActive = activeTab === tab.id;
+                return (
+                  <button
+                    key={tab.id}
+                    onClick={() => setActiveTab(tab.id as TabType)}
+                    className={`flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-xs font-semibold transition whitespace-nowrap ${
+                      isActive
+                        ? "bg-primary text-on-primary shadow-sm"
+                        : "text-white/60 hover:bg-white/5 hover:text-white"
+                    }`}
+                  >
+                    <span>{tab.label}</span>
+                    {tab.count !== null && (
+                      <span
+                        className={`rounded-full px-1.5 py-0.2 text-[10px] ${
+                          isActive ? "bg-black/20 text-on-primary" : "bg-white/10 text-white/50"
+                        }`}
+                      >
+                        {tab.count}
+                      </span>
+                    )}
+                  </button>
+                );
+              })}
+            </div>
+
+            <button
+              type="button"
+              onClick={() => setIsShareModalOpen(true)}
+              className="flex items-center gap-1.5 rounded-xl bg-white px-3.5 py-2 text-xs font-bold text-black shadow-md transition hover:opacity-90 whitespace-nowrap"
+            >
+              <span>🔗</span>
+              <span>Compartilhar</span>
+            </button>
+          </div>
         </div>
 
-        {/* Header Principal do Projeto */}
-        <div className="mt-4 flex flex-col justify-between gap-6 md:flex-row md:items-start border-b border-white/10 pb-8">
+        {/* ABA PRINCIPAL: BOARD COLABORATIVO DO SPACE */}
+        {activeTab === "board" && (
+          <div className="mt-3">
+            <SpaceBoardCanvas
+              projectId={project.id}
+              projectTitle={project.title}
+              onSwitchToClassicStudio={() => setActiveTab("scenes")}
+              onOpenShareModal={() => setIsShareModalOpen(true)}
+            />
+          </div>
+        )}
+
+        {/* Header Principal do Projeto (Exibido apenas nas abas do Estúdio Clássico) */}
+        {activeTab !== "board" && (
+        <div className="mt-4 flex flex-col justify-between gap-6 md:flex-row md:items-start border-b border-white/10 pb-6">
           <div className="flex-1">
             <div className="flex flex-wrap items-center gap-2 mb-2">
               <span className="rounded-lg bg-primary/10 px-2.5 py-1 text-xs font-semibold text-primary border border-primary/20">
@@ -353,11 +437,11 @@ export default function ProjectDetailPage({ params }: { params: Promise<{ id: st
               )}
             </div>
 
-            <h1 className="text-3xl font-bold tracking-tight md:text-5xl text-white">
+            <h1 className="text-2xl font-bold tracking-tight md:text-4xl text-white">
               {project.title}
             </h1>
 
-            <p className="mt-3 max-w-3xl text-sm leading-relaxed text-white/65">
+            <p className="mt-2 max-w-3xl text-sm leading-relaxed text-white/65">
               {project.description || "Nenhuma descrição fornecida para este projeto."}
             </p>
           </div>
@@ -369,9 +453,6 @@ export default function ProjectDetailPage({ params }: { params: Promise<{ id: st
               disabled={actionLoading}
               className="flex items-center gap-2 rounded-xl border border-white/15 bg-white/5 px-4 py-2 text-xs font-medium text-white transition hover:bg-white/10 disabled:opacity-50"
             >
-              <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
-              </svg>
               Duplicar
             </button>
 
@@ -388,42 +469,7 @@ export default function ProjectDetailPage({ params }: { params: Promise<{ id: st
             </button>
           </div>
         </div>
-
-        {/* Abas de Navegação entre Módulos Internos */}
-        <div className="mt-6 flex overflow-x-auto border-b border-white/10 pb-px gap-2">
-          {[
-            { id: "overview", label: "Visão Geral", count: null },
-            { id: "characters", label: "Personagens", count: project._count.characters },
-            { id: "environments", label: "Ambientes", count: project._count.environments },
-            { id: "scenes", label: "Cenas", count: project._count.scenes },
-            { id: "parameters", label: "Parâmetros Dinâmicos", count: project._count.parameterValues },
-            { id: "prompts", label: "Motor de Prompts", count: project._count.generations },
-          ].map((tab) => {
-            const isActive = activeTab === tab.id;
-            return (
-              <button
-                key={tab.id}
-                onClick={() => setActiveTab(tab.id as TabType)}
-                className={`flex items-center gap-2 border-b-2 px-4 py-3 text-xs font-semibold transition whitespace-nowrap ${
-                  isActive
-                    ? "border-primary text-primary"
-                    : "border-transparent text-white/50 hover:border-white/20 hover:text-white"
-                }`}
-              >
-                <span>{tab.label}</span>
-                {tab.count !== null && (
-                  <span
-                    className={`rounded-full px-2 py-0.5 text-[10px] ${
-                      isActive ? "bg-primary/20 text-primary" : "bg-white/10 text-white/50"
-                    }`}
-                  >
-                    {tab.count}
-                  </span>
-                )}
-              </button>
-            );
-          })}
-        </div>
+        )}
 
         {/* Conteúdo da Aba: Visão Geral */}
         <div className={activeTab === "overview" ? "block" : "hidden"}>
@@ -1117,12 +1163,23 @@ export default function ProjectDetailPage({ params }: { params: Promise<{ id: st
 
       </main>
 
-      {/* Barra de Criação Rápida no contexto deste projeto (sem opção de criar projetos) */}
-      <QuickCreationBar
-        currentProjectId={project.id}
-        currentProjectTitle={project.title}
-        onItemCreated={handleQuickItemCreated}
+      {/* Modal de Compartilhamento do Space */}
+      <SpaceShareModal
+        projectId={project.id}
+        projectTitle={project.title}
+        isOpen={isShareModalOpen}
+        onClose={() => setIsShareModalOpen(false)}
+        onUpdated={() => loadProject(true)}
       />
+
+      {/* Barra de Criação Rápida no contexto deste projeto (exibida nas abas clássicas) */}
+      {activeTab !== "board" && (
+        <QuickCreationBar
+          currentProjectId={project.id}
+          currentProjectTitle={project.title}
+          onItemCreated={handleQuickItemCreated}
+        />
+      )}
     </div>
   );
 }

@@ -1,5 +1,32 @@
 import { CustomizationSettings } from "@/modules/admin/platform-settings.service";
 
+export type ThemeMode = "light" | "dark" | "system";
+
+export function resolveEffectiveTheme(mode: ThemeMode): "light" | "dark" {
+  if (mode === "light" || mode === "dark") return mode;
+  if (typeof window !== "undefined" && window.matchMedia) {
+    return window.matchMedia("(prefers-color-scheme: light)").matches ? "light" : "dark";
+  }
+  return "dark";
+}
+
+export function applyDomTheme(mode: ThemeMode): "light" | "dark" {
+  const effective = resolveEffectiveTheme(mode);
+  if (typeof document !== "undefined") {
+    const root = document.documentElement;
+    root.setAttribute("data-theme", effective);
+    root.setAttribute("data-theme-mode", mode);
+    if (effective === "light") {
+      root.classList.remove("dark");
+      root.classList.add("light");
+    } else {
+      root.classList.remove("light");
+      root.classList.add("dark");
+    }
+  }
+  return effective;
+}
+
 export function getContrastTextColor(hexColor: string): string {
   if (!hexColor || !hexColor.startsWith("#") || hexColor.length < 7) return "#ffffff";
   const hex = hexColor.replace("#", "");
@@ -110,6 +137,33 @@ export function generateThemeCss(customization: CustomizationSettings): string {
     body {
       background-color: var(--color-background, ${customization.backgroundColor}) !important;
       color: var(--color-on-surface, ${customization.textPrimaryColor}) !important;
+    }
+
+    html[data-theme="light"] {
+      color-scheme: light;
+      --brand-background: #f8fafc;
+      --brand-surface: #f1f5f9;
+      --brand-card: #ffffff;
+      --brand-text-primary: #0f172a;
+      --brand-text-secondary: #475569;
+      --brand-border: #cbd5e1;
+
+      --color-background: #f8fafc;
+      --color-surface: #f1f5f9;
+      --color-surface-dim: #e2e8f0;
+      --color-surface-bright: #ffffff;
+      --color-surface-container-lowest: #ffffff;
+      --color-surface-container-low: #f8fafc;
+      --color-surface-container: #ffffff;
+      --color-surface-container-high: #f1f5f9;
+      --color-surface-container-highest: #e2e8f0;
+
+      --color-on-surface: #0f172a;
+      --color-on-background: #0f172a;
+      --color-on-surface-variant: #475569;
+
+      --color-outline: #94a3b8;
+      --color-outline-variant: #cbd5e1;
     }
   `;
 }
