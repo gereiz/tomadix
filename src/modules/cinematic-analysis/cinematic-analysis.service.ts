@@ -107,7 +107,7 @@ export class CinematicAnalysisService {
     workspaceId: string
   ): Promise<CinematicAnalysisResult> {
     const analysisId = `analysis_${Date.now()}_${crypto.randomBytes(4).toString("hex")}`;
-    const selectedModel = input.modelTier === "pro" ? "gemini-2.5-pro" : "gemini-3.5-flash";
+    const selectedModel = "gemini-2.5-flash";
 
     // Resolução da imagem principal
     const primaryImagePart = this.resolveImagePart(input.image);
@@ -245,7 +245,7 @@ Importante: Em "technicalData" e em todos os "prompts", combine os parâmetros g
         async (activeApiKey, currentSelectedModel) => {
           const ai = new GoogleGenAI({ apiKey: activeApiKey });
           const candidateModels = Array.from(
-            new Set([currentSelectedModel, "gemini-3.5-flash", "gemini-2.5-flash", "gemini-3.6-flash"])
+            new Set([currentSelectedModel, "gemini-2.5-flash", "gemini-2.0-flash", "gemini-1.5-flash"])
           );
 
           let attemptErr: any = null;
@@ -275,10 +275,11 @@ Importante: Em "technicalData" e em todos os "prompts", combine os parâmetros g
                   : undefined,
               };
             } catch (err: any) {
-              const isUnavailable = err?.status === 503 || err?.message?.includes("503") || err?.message?.includes("unavailable");
               attemptErr = err;
-              if (isUnavailable && i < candidateModels.length - 1) {
-                console.warn(`[CinematicAnalysis] Modelo ${modelAttempt} sobrecarregado (503). Alternando para ${candidateModels[i + 1]}...`);
+              console.warn(
+                `[CinematicAnalysis] Modelo ${modelAttempt} retornou erro (${err?.status || err?.message || err}). Tentando próximo modelo disponível...`
+              );
+              if (i < candidateModels.length - 1) {
                 continue;
               }
               throw err;
@@ -294,7 +295,7 @@ Importante: Em "technicalData" e em todos os "prompts", combine os parâmetros g
         tokensUsage = failoverResult.tokens;
       }
     } catch (err: any) {
-      console.warn(`[CinematicAnalysis] Falha persistente no failover da Gemini API (${err?.message || err}). Ativando heurística cinematográfica de contingência.`);
+      console.warn(`[CinematicAnalysis] Falha no failover da Gemini API (${err?.message || err}). Ativando heurística cinematográfica de contingência.`);
     }
 
     // Tratamento e limpeza do JSON retornado
@@ -305,11 +306,21 @@ Importante: Em "technicalData" e em todos os "prompts", combine os parâmetros g
       cleanJson = cleanJson.replace(/^```\s*/, "").replace(/\s*```$/, "");
     }
 
+    // Detecção se o contexto é Preto e Branco / Vintage
+    const refHints = `${input.referenceTitle || ""} ${input.userNotes || ""}`.toLowerCase();
+    const isBWHint =
+      refHints.includes("peb") ||
+      refHints.includes("preto e branco") ||
+      refHints.includes("black and white") ||
+      refHints.includes("monocrom") ||
+      refHints.includes("anos 50") ||
+      refHints.includes("pb");
+
     let parsedResult: any = {};
     try {
       parsedResult = JSON.parse(cleanJson);
     } catch {
-      // Fallback gracioso com valores cinematográficos enriquecidos
+      // Fallback gracioso com valores coerentes com a entrada do usuário
       parsedResult = {
         technicalData: {
           cameraSensor: "Full Frame 35mm (Padrão Cinema)",
@@ -318,24 +329,46 @@ Importante: Em "technicalData" e em todos os "prompts", combine os parâmetros g
           framing: "Plano Médio / Medium Shot",
           cameraAngle: "Eye-level Nivelado",
           cameraMovement: "Handheld Orgânico Suave",
-          lightingStyle: "Chiaroscuro Cinematográfico com Luz Natural Suave",
+          lightingStyle: isBWHint
+            ? "Chiaroscuro Preto e Branco com Alto Contraste"
+            : "Chiaroscuro Cinematográfico com Luz Natural Suave",
           lightingSetup: "Key Light lateral a 45 graus, Fill Light difuso suave, Rim Light sutil",
-          colorTemperature: "5600K Daylight Equilibrada",
-          colorPalette: ["#101418", "#10B981", "#E0E3E8", "#D97706", "#2563EB"],
-          colorHarmony: "Teal and Orange Cinematográfico",
-          filmGrain: 25,
-          visualAesthetic: "Realismo Contemporâneo de Alto Contraste",
+          colorTemperature: isBWHint ? "Monocromático (Sem temperatura de cor)" : "5600K Daylight Equilibrada",
+          colorPalette: isBWHint
+            ? ["#121212", "#3a3a3a", "#707070", "#b8b8b8", "#f0f0f0"]
+            : ["#1c1917", "#44403c", "#78716c", "#d6d3d1", "#fafaf9"],
+          colorHarmony: isBWHint
+            ? "Preto e Branco Monocromático Analógico"
+            : "Luz Natural Cinematográfica Orgânica",
+          filmGrain: isBWHint ? 45 : 25,
+          visualAesthetic: isBWHint
+            ? "Fotografia Preto e Branco Cinematográfica Vintage"
+            : "Realismo Contemporâneo de Alto Contraste",
           aspectRatio: "16:9",
-          summaryDescription: "Tomada cinematográfica com profundidade de campo rasa, paleta calibrada e forte expressividade dramática.",
+          summaryDescription: isBWHint
+            ? "Tomada cinematográfica em preto e branco com alta granulação, iluminação chiaroscuro e forte textura de película analógica."
+            : "Tomada cinematográfica com profundidade de campo rasa, paleta calibrada e forte expressividade dramática.",
         },
         prompts: {
-          midjourney: "Cinematic shot, 35mm lens, f/1.8, soft volumetric lighting, teal and orange palette, film grain --ar 16:9 --style raw --v 6.1",
-          flux: "A cinematic film still captured on 35mm full frame camera with f/1.8 aperture, natural subtle lighting, rich atmospheric textures.",
-          sdxl: "cinematic still, 35mm photo, detailed lighting, volumetric shadows, 8k resolution, photorealistic",
+          midjourney: isBWHint
+            ? "Cinematic black and white photograph, 35mm film still, chiaroscuro lighting, rich monochrome tones, authentic film grain --ar 16:9 --style raw"
+            : "Cinematic shot, 35mm lens, f/1.8, soft volumetric lighting, natural palette, film grain --ar 16:9 --style raw --v 6.1",
+          flux: isBWHint
+            ? "An authentic black and white 35mm film photograph, high contrast grayscale, deep shadows, pronounced analog film grain, vintage movie still frame."
+            : "A cinematic film still captured on 35mm full frame camera with f/1.8 aperture, natural subtle lighting, rich atmospheric textures.",
+          sdxl: isBWHint
+            ? "black and white cinematic still, 35mm monochrome photo, deep contrast, analog film grain, 8k resolution, photorealistic"
+            : "cinematic still, 35mm photo, detailed lighting, volumetric shadows, 8k resolution, photorealistic",
           videoGenerators: "Slow subtle dolly in toward the subject, steady cinematic camera motion, smooth 24fps motion blur.",
-          negativePrompt: "deformed hands, extra limbs, bad anatomy, low quality, cartoon, oversaturated, CGI 3D look",
-          narrativeDescriptionPt: "Tomada cinematográfica dramática com iluminação de alto contraste e foco seletivo.",
-          englishPrompt: "Cinematic medium shot with selective focus and moody lighting.",
+          negativePrompt: isBWHint
+            ? "color, colorful, vibrant colors, saturated colors, chromatic aberration, color tint, red, green, blue, yellow, orange, deformed hands, extra limbs, bad anatomy, low quality, cartoon, CGI 3D look"
+            : "deformed hands, extra limbs, bad anatomy, low quality, cartoon, oversaturated, CGI 3D look",
+          narrativeDescriptionPt: isBWHint
+            ? "Tomada cinematográfica em preto e branco com atmosfera nostálgica e granulação intensa."
+            : "Tomada cinematográfica dramática com iluminação de alto contraste e foco seletivo.",
+          englishPrompt: isBWHint
+            ? "Cinematic black and white medium shot with rich contrast, moody chiaroscuro lighting and deep analog film grain."
+            : "Cinematic medium shot with selective focus and moody lighting.",
         },
       };
     }

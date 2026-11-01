@@ -543,7 +543,8 @@ export class ParameterService {
 
     const results = [];
     for (const item of values) {
-      const existing = await db.parameterValue.findFirst({
+      // Excluir registros prévios para evitar duplicatas do mesmo parâmetro no mesmo alvo
+      await db.parameterValue.deleteMany({
         where: {
           projectId,
           parameterDefinitionId: item.parameterDefinitionId,
@@ -552,24 +553,16 @@ export class ParameterService {
         },
       });
 
-      if (existing) {
-        const updated = await db.parameterValue.update({
-          where: { id: existing.id },
-          data: { value: item.value as Prisma.InputJsonValue },
-        });
-        results.push(updated);
-      } else {
-        const created = await db.parameterValue.create({
-          data: {
-            projectId,
-            parameterDefinitionId: item.parameterDefinitionId,
-            targetType: item.targetType,
-            targetId: item.targetId ?? null,
-            value: item.value as Prisma.InputJsonValue,
-          },
-        });
-        results.push(created);
-      }
+      const created = await db.parameterValue.create({
+        data: {
+          projectId,
+          parameterDefinitionId: item.parameterDefinitionId,
+          targetType: item.targetType,
+          targetId: item.targetId ?? null,
+          value: item.value as Prisma.InputJsonValue,
+        },
+      });
+      results.push(created);
     }
 
     return results;

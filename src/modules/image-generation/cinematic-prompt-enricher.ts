@@ -101,6 +101,7 @@ export class CinematicPromptEnricher {
       where: { id: projectId },
       include: {
         parameterValues: {
+          orderBy: { createdAt: "asc" },
           include: {
             definition: true,
           },
@@ -137,13 +138,13 @@ export class CinematicPromptEnricher {
       paramValuesMap[key] = val;
     }
 
-    // 1.1 Incorporar valores da Bíblia Visual e do parameterSettings do projeto
+    // 1.1 Incorporar valores da Bíblia Visual e do parameterSettings do projeto (prioridade para a configuração ativa)
     const configValues = ((config.parameterSettings as any)?.values || {}) as Record<string, any>;
     const vb = ((project.visualBible || config.visualBible || {}) as Record<string, any>);
     const tech = ((vb.technicalData || {}) as Record<string, any>);
 
     for (const [k, v] of Object.entries(configValues)) {
-      if (paramValuesMap[k] === undefined && v !== undefined && v !== null) {
+      if (v !== undefined && v !== null && v !== "") {
         paramValuesMap[k] = v;
       }
     }
@@ -319,28 +320,51 @@ export class CinematicPromptEnricher {
     const colorGrade = config.colorGrade || vb.colorGrade || tech.colorHarmony || "";
     const rawPalette = paramValuesMap["paleta_cor_dominante"] || vb.palette || tech.colorPalette || config.colorPalette || "";
 
+    const titleLower = (project.title || "").toLowerCase();
+    const configGradeLower = ((config.colorGrade || "") as string).toLowerCase();
+    const vbGradeLower = String(vb.colorGrade || tech.colorHarmony || "").toLowerCase();
+    const paramPaletteLower = String(paramValuesMap["paleta_cor_dominante"] || "").toLowerCase();
+    const paramAestheticLower = String(paramValuesMap["estilo_cinematografico_visual"] || "").toLowerCase();
+
+    // Detecção abrangente de Preto e Branco / Monocromático no projeto
+    const isBlackAndWhite =
+      titleLower.includes("peb") ||
+      titleLower.includes("preto e branco") ||
+      titleLower.includes("black and white") ||
+      titleLower.includes("monocrom") ||
+      titleLower.includes("anos 50") ||
+      configGradeLower.includes("peb") ||
+      configGradeLower.includes("preto e branco") ||
+      configGradeLower.includes("black and white") ||
+      configGradeLower.includes("monocrom") ||
+      configGradeLower.includes("anos 50") ||
+      vbGradeLower.includes("peb") ||
+      vbGradeLower.includes("preto e branco") ||
+      vbGradeLower.includes("black and white") ||
+      vbGradeLower.includes("monocrom") ||
+      paramPaletteLower.includes("preto_e_branco") ||
+      paramPaletteLower.includes("monocrom") ||
+      paramAestheticLower.includes("preto e branco") ||
+      paramAestheticLower.includes("black and white");
+
     if (this.hasUserColor(userPrompt)) {
       skippedDirectives.push("cor/color grade (já declarada no prompt pelo usuário)");
+    } else if (isBlackAndWhite) {
+      const bwDirective =
+        "fotografia analógica estritamente em preto e branco clássico, escala de cinzas pura e profunda, alto contraste de cinema preto e branco com sombras pretas densas, zero cores (authentic black and white monochrome 35mm film photography, rich grayscale, deep shadows, strictly no color)";
+      appliedDirectives.push(bwDirective);
+
+      // Proibir cores no negative prompt de forma rigorosa para assegurar 100% de consistência
+      const bwNegatives =
+        "color, colorful, vibrant colors, saturated colors, warm skin tones, orange, yellow, blue, green, red, chromatic aberration, color accents, polychromatic, neon colors, daylight color cast, sepia, color photography";
+      negativePrompt = negativePrompt
+        ? `${negativePrompt}, ${bwNegatives}`
+        : bwNegatives;
     } else if (colorGrade || rawPalette) {
       const gradeLower = (colorGrade || "").toLowerCase();
       let colorDirective = "";
 
-      // Detecção de Preto e Branco / PeB (ex: "PeB anos 50", "Preto e Branco", "Black and White")
-      if (
-        gradeLower.includes("peb") ||
-        gradeLower.includes("preto e branco") ||
-        gradeLower.includes("black and white") ||
-        gradeLower.includes("monocrom") ||
-        gradeLower.includes("anos 50")
-      ) {
-        colorDirective =
-          "estética fotográfica preto e branco monocromática vintage anos 50, escala de cinzas profunda, alto contraste clássico de filme analógico preto e branco com sombras pretas marcadas, autêntico filme PB cinematográfico, sem cores";
-        // Proibir cores no negative prompt para garantir 100% de consistência
-        const bwNegatives = "color, colorful, saturated colors, chromatic aberration, color accents, polychromatic, neon colors";
-        negativePrompt = negativePrompt
-          ? `${negativePrompt}, ${bwNegatives}`
-          : bwNegatives;
-      } else if (gradeLower.includes("teal") || gradeLower.includes("orange")) {
+      if (gradeLower.includes("teal") || gradeLower.includes("orange")) {
         colorDirective =
           "color grading cinematográfico teal and orange profissional, tons de pele quentes e sombras ciano contrastantes";
       } else if (gradeLower.includes("technicolor") || gradeLower.includes("70s") || gradeLower.includes("retro")) {
@@ -353,7 +377,7 @@ export class CinematicPromptEnricher {
         colorDirective = `color grading cinematográfico autoral (${colorGrade})`;
       }
 
-      if (rawPalette) {
+      if (rawPalette && !isBlackAndWhite) {
         const paletteStr = Array.isArray(rawPalette) ? rawPalette.slice(0, 5).join(", ") : String(rawPalette);
         if (paletteStr && paletteStr !== colorGrade) {
           if (colorDirective) {
@@ -406,7 +430,10 @@ export class CinematicPromptEnricher {
       25
     );
     let finishDirective = "fotografia de filme 35mm, visual de cinema autêntico, ultra-realista 8k, movie still frame";
-    if (grainLevel > 20) {
+    if (grainLevel >= 40) {
+      finishDirective =
+        "fotografia de filme 35mm analógico com granulação pesada e marcada (heavy 35mm analog film grain, visible film noise, gritty textured film still, pronounced grain structure)";
+    } else if (grainLevel > 20) {
       finishDirective += `, textura de grão de película analógica (${grainLevel}%) orgânica`;
     }
     appliedDirectives.push(finishDirective);
@@ -430,9 +457,14 @@ export class CinematicPromptEnricher {
     // O prompt original do usuário é mantido intacto como núcleo inicial
     const cleanUserPrompt = userPrompt.trim().replace(/\.+$/, "");
     const combinedDirectives = appliedDirectives.join(", ");
-    const enrichedPrompt = combinedDirectives
+    let enrichedPrompt = combinedDirectives
       ? `${cleanUserPrompt}, ${combinedDirectives}`
       : cleanUserPrompt;
+
+    // Se o projeto for Preto e Branco, colocamos o prefixo estrito logo no início do prompt
+    if (isBlackAndWhite) {
+      enrichedPrompt = `fotografia cinematográfica estritamente em preto e branco (authentic black and white 35mm film photography): ${enrichedPrompt}`;
+    }
 
     return {
       enrichedPrompt,

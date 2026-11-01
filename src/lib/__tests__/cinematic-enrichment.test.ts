@@ -146,6 +146,40 @@ describe("CinematicPromptEnricher Parameter Inheritance", () => {
 
     expect(result.enrichedPrompt.toLowerCase()).toMatch(/black and white|preto e branco|monochrome/);
     expect(result.enrichedNegativePrompt?.toLowerCase()).toMatch(/color|saturated|chromatic/);
+    expect(result.enrichedPrompt.startsWith("fotografia cinematográfica estritamente em preto e branco")).toBe(true);
+  });
+
+  it("strictly enforces Black and White with heavy film grain when grain is high and suppresses conflicting colors", async () => {
+    (db.project.findUnique as any).mockResolvedValue({
+      id: "proj-bw-heavy-grain",
+      title: "Projeto Vintage Preto e Branco",
+      configuration: {
+        filmGrain: 50,
+      },
+      parameterValues: [
+        {
+          definition: { key: "paleta_cor_dominante" },
+          value: "preto_e_branco_tonal",
+        },
+        {
+          definition: { key: "nivel_granulacao_pelicula" },
+          value: 50,
+        },
+      ],
+    });
+
+    const result = await CinematicPromptEnricher.enrich({
+      userPrompt: "Um homem sentado em um café durante o dia",
+      projectId: "proj-bw-heavy-grain",
+      workspaceId: "ws-1",
+    });
+
+    expect(result.enrichedPrompt.startsWith("fotografia cinematográfica estritamente em preto e branco")).toBe(true);
+    expect(result.enrichedPrompt).toContain("heavy 35mm analog film grain");
+    expect(result.enrichedPrompt).toContain("granulação pesada");
+    expect(result.enrichedPrompt).not.toContain("paleta cromática dominante");
+    expect(result.enrichedNegativePrompt).toContain("color");
+    expect(result.enrichedNegativePrompt).toContain("warm skin tones");
   });
 
   it("inherits full visual identity from applied cinematic analysis (visualBible, lighting setup, palette, aesthetic, aperture)", async () => {
