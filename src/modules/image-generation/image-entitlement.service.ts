@@ -236,7 +236,9 @@ export class ImageEntitlementService {
           description: m.description,
           capabilities: m.capabilities,
           supportedSizes: m.supportedSizes,
-          supportsReferenceImage: m.supportsReferenceImage,
+          supportsReferenceImage: Boolean(m.supportsReferenceImage),
+          supportsImageEditing: Boolean(m.supportsImageEditing),
+          pricingInfo: (m.pricingInfo as any) || {},
           isDefault: m.isDefault,
           creditCost: modelCost,
           quality: {

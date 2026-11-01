@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import Link from "next/link";
 import { ImageAspectRatio } from "@/modules/image-generation/image-generation.types";
 import { downloadImage } from "@/lib/utils/download-image";
+import { ImageReferencePicker } from "./image-reference-picker";
 
 interface ImageModelOption {
   id: string;
@@ -13,6 +14,8 @@ interface ImageModelOption {
   capabilities: string[];
   supportedSizes: string[];
   supportsReferenceImage: boolean;
+  supportsImageEditing?: boolean;
+  pricingInfo?: any;
   isDefault: boolean;
   creditCost: number;
   quality?: {
@@ -65,6 +68,7 @@ export function DirectImageGenerator({
   const [selectedModel, setSelectedModel] = useState<string>("flux");
   const [aspectRatio, setAspectRatio] = useState<ImageAspectRatio>("16:9");
   const [negativePrompt, setNegativePrompt] = useState<string>("");
+  const [referenceImageUrl, setReferenceImageUrl] = useState<string>("");
   const [showAdvanced, setShowAdvanced] = useState(false);
 
   // Resultado da geração atual
@@ -134,6 +138,7 @@ export function DirectImageGenerator({
         model: selectedModel,
         aspectRatio,
         negativePrompt: negativePrompt.trim() || undefined,
+        referenceImageUrl: referenceImageUrl.trim() || undefined,
         projectId: projectId || undefined,
         characterId: characterId || undefined,
         environmentId: environmentId || undefined,
@@ -270,20 +275,36 @@ export function DirectImageGenerator({
             >
               {models.map((m) => (
                 <option key={m.id} value={m.id} className="bg-neutral-900 text-white font-mono">
-                  {m.quality?.stars || "★★★★★"} {m.name} — ({m.creditCost} cr)
+                  {m.quality?.stars || "★★★★★"} {m.name} {m.supportsReferenceImage ? "• [🖼️ Ref]" : ""} — ({m.creditCost} cr)
                 </option>
               ))}
             </select>
 
-            {/* Informações de Qualidade e Rationale do Modelo */}
+            {/* Informações de Qualidade e Capacidades do Modelo */}
             {currentModelObj?.quality && (
-              <div className="flex flex-col gap-1 pt-1">
-                <div className="flex items-center gap-2">
+              <div className="flex flex-col gap-1.5 pt-1">
+                <div className="flex flex-wrap items-center gap-1.5">
                   <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded text-[10px] border ${currentModelObj.quality.badgeColor}`}>
                     <span>{currentModelObj.quality.stars}</span>
                     <span>{currentModelObj.quality.tierLabel}</span>
                     <span className="opacity-75 font-mono">({currentModelObj.quality.score} pts)</span>
                   </span>
+
+                  {/* Badges de Imagem de Referência e Tipo de Custo Pollen */}
+                  {currentModelObj.supportsReferenceImage && (
+                    <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[10px] bg-blue-500/20 text-blue-300 border border-blue-500/30 font-semibold">
+                      <span>🖼️</span>
+                      <span>Suporta Referência</span>
+                    </span>
+                  )}
+
+                  {(currentModelObj.pricingInfo as any)?.requiresReferenceImage && (
+                    <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[10px] bg-amber-500/20 text-amber-300 border border-amber-500/30 font-semibold">
+                      <span>📸</span>
+                      <span>Requer Imagem Inicial</span>
+                    </span>
+                  )}
+
                   {currentModelObj.publisher && (
                     <span className="text-[10px] font-mono text-white/40">
                       Publisher: {currentModelObj.publisher}
@@ -323,6 +344,17 @@ export function DirectImageGenerator({
               {aspectRatio === "21:9" && "1344x576 — Cinemascope Ultra-wide"}
             </p>
           </div>
+        </div>
+
+        {/* Componente de Imagem de Referência / Entrada */}
+        <div className="p-3.5 rounded-2xl bg-black/30 border border-white/10">
+          <ImageReferencePicker
+            value={referenceImageUrl}
+            onChange={setReferenceImageUrl}
+            projectId={projectId}
+            supportsReference={Boolean(currentModelObj?.supportsReferenceImage)}
+            requiresReference={Boolean((currentModelObj?.pricingInfo as any)?.requiresReferenceImage)}
+          />
         </div>
 
         {/* Opções Avançadas */}

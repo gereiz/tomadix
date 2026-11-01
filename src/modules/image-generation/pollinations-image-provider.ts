@@ -1,3 +1,5 @@
+import fs from "fs";
+import path from "path";
 import {
   ImageGenerationOptions,
   ImageGenerationResult,
@@ -259,7 +261,7 @@ export class PollinationsImageProvider {
       payload.negative_prompt = negativePrompt.trim();
     }
     if (referenceImageUrl) {
-      payload.image = referenceImageUrl;
+      payload.image = await this.resolveImageReference(referenceImageUrl);
     }
 
     const controller = new AbortController();
@@ -375,6 +377,53 @@ export class PollinationsImageProvider {
   }
 
   /**
+   * Converte caminhos locais ou URLs relativas em Base64 Data URI antes de enviar para a Pollinations API.
+   */
+  private async resolveImageReference(ref: string): Promise<string> {
+    if (!ref || ref.trim().length === 0) return "";
+    const trimmed = ref.trim();
+
+    // Se já for data-uri
+    if (trimmed.startsWith("data:image/")) {
+      return trimmed;
+    }
+
+    // Se for URL HTTP/HTTPS externa real (não localhost)
+    if (trimmed.startsWith("http://") || trimmed.startsWith("https://")) {
+      if (!trimmed.includes("localhost") && !trimmed.includes("127.0.0.1")) {
+        return trimmed;
+      }
+    }
+
+    // Se for caminho relativo ou arquivo servido localmente (/generated-images/... ou /uploads/...)
+    try {
+      const cleanPath = trimmed.replace(/^\/+/, "");
+      const relativeSegments = cleanPath.split("/").filter((s) => s !== ".." && s !== ".");
+
+      const candidateDirs = [
+        process.env.STORAGE_DIR?.trim() || "",
+        path.join(process.cwd(), "public"),
+        path.join(process.cwd(), "uploads"),
+        process.cwd(),
+      ].filter(Boolean);
+
+      for (const dir of candidateDirs) {
+        const fullCandidate = path.join(dir, ...relativeSegments);
+        if (fs.existsSync(fullCandidate) && fs.statSync(fullCandidate).isFile()) {
+          const buffer = fs.readFileSync(fullCandidate);
+          const ext = path.extname(fullCandidate).toLowerCase().replace(".", "") || "jpeg";
+          const mime = ext === "png" ? "image/png" : ext === "webp" ? "image/webp" : "image/jpeg";
+          return `data:${mime};base64,${buffer.toString("base64")}`;
+        }
+      }
+    } catch (err) {
+      console.warn("[PollinationsImageProvider] Falha ao resolver referência local de imagem:", err);
+    }
+
+    return trimmed;
+  }
+
+  /**
    * Converte retornos variados de APIs de modelos em ImageModelDefinition[] normalizados.
    */
   private normalizeModelsData(data: any): ImageModelDefinition[] {
@@ -406,6 +455,36 @@ export class PollinationsImageProvider {
             : this.cleanModelName(item.name, modelId, item.description);
           const description = item.description || item.details || this.getDefaultDescription(modelId);
 
+          const hasImageInput = Array.isArray(item.input_modalities) && item.input_modalities.includes("image");
+          const hasMaxRef = typeof item.max_reference_images === "number" && item.max_reference_images > 0;
+          const hasEditEndpoint = Array.isArray(item.supported_endpoints) && item.supported_endpoints.some((e: string) => e.includes("/edits"));
+          const supportsReferenceImage = Boolean(
+            item.supportsReferenceImage ||
+            hasImageInput ||
+            hasMaxRef ||
+            hasEditEndpoint ||
+            modelId.toLowerCase().includes("image") ||
+            modelId.toLowerCase().includes("flux")
+          );
+
+          const supportsImageEditing = Boolean(item.supportsImageEditing || hasEditEndpoint);
+
+          const paidOnly = Boolean(item.paid_only);
+          const pollenTokens = item.pricing?.completionImageTokens;
+          const costPollen = pollenTokens ? `${pollenTokens} pollen` : (paidOnly ? "Pollen requerido" : "Gratuito (0 pollen)");
+
+          const pricingInfo = {
+            paidOnly,
+            currency: item.pricing?.currency || "pollen",
+            completionImageTokens: pollenTokens || null,
+            costPollen,
+            costType: paidOnly ? "PAID" : "FREE",
+            maxReferenceImages: item.max_reference_images || (hasImageInput ? 10 : 0),
+            requiresReferenceImage: Boolean(hasImageInput && (!Array.isArray(item.input_modalities) || !item.input_modalities.includes("text"))),
+            inputModalities: item.input_modalities || ["text"],
+            rawPricing: item.pricing || {},
+          };
+
           list.push({
             modelId,
             name,
@@ -413,9 +492,9 @@ export class PollinationsImageProvider {
             description,
             capabilities: Array.isArray(item.capabilities) ? item.capabilities : ["TEXT_TO_IMAGE"],
             supportedSizes: Array.isArray(item.sizes) ? item.sizes : ["1024x1024", "1280x720", "720x1280"],
-            supportsReferenceImage: Boolean(item.supportsReferenceImage ?? modelId.includes("flux")),
-            supportsImageEditing: Boolean(item.supportsImageEditing),
-            pricingInfo: item.pricing || item.costs || {},
+            supportsReferenceImage,
+            supportsImageEditing,
+            pricingInfo,
             isAvailable: item.available !== false,
             isEnabled: true,
             isDefault: item.isDefault || modelId === "flux" || modelId.includes("flux-1-image"),
@@ -453,7 +532,7 @@ export class PollinationsImageProvider {
         supportedSizes: ["1024x1024", "1280x720", "720x1280", "1344x576", "1024x768"],
         supportsReferenceImage: true,
         supportsImageEditing: false,
-        pricingInfo: { costPerImage: "1 pollen" },
+        pricingInfo: { paidOnly: false, costPollen: "Gratuito (0 pollen)", maxReferenceImages: 10 },
         isAvailable: true,
         isEnabled: true,
         isDefault: true,
@@ -469,7 +548,7 @@ export class PollinationsImageProvider {
         supportedSizes: ["1024x1024", "1280x720", "720x1280"],
         supportsReferenceImage: true,
         supportsImageEditing: false,
-        pricingInfo: { costPerImage: "4 pollen" },
+        pricingInfo: { paidOnly: true, costPollen: "4 pollen", maxReferenceImages: 10 },
         isAvailable: true,
         isEnabled: true,
         isDefault: false,
@@ -485,7 +564,7 @@ export class PollinationsImageProvider {
         supportedSizes: ["1024x1024", "1280x720", "720x1280"],
         supportsReferenceImage: false,
         supportsImageEditing: false,
-        pricingInfo: { costPerImage: "0.004 pollen" },
+        pricingInfo: { paidOnly: false, costPollen: "0.004 pollen (Free)", maxReferenceImages: 0 },
         isAvailable: true,
         isEnabled: true,
         isDefault: false,
@@ -501,7 +580,7 @@ export class PollinationsImageProvider {
         supportedSizes: ["1024x1024", "1280x720", "720x1280"],
         supportsReferenceImage: true,
         supportsImageEditing: false,
-        pricingInfo: { costPerImage: "0.03 pollen" },
+        pricingInfo: { paidOnly: true, costPollen: "0.03 pollen", maxReferenceImages: 10 },
         isAvailable: true,
         isEnabled: true,
         isDefault: false,
@@ -517,7 +596,7 @@ export class PollinationsImageProvider {
         supportedSizes: ["1024x1024", "1280x720", "720x1280"],
         supportsReferenceImage: false,
         supportsImageEditing: false,
-        pricingInfo: { costPerImage: "0.02 pollen" },
+        pricingInfo: { paidOnly: true, costPollen: "0.02 pollen", maxReferenceImages: 0 },
         isAvailable: true,
         isEnabled: true,
         isDefault: false,

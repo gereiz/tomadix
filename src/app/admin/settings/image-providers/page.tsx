@@ -104,9 +104,34 @@ export default function ImageProvidersAdminPage() {
   const [defaultModel, setDefaultModel] = useState("flux");
   const [defaultCreditCost, setDefaultCreditCost] = useState<number>(10);
 
-  // Filtro e Ordenação de modelos por qualidade
+  // Filtro e Ordenação de modelos por qualidade e precificação da Pollinations
   const [modelSearch, setModelSearch] = useState("");
   const [sortBy, setSortBy] = useState<"quality" | "cost" | "name">("quality");
+  const [pricingFilter, setPricingFilter] = useState<"all" | "free" | "paid" | "ref">("all");
+  const [batchLoading, setBatchLoading] = useState(false);
+
+  const handleBatchAction = async (action: "ENABLE_ALL" | "DISABLE_ALL" | "DISABLE_PAID" | "ENABLE_FREE") => {
+    try {
+      setBatchLoading(true);
+      setNotification(null);
+      const res = await fetch("/api/admin/image-providers/pollinations/models/batch", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ action }),
+      });
+      const data = await res.json();
+      if (res.ok && data.success) {
+        setNotification({ type: "success", text: data.message });
+        setModels(data.models || []);
+      } else {
+        setNotification({ type: "error", text: data.error || "Erro ao processar ação em lote." });
+      }
+    } catch {
+      setNotification({ type: "error", text: "Falha de rede ao executar ação em lote." });
+    } finally {
+      setBatchLoading(false);
+    }
+  };
 
   const loadData = async () => {
     try {
@@ -308,13 +333,28 @@ export default function ImageProvidersAdminPage() {
     }
   };
 
+  const isModelPaid = (m: ImageModelItem) => {
+    const pricing = (m.pricingInfo as any) || {};
+    return pricing.paidOnly === true || pricing.costType === "PAID";
+  };
+
+  const freeCount = models.filter((m) => !isModelPaid(m)).length;
+  const paidCount = models.filter((m) => isModelPaid(m)).length;
+  const refCount = models.filter((m) => m.supportsReferenceImage).length;
+
   const rankedModels = models
-    .filter(
-      (m) =>
+    .filter((m) => {
+      const matchesSearch =
         m.name.toLowerCase().includes(modelSearch.toLowerCase()) ||
         m.modelId.toLowerCase().includes(modelSearch.toLowerCase()) ||
-        (m.publisher && m.publisher.toLowerCase().includes(modelSearch.toLowerCase()))
-    )
+        (m.publisher && m.publisher.toLowerCase().includes(modelSearch.toLowerCase()));
+      if (!matchesSearch) return false;
+
+      if (pricingFilter === "free") return !isModelPaid(m);
+      if (pricingFilter === "paid") return isModelPaid(m);
+      if (pricingFilter === "ref") return m.supportsReferenceImage;
+      return true;
+    })
     .map((m) => ({
       ...m,
       rank: rankModelQuality(m.modelId, m.publisher || "", m.name),
@@ -613,68 +653,148 @@ export default function ImageProvidersAdminPage() {
           {/* Tabela de Modelos de Imagem Ranqueados */}
           <div className="lg:col-span-2 space-y-4">
             <div className="p-5 rounded-2xl bg-white/5 border border-white/10 space-y-4">
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-white/10 pb-3">
-                <div>
-                  <h3 className="text-sm font-bold text-white flex items-center gap-2">
-                    <span>✨</span> Catálogo Dinâmico de Modelos
-                    <span className="text-[10px] px-2 py-0.5 rounded-full bg-white/10 font-mono text-white/70">
-                      {rankedModels.length} modelos
-                    </span>
-                  </h3>
-                  <p className="text-[11px] text-white/50">
-                    Modelos oficiais ranqueados por fidelidade cinematográfica e controle comercial.
-                  </p>
+              <div className="flex flex-col gap-3 border-b border-white/10 pb-3">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                  <div>
+                    <h3 className="text-sm font-bold text-white flex items-center gap-2">
+                      <span>✨</span> Catálogo Dinâmico de Modelos
+                      <span className="text-[10px] px-2 py-0.5 rounded-full bg-white/10 font-mono text-white/70">
+                        {rankedModels.length} de {models.length} modelos
+                      </span>
+                    </h3>
+                    <p className="text-[11px] text-white/50">
+                      Modelos oficiais ranqueados por qualidade, custo de Pollen (Gratuito vs Pago) e controle comercial.
+                    </p>
+                  </div>
+
+                  <div className="flex items-center gap-2">
+                    {/* Seletor de ordenação */}
+                    <div className="flex items-center bg-black/40 rounded-lg p-0.5 border border-white/10 text-[11px]">
+                      <button
+                        type="button"
+                        onClick={() => setSortBy("quality")}
+                        className={`px-2.5 py-1 rounded-md font-semibold transition ${
+                          sortBy === "quality"
+                            ? "bg-amber-400 text-black shadow-sm"
+                            : "text-white/60 hover:text-white"
+                        }`}
+                        title="Ordenar por Índice de Qualidade e Fidelidade Cinematográfica"
+                      >
+                        👑 Qualidade
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setSortBy("cost")}
+                        className={`px-2.5 py-1 rounded-md font-semibold transition ${
+                          sortBy === "cost"
+                            ? "bg-amber-400 text-black shadow-sm"
+                            : "text-white/60 hover:text-white"
+                        }`}
+                        title="Ordenar pelo Custo em Créditos"
+                      >
+                        🪙 Custo
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setSortBy("name")}
+                        className={`px-2.5 py-1 rounded-md font-semibold transition ${
+                          sortBy === "name"
+                            ? "bg-amber-400 text-black shadow-sm"
+                            : "text-white/60 hover:text-white"
+                        }`}
+                        title="Ordenar Alfabeticamente"
+                      >
+                        A-Z
+                      </button>
+                    </div>
+
+                    <div className="w-full sm:w-48">
+                      <input
+                        type="text"
+                        placeholder="Filtrar modelos..."
+                        value={modelSearch}
+                        onChange={(e) => setModelSearch(e.target.value)}
+                        className="w-full px-3 py-1.5 rounded-lg bg-black/40 border border-white/10 text-xs text-white placeholder:text-white/30 focus:border-amber-400 focus:outline-none"
+                      />
+                    </div>
+                  </div>
                 </div>
 
-                <div className="flex items-center gap-2">
-                  {/* Seletor de ordenação */}
-                  <div className="flex items-center bg-black/40 rounded-lg p-0.5 border border-white/10 text-[11px]">
+                {/* Filtros de Precificação / Tipo da API (Gratuitos vs Pagos Pollen) e Ações Rápidas em Lote */}
+                <div className="flex flex-wrap items-center justify-between gap-2 pt-1 border-t border-white/5">
+                  <div className="flex flex-wrap items-center gap-1.5 text-xs">
                     <button
                       type="button"
-                      onClick={() => setSortBy("quality")}
-                      className={`px-2.5 py-1 rounded-md font-semibold transition ${
-                        sortBy === "quality"
-                          ? "bg-amber-400 text-black shadow-sm"
-                          : "text-white/60 hover:text-white"
+                      onClick={() => setPricingFilter("all")}
+                      className={`px-2.5 py-1 rounded-lg text-[11px] font-medium transition ${
+                        pricingFilter === "all"
+                          ? "bg-white/20 text-white font-bold border border-white/30"
+                          : "bg-white/5 text-white/60 hover:text-white hover:bg-white/10"
                       }`}
-                      title="Ordenar por Índice de Qualidade e Fidelidade Cinematográfica"
                     >
-                      👑 Qualidade
+                      Todos ({models.length})
                     </button>
                     <button
                       type="button"
-                      onClick={() => setSortBy("cost")}
-                      className={`px-2.5 py-1 rounded-md font-semibold transition ${
-                        sortBy === "cost"
-                          ? "bg-amber-400 text-black shadow-sm"
-                          : "text-white/60 hover:text-white"
+                      onClick={() => setPricingFilter("free")}
+                      className={`px-2.5 py-1 rounded-lg text-[11px] font-semibold transition flex items-center gap-1.5 ${
+                        pricingFilter === "free"
+                          ? "bg-emerald-500/25 text-emerald-300 font-bold border border-emerald-500/40 shadow-sm"
+                          : "bg-emerald-500/10 text-emerald-400/70 hover:text-emerald-300 hover:bg-emerald-500/20"
                       }`}
-                      title="Ordenar pelo Custo em Créditos"
+                      title="Exibir modelos que rodam sem custo de Pollen (Gratuitos)"
                     >
-                      🪙 Custo
+                      <span>🟢 Gratuitos (Pollen Free)</span>
+                      <span className="font-mono text-[10px]">({freeCount})</span>
                     </button>
                     <button
                       type="button"
-                      onClick={() => setSortBy("name")}
-                      className={`px-2.5 py-1 rounded-md font-semibold transition ${
-                        sortBy === "name"
-                          ? "bg-amber-400 text-black shadow-sm"
-                          : "text-white/60 hover:text-white"
+                      onClick={() => setPricingFilter("paid")}
+                      className={`px-2.5 py-1 rounded-lg text-[11px] font-semibold transition flex items-center gap-1.5 ${
+                        pricingFilter === "paid"
+                          ? "bg-amber-500/25 text-amber-300 font-bold border border-amber-500/40 shadow-sm"
+                          : "bg-amber-500/10 text-amber-400/70 hover:text-amber-300 hover:bg-amber-500/20"
                       }`}
-                      title="Ordenar Alfabeticamente"
+                      title="Exibir modelos que consomem saldo de Pollen pago na Pollinations"
                     >
-                      A-Z
+                      <span>🟡 Pagos (Pollen Requerido)</span>
+                      <span className="font-mono text-[10px]">({paidCount})</span>
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setPricingFilter("ref")}
+                      className={`px-2.5 py-1 rounded-lg text-[11px] font-semibold transition flex items-center gap-1.5 ${
+                        pricingFilter === "ref"
+                          ? "bg-blue-500/25 text-blue-300 font-bold border border-blue-500/40 shadow-sm"
+                          : "bg-blue-500/10 text-blue-400/70 hover:text-blue-300 hover:bg-blue-500/20"
+                      }`}
+                      title="Exibir modelos com suporte a imagens de referência ou edição"
+                    >
+                      <span>🖼️ Suporta Imagem de Referência</span>
+                      <span className="font-mono text-[10px]">({refCount})</span>
                     </button>
                   </div>
 
-                  <div className="w-full sm:w-48">
-                    <input
-                      type="text"
-                      placeholder="Filtrar modelos..."
-                      value={modelSearch}
-                      onChange={(e) => setModelSearch(e.target.value)}
-                      className="w-full px-3 py-1.5 rounded-lg bg-black/40 border border-white/10 text-xs text-white placeholder:text-white/30 focus:border-amber-400 focus:outline-none"
-                    />
+                  {/* Ações em Lote para o Administrador */}
+                  <div className="flex items-center gap-1.5">
+                    <button
+                      type="button"
+                      disabled={batchLoading}
+                      onClick={() => handleBatchAction("DISABLE_PAID")}
+                      className="px-2.5 py-1 rounded-lg text-[10px] font-bold bg-amber-500/15 text-amber-300 border border-amber-500/30 hover:bg-amber-500/25 transition disabled:opacity-40"
+                      title="Desativa todos os modelos pagos da Pollinations para evitar consumo de pollen"
+                    >
+                      🚫 Desativar Todos os Pagos
+                    </button>
+                    <button
+                      type="button"
+                      disabled={batchLoading}
+                      onClick={() => handleBatchAction("ENABLE_FREE")}
+                      className="px-2.5 py-1 rounded-lg text-[10px] font-bold bg-emerald-500/15 text-emerald-300 border border-emerald-500/30 hover:bg-emerald-500/25 transition disabled:opacity-40"
+                      title="Ativa todos os modelos gratuitos (Pollen Free)"
+                    >
+                      ✅ Ativar Todos os Gratuitos
+                    </button>
                   </div>
                 </div>
               </div>
@@ -690,6 +810,7 @@ export default function ImageProvidersAdminPage() {
                       <tr className="border-b border-white/10 text-[10px] font-mono text-white/40 uppercase">
                         <th className="py-2.5 px-3">Modelo</th>
                         <th className="py-2.5 px-3">Ranking de Qualidade</th>
+                        <th className="py-2.5 px-3">Custo Pollen (Provedor)</th>
                         <th className="py-2.5 px-3">Publisher</th>
                         <th className="py-2.5 px-3 text-center min-w-[80px]">Custo (cr)</th>
                         <th className="py-2.5 px-3 text-center min-w-[120px]">Padrão</th>
@@ -729,6 +850,38 @@ export default function ImageProvidersAdminPage() {
                                 {item.rank.rationale}
                               </span>
                             </div>
+                          </td>
+
+                          <td className="py-3 px-3">
+                            {(() => {
+                              const isPaid = isModelPaid(item);
+                              const pricing = (item.pricingInfo as any) || {};
+                              return (
+                                <div className="flex flex-col gap-1 items-start">
+                                  <span
+                                    className={`inline-flex items-center gap-1 px-2 py-0.5 rounded text-[10px] font-mono font-semibold border ${
+                                      isPaid
+                                        ? "bg-amber-500/15 text-amber-300 border-amber-500/30"
+                                        : "bg-emerald-500/15 text-emerald-300 border-emerald-500/30"
+                                    }`}
+                                  >
+                                    <span>{isPaid ? "🟡 Pago" : "🟢 Gratuito"}</span>
+                                    <span className="opacity-80">
+                                      ({pricing.costPollen || (isPaid ? "Pollen pago" : "0 pollen")})
+                                    </span>
+                                  </span>
+                                  {item.supportsReferenceImage && (
+                                    <span className="inline-flex items-center gap-1 text-[9px] px-1.5 py-0.5 rounded bg-blue-500/15 text-blue-300 border border-blue-500/25">
+                                      <span>🖼️</span>
+                                      <span>Ref Image</span>
+                                      {pricing.maxReferenceImages && (
+                                        <span className="opacity-75">({pricing.maxReferenceImages} máx)</span>
+                                      )}
+                                    </span>
+                                  )}
+                                </div>
+                              );
+                            })()}
                           </td>
 
                           <td className="py-3 px-3 text-white/70 font-mono text-[11px]">

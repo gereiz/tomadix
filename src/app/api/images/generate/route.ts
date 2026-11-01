@@ -10,7 +10,7 @@ const generateImageSchema = z.object({
   aspectRatio: z.enum(["1:1", "16:9", "9:16", "4:3", "3:4", "21:9"]).optional(),
   resolution: z.string().trim().optional(),
   negativePrompt: z.string().trim().max(1000).optional(),
-  referenceImageUrl: z.string().trim().url().optional().or(z.literal("")),
+  referenceImageUrl: z.string().trim().optional().or(z.literal("")),
   seed: z.number().int().optional(),
   projectId: z.string().trim().optional().nullable(),
   characterId: z.string().trim().optional().nullable(),

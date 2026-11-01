@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { ImageAspectRatio } from "@/modules/image-generation/image-generation.types";
 import { downloadImage } from "@/lib/utils/download-image";
+import { ImageReferencePicker } from "./image-reference-picker";
 
 interface ImageModelOption {
   id: string;
@@ -10,6 +11,9 @@ interface ImageModelOption {
   publisher?: string;
   creditCost: number;
   isDefault: boolean;
+  supportsReferenceImage?: boolean;
+  supportsImageEditing?: boolean;
+  pricingInfo?: any;
   quality?: {
     score: number;
     tier: string;
@@ -60,6 +64,7 @@ export function DirectEntityImageModal({
   const [generating, setGenerating] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [generatedUrl, setGeneratedUrl] = useState<string | null>(currentImageUrl || null);
+  const [referenceImageUrl, setReferenceImageUrl] = useState<string>("");
 
   useEffect(() => {
     if (initialPrompt) {
@@ -70,8 +75,12 @@ export function DirectEntityImageModal({
   useEffect(() => {
     if (currentImageUrl) {
       setGeneratedUrl(currentImageUrl);
+      // Se for geração de frame final de cena, sugere o frame inicial como referência
+      if (entityType === "SCENE_END" && !referenceImageUrl) {
+        setReferenceImageUrl(currentImageUrl);
+      }
     }
-  }, [currentImageUrl]);
+  }, [currentImageUrl, entityType]);
 
   useEffect(() => {
     if (!isOpen) return;
@@ -119,6 +128,7 @@ export function DirectEntityImageModal({
         prompt: prompt.trim(),
         model: selectedModel,
         aspectRatio,
+        referenceImageUrl: referenceImageUrl.trim() || undefined,
         projectId: projectId || undefined,
         characterId: characterId || undefined,
         environmentId: environmentId || undefined,
@@ -274,23 +284,49 @@ export function DirectEntityImageModal({
             >
               {models.map((m) => (
                 <option key={m.id} value={m.id} className="bg-[#0f1218] font-mono">
-                  {m.quality?.stars || "★★★★★"} {m.name} — ({m.creditCost} cr)
+                  {m.quality?.stars || "★★★★★"} {m.name} {m.supportsReferenceImage ? "• [🖼️ Ref]" : ""} — ({m.creditCost} cr)
                 </option>
               ))}
             </select>
             {currentModelObj?.quality && (
-              <div className="flex items-center gap-2 pt-1">
+              <div className="flex flex-wrap items-center gap-1.5 pt-1">
                 <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded text-[10px] border ${currentModelObj.quality.badgeColor}`}>
                   <span>{currentModelObj.quality.stars}</span>
                   <span>{currentModelObj.quality.tierLabel}</span>
                   <span className="opacity-75 font-mono">({currentModelObj.quality.score} pts)</span>
                 </span>
+
+                {currentModelObj.supportsReferenceImage && (
+                  <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[10px] bg-blue-500/20 text-blue-300 border border-blue-500/30 font-semibold">
+                    <span>🖼️</span>
+                    <span>Suporta Referência</span>
+                  </span>
+                )}
+
+                {(currentModelObj.pricingInfo as any)?.requiresReferenceImage && (
+                  <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[10px] bg-amber-500/20 text-amber-300 border border-amber-500/30 font-semibold">
+                    <span>📸</span>
+                    <span>Requer Imagem Inicial</span>
+                  </span>
+                )}
+
                 <span className="text-[10px] text-white/50 line-clamp-1">
                   {currentModelObj.quality.rationale}
                 </span>
               </div>
             )}
           </div>
+        </div>
+
+        {/* Componente de Imagem de Referência / Entrada */}
+        <div className="p-3 rounded-xl bg-white/5 border border-white/10">
+          <ImageReferencePicker
+            value={referenceImageUrl}
+            onChange={setReferenceImageUrl}
+            projectId={projectId}
+            supportsReference={Boolean(currentModelObj?.supportsReferenceImage)}
+            requiresReference={Boolean((currentModelObj?.pricingInfo as any)?.requiresReferenceImage)}
+          />
         </div>
 
         {error && (
