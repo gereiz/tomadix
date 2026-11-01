@@ -80,11 +80,10 @@ function ImageBoardNode({ id, data, selected }: NodeProps) {
 
       {/* Main Image Card */}
       <div
-        className={`relative flex-1 w-full h-full min-h-0 overflow-hidden rounded-2xl border bg-[#0e121b] shadow-xl transition-all ${
-          selected
-            ? "border-primary ring-2 ring-primary/40 shadow-primary/20"
-            : "border-outline-variant/40 hover:border-outline"
-        }`}
+        className={`relative flex-1 w-full h-full min-h-0 overflow-hidden rounded-2xl border bg-[#0e121b] shadow-xl transition-all ${selected
+          ? "border-primary ring-2 ring-primary/40 shadow-primary/20"
+          : "border-outline-variant/40 hover:border-outline"
+          }`}
       >
         {imageUrl ? (
           <img
@@ -125,7 +124,7 @@ function ImageBoardNode({ id, data, selected }: NodeProps) {
       <Handle
         type="target"
         position={Position.Left}
-        className="!h-7 !w-7 !rounded-full !border-[3px] !border-emerald-400 !bg-[#0b101b] shadow-lg shadow-emerald-500/30 transition-transform hover:scale-125 cursor-crosshair flex items-center justify-center group/handle"
+        className="!h-14 !w-14 !rounded-full !border-[3px] !border-emerald-400 !bg-[#0b101b] shadow-lg shadow-emerald-500/30 transition-transform hover:scale-125 cursor-crosshair flex items-center justify-center group/handle"
         title="Ponto de conexão (Entrada)"
       >
         <span className="h-2 w-2 rounded-full bg-emerald-400 pointer-events-none group-hover/handle:scale-125 transition-transform" />
@@ -133,7 +132,7 @@ function ImageBoardNode({ id, data, selected }: NodeProps) {
       <Handle
         type="source"
         position={Position.Right}
-        className="!h-7 !w-7 !rounded-full !border-[3px] !border-emerald-400 !bg-[#0b101b] shadow-lg shadow-emerald-500/30 transition-transform hover:scale-125 cursor-crosshair flex items-center justify-center group/handle"
+        className="!h-14 !w-14 !rounded-full !border-[3px] !border-emerald-400 !bg-[#0b101b] shadow-lg shadow-emerald-500/30 transition-transform hover:scale-125 cursor-crosshair flex items-center justify-center group/handle"
         title="Puxar conexão para outro nó ou espaço vazio"
       >
         <span className="h-2 w-2 rounded-full bg-emerald-400 pointer-events-none group-hover/handle:scale-125 transition-transform" />
@@ -207,11 +206,10 @@ function VideoGeneratorBoardNode({ id, data, selected }: NodeProps) {
 
       {/* Video Card Container */}
       <div
-        className={`theme-preserve-dark relative flex-1 w-full min-h-0 flex flex-col overflow-hidden rounded-2xl border bg-[#0d111a] text-white shadow-2xl transition-all ${
-          selected
-            ? "border-purple-400 ring-2 ring-purple-500/40"
-            : "border-white/15 hover:border-purple-400/50"
-        }`}
+        className={`theme-preserve-dark relative flex-1 w-full min-h-0 flex flex-col overflow-hidden rounded-2xl border bg-[#0d111a] text-white shadow-2xl transition-all ${selected
+          ? "border-purple-400 ring-2 ring-purple-500/40"
+          : "border-white/15 hover:border-purple-400/50"
+          }`}
       >
         {/* Visual Frame Area */}
         <div className="relative flex-1 w-full min-h-0 overflow-hidden bg-gradient-to-br from-indigo-950/80 via-[#0b0f19] to-purple-950/70">
@@ -278,7 +276,7 @@ function VideoGeneratorBoardNode({ id, data, selected }: NodeProps) {
         position={Position.Left}
         style={{ top: "30%" }}
         title="Conectar Frame Inicial (Imagem)"
-        className="!h-7 !w-7 !rounded-full !border-[3px] !border-purple-400 !bg-[#0b101b] shadow-lg shadow-purple-500/30 transition-transform hover:scale-125 cursor-crosshair flex items-center justify-center group/handle"
+        className="!h-14 !w-14 !rounded-full !border-[3px] !border-purple-400 !bg-[#0b101b] shadow-lg shadow-purple-500/30 transition-transform hover:scale-125 cursor-crosshair flex items-center justify-center group/handle"
       >
         <span className="h-2 w-2 rounded-full bg-purple-400 pointer-events-none group-hover/handle:scale-125 transition-transform" />
       </Handle>
@@ -288,7 +286,7 @@ function VideoGeneratorBoardNode({ id, data, selected }: NodeProps) {
         position={Position.Left}
         style={{ top: "65%" }}
         title="Conectar Frame Final (Imagem)"
-        className="!h-7 !w-7 !rounded-full !border-[3px] !border-purple-400 !bg-[#0b101b] shadow-lg shadow-purple-500/30 transition-transform hover:scale-125 cursor-crosshair flex items-center justify-center group/handle"
+        className="!h-14 !w-14 !rounded-full !border-[3px] !border-purple-400 !bg-[#0b101b] shadow-lg shadow-purple-500/30 transition-transform hover:scale-125 cursor-crosshair flex items-center justify-center group/handle"
       >
         <span className="h-2 w-2 rounded-full bg-purple-400 pointer-events-none group-hover/handle:scale-125 transition-transform" />
       </Handle>
@@ -298,14 +296,14 @@ function VideoGeneratorBoardNode({ id, data, selected }: NodeProps) {
         position={Position.Left}
         style={{ top: "85%" }}
         title="Conectar Prompt de Movimento"
-        className="!h-7 !w-7 !rounded-full !border-[3px] !border-amber-400 !bg-[#0b101b] shadow-lg shadow-amber-500/30 transition-transform hover:scale-125 cursor-crosshair flex items-center justify-center group/handle"
+        className="!h-14 !w-14 !rounded-full !border-[3px] !border-amber-400 !bg-[#0b101b] shadow-lg shadow-amber-500/30 transition-transform hover:scale-125 cursor-crosshair flex items-center justify-center group/handle"
       >
         <span className="h-2 w-2 rounded-full bg-amber-400 pointer-events-none group-hover/handle:scale-125 transition-transform" />
       </Handle>
       <Handle
         type="source"
         position={Position.Right}
-        className="!h-7 !w-7 !rounded-full !border-[3px] !border-purple-400 !bg-[#0b101b] shadow-lg shadow-purple-500/30 transition-transform hover:scale-125 cursor-crosshair flex items-center justify-center group/handle"
+        className="!h-14 !w-14 !rounded-full !border-[3px] !border-purple-400 !bg-[#0b101b] shadow-lg shadow-purple-500/30 transition-transform hover:scale-125 cursor-crosshair flex items-center justify-center group/handle"
         title="Puxar conexão para outro nó ou espaço vazio"
       >
         <span className="h-2 w-2 rounded-full bg-purple-400 pointer-events-none group-hover/handle:scale-125 transition-transform" />
@@ -369,11 +367,10 @@ function PromptBoardNode({ id, data, selected }: NodeProps) {
       </div>
 
       <div
-        className={`flex-1 w-full min-h-0 flex flex-col rounded-2xl border bg-surface-container p-3 shadow-lg transition-all ${
-          selected
-            ? "border-primary ring-2 ring-primary/30"
-            : "border-outline-variant/40 hover:border-outline"
-        }`}
+        className={`flex-1 w-full min-h-0 flex flex-col rounded-2xl border bg-surface-container p-3 shadow-lg transition-all ${selected
+          ? "border-primary ring-2 ring-primary/30"
+          : "border-outline-variant/40 hover:border-outline"
+          }`}
       >
         <textarea
           value={promptText}
@@ -411,7 +408,7 @@ function PromptBoardNode({ id, data, selected }: NodeProps) {
       <Handle
         type="target"
         position={Position.Left}
-        className="!h-7 !w-7 !rounded-full !border-[3px] !border-emerald-400 !bg-[#0b101b] shadow-lg shadow-emerald-500/30 transition-transform hover:scale-125 cursor-crosshair flex items-center justify-center group/handle"
+        className="!h-14 !w-14 !rounded-full !border-[3px] !border-emerald-400 !bg-[#0b101b] shadow-lg shadow-emerald-500/30 transition-transform hover:scale-125 cursor-crosshair flex items-center justify-center group/handle"
         title="Ponto de conexão (Entrada)"
       >
         <span className="h-2 w-2 rounded-full bg-emerald-400 pointer-events-none group-hover/handle:scale-125 transition-transform" />
@@ -419,7 +416,7 @@ function PromptBoardNode({ id, data, selected }: NodeProps) {
       <Handle
         type="source"
         position={Position.Right}
-        className="!h-7 !w-7 !rounded-full !border-[3px] !border-emerald-400 !bg-[#0b101b] shadow-lg shadow-emerald-500/30 transition-transform hover:scale-125 cursor-crosshair flex items-center justify-center group/handle"
+        className="!h-14 !w-14 !rounded-full !border-[3px] !border-emerald-400 !bg-[#0b101b] shadow-lg shadow-emerald-500/30 transition-transform hover:scale-125 cursor-crosshair flex items-center justify-center group/handle"
         title="Puxar conexão para outro nó ou espaço vazio"
       >
         <span className="h-2 w-2 rounded-full bg-emerald-400 pointer-events-none group-hover/handle:scale-125 transition-transform" />
@@ -435,8 +432,8 @@ function EntityBoardNode({ id, data, selected }: NodeProps) {
     entityType === "CHARACTER"
       ? { icon: "👤", label: "Personagem", color: "text-emerald-400 bg-emerald-500/10 border-emerald-500/30" }
       : entityType === "ENVIRONMENT"
-      ? { icon: "🏛️", label: "Ambiente", color: "text-cyan-400 bg-cyan-500/10 border-cyan-500/30" }
-      : { icon: "🎬", label: "Cena", color: "text-amber-400 bg-amber-500/10 border-amber-500/30" };
+        ? { icon: "🏛️", label: "Ambiente", color: "text-cyan-400 bg-cyan-500/10 border-cyan-500/30" }
+        : { icon: "🎬", label: "Cena", color: "text-amber-400 bg-amber-500/10 border-amber-500/30" };
 
   return (
     <div className="group relative select-none h-full w-full flex flex-col min-w-[220px] min-h-[160px]">
@@ -470,11 +467,10 @@ function EntityBoardNode({ id, data, selected }: NodeProps) {
       </div>
 
       <div
-        className={`flex-1 w-full min-h-0 flex flex-col overflow-hidden rounded-2xl border bg-surface-container p-3 shadow-lg transition-all ${
-          selected
-            ? "border-primary ring-2 ring-primary/30"
-            : "border-outline-variant/40 hover:border-outline"
-        }`}
+        className={`flex-1 w-full min-h-0 flex flex-col overflow-hidden rounded-2xl border bg-surface-container p-3 shadow-lg transition-all ${selected
+          ? "border-primary ring-2 ring-primary/30"
+          : "border-outline-variant/40 hover:border-outline"
+          }`}
       >
         {d.imageUrl && (
           <div className="mb-2 flex-1 w-full min-h-[90px] overflow-hidden rounded-xl bg-black/30">
@@ -498,7 +494,7 @@ function EntityBoardNode({ id, data, selected }: NodeProps) {
       <Handle
         type="target"
         position={Position.Left}
-        className="!h-7 !w-7 !rounded-full !border-[3px] !border-emerald-400 !bg-[#0b101b] shadow-lg shadow-emerald-500/30 transition-transform hover:scale-125 cursor-crosshair flex items-center justify-center group/handle"
+        className="!h-14 !w-14 !rounded-full !border-[3px] !border-emerald-400 !bg-[#0b101b] shadow-lg shadow-emerald-500/30 transition-transform hover:scale-125 cursor-crosshair flex items-center justify-center group/handle"
         title="Ponto de conexão (Entrada)"
       >
         <span className="h-2 w-2 rounded-full bg-emerald-400 pointer-events-none group-hover/handle:scale-125 transition-transform" />
@@ -506,7 +502,7 @@ function EntityBoardNode({ id, data, selected }: NodeProps) {
       <Handle
         type="source"
         position={Position.Right}
-        className="!h-7 !w-7 !rounded-full !border-[3px] !border-emerald-400 !bg-[#0b101b] shadow-lg shadow-emerald-500/30 transition-transform hover:scale-125 cursor-crosshair flex items-center justify-center group/handle"
+        className="!h-14 !w-14 !rounded-full !border-[3px] !border-emerald-400 !bg-[#0b101b] shadow-lg shadow-emerald-500/30 transition-transform hover:scale-125 cursor-crosshair flex items-center justify-center group/handle"
         title="Puxar conexão para outro nó ou espaço vazio"
       >
         <span className="h-2 w-2 rounded-full bg-emerald-400 pointer-events-none group-hover/handle:scale-125 transition-transform" />
@@ -525,11 +521,10 @@ function NoteBoardNode({ id, data, selected }: NodeProps) {
 
   return (
     <div
-      className={`group relative select-none h-full w-full flex flex-col min-w-[180px] min-h-[140px] rounded-2xl border p-3 shadow-lg transition-all ${
-        selected
-          ? "border-amber-400 ring-2 ring-amber-400/30"
-          : "border-amber-500/30"
-      } bg-amber-500/10 backdrop-blur-md`}
+      className={`group relative select-none h-full w-full flex flex-col min-w-[180px] min-h-[140px] rounded-2xl border p-3 shadow-lg transition-all ${selected
+        ? "border-amber-400 ring-2 ring-amber-400/30"
+        : "border-amber-500/30"
+        } bg-amber-500/10 backdrop-blur-md`}
     >
       <NodeResizer
         isVisible={Boolean(selected)}
@@ -567,7 +562,7 @@ function NoteBoardNode({ id, data, selected }: NodeProps) {
       <Handle
         type="target"
         position={Position.Left}
-        className="!h-7 !w-7 !rounded-full !border-[3px] !border-amber-400 !bg-[#0b101b] shadow-lg shadow-amber-500/30 transition-transform hover:scale-125 cursor-crosshair flex items-center justify-center group/handle"
+        className="!h-14 !w-14 !rounded-full !border-[3px] !border-amber-400 !bg-[#0b101b] shadow-lg shadow-amber-500/30 transition-transform hover:scale-125 cursor-crosshair flex items-center justify-center group/handle"
         title="Ponto de conexão (Entrada)"
       >
         <span className="h-2 w-2 rounded-full bg-amber-400 pointer-events-none group-hover/handle:scale-125 transition-transform" />
@@ -575,7 +570,7 @@ function NoteBoardNode({ id, data, selected }: NodeProps) {
       <Handle
         type="source"
         position={Position.Right}
-        className="!h-7 !w-7 !rounded-full !border-[3px] !border-amber-400 !bg-[#0b101b] shadow-lg shadow-amber-500/30 transition-transform hover:scale-125 cursor-crosshair flex items-center justify-center group/handle"
+        className="!h-14 !w-14 !rounded-full !border-[3px] !border-amber-400 !bg-[#0b101b] shadow-lg shadow-amber-500/30 transition-transform hover:scale-125 cursor-crosshair flex items-center justify-center group/handle"
         title="Puxar conexão para outro nó ou espaço vazio"
       >
         <span className="h-2 w-2 rounded-full bg-amber-400 pointer-events-none group-hover/handle:scale-125 transition-transform" />
@@ -1249,14 +1244,14 @@ function SpaceBoardCanvasInner({
           "clientX" in event
             ? event.clientX
             : "touches" in event && event.touches?.[0]
-            ? event.touches[0].clientX
-            : 0;
+              ? event.touches[0].clientX
+              : 0;
         const clientY =
           "clientY" in event
             ? event.clientY
             : "touches" in event && event.touches?.[0]
-            ? event.touches[0].clientY
-            : 0;
+              ? event.touches[0].clientY
+              : 0;
         const flowPos = reactFlowInstance.screenToFlowPosition({ x: clientX, y: clientY });
 
         setContextMenu({
@@ -1344,8 +1339,8 @@ function SpaceBoardCanvasInner({
             {saveStatus === "saving"
               ? "⏳ Salvando..."
               : saveStatus === "unsaved"
-              ? "● Alterações pendentes"
-              : "✓ Sincronizado"}
+                ? "● Alterações pendentes"
+                : "✓ Sincronizado"}
           </span>
           {!canEdit && (
             <span className="rounded bg-amber-500/15 px-2 py-0.5 text-[10px] font-semibold text-amber-400">
@@ -1387,11 +1382,10 @@ function SpaceBoardCanvasInner({
           type="button"
           onClick={() => setIsLibraryOpen((prev) => !prev)}
           title="Abrir Biblioteca do Space (Arrastar Imagens, Prompts, Personagens)"
-          className={`flex h-9 w-9 items-center justify-center rounded-xl text-base font-bold transition ${
-            isLibraryOpen
-              ? "bg-primary text-on-primary shadow-md shadow-primary/30"
-              : "text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface"
-          }`}
+          className={`flex h-9 w-9 items-center justify-center rounded-xl text-base font-bold transition ${isLibraryOpen
+            ? "bg-primary text-on-primary shadow-md shadow-primary/30"
+            : "text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface"
+            }`}
         >
           +
         </button>
@@ -1498,11 +1492,10 @@ function SpaceBoardCanvasInner({
                 key={t.id}
                 type="button"
                 onClick={() => setLibraryTab(t.id)}
-                className={`flex items-center gap-1 whitespace-nowrap rounded-lg px-2.5 py-1 text-[11px] font-medium transition ${
-                  libraryTab === t.id
-                    ? "bg-primary/15 text-primary font-semibold"
-                    : "text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface"
-                }`}
+                className={`flex items-center gap-1 whitespace-nowrap rounded-lg px-2.5 py-1 text-[11px] font-medium transition ${libraryTab === t.id
+                  ? "bg-primary/15 text-primary font-semibold"
+                  : "text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface"
+                  }`}
               >
                 <span>{t.icon}</span>
                 <span>{t.label}</span>
@@ -1699,11 +1692,10 @@ function SpaceBoardCanvasInner({
               key={b.id}
               type="button"
               onClick={() => handleSelectBoardPage(b.id)}
-              className={`flex items-center gap-1.5 rounded-lg px-2.5 py-1 text-xs font-medium transition ${
-                active
-                  ? "bg-surface-container-high text-on-surface font-semibold shadow-sm"
-                  : "text-on-surface-variant hover:text-on-surface"
-              }`}
+              className={`flex items-center gap-1.5 rounded-lg px-2.5 py-1 text-xs font-medium transition ${active
+                ? "bg-surface-container-high text-on-surface font-semibold shadow-sm"
+                : "text-on-surface-variant hover:text-on-surface"
+                }`}
             >
               <span>📄</span>
               <span>{b.name}</span>
