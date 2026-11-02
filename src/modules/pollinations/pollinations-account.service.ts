@@ -29,6 +29,11 @@ export interface PollinationsAccountData {
   lastUpdated: string;
   isCached: boolean;
   apiKeyMasked: string;
+  warning?: {
+    code: string;
+    message: string;
+    fixUrl?: string;
+  };
 }
 
 class PollinationsAccountServiceClass {
@@ -41,6 +46,16 @@ class PollinationsAccountServiceClass {
   };
 
   private CACHE_TTL_MS = 5 * 60 * 1000; // 5 minutos de cache
+
+  /**
+   * Limpa o cache para forçar nova consulta.
+   */
+  clearCache(): void {
+    this.cache = {
+      data: null,
+      timestamp: 0,
+    };
+  }
 
   /**
    * Obtém a chave da Pollinations ativa no sistema.
@@ -88,6 +103,10 @@ class PollinationsAccountServiceClass {
         lastUpdated: new Date().toISOString(),
         isCached: false,
         apiKeyMasked: "(não configurada)",
+        warning: {
+          code: "NO_API_KEY",
+          message: "Nenhuma API Key da Pollinations configurada. Cadastre sua chave para consultar saldo.",
+        },
       };
       return emptyResult;
     }
@@ -96,6 +115,8 @@ class PollinationsAccountServiceClass {
       Accept: "application/json",
       Authorization: `Bearer ${apiKey}`,
     };
+
+    let warning: PollinationsAccountData["warning"] = undefined;
 
     // 1. Consultar Saldo (Balance)
     let balanceInfo: PollinationsBalanceInfo = {
@@ -128,7 +149,26 @@ class PollinationsAccountServiceClass {
           raw: json,
         };
       } else {
-        console.warn("[PollinationsAccountService] Resposta não-200 em /account/balance:", res.status);
+        const errJson = await res.json().catch(() => null);
+        if (res.status === 403) {
+          warning = {
+            code: "PERMISSION_REQUIRED",
+            message:
+              errJson?.error?.message ||
+              "A sua API Key da Pollinations precisa da permissão 'account:usage' para consultar saldo e telemetria.",
+            fixUrl:
+              errJson?.error?.fixUrl ||
+              errJson?.fixUrl ||
+              errJson?.error?.message?.match(/https:\/\/[^\s"']+/)?.[0],
+          };
+        } else if (res.status === 401) {
+          warning = {
+            code: "INVALID_KEY",
+            message:
+              errJson?.error?.message ||
+              "A chave da Pollinations é inválida ou expirou. Por favor, atualize sua chave.",
+          };
+        }
       }
     } catch (err: any) {
       console.warn("[PollinationsAccountService] Falha ao consultar /account/balance:", err.message);
@@ -165,9 +205,75 @@ class PollinationsAccountServiceClass {
             progressPercent: q.progress || (status === "CLAIMED" ? 100 : 0),
           });
         }
+      } else {
+        const errJson = await res.json().catch(() => null);
+        if (res.status === 403 && !warning?.fixUrl) {
+          const extractedUrl =
+            errJson?.error?.fixUrl ||
+            errJson?.fixUrl ||
+            errJson?.error?.message?.match(/https:\/\/[^\s"']+/)?.[0];
+          if (extractedUrl) {
+            warning = {
+              code: "PERMISSION_REQUIRED",
+              message:
+                errJson?.error?.message ||
+                "A API Key precisa da permissão 'account:usage' para sincronizar saldo.",
+              fixUrl: extractedUrl,
+            };
+          }
+        }
       }
     } catch (err: any) {
       console.warn("[PollinationsAccountService] Falha ao consultar /account/quests:", err.message);
+    }
+
+    // Se nenhuma quest dinâmica individual for retornada, fornece o catálogo oficial de quests da Pollinations
+    if (questsList.length === 0) {
+      if (warning?.fixUrl) {
+        questsList.push({
+          id: "quest-permission",
+          title: "Ativar Permissão 'account:usage' na Chave",
+          description: "Conceda permissão de leitura de saldo e uso na sua API Key oficial para sincronização em tempo real.",
+          status: "IN_PROGRESS",
+          rewardPollen: 0,
+          actionUrl: warning.fixUrl,
+          category: "Configuração",
+          progressPercent: 50,
+        });
+      }
+
+      questsList.push(
+        {
+          id: "quest-badge",
+          title: "Selo 'Made with pollinations.ai'",
+          description: "Adicione o selo oficial da Pollinations no rodapé do sistema ou no README para recompensas.",
+          status: "COMPLETED",
+          rewardPollen: 50,
+          actionUrl: "https://pollinations.ai/?ref=badge",
+          category: "Branding",
+          progressPercent: 100,
+        },
+        {
+          id: "quest-discord",
+          title: "Entrar no Discord Oficial Pollinations",
+          description: "Conecte sua conta do Discord para interagir com os criadores e desbloquear bônus de comunidade.",
+          status: "AVAILABLE",
+          rewardPollen: 25,
+          actionUrl: "https://discord.gg/pollinations",
+          category: "Comunidade",
+          progressPercent: 0,
+        },
+        {
+          id: "quest-showcase",
+          title: "Publicar o Tomadix no Showcase",
+          description: "Apresente o estúdio cinematográfico Tomadix na vitrine comunitária para receber recompensas de pólen.",
+          status: "AVAILABLE",
+          rewardPollen: 100,
+          actionUrl: "https://enter.pollinations.ai",
+          category: "Ecossistema",
+          progressPercent: 0,
+        }
+      );
     }
 
     // 3. Consultar Consumo (Usage)
@@ -192,6 +298,7 @@ class PollinationsAccountServiceClass {
       lastUpdated: new Date().toISOString(),
       isCached: false,
       apiKeyMasked: maskedKey,
+      warning,
     };
 
     this.cache = {
@@ -204,3 +311,4 @@ class PollinationsAccountServiceClass {
 }
 
 export const PollinationsAccountService = new PollinationsAccountServiceClass();
+

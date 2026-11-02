@@ -14,7 +14,7 @@ export class PollinationsVideoProvider {
    * Catálogo de modelos oficiais de vídeo da Pollinations.
    */
   async listModels(apiKey?: string, baseUrl?: string): Promise<VideoModelDefinition[]> {
-    const url = `${baseUrl || this.defaultBaseUrl}/video/models`;
+    const rootUrl = baseUrl || this.defaultBaseUrl;
     const headers: Record<string, string> = {
       Accept: "application/json",
     };
@@ -24,22 +24,75 @@ export class PollinationsVideoProvider {
     }
 
     try {
-      const response = await fetch(url, {
-        method: "GET",
-        headers,
-        signal: AbortSignal.timeout(15000),
-      });
+      let rawModels: any[] = [];
 
-      if (!response.ok) {
+      // 1. Tenta endpoint moderno com filtro por categoria de vídeo
+      try {
+        const response = await fetch(`${rootUrl}/models?category=video`, {
+          method: "GET",
+          headers,
+          signal: AbortSignal.timeout(12000),
+        });
+
+        if (response.ok) {
+          const data = await response.json();
+          if (Array.isArray(data) && data.length > 0) {
+            rawModels = data;
+          }
+        }
+      } catch {
+        // Prossegue para o próximo método de descoberta
+      }
+
+      // 2. Se vazio, consulta /models geral e filtra por categoria ou suporte a vídeo
+      if (rawModels.length === 0) {
+        try {
+          const generalRes = await fetch(`${rootUrl}/models`, {
+            method: "GET",
+            headers,
+            signal: AbortSignal.timeout(12000),
+          });
+          if (generalRes.ok) {
+            const data = await generalRes.json();
+            if (Array.isArray(data)) {
+              rawModels = data.filter(
+                (m: any) =>
+                  m.category === "video" ||
+                  (m.output_modalities && m.output_modalities.includes("video")) ||
+                  Boolean(m.pricing?.completionVideoSeconds)
+              );
+            }
+          }
+        } catch {
+          // Prossegue
+        }
+      }
+
+      // 3. Se ainda vazio, tenta /video/models legado
+      if (rawModels.length === 0) {
+        try {
+          const legacyRes = await fetch(`${rootUrl}/video/models`, {
+            method: "GET",
+            headers,
+            signal: AbortSignal.timeout(8000),
+          });
+          if (legacyRes.ok) {
+            const data = await legacyRes.json();
+            if (Array.isArray(data) && data.length > 0) {
+              rawModels = data;
+            }
+          }
+        } catch {
+          // Prossegue
+        }
+      }
+
+      // 4. Se nenhum modelo remoto foi retornado, usa os modelos de fallback certificados
+      if (rawModels.length === 0) {
         return this.getFallbackModels();
       }
 
-      const data = await response.json();
-      if (!Array.isArray(data)) {
-        return this.getFallbackModels();
-      }
-
-      return data.map((item: any, index: number) => {
+      return rawModels.map((item: any, index: number) => {
         const modelId = item.name || item.id || `video-${index}`;
         const publisher = item.publisher || "Pollinations";
         const title = item.title || item.name;
@@ -120,6 +173,18 @@ export class PollinationsVideoProvider {
         isEnabled: true,
         isAvailable: true,
         supportedDurations: [5, 10],
+        supportedAspectRatios: ["16:9", "9:16", "1:1"],
+      },
+      {
+        modelId: "x-ai/grok-imagine-video-1.5-lite",
+        name: "Grok Imagine Video 1.5 Lite",
+        publisher: "xAI",
+        description: "Modelo ágil e versátil de vídeo da xAI para animação rápida e cinematográfica.",
+        creditCost: 25,
+        isDefault: false,
+        isEnabled: true,
+        isAvailable: true,
+        supportedDurations: [4, 6],
         supportedAspectRatios: ["16:9", "9:16", "1:1"],
       },
     ];
@@ -260,3 +325,4 @@ export class PollinationsVideoProvider {
     }
   }
 }
+

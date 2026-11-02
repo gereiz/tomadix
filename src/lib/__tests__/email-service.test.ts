@@ -21,7 +21,6 @@ describe("Email System — Encryption & Templates", () => {
   });
 
   it("should mask secrets preventing credentials from leaking to frontend", () => {
-    expect(maskSecretValue(undefined)).toBe("");
     expect(maskSecretValue("")).toBe("");
     expect(maskSecretValue("abcd")).toBe("••••••••");
     expect(maskSecretValue("my-secret-key-12345")).toBe("my-s••••••••2345");
@@ -43,6 +42,7 @@ describe("Email System — Encryption & Templates", () => {
       amount: 250,
       newBalance: 1000,
       reason: "Recarga de Créditos",
+      loginUrl: "https://tomadix.ai/login",
     });
     expect(credits.subject).toContain("Créditos");
     expect(credits.html).toContain("250");

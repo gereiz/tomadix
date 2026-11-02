@@ -26,6 +26,11 @@ interface PollinationsOverview {
   lastUpdated: string;
   isCached: boolean;
   apiKeyMasked: string;
+  warning?: {
+    code: string;
+    message: string;
+    fixUrl?: string;
+  };
 }
 
 export default function AdminPollinationsCentralPage() {
@@ -33,6 +38,12 @@ export default function AdminPollinationsCentralPage() {
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  // Estado para modal de alteração de chave
+  const [isEditingKey, setIsEditingKey] = useState(false);
+  const [newKey, setNewKey] = useState("");
+  const [savingKey, setSavingKey] = useState(false);
+  const [keyNotice, setKeyNotice] = useState<{ type: "success" | "error"; text: string } | null>(null);
 
   const fetchOverview = async (forceRefresh = false) => {
     try {
@@ -60,6 +71,39 @@ export default function AdminPollinationsCentralPage() {
   useEffect(() => {
     fetchOverview();
   }, []);
+
+  const handleSaveKey = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!newKey.trim()) return;
+
+    try {
+      setSavingKey(true);
+      setKeyNotice(null);
+
+      const res = await fetch("/api/admin/pollinations/account", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ apiKey: newKey.trim() }),
+      });
+
+      const json = await res.json();
+      if (res.ok && json.success) {
+        setKeyNotice({ type: "success", text: json.message });
+        setData(json);
+        setTimeout(() => {
+          setIsEditingKey(false);
+          setKeyNotice(null);
+          setNewKey("");
+        }, 1500);
+      } else {
+        setKeyNotice({ type: "error", text: json.error || "Falha ao salvar chave." });
+      }
+    } catch (err: any) {
+      setKeyNotice({ type: "error", text: err.message || "Erro ao conectar com servidor." });
+    } finally {
+      setSavingKey(false);
+    }
+  };
 
   return (
     <div className="space-y-8 p-6 lg:p-8 max-w-6xl mx-auto">
@@ -109,6 +153,51 @@ export default function AdminPollinationsCentralPage() {
         </div>
       )}
 
+      {/* Alerta de Permissão ou Chave */}
+      {data?.warning && (
+        <div className="rounded-2xl border border-amber-500/30 bg-amber-500/10 p-5 backdrop-blur-md space-y-3">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+            <div className="space-y-1">
+              <div className="flex items-center gap-2">
+                <span className="text-xl">⚠️</span>
+                <h3 className="text-sm font-bold text-amber-300">
+                  {data.warning.code === "PERMISSION_REQUIRED"
+                    ? "Permissão 'account:usage' Necessária na Pollinations"
+                    : "Atenção com a Credencial Pollinations"}
+                </h3>
+              </div>
+              <p className="text-xs text-amber-200/80 leading-relaxed max-w-2xl">
+                {data.warning.message}
+              </p>
+            </div>
+
+            <div className="flex flex-wrap items-center gap-2.5">
+              {data.warning.fixUrl && (
+                <a
+                  href={data.warning.fixUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-1.5 rounded-xl bg-amber-500 px-4 py-2 text-xs font-bold text-black hover:bg-amber-400 transition shadow-lg shadow-amber-500/20"
+                >
+                  <span>🔑</span> Conceder Permissão em 1 Clique ↗
+                </a>
+              )}
+              <button
+                type="button"
+                onClick={() => {
+                  setIsEditingKey(true);
+                  setKeyNotice(null);
+                  setNewKey("");
+                }}
+                className="rounded-xl border border-amber-500/30 bg-black/40 px-3.5 py-2 text-xs font-semibold text-amber-200 hover:bg-black/60 transition"
+              >
+                Trocar Chave de API
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       {loading ? (
         <div className="flex items-center justify-center py-24 text-white/50 text-sm">
           Consultando API oficial da Pollinations.ai...
@@ -134,15 +223,26 @@ export default function AdminPollinationsCentralPage() {
               <div className="flex items-center gap-2 pt-1">
                 <span
                   className={`inline-flex items-center gap-1.5 px-2 py-0.5 rounded text-[10px] font-semibold ${
-                    data.balance.hasSufficientBalance
+                    data.warning?.code === "PERMISSION_REQUIRED"
+                      ? "bg-amber-500/20 text-amber-300 border border-amber-500/30"
+                      : data.balance.hasSufficientBalance
                       ? "bg-emerald-500/20 text-emerald-300 border border-emerald-500/30"
                       : "bg-red-500/20 text-red-300 border border-red-500/30"
                   }`}
                 >
                   <span className="h-1.5 w-1.5 rounded-full bg-current" />
-                  {data.balance.hasSufficientBalance ? "Saldo Operacional Ativo" : "Saldo Baixo / Crítico"}
+                  {data.warning?.code === "PERMISSION_REQUIRED"
+                    ? "Requer Permissão 'account:usage'"
+                    : data.balance.hasSufficientBalance
+                    ? "Saldo Operacional Ativo"
+                    : "Saldo Baixo / Crítico"}
                 </span>
               </div>
+              {data.warning?.code === "PERMISSION_REQUIRED" && (
+                <p className="text-[10px] text-amber-300/70">
+                  O saldo oficial em tempo real será sincronizado após a permissão da chave.
+                </p>
+              )}
             </div>
 
             {/* Card 2: Saldo Pago vs Recompensas */}
@@ -179,7 +279,17 @@ export default function AdminPollinationsCentralPage() {
                   <span className="text-xs font-semibold uppercase tracking-wider text-white/50">
                     Credencial em Uso
                   </span>
-                  <span className="text-sm">🔑</span>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setIsEditingKey(true);
+                      setKeyNotice(null);
+                      setNewKey("");
+                    }}
+                    className="text-[11px] font-semibold text-amber-400 hover:text-amber-300 underline"
+                  >
+                    ✏️ Alterar
+                  </button>
                 </div>
                 <div className="mt-2 font-mono text-xs text-white/80 bg-white/5 px-2.5 py-1.5 rounded-lg border border-white/10 truncate">
                   {data.apiKeyMasked}
@@ -224,7 +334,7 @@ export default function AdminPollinationsCentralPage() {
               </div>
 
               <a
-                href="https://pollinations.ai"
+                href="https://enter.pollinations.ai"
                 target="_blank"
                 rel="noreferrer"
                 className="text-xs text-amber-400 hover:text-amber-300 font-medium"
@@ -308,6 +418,84 @@ export default function AdminPollinationsCentralPage() {
           </div>
         </div>
       ) : null}
+
+      {/* Modal: Atualizar Chave da Pollinations */}
+      {isEditingKey && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4 backdrop-blur-sm"
+          onClick={() => !savingKey && setIsEditingKey(false)}
+        >
+          <div
+            className="w-full max-w-md rounded-2xl border border-white/10 bg-[#121620] p-6 shadow-2xl space-y-4"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="flex items-center justify-between border-b border-white/10 pb-3">
+              <div className="flex items-center gap-2">
+                <span className="text-lg">🔑</span>
+                <h3 className="text-sm font-bold text-white">Configurar Chave da Pollinations</h3>
+              </div>
+              <button
+                type="button"
+                onClick={() => setIsEditingKey(false)}
+                className="rounded p-1 text-xs text-white/40 hover:bg-white/10 hover:text-white"
+              >
+                ✕
+              </button>
+            </div>
+
+            <p className="text-xs text-white/60 leading-relaxed">
+              Cole abaixo sua API Key gerada no portal da Pollinations (<code className="text-amber-400">sk_...</code>). A chave será salva simultaneamente para os módulos de <strong>Imagens</strong> e <strong>Vídeos</strong>.
+            </p>
+
+            <form onSubmit={handleSaveKey} className="space-y-4">
+              <div>
+                <label className="block text-[11px] font-semibold text-white/70 uppercase tracking-wider mb-1.5">
+                  Nova API Key (Pollinations)
+                </label>
+                <input
+                  type="password"
+                  value={newKey}
+                  onChange={(e) => setNewKey(e.target.value)}
+                  placeholder="sk_..."
+                  required
+                  className="w-full rounded-xl border border-white/10 bg-white/5 px-3.5 py-2.5 text-xs text-white placeholder-white/30 focus:border-amber-400 focus:outline-none"
+                />
+              </div>
+
+              {keyNotice && (
+                <div
+                  className={`rounded-xl p-3 text-xs font-semibold ${
+                    keyNotice.type === "success"
+                      ? "bg-emerald-500/20 text-emerald-300 border border-emerald-500/30"
+                      : "bg-red-500/20 text-red-300 border border-red-500/30"
+                  }`}
+                >
+                  {keyNotice.text}
+                </div>
+              )}
+
+              <div className="flex items-center justify-end gap-2 pt-2 border-t border-white/10">
+                <button
+                  type="button"
+                  onClick={() => setIsEditingKey(false)}
+                  disabled={savingKey}
+                  className="rounded-xl px-4 py-2 text-xs font-semibold text-white/60 hover:bg-white/5 transition"
+                >
+                  Cancelar
+                </button>
+                <button
+                  type="submit"
+                  disabled={savingKey || !newKey.trim()}
+                  className="rounded-xl bg-amber-500 px-4 py-2 text-xs font-bold text-black hover:bg-amber-400 transition shadow-lg shadow-amber-500/20 disabled:opacity-50"
+                >
+                  {savingKey ? "Salvando..." : "Salvar Chave"}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
+

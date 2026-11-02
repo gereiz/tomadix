@@ -53,3 +53,4 @@ export class VideoGenerationError extends Error {
     this.name = "VideoGenerationError";
   }
 }
+
