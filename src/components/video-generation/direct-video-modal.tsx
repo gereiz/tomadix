@@ -258,8 +258,40 @@ export function DirectVideoModal({
 
         {/* Error message */}
         {error && (
-          <div className="rounded-xl border border-red-500/30 bg-red-500/10 p-3 text-xs text-red-300">
-            ⚠️ {error}
+          <div
+            className={`rounded-2xl p-4 text-xs space-y-2 border ${
+              error.toLowerCase().includes("pollen") || error.toLowerCase().includes("insufficient")
+                ? "border-amber-500/30 bg-amber-500/10 text-amber-200"
+                : "border-red-500/30 bg-red-500/10 text-red-300"
+            }`}
+          >
+            <div className="flex items-center gap-2 font-bold text-sm">
+              <span>{error.toLowerCase().includes("pollen") ? "🐝" : "⚠️"}</span>
+              <span>
+                {error.toLowerCase().includes("pollen")
+                  ? "Saldo de Pollen Insuficiente na Pollinations"
+                  : "Não foi possível gerar o vídeo"}
+              </span>
+            </div>
+            <p className="leading-relaxed text-[11px] opacity-90">{error}</p>
+            {error.toLowerCase().includes("pollen") && (
+              <div className="pt-1 flex flex-wrap items-center gap-2">
+                <a
+                  href="https://enter.pollinations.ai/top-up?ref=agent_low_balance_topup"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-1.5 rounded-xl bg-amber-400 px-3.5 py-1.5 text-xs font-bold text-black hover:bg-amber-300 transition shadow-md shadow-amber-400/20"
+                >
+                  <span>⚡</span> Recarregar Saldo Pollen ↗
+                </a>
+                <a
+                  href="/admin/settings/pollinations"
+                  className="rounded-xl border border-white/10 bg-black/40 px-3 py-1.5 text-xs font-semibold text-white/80 hover:bg-black/60 transition"
+                >
+                  Central de Gestão Pollinations
+                </a>
+              </div>
+            )}
           </div>
         )}
 

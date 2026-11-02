@@ -255,8 +255,15 @@ export class PollinationsVideoProvider {
         const msg = jsonError?.error?.message || errorText || `Erro HTTP ${response.status} na geração do vídeo.`;
 
         if (response.status === 402) {
+          const detail =
+            jsonError?.error?.message ||
+            "Saldo de Pollen insuficiente na conta da Pollinations para gerar este vídeo.";
+          const fixUrl =
+            jsonError?.error?.fixUrl ||
+            "https://enter.pollinations.ai/top-up?ref=agent_low_balance_topup";
+
           throw new VideoGenerationError(
-            "Saldo de Pollen insuficiente na conta da Pollinations para gerar este vídeo.",
+            `${detail} Recarregue seu saldo de Pollen em: ${fixUrl}`,
             "INSUFFICIENT_POLLEN",
             402
           );
