@@ -132,6 +132,7 @@ model User {
   creditLots                  CreditLot[]
   geminiApiKeys               GeminiApiKey[]       @relation("CreatedGeminiKeys")
   generatedImages             GeneratedImage[]
+  generatedVideos             GeneratedVideo[]
   spaceMemberships            SpaceMember[]
   createdAt                   DateTime             @default(now())
   updatedAt                   DateTime             @updatedAt
@@ -236,6 +237,7 @@ model Workspace {
   creditLots                  CreditLot[]
   entitlementOverrides        UserEntitlementOverride[]
   generatedImages             GeneratedImage[]
+  generatedVideos             GeneratedVideo[]
   transfersFrom               ProjectOwnershipTransfer[] @relation("TransfersFrom")
   transfersTo                 ProjectOwnershipTransfer[] @relation("TransfersTo")
   createdAt                   DateTime          @default(now())
@@ -307,6 +309,14 @@ model Plan {
   imageAllowReferenceImages Boolean        @default(false)
   imageRetentionDays        Int            @default(15) // Dias que as imagens geradas ficam armazenadas no servidor
   unlimitedImageRetention   Boolean        @default(false) // Armazenamento vitalício sem expiração de imagens
+  hasVideoGeneration        Boolean        @default(false)
+  videoDailyLimit           Int?
+  videoMonthlyLimit         Int?
+  videoTotalLimit           Int?
+  videoDefaultCost          Int            @default(25)
+  videoAllowedModels        Json           @default("[]")
+  videoRetentionDays        Int            @default(15)
+  unlimitedVideoRetention   Boolean        @default(false)
   customRules           Json?          @default("{}")
   gatewayProductId      String?
   gatewayPriceIdMonthly String?
@@ -491,6 +501,7 @@ model Project {
   generations     GenerationJob[]
   transfers       ProjectOwnershipTransfer[]
   generatedImages GeneratedImage[]
+  generatedVideos GeneratedVideo[]
   spaceMembers    SpaceMember[]
   boards          SpaceBoard[]
   createdAt       DateTime        @default(now())
@@ -662,6 +673,7 @@ model Scene {
   environments    SceneEnvironment[]
   promptVersions  PromptVersion[]
   generatedImages GeneratedImage[]
+  generatedVideos GeneratedVideo[]
   createdAt       DateTime           @default(now())
   updatedAt       DateTime           @updatedAt
 
@@ -1201,6 +1213,178 @@ model ImageOperationLog {
   createdAt        DateTime             @default(now())
 
   providerConfig   ImageProviderConfig? @relation(fields: [providerId], references: [providerId], onDelete: SetNull)
+
+  @@index([providerId, createdAt(sort: Desc)])
+  @@index([workspaceId, createdAt(sort: Desc)])
+}
+
+// ============================================================================
+// SISTEMA DE E-MAIL (GMAIL, GOOGLE WORKSPACE, OUTLOOK, HOTMAIL, OFFICE 365, SMTP)
+// ============================================================================
+
+enum EmailProviderType {
+  GMAIL_SMTP
+  OUTLOOK_SMTP
+  CUSTOM_SMTP
+  OFFICE365_OAUTH2
+  GMAIL_OAUTH2
+}
+
+model EmailSettings {
+  id                 String            @id @default("default")
+  provider           EmailProviderType @default(GMAIL_SMTP)
+  isEnabled          Boolean           @default(false)
+  
+  // SMTP settings
+  smtpHost           String            @default("smtp.gmail.com")
+  smtpPort           Int               @default(587)
+  smtpSecure         Boolean           @default(false)
+  smtpUser           String?
+  smtpPasswordEnc    String?
+  
+  // OAuth2 settings
+  clientId           String?
+  clientSecretEnc    String?
+  refreshTokenEnc    String?
+  tenantId           String?
+  
+  // Remetente
+  senderEmail        String            @default("noreply@tomadix.com")
+  senderName         String            @default("Tomadix")
+  replyTo            String?
+  
+  // Teste e Status
+  lastTestedAt       DateTime?
+  lastTestStatus     String?           // "SUCCESS", "FAILED"
+  lastTestError      String?
+  
+  createdAt          DateTime          @default(now())
+  updatedAt          DateTime          @updatedAt
+}
+
+model EmailLog {
+  id           String    @id @default(cuid())
+  recipient    String
+  subject      String
+  provider     String
+  status       String    // "SENT", "FAILED"
+  messageId    String?
+  errorMessage String?
+  metadata     Json?     @default("{}")
+  createdAt    DateTime  @default(now())
+
+  @@index([status, createdAt(sort: Desc)])
+  @@index([recipient, createdAt(sort: Desc)])
+}
+
+// ============================================================================
+// GERAÇÃO DIRETA DE VÍDEOS VIA POLLINATIONS API
+// ============================================================================
+
+model VideoProviderConfig {
+  id                   String              @id @default(cuid())
+  providerId           String              @unique // "pollinations"
+  name                 String              @default("Pollinations Video")
+  apiKeyEncrypted      String?
+  baseUrl              String              @default("https://gen.pollinations.ai")
+  isEnabled            Boolean             @default(true)
+  createdAt            DateTime            @default(now())
+  updatedAt            DateTime            @updatedAt
+
+  models               VideoModelConfig[]
+  logs                 VideoOperationLog[]
+}
+
+model VideoModelConfig {
+  id                     String              @id @default(cuid())
+  providerConfigId       String
+  modelId                String              // ex: "ltx-video", "seedance", etc.
+  name                   String
+  publisher              String?
+  description            String?
+  creditCost             Int                 @default(25)
+  isDefault              Boolean             @default(false)
+  isEnabled              Boolean             @default(true)
+  isAvailable            Boolean             @default(true)
+  supportedDurations     Json                @default("[5, 10]")
+  supportedAspectRatios  Json                @default("[\"16:9\", \"9:16\"]")
+  displayOrder           Int                 @default(0)
+  lastSyncedAt           DateTime            @default(now())
+  createdAt              DateTime            @default(now())
+  updatedAt              DateTime            @updatedAt
+
+  providerConfig         VideoProviderConfig @relation(fields: [providerConfigId], references: [id], onDelete: Cascade)
+
+  @@unique([providerConfigId, modelId])
+  @@index([providerConfigId, isEnabled, isAvailable])
+}
+
+model GeneratedVideo {
+  id               String          @id @default(cuid())
+  userId           String
+  workspaceId      String
+  projectId        String?
+  sceneId          String?
+  
+  providerId       String          @default("pollinations")
+  modelId          String          // ex: "ltx-video"
+  prompt           String
+  negativePrompt   String?
+  aspectRatio      String?         // "16:9", "9:16", "1:1"
+  durationSeconds  Int             @default(5)
+  fps              Int             @default(24)
+  startFrameUrl    String?
+  endFrameUrl      String?
+  parameters       Json            @default("{}")
+  
+  videoUrl         String?
+  thumbnailUrl     String?
+  storageKey       String?
+  creditCost       Int             @default(25)
+  externalCost     Float?
+  externalCostUnit String?
+  
+  status           String          @default("PENDING") // "PENDING", "PROCESSING", "SUCCEEDED", "FAILED"
+  taskId           String?
+  errorMessage     String?
+  generationTimeMs Int             @default(0)
+  metadata         Json?           @default("{}")
+  
+  createdAt        DateTime        @default(now())
+  updatedAt        DateTime        @updatedAt
+
+  user             User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+  workspace        Workspace       @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  project          Project?        @relation(fields: [projectId], references: [id], onDelete: SetNull)
+  scene            Scene?          @relation(fields: [sceneId], references: [id], onDelete: SetNull)
+
+  @@index([workspaceId, createdAt(sort: Desc)])
+  @@index([userId, createdAt(sort: Desc)])
+  @@index([projectId, createdAt(sort: Desc)])
+  @@index([status, createdAt(sort: Desc)])
+}
+
+model VideoOperationLog {
+  id               String               @id @default(cuid())
+  operationId      String               @unique
+  providerId       String
+  modelId          String
+  workspaceId      String?
+  userId           String?
+  projectId        String?
+  
+  success          Boolean              @default(false)
+  statusCode       Int?
+  errorCode        String?
+  errorMessage     String?
+  durationMs       Int                  @default(0)
+  externalCost     Float?
+  creditCost       Int                  @default(0)
+  requestPayload   Json?
+  
+  createdAt        DateTime             @default(now())
+
+  providerConfig   VideoProviderConfig? @relation(fields: [providerId], references: [providerId], onDelete: SetNull)
 
   @@index([providerId, createdAt(sort: Desc)])
   @@index([workspaceId, createdAt(sort: Desc)])

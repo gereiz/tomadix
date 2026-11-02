@@ -281,7 +281,11 @@ export class PollinationsImageProvider {
       payload.negative_prompt = negativePrompt.trim();
     }
     // Modelos estritamente text-to-image (ex: FLUX 1.1 Pro) não aceitam o campo "image" no payload
-    const isStrictTextOnly = effectiveModel.includes("flux.1.1-pro") || effectiveModel.includes("turbo");
+    const effectiveModelLower = effectiveModel.toLowerCase();
+    const isStrictTextOnly =
+      effectiveModelLower.includes("flux.1.1-pro") ||
+      effectiveModelLower.includes("flux-1.1-pro") ||
+      effectiveModelLower.includes("turbo");
     if (referenceImageUrl && !isStrictTextOnly) {
       payload.image = await this.resolveImageReference(referenceImageUrl);
     }
@@ -505,7 +509,10 @@ export class PollinationsImageProvider {
           const hasImageInput = Array.isArray(item.input_modalities) && item.input_modalities.includes("image");
           const hasMaxRef = typeof item.max_reference_images === "number" && item.max_reference_images > 0;
           const hasEditEndpoint = Array.isArray(item.supported_endpoints) && item.supported_endpoints.some((e: string) => e.includes("/edits"));
-          const isExplicitNonImage = modelId.toLowerCase().includes("flux.1.1-pro") || modelId.toLowerCase().includes("turbo");
+          const isExplicitNonImage =
+            modelId.toLowerCase().includes("flux.1.1-pro") ||
+            modelId.toLowerCase().includes("flux-1.1-pro") ||
+            modelId.toLowerCase().includes("turbo");
           const supportsReferenceImage = Boolean(
             !isExplicitNonImage && (item.supportsReferenceImage || hasImageInput || hasMaxRef || hasEditEndpoint)
           );

@@ -85,3 +85,6 @@ npm test
 ## Arquitetura
 
 A aplicação é construída como um monólito modular Next.js. Toda nova funcionalidade deve possuir serviços dedicados em `src/modules/`, validações em `src/lib/schemas/`, rotas REST em `src/app/api/` e documentação técnica detalhada com exemplos em `docs/modules/`.
+
+
+[![Made with pollinations.ai](https://raw.githubusercontent.com/pollinations/pollinations/main/packages/ui/src/brand/badge-made-with.svg)](https://pollinations.ai/?ref=badge)

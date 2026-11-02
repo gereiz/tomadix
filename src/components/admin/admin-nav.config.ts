@@ -33,9 +33,12 @@ export const ADMIN_NAV_GROUPS: NavGroup[] = [
     items: [
       { href: "/admin/customization", label: "Personalização", icon: "🎨" },
       { href: "/admin/settings", label: "Configurações Gerais", icon: "🛠️" },
+      { href: "/admin/settings/email", label: "Servidor de E-mail", icon: "✉️" },
+      { href: "/admin/settings/pollinations", label: "Central Pollinations", icon: "🐝" },
       { href: "/admin/settings/database", label: "Banco de Dados", icon: "🗄️" },
       { href: "/admin/settings/gemini", label: "APIs Gemini (Multi-Key)", icon: "✨" },
       { href: "/admin/settings/image-providers", label: "APIs de Imagem (IA)", icon: "🎨" },
+      { href: "/admin/settings/video-providers", label: "APIs de Vídeo (IA)", icon: "🎥" },
     ],
   },
   {

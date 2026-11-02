@@ -89,6 +89,53 @@ export function maskSecretValue(value: string): string {
 }
 
 /**
+ * Criptografa uma string única (ex: senha SMTP, client secret) retornando formato serializado iv:authTag:data.
+ */
+export function encryptString(text: string): string {
+  if (!text) return "";
+  const iv = crypto.randomBytes(IV_LENGTH);
+  const cipher = crypto.createCipheriv(ALGORITHM, getMasterKey(), iv, {
+    authTagLength: AUTH_TAG_LENGTH,
+  });
+
+  let encrypted = cipher.update(text, "utf8", "hex");
+  encrypted += cipher.final("hex");
+  const authTag = cipher.getAuthTag().toString("hex");
+
+  return `${iv.toString("hex")}:${authTag}:${encrypted}`;
+}
+
+/**
+ * Descriptografa uma string no formato iv:authTag:data.
+ */
+export function decryptString(encryptedText: string): string {
+  if (!encryptedText) return "";
+  const parts = encryptedText.split(":");
+  if (parts.length !== 3) {
+    // Se não estiver criptografado no formato esperado, retorna original (fallback retrocompatível)
+    return encryptedText;
+  }
+
+  try {
+    const [ivHex, authTagHex, dataHex] = parts;
+    const decipher = crypto.createDecipheriv(
+      ALGORITHM,
+      getMasterKey(),
+      Buffer.from(ivHex, "hex"),
+      { authTagLength: AUTH_TAG_LENGTH }
+    );
+    decipher.setAuthTag(Buffer.from(authTagHex, "hex"));
+
+    let decrypted = decipher.update(dataHex, "hex", "utf8");
+    decrypted += decipher.final("utf8");
+    return decrypted;
+  } catch (error) {
+    console.error("Falha ao descriptografar string:", error);
+    return "";
+  }
+}
+
+/**
  * Retorna uma versão mascarada de todas as chaves confidenciais.
  */
 export function maskSecrets(credentials: Record<string, any>): Record<string, any> {

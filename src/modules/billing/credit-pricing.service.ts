@@ -103,6 +103,13 @@ export const SEED_CREDIT_OPERATIONS: DefaultOperationSeed[] = [
     category: "IMAGES",
     defaultCreditCost: 10,
   },
+  {
+    code: "GEN_VIDEO_DIRECT",
+    name: "Geração Direta de Vídeo IA",
+    description: "Geração direta de vídeo cinematográfico através de provedores integrados (Pollinations.ai).",
+    category: "VIDEO",
+    defaultCreditCost: 25,
+  },
 ];
 
 export class CreditPricingService {

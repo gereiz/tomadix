@@ -239,6 +239,13 @@ export default function Home() {
             <span>Estúdio de Pré-Produção Audiovisual & IA Generativa</span>
           </div>
           <div>Tomadix Engine v2.4 • Produção de alta fidelidade cinematográfica</div>
+
+          <a href="https://pollinations.ai/?ref=badge">
+            <img
+              src="https://raw.githubusercontent.com/pollinations/pollinations/main/packages/ui/src/brand/badge-made-with.svg"
+              alt="Made with pollinations.ai"
+            />
+          </a>
         </div>
       </footer>
     </main>

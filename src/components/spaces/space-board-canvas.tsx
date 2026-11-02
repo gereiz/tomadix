@@ -20,6 +20,7 @@ import {
 } from "@xyflow/react";
 import "@xyflow/react/dist/style.css";
 import { DirectEntityImageModal } from "@/components/image-generation/direct-entity-image-modal";
+import { DirectVideoModal } from "@/components/video-generation/direct-video-modal";
 
 // ============================================================================
 // CUSTOM NODE COMPONENTS COM SUPORTE A REDIMENSIONAMENTO (NodeResizer)
@@ -63,24 +64,42 @@ function ImageBoardNode({ id, data, selected }: NodeProps) {
           <span className="text-xs">🖼️</span>
           <span className="font-mono font-semibold truncate">{label}</span>
         </span>
-        {d.onDeleteNode && (
+        <div className="flex items-center gap-1 shrink-0">
           <button
             type="button"
             onClick={(e) => {
               e.stopPropagation();
-              d.onDeleteNode(id);
+              d.onOpenNodeActions?.(id);
             }}
-            className="opacity-0 group-hover:opacity-100 rounded px-1.5 py-0.5 text-[10px] text-red-400 hover:bg-red-500/15 transition"
-            title="Remover do board (Delete)"
+            className="rounded px-1.5 py-0.5 text-[11px] font-bold text-white/70 hover:bg-white/10 hover:text-white transition"
+            title="Ações do item (Menu / Mobile)"
           >
-            ✕
+            ⋯
           </button>
-        )}
+          {d.onDeleteNode && (
+            <button
+              type="button"
+              onClick={(e) => {
+                e.stopPropagation();
+                d.onDeleteNode(id);
+              }}
+              className="rounded px-1.5 py-0.5 text-[10px] text-red-400 hover:bg-red-500/15 transition opacity-100 sm:opacity-0 sm:group-hover:opacity-100"
+              title="Remover do board (Delete)"
+            >
+              ✕
+            </button>
+          )}
+        </div>
       </div>
 
       {/* Main Image Card */}
       <div
-        className={`relative flex-1 w-full h-full min-h-0 overflow-hidden rounded-2xl border bg-[#0e121b] shadow-xl transition-all ${selected
+        onClick={() => {
+          if (imageUrl && d.onPreviewNode) {
+            d.onPreviewNode(id);
+          }
+        }}
+        className={`relative flex-1 w-full h-full min-h-0 overflow-hidden rounded-2xl border bg-[#0e121b] shadow-xl transition-all cursor-pointer ${selected
           ? "border-primary ring-2 ring-primary/40 shadow-primary/20"
           : "border-outline-variant/40 hover:border-outline"
           }`}
@@ -98,24 +117,39 @@ function ImageBoardNode({ id, data, selected }: NodeProps) {
           </div>
         )}
 
-        {/* Hover Overlay with Prompt & Download */}
+        {/* Hover Overlay with Prompt & Actions */}
         <div className="theme-preserve-dark absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/90 via-black/60 to-transparent p-3 opacity-0 transition-opacity duration-200 group-hover:opacity-100">
           {prompt && (
             <p className="line-clamp-3 text-[11px] leading-snug text-white/90">
               {prompt}
             </p>
           )}
-          <div className="mt-2 flex items-center justify-between gap-2">
+          <div className="mt-2 flex items-center justify-between gap-1.5">
             <span className="rounded bg-white/15 px-1.5 py-0.5 font-mono text-[9px] text-white/80">
               {aspectRatio}
             </span>
-            <button
-              type="button"
-              onClick={handleDownload}
-              className="rounded-lg bg-white/20 px-2 py-1 text-[10px] font-semibold text-white backdrop-blur-sm hover:bg-white/30"
-            >
-              ⬇ Baixar
-            </button>
+            <div className="flex items-center gap-1.5">
+              {d.onGenerateVideoFromNode && (
+                <button
+                  type="button"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    d.onGenerateVideoFromNode(id);
+                  }}
+                  className="rounded-lg bg-purple-500/30 border border-purple-500/50 px-2 py-1 text-[10px] font-semibold text-purple-200 backdrop-blur-sm hover:bg-purple-500/50 transition"
+                  title="Animar esta imagem gerando Vídeo IA"
+                >
+                  🎥 Vídeo
+                </button>
+              )}
+              <button
+                type="button"
+                onClick={handleDownload}
+                className="rounded-lg bg-white/20 px-2 py-1 text-[10px] font-semibold text-white backdrop-blur-sm hover:bg-white/30 transition"
+              >
+                ⬇ Baixar
+              </button>
+            </div>
           </div>
         </div>
       </div>
@@ -186,8 +220,19 @@ function VideoGeneratorBoardNode({ id, data, selected }: NodeProps) {
         </span>
         <div className="flex items-center gap-1 shrink-0">
           <span className="rounded-full bg-purple-500/15 border border-purple-500/30 px-2 py-0.5 text-[9px] font-bold text-purple-400">
-            VÍDEO IA
+            {d.videoUrl ? "VÍDEO PRONTO" : "VÍDEO IA"}
           </span>
+          <button
+            type="button"
+            onClick={(e) => {
+              e.stopPropagation();
+              d.onOpenNodeActions?.(id);
+            }}
+            className="rounded px-1.5 py-0.5 text-[11px] font-bold text-white/70 hover:bg-white/10 hover:text-white transition"
+            title="Ações do item"
+          >
+            ⋯
+          </button>
           {d.onDeleteNode && (
             <button
               type="button"
@@ -195,7 +240,7 @@ function VideoGeneratorBoardNode({ id, data, selected }: NodeProps) {
                 e.stopPropagation();
                 d.onDeleteNode(id);
               }}
-              className="opacity-0 group-hover:opacity-100 rounded px-1.5 py-0.5 text-[10px] text-red-400 hover:bg-red-500/15 transition"
+              className="rounded px-1.5 py-0.5 text-[10px] text-red-400 hover:bg-red-500/15 transition opacity-100 sm:opacity-0 sm:group-hover:opacity-100"
               title="Remover do board (Delete)"
             >
               ✕
@@ -213,7 +258,14 @@ function VideoGeneratorBoardNode({ id, data, selected }: NodeProps) {
       >
         {/* Visual Frame Area */}
         <div className="relative flex-1 w-full min-h-0 overflow-hidden bg-gradient-to-br from-indigo-950/80 via-[#0b0f19] to-purple-950/70">
-          {previewUrl ? (
+          {d.videoUrl ? (
+            <video
+              src={d.videoUrl}
+              controls
+              playsInline
+              className="h-full w-full object-cover"
+            />
+          ) : previewUrl ? (
             <img
               src={previewUrl}
               alt={label}
@@ -226,11 +278,21 @@ function VideoGeneratorBoardNode({ id, data, selected }: NodeProps) {
                 ▶
               </div>
               <p className="text-xs font-semibold text-white/90">
-                Pipeline de Vídeo Preparado
+                Pipeline de Vídeo IA
               </p>
               <p className="mt-1 text-[10px] text-white/55 leading-tight">
-                Conecte imagens como Frame Inicial / Final nos conectores à esquerda
+                Gere diretamente ou conecte imagem de referência à esquerda
               </p>
+              <button
+                type="button"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  d.onTriggerVideoGen?.(id);
+                }}
+                className="mt-3 rounded-xl bg-gradient-to-r from-purple-500 to-indigo-600 px-3.5 py-1.5 text-xs font-bold text-white shadow-lg hover:from-purple-400 hover:to-indigo-500 transition"
+              >
+                🚀 Gerar Vídeo com IA
+              </button>
             </div>
           )}
 
@@ -249,23 +311,36 @@ function VideoGeneratorBoardNode({ id, data, selected }: NodeProps) {
               <option value="16:9">16:9 Cinema</option>
               <option value="1:1">1:1 Square</option>
             </select>
-            <span className="rounded-lg bg-black/60 border border-white/15 px-2 py-0.5 text-[9px] font-mono uppercase tracking-wider text-amber-300 backdrop-blur-md">
-              ⚡ Em Breve
-            </span>
+            {d.videoUrl ? (
+              <a
+                href={d.videoUrl}
+                download={`video-${id}.mp4`}
+                onClick={(e) => e.stopPropagation()}
+                className="rounded-lg bg-emerald-500/30 border border-emerald-500/40 px-2 py-0.5 text-[9px] font-semibold text-emerald-300 backdrop-blur-md hover:bg-emerald-500/50"
+              >
+                ⬇ Baixar MP4
+              </a>
+            ) : (
+              <span className="rounded-lg bg-black/60 border border-white/15 px-2 py-0.5 text-[9px] font-mono uppercase tracking-wider text-purple-300 backdrop-blur-md">
+                Pollinations API
+              </span>
+            )}
           </div>
 
-          {/* Bottom Motion Prompt Overlay (matches Magnific screenshot) */}
-          <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/95 via-black/80 to-transparent p-3 pt-6 pointer-events-auto">
-            <textarea
-              rows={2}
-              value={localPrompt}
-              onChange={(e) => setLocalPrompt(e.target.value)}
-              onBlur={() => commitChange(localPrompt, localRatio)}
-              onClick={(e) => e.stopPropagation()}
-              placeholder="Descreva o movimento de câmera e ação do vídeo..."
-              className="w-full resize-none rounded-lg border border-white/10 bg-black/40 p-2 text-[11px] leading-snug text-white/95 placeholder:text-white/40 focus:border-purple-400 focus:outline-none"
-            />
-          </div>
+          {/* Bottom Motion Prompt Overlay */}
+          {!d.videoUrl && (
+            <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/95 via-black/80 to-transparent p-3 pt-6 pointer-events-auto">
+              <textarea
+                rows={2}
+                value={localPrompt}
+                onChange={(e) => setLocalPrompt(e.target.value)}
+                onBlur={() => commitChange(localPrompt, localRatio)}
+                onClick={(e) => e.stopPropagation()}
+                placeholder="Descreva o movimento de câmera e ação do vídeo..."
+                className="w-full resize-none rounded-lg border border-white/10 bg-black/40 p-2 text-[11px] leading-snug text-white/95 placeholder:text-white/40 focus:border-purple-400 focus:outline-none"
+              />
+            </div>
+          )}
         </div>
       </div>
 
@@ -351,19 +426,32 @@ function PromptBoardNode({ id, data, selected }: NodeProps) {
           <span>📜</span>
           <span className="font-semibold truncate">{label}</span>
         </span>
-        {d.onDeleteNode && (
+        <div className="flex items-center gap-1 shrink-0">
           <button
             type="button"
             onClick={(e) => {
               e.stopPropagation();
-              d.onDeleteNode(id);
+              d.onOpenNodeActions?.(id);
             }}
-            className="opacity-0 group-hover:opacity-100 rounded px-1.5 py-0.5 text-[10px] text-red-400 hover:bg-red-500/15 transition"
-            title="Remover do board (Delete)"
+            className="rounded px-1.5 py-0.5 text-[11px] font-bold text-white/70 hover:bg-white/10 hover:text-white transition"
+            title="Ações do item"
           >
-            ✕
+            ⋯
           </button>
-        )}
+          {d.onDeleteNode && (
+            <button
+              type="button"
+              onClick={(e) => {
+                e.stopPropagation();
+                d.onDeleteNode(id);
+              }}
+              className="rounded px-1.5 py-0.5 text-[10px] text-red-400 hover:bg-red-500/15 transition opacity-100 sm:opacity-0 sm:group-hover:opacity-100"
+              title="Remover do board (Delete)"
+            >
+              ✕
+            </button>
+          )}
+        </div>
       </div>
 
       <div
@@ -451,19 +539,32 @@ function EntityBoardNode({ id, data, selected }: NodeProps) {
           <span>{badge.icon}</span>
           <span>{badge.label}</span>
         </span>
-        {d.onDeleteNode && (
+        <div className="flex items-center gap-1 shrink-0">
           <button
             type="button"
             onClick={(e) => {
               e.stopPropagation();
-              d.onDeleteNode(id);
+              d.onOpenNodeActions?.(id);
             }}
-            className="opacity-0 group-hover:opacity-100 rounded px-1.5 py-0.5 text-[10px] text-red-400 hover:bg-red-500/15 transition"
-            title="Remover do board (Delete)"
+            className="rounded px-1.5 py-0.5 text-[11px] font-bold text-white/70 hover:bg-white/10 hover:text-white transition"
+            title="Ações do item"
           >
-            ✕
+            ⋯
           </button>
-        )}
+          {d.onDeleteNode && (
+            <button
+              type="button"
+              onClick={(e) => {
+                e.stopPropagation();
+                d.onDeleteNode(id);
+              }}
+              className="rounded px-1.5 py-0.5 text-[10px] text-red-400 hover:bg-red-500/15 transition opacity-100 sm:opacity-0 sm:group-hover:opacity-100"
+              title="Remover do board (Delete)"
+            >
+              ✕
+            </button>
+          )}
+        </div>
       </div>
 
       <div
@@ -537,19 +638,32 @@ function NoteBoardNode({ id, data, selected }: NodeProps) {
 
       <div className="mb-1 flex items-center justify-between text-[10px] font-bold uppercase tracking-wider text-amber-400 shrink-0">
         <span>📝 Nota da Equipe</span>
-        {d.onDeleteNode && (
+        <div className="flex items-center gap-1 shrink-0">
           <button
             type="button"
             onClick={(e) => {
               e.stopPropagation();
-              d.onDeleteNode(id);
+              d.onOpenNodeActions?.(id);
             }}
-            className="opacity-0 group-hover:opacity-100 text-red-400 hover:text-red-300"
-            title="Remover do board (Delete)"
+            className="rounded px-1.5 py-0.5 text-[11px] font-bold text-amber-300/80 hover:bg-amber-400/20 hover:text-amber-200 transition"
+            title="Ações do item"
           >
-            ✕
+            ⋯
           </button>
-        )}
+          {d.onDeleteNode && (
+            <button
+              type="button"
+              onClick={(e) => {
+                e.stopPropagation();
+                d.onDeleteNode(id);
+              }}
+              className="text-red-400 hover:text-red-300 opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition"
+              title="Remover do board (Delete)"
+            >
+              ✕
+            </button>
+          )}
+        </div>
       </div>
       <textarea
         value={text}
@@ -614,9 +728,26 @@ function SpaceBoardCanvasInner({
     y: number;
     flowPos: { x: number; y: number };
     sourceNodeId?: string | null;
+    isNodeContext?: boolean;
+    targetNode?: Node | null;
   } | null>(null);
   const connectingNodeIdRef = useRef<string | null>(null);
   const genTargetPosRef = useRef<{ x: number; y: number } | null>(null);
+
+  // Gestão de Itens, Ações Contextuais e Exclusão Segura
+  const [safeDeleteTarget, setSafeDeleteTarget] = useState<Node | null>(null);
+  const [nodeActionsTarget, setNodeActionsTarget] = useState<Node | null>(null);
+  const [editNode, setEditNode] = useState<Node | null>(null);
+  const [editLabel, setEditLabel] = useState("");
+  const [editPrompt, setEditPrompt] = useState("");
+  const [previewNode, setPreviewNode] = useState<Node | null>(null);
+  const [toastMessage, setToastMessage] = useState<string | null>(null);
+
+  // Video Generation Modal diretamente no Space Board
+  const [isVideoGenModalOpen, setIsVideoGenModalOpen] = useState(false);
+  const [videoGenPrompt, setVideoGenPrompt] = useState("");
+  const [videoGenStartFrameUrl, setVideoGenStartFrameUrl] = useState<string | null>(null);
+  const [videoGenSourceNodeId, setVideoGenSourceNodeId] = useState<string | null>(null);
 
   // Library drawer state
   const [isLibraryOpen, setIsLibraryOpen] = useState<boolean>(false);
@@ -645,14 +776,106 @@ function SpaceBoardCanvasInner({
   const saveTimerRef = useRef<NodeJS.Timeout | null>(null);
   const lastSavedStampRef = useRef<string>("");
 
-  const handleDeleteNode = useCallback(
+  const executeDeleteNode = useCallback(
     (nodeId: string) => {
       if (!canEdit) return;
       setNodes((nds) => nds.filter((n) => n.id !== nodeId));
       setEdges((eds) => eds.filter((e) => e.source !== nodeId && e.target !== nodeId));
       setSaveStatus("unsaved");
+      setToastMessage("Item removido do Space Board com sucesso!");
+      setTimeout(() => setToastMessage(null), 3500);
     },
     [canEdit, setNodes, setEdges]
+  );
+
+  const handleRequestDeleteNode = useCallback(
+    (nodeId: string) => {
+      if (!canEdit) return;
+      setNodes((nds) => {
+        const target = nds.find((n) => n.id === nodeId);
+        if (target) {
+          setSafeDeleteTarget(target);
+        } else {
+          executeDeleteNode(nodeId);
+        }
+        return nds;
+      });
+    },
+    [canEdit, executeDeleteNode, setNodes]
+  );
+
+  const handleOpenNodeActions = useCallback(
+    (nodeId: string) => {
+      setNodes((nds) => {
+        const target = nds.find((n) => n.id === nodeId);
+        if (target) {
+          setNodeActionsTarget(target);
+        }
+        return nds;
+      });
+    },
+    [setNodes]
+  );
+
+  const handlePreviewNode = useCallback(
+    (nodeId: string) => {
+      setNodes((nds) => {
+        const target = nds.find((n) => n.id === nodeId);
+        if (target) {
+          setPreviewNode(target);
+        }
+        return nds;
+      });
+    },
+    [setNodes]
+  );
+
+  const handleGenerateVideoFromNode = useCallback(
+    (nodeId: string) => {
+      setNodes((nds) => {
+        const target = nds.find((n) => n.id === nodeId);
+        if (target) {
+          const d = target.data as Record<string, any>;
+          setVideoGenSourceNodeId(nodeId);
+          setVideoGenStartFrameUrl((d?.imageUrl as string) || (d?.startFrameUrl as string) || null);
+          setVideoGenPrompt((d?.prompt as string) || "");
+          setIsVideoGenModalOpen(true);
+        }
+        return nds;
+      });
+    },
+    [setNodes]
+  );
+
+  const duplicateNode = useCallback(
+    (node: Node) => {
+      if (!canEdit) return;
+      const newId = `node-dup-${Date.now()}`;
+      const clone: Node = {
+        ...node,
+        id: newId,
+        position: {
+          x: node.position.x + 40,
+          y: node.position.y + 40,
+        },
+        selected: true,
+        data: {
+          ...node.data,
+          label: `${node.data.label || "Item"} (Cópia)`,
+          onDeleteNode: handleRequestDeleteNode,
+          onUpdateNodeData: (nId: string, data: any) => handleUpdateNodeData(nId, data),
+          onOpenNodeActions: handleOpenNodeActions,
+          onPreviewNode: handlePreviewNode,
+          onGenerateVideoFromNode: handleGenerateVideoFromNode,
+        },
+      };
+
+      setNodes((nds) => [...nds.map((n) => ({ ...n, selected: false })), clone]);
+      setSaveStatus("unsaved");
+      setToastMessage("Item duplicado no board!");
+      setTimeout(() => setToastMessage(null), 3000);
+    },
+    [canEdit, handleRequestDeleteNode, handleOpenNodeActions, handlePreviewNode, handleGenerateVideoFromNode, setNodes]
   );
 
   const handleUpdateNodeData = useCallback(
@@ -678,6 +901,10 @@ function SpaceBoardCanvasInner({
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === "Escape") {
         setContextMenu(null);
+        setNodeActionsTarget(null);
+        setSafeDeleteTarget(null);
+        setEditNode(null);
+        setPreviewNode(null);
         return;
       }
       if (e.key !== "Delete" && e.key !== "Backspace") return;
@@ -738,14 +965,28 @@ function SpaceBoardCanvasInner({
             ...(n.data || {}),
             refType: n.refType,
             refId: n.refId,
-            onDeleteNode: handleDeleteNode,
+            onDeleteNode: handleRequestDeleteNode,
             onUpdateNodeData: handleUpdateNodeData,
             onGenerateFromPrompt: handleGenerateFromPrompt,
+            onOpenNodeActions: handleOpenNodeActions,
+            onPreviewNode: handlePreviewNode,
+            onGenerateVideoFromNode: handleGenerateVideoFromNode,
+            onTriggerVideoGen: (nodeId: string) => {
+              setNodes((currentNodes) => {
+                const target = currentNodes.find((cn) => cn.id === nodeId);
+                const d = (target?.data as Record<string, any>) || {};
+                setVideoGenSourceNodeId(nodeId);
+                setVideoGenPrompt((d?.prompt as string) || "");
+                setVideoGenStartFrameUrl((d?.imageUrl as string) || (d?.startFrameUrl as string) || null);
+                setIsVideoGenModalOpen(true);
+                return currentNodes;
+              });
+            },
           },
         };
       });
     },
-    [handleDeleteNode, handleUpdateNodeData, handleGenerateFromPrompt]
+    [handleRequestDeleteNode, handleUpdateNodeData, handleGenerateFromPrompt, handleOpenNodeActions, handlePreviewNode, handleGenerateVideoFromNode, setNodes]
   );
 
   const decorateEdges = useCallback((rawEdges: any[]): Edge[] => {
@@ -1005,8 +1246,10 @@ function SpaceBoardCanvasInner({
           "High-altitude drone shot descending rapidly in a vertical tilt-down camera movement over a futuristic cyberpunk city...",
         width: 300,
         height: 460,
-        onDeleteNode: handleDeleteNode,
+        onDeleteNode: handleRequestDeleteNode,
         onUpdateNodeData: handleUpdateNodeData,
+        onOpenNodeActions: handleOpenNodeActions,
+        onPreviewNode: handlePreviewNode,
       },
     };
     setNodes((nds) => [...nds, newNode]);
@@ -1043,9 +1286,10 @@ function SpaceBoardCanvasInner({
         prompt: customPrompt,
         width: 320,
         height: 220,
-        onDeleteNode: handleDeleteNode,
+        onDeleteNode: handleRequestDeleteNode,
         onUpdateNodeData: handleUpdateNodeData,
         onGenerateFromPrompt: handleGenerateFromPrompt,
+        onOpenNodeActions: handleOpenNodeActions,
       },
     };
     setNodes((nds) => [...nds, newNode]);
@@ -1076,8 +1320,9 @@ function SpaceBoardCanvasInner({
         text: "",
         width: 240,
         height: 180,
-        onDeleteNode: handleDeleteNode,
+        onDeleteNode: handleRequestDeleteNode,
         onUpdateNodeData: handleUpdateNodeData,
+        onOpenNodeActions: handleOpenNodeActions,
       },
     };
     setNodes((nds) => [...nds, newNode]);
@@ -1137,8 +1382,11 @@ function SpaceBoardCanvasInner({
           height: 300,
           refType: "GENERATED_IMAGE",
           refId: item.id,
-          onDeleteNode: handleDeleteNode,
+          onDeleteNode: handleRequestDeleteNode,
           onUpdateNodeData: handleUpdateNodeData,
+          onOpenNodeActions: handleOpenNodeActions,
+          onPreviewNode: handlePreviewNode,
+          onGenerateVideoFromNode: handleGenerateVideoFromNode,
         },
       };
       setNodes((nds) => [...nds, newNode]);
@@ -1156,9 +1404,10 @@ function SpaceBoardCanvasInner({
           height: 220,
           refType: "PROMPT_VERSION",
           refId: item.id,
-          onDeleteNode: handleDeleteNode,
+          onDeleteNode: handleRequestDeleteNode,
           onUpdateNodeData: handleUpdateNodeData,
           onGenerateFromPrompt: handleGenerateFromPrompt,
+          onOpenNodeActions: handleOpenNodeActions,
         },
       };
       setNodes((nds) => [...nds, newNode]);
@@ -1178,8 +1427,10 @@ function SpaceBoardCanvasInner({
           height: 240,
           refType: itemType,
           refId: item.id,
-          onDeleteNode: handleDeleteNode,
+          onDeleteNode: handleRequestDeleteNode,
           onUpdateNodeData: handleUpdateNodeData,
+          onOpenNodeActions: handleOpenNodeActions,
+          onPreviewNode: handlePreviewNode,
         },
       };
       setNodes((nds) => [...nds, newNode]);
@@ -1201,7 +1452,32 @@ function SpaceBoardCanvasInner({
     setSaveStatus("unsaved");
   };
 
-  // Botão direito do mouse no canvas (abre menu de criação na posição do clique)
+  // Botão direito do mouse em um NÓ específico
+  const onNodeContextMenu = useCallback(
+    (event: React.MouseEvent, node: Node) => {
+      event.preventDefault();
+      event.stopPropagation();
+      const clientX = event.clientX;
+      const clientY = event.clientY;
+      const flowPos = reactFlowInstance.screenToFlowPosition({ x: clientX, y: clientY });
+      const menuWidth = 270;
+      const menuHeight = 350;
+      const clampedX = Math.min(clientX, (typeof window !== "undefined" ? window.innerWidth : 1200) - menuWidth);
+      const clampedY = Math.min(clientY, (typeof window !== "undefined" ? window.innerHeight : 800) - menuHeight);
+
+      setContextMenu({
+        x: Math.max(10, clampedX),
+        y: Math.max(10, clampedY),
+        flowPos,
+        sourceNodeId: node.id,
+        isNodeContext: true,
+        targetNode: node,
+      });
+    },
+    [reactFlowInstance]
+  );
+
+  // Botão direito do mouse no canvas vazio (abre menu de criação na posição do clique)
   const onPaneContextMenu = useCallback(
     (event: React.MouseEvent | MouseEvent) => {
       event.preventDefault();
@@ -1209,11 +1485,18 @@ function SpaceBoardCanvasInner({
       const clientX = event.clientX;
       const clientY = event.clientY;
       const flowPos = reactFlowInstance.screenToFlowPosition({ x: clientX, y: clientY });
+      const menuWidth = 270;
+      const menuHeight = 420;
+      const clampedX = Math.min(clientX, (typeof window !== "undefined" ? window.innerWidth : 1200) - menuWidth);
+      const clampedY = Math.min(clientY, (typeof window !== "undefined" ? window.innerHeight : 800) - menuHeight);
+
       setContextMenu({
-        x: clientX,
-        y: clientY,
+        x: Math.max(10, clampedX),
+        y: Math.max(10, clampedY),
         flowPos,
         sourceNodeId: null,
+        isNodeContext: false,
+        targetNode: null,
       });
     },
     [canEdit, reactFlowInstance]
@@ -1402,6 +1685,21 @@ function SpaceBoardCanvasInner({
           className="flex h-9 w-9 items-center justify-center rounded-xl text-sm text-on-surface-variant transition hover:bg-surface-container-high hover:text-on-surface disabled:opacity-40"
         >
           🖼️
+        </button>
+
+        <button
+          type="button"
+          disabled={!canEdit}
+          onClick={() => {
+            setVideoGenPrompt("");
+            setVideoGenStartFrameUrl(null);
+            setVideoGenSourceNodeId(null);
+            setIsVideoGenModalOpen(true);
+          }}
+          title="Gerar Vídeo com IA direto no Board (Pollinations)"
+          className="flex h-9 w-9 items-center justify-center rounded-xl text-sm text-purple-400 transition hover:bg-purple-500/20 hover:text-purple-300 disabled:opacity-40"
+        >
+          🎥
         </button>
 
         <button
@@ -1780,6 +2078,7 @@ function SpaceBoardCanvasInner({
           onConnectStart={onConnectStart}
           onConnectEnd={onConnectEnd}
           onPaneContextMenu={onPaneContextMenu}
+          onNodeContextMenu={onNodeContextMenu}
           onPaneClick={() => setContextMenu(null)}
           onNodeDragStart={() => {
             isInteractingRef.current = true;
@@ -1814,12 +2113,19 @@ function SpaceBoardCanvasInner({
         </ReactFlow>
       )}
 
-      {/* Menu de Contexto Flutuante (Botão Direito ou Arrastar Linha para Espaço Vazio) */}
+      {/* Toast Feedback */}
+      {toastMessage && (
+        <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-[130] rounded-2xl bg-emerald-500/90 border border-emerald-400 text-white px-4 py-2.5 text-xs font-semibold shadow-2xl backdrop-blur-md animate-in fade-in slide-in-from-bottom-2 duration-200">
+          ✓ {toastMessage}
+        </div>
+      )}
+
+      {/* Menu de Contexto Flutuante (Botão Direito no Canvas ou em um Nó Específico) */}
       {contextMenu && (
         <div
           style={{
             position: "fixed",
-            left: Math.min(contextMenu.x, (typeof window !== "undefined" ? window.innerWidth : 1200) - 290),
+            left: Math.min(contextMenu.x, (typeof window !== "undefined" ? window.innerWidth : 1200) - 280),
             top: Math.min(contextMenu.y, (typeof window !== "undefined" ? window.innerHeight : 800) - 400),
             zIndex: 100,
           }}
@@ -1828,10 +2134,16 @@ function SpaceBoardCanvasInner({
         >
           {/* Header */}
           <div className="flex items-center justify-between border-b border-white/10 px-2 py-1.5 mb-1.5">
-            <div className="flex items-center gap-1.5">
-              <span className="text-xs">{contextMenu.sourceNodeId ? "⚡" : "✨"}</span>
-              <span className="text-[11px] font-bold uppercase tracking-wider text-white/90">
-                {contextMenu.sourceNodeId ? "Conectar a Novo Nó" : "Criar no Board"}
+            <div className="flex items-center gap-1.5 truncate">
+              <span className="text-xs">
+                {contextMenu.isNodeContext ? "⚙️" : contextMenu.sourceNodeId ? "⚡" : "✨"}
+              </span>
+              <span className="text-[11px] font-bold uppercase tracking-wider text-white/90 truncate">
+                {contextMenu.isNodeContext
+                  ? String((contextMenu.targetNode?.data as any)?.label || "Ações do Item")
+                  : contextMenu.sourceNodeId
+                  ? "Conectar a Novo Nó"
+                  : "Criar no Board"}
               </span>
             </div>
             <button
@@ -1843,147 +2155,557 @@ function SpaceBoardCanvasInner({
             </button>
           </div>
 
-          {contextMenu.sourceNodeId && (
-            <div className="mb-2 rounded-lg bg-indigo-500/20 border border-indigo-500/30 px-2 py-1 text-[10px] text-indigo-300">
-              Conexão automática a partir do nó selecionado
+          {contextMenu.isNodeContext && contextMenu.targetNode ? (
+            /* Menu de Contexto do Nó Selecionado */
+            <div className="space-y-1">
+              {/* Visualizar */}
+              <button
+                type="button"
+                onClick={() => {
+                  setPreviewNode(contextMenu.targetNode || null);
+                  setContextMenu(null);
+                }}
+                className="flex w-full items-center gap-2 rounded-xl px-2.5 py-1.5 text-left text-xs font-medium text-white hover:bg-white/10 transition"
+              >
+                <span>👁️</span> Visualizar em Detalhes
+              </button>
+
+              {/* Editar / Renomear */}
+              <button
+                type="button"
+                onClick={() => {
+                  const t = contextMenu.targetNode;
+                  if (t) {
+                    const td = t.data as Record<string, any>;
+                    setEditNode(t);
+                    setEditLabel(String(td?.label || ""));
+                    setEditPrompt(String(td?.prompt || td?.text || ""));
+                  }
+                  setContextMenu(null);
+                }}
+                className="flex w-full items-center gap-2 rounded-xl px-2.5 py-1.5 text-left text-xs font-medium text-white hover:bg-white/10 transition"
+              >
+                <span>✏️</span> Editar / Renomear
+              </button>
+
+              {/* Duplicar */}
+              <button
+                type="button"
+                onClick={() => {
+                  if (contextMenu.targetNode) {
+                    duplicateNode(contextMenu.targetNode);
+                  }
+                  setContextMenu(null);
+                }}
+                className="flex w-full items-center gap-2 rounded-xl px-2.5 py-1.5 text-left text-xs font-medium text-white hover:bg-white/10 transition"
+              >
+                <span>📋</span> Duplicar Nó
+              </button>
+
+              {/* Animar com Vídeo IA se for Imagem */}
+              {contextMenu.targetNode.type === "IMAGE" && (
+                <button
+                  type="button"
+                  onClick={() => {
+                    if (contextMenu.targetNode) {
+                      handleGenerateVideoFromNode(contextMenu.targetNode.id);
+                    }
+                    setContextMenu(null);
+                  }}
+                  className="flex w-full items-center gap-2 rounded-xl px-2.5 py-1.5 text-left text-xs font-medium text-purple-300 hover:bg-purple-500/20 transition"
+                >
+                  <span>🎥</span> Animar com Vídeo IA
+                </button>
+              )}
+
+              {/* Baixar */}
+              {Boolean((contextMenu.targetNode.data as any)?.imageUrl || (contextMenu.targetNode.data as any)?.videoUrl) && (
+                <button
+                  type="button"
+                  onClick={() => {
+                    const url = String((contextMenu.targetNode?.data as any)?.imageUrl || (contextMenu.targetNode?.data as any)?.videoUrl || "");
+                    const a = document.createElement("a");
+                    a.href = url;
+                    a.download = `space-item-${contextMenu.targetNode?.id}`;
+                    document.body.appendChild(a);
+                    a.click();
+                    document.body.removeChild(a);
+                    setContextMenu(null);
+                  }}
+                  className="flex w-full items-center gap-2 rounded-xl px-2.5 py-1.5 text-left text-xs font-medium text-white hover:bg-white/10 transition"
+                >
+                  <span>⬇️</span> Baixar Arquivo
+                </button>
+              )}
+
+              {/* Excluir com confirmação segura */}
+              <button
+                type="button"
+                onClick={() => {
+                  setSafeDeleteTarget(contextMenu.targetNode || null);
+                  setContextMenu(null);
+                }}
+                className="flex w-full items-center gap-2 rounded-xl px-2.5 py-1.5 text-left text-xs font-semibold text-red-400 hover:bg-red-500/15 transition border-t border-white/10 mt-1 pt-1.5"
+              >
+                <span>🗑️</span> Excluir do Board
+              </button>
             </div>
-          )}
+          ) : (
+            /* Menu de Criação no Canvas */
+            <>
+              {contextMenu.sourceNodeId && (
+                <div className="mb-2 rounded-lg bg-indigo-500/20 border border-indigo-500/30 px-2 py-1 text-[10px] text-indigo-300">
+                  Conexão automática a partir do nó selecionado
+                </div>
+              )}
 
-          {/* Opções de Criação Rápida */}
-          <div className="space-y-1">
-            <button
-              type="button"
-              onClick={() => {
-                const flowPos = contextMenu.flowPos;
-                const srcId = contextMenu.sourceNodeId;
-                setContextMenu(null);
-                genTargetPosRef.current = flowPos;
-                setGenSourceNodeId(srcId || null);
-                setGenInitialPrompt("");
-                setIsGenModalOpen(true);
-              }}
-              className="flex w-full items-center gap-2.5 rounded-xl px-2 py-1.5 text-left text-xs font-medium text-white hover:bg-primary/20 hover:text-primary transition group"
-            >
-              <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-primary/20 text-primary text-sm group-hover:scale-110 transition shrink-0">
-                🎨
-              </span>
-              <div className="flex-1 min-w-0">
-                <div className="font-semibold text-white group-hover:text-primary">Gerar Imagem IA</div>
-                <div className="text-[10px] text-white/50 truncate">Flux, Pollinations, Imagen</div>
+              <div className="space-y-1">
+                <button
+                  type="button"
+                  onClick={() => {
+                    const flowPos = contextMenu.flowPos;
+                    const srcId = contextMenu.sourceNodeId;
+                    setContextMenu(null);
+                    genTargetPosRef.current = flowPos;
+                    setGenSourceNodeId(srcId || null);
+                    setGenInitialPrompt("");
+                    setIsGenModalOpen(true);
+                  }}
+                  className="flex w-full items-center gap-2.5 rounded-xl px-2 py-1.5 text-left text-xs font-medium text-white hover:bg-primary/20 hover:text-primary transition group"
+                >
+                  <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-primary/20 text-primary text-sm group-hover:scale-110 transition shrink-0">
+                    🎨
+                  </span>
+                  <div className="flex-1 min-w-0">
+                    <div className="font-semibold text-white group-hover:text-primary">Gerar Imagem IA</div>
+                    <div className="text-[10px] text-white/50 truncate">Flux, Pollinations, Imagen</div>
+                  </div>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => {
+                    const flowPos = contextMenu.flowPos;
+                    const srcId = contextMenu.sourceNodeId;
+                    setContextMenu(null);
+                    genTargetPosRef.current = flowPos;
+                    setVideoGenSourceNodeId(srcId || null);
+                    setVideoGenPrompt("");
+                    setVideoGenStartFrameUrl(null);
+                    setIsVideoGenModalOpen(true);
+                  }}
+                  className="flex w-full items-center gap-2.5 rounded-xl px-2 py-1.5 text-left text-xs font-medium text-white hover:bg-purple-500/20 hover:text-purple-300 transition group"
+                >
+                  <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-purple-500/20 text-purple-400 text-sm group-hover:scale-110 transition shrink-0">
+                    🎥
+                  </span>
+                  <div className="flex-1 min-w-0">
+                    <div className="font-semibold text-white group-hover:text-purple-300">Gerar Vídeo IA</div>
+                    <div className="text-[10px] text-white/50 truncate">Pollinations (Veo, Seedance, Wan)</div>
+                  </div>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => {
+                    handleCreatePromptNodeAt(contextMenu.flowPos, contextMenu.sourceNodeId);
+                    setContextMenu(null);
+                  }}
+                  className="flex w-full items-center gap-2.5 rounded-xl px-2 py-1.5 text-left text-xs font-medium text-white hover:bg-emerald-500/20 hover:text-emerald-300 transition group"
+                >
+                  <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-emerald-500/20 text-emerald-400 text-sm group-hover:scale-110 transition shrink-0">
+                    📜
+                  </span>
+                  <div className="flex-1 min-w-0">
+                    <div className="font-semibold text-white group-hover:text-emerald-300">Prompt Cinematográfico</div>
+                    <div className="text-[10px] text-white/50 truncate">Bloco de prompt conectável</div>
+                  </div>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => {
+                    handleCreateNoteNodeAt(contextMenu.flowPos, contextMenu.sourceNodeId);
+                    setContextMenu(null);
+                  }}
+                  className="flex w-full items-center gap-2.5 rounded-xl px-2 py-1.5 text-left text-xs font-medium text-white hover:bg-amber-500/20 hover:text-amber-300 transition group"
+                >
+                  <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-amber-500/20 text-amber-400 text-sm group-hover:scale-110 transition shrink-0">
+                    💬
+                  </span>
+                  <div className="flex-1 min-w-0">
+                    <div className="font-semibold text-white group-hover:text-amber-300">Nota da Equipe</div>
+                    <div className="text-[10px] text-white/50 truncate">Post-it colaborativo</div>
+                  </div>
+                </button>
               </div>
-            </button>
 
-            <button
-              type="button"
-              onClick={() => {
-                handleCreateVideoNodeAt(contextMenu.flowPos, contextMenu.sourceNodeId);
-                setContextMenu(null);
-              }}
-              className="flex w-full items-center gap-2.5 rounded-xl px-2 py-1.5 text-left text-xs font-medium text-white hover:bg-purple-500/20 hover:text-purple-300 transition group"
-            >
-              <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-purple-500/20 text-purple-400 text-sm group-hover:scale-110 transition shrink-0">
-                🎬
-              </span>
-              <div className="flex-1 min-w-0">
-                <div className="font-semibold text-white group-hover:text-purple-300">Gerador de Vídeo IA</div>
-                <div className="text-[10px] text-white/50 truncate">Pipeline start/end frame</div>
-              </div>
-            </button>
+              {/* Inserir da Biblioteca do Projeto se disponível */}
+              {(library.characters.length > 0 || library.environments.length > 0 || library.scenes.length > 0) && (
+                <div className="mt-2 pt-2 border-t border-white/10">
+                  <div className="px-2 pb-1 text-[9px] font-bold uppercase tracking-wider text-white/40">
+                    Inserir do Projeto
+                  </div>
+                  <div className="grid grid-cols-3 gap-1">
+                    {library.characters.length > 0 && (
+                      <button
+                        type="button"
+                        onClick={() => {
+                          addLibraryItemToBoard("CHARACTER", library.characters[0], contextMenu.flowPos, contextMenu.sourceNodeId);
+                          setContextMenu(null);
+                        }}
+                        className="rounded-lg bg-white/5 p-1.5 text-center hover:bg-white/10 transition"
+                        title={`Inserir ${library.characters[0]?.name}`}
+                      >
+                        <div className="text-sm">👤</div>
+                        <div className="text-[9px] font-medium text-white/70 truncate">Personagem</div>
+                      </button>
+                    )}
 
-            <button
-              type="button"
-              onClick={() => {
-                handleCreatePromptNodeAt(contextMenu.flowPos, contextMenu.sourceNodeId);
-                setContextMenu(null);
-              }}
-              className="flex w-full items-center gap-2.5 rounded-xl px-2 py-1.5 text-left text-xs font-medium text-white hover:bg-emerald-500/20 hover:text-emerald-300 transition group"
-            >
-              <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-emerald-500/20 text-emerald-400 text-sm group-hover:scale-110 transition shrink-0">
-                📜
-              </span>
-              <div className="flex-1 min-w-0">
-                <div className="font-semibold text-white group-hover:text-emerald-300">Prompt Cinematográfico</div>
-                <div className="text-[10px] text-white/50 truncate">Bloco de prompt conectável</div>
-              </div>
-            </button>
+                    {library.environments.length > 0 && (
+                      <button
+                        type="button"
+                        onClick={() => {
+                          addLibraryItemToBoard("ENVIRONMENT", library.environments[0], contextMenu.flowPos, contextMenu.sourceNodeId);
+                          setContextMenu(null);
+                        }}
+                        className="rounded-lg bg-white/5 p-1.5 text-center hover:bg-white/10 transition"
+                        title={`Inserir ${library.environments[0]?.name}`}
+                      >
+                        <div className="text-sm">🏛️</div>
+                        <div className="text-[9px] font-medium text-white/70 truncate">Ambiente</div>
+                      </button>
+                    )}
 
-            <button
-              type="button"
-              onClick={() => {
-                handleCreateNoteNodeAt(contextMenu.flowPos, contextMenu.sourceNodeId);
-                setContextMenu(null);
-              }}
-              className="flex w-full items-center gap-2.5 rounded-xl px-2 py-1.5 text-left text-xs font-medium text-white hover:bg-amber-500/20 hover:text-amber-300 transition group"
-            >
-              <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-amber-500/20 text-amber-400 text-sm group-hover:scale-110 transition shrink-0">
-                💬
-              </span>
-              <div className="flex-1 min-w-0">
-                <div className="font-semibold text-white group-hover:text-amber-300">Nota da Equipe</div>
-                <div className="text-[10px] text-white/50 truncate">Post-it colaborativo</div>
-              </div>
-            </button>
-          </div>
-
-          {/* Inserir da Biblioteca do Projeto se disponível */}
-          {(library.characters.length > 0 || library.environments.length > 0 || library.scenes.length > 0) && (
-            <div className="mt-2 pt-2 border-t border-white/10">
-              <div className="px-2 pb-1 text-[9px] font-bold uppercase tracking-wider text-white/40">
-                Inserir do Projeto
-              </div>
-              <div className="grid grid-cols-3 gap-1">
-                {library.characters.length > 0 && (
-                  <button
-                    type="button"
-                    onClick={() => {
-                      addLibraryItemToBoard("CHARACTER", library.characters[0], contextMenu.flowPos, contextMenu.sourceNodeId);
-                      setContextMenu(null);
-                    }}
-                    className="rounded-lg bg-white/5 p-1.5 text-center hover:bg-white/10 transition"
-                    title={`Inserir ${library.characters[0]?.name}`}
-                  >
-                    <div className="text-sm">👤</div>
-                    <div className="text-[9px] font-medium text-white/70 truncate">Personagem</div>
-                  </button>
-                )}
-
-                {library.environments.length > 0 && (
-                  <button
-                    type="button"
-                    onClick={() => {
-                      addLibraryItemToBoard("ENVIRONMENT", library.environments[0], contextMenu.flowPos, contextMenu.sourceNodeId);
-                      setContextMenu(null);
-                    }}
-                    className="rounded-lg bg-white/5 p-1.5 text-center hover:bg-white/10 transition"
-                    title={`Inserir ${library.environments[0]?.name}`}
-                  >
-                    <div className="text-sm">🏛️</div>
-                    <div className="text-[9px] font-medium text-white/70 truncate">Ambiente</div>
-                  </button>
-                )}
-
-                {library.scenes.length > 0 && (
-                  <button
-                    type="button"
-                    onClick={() => {
-                      addLibraryItemToBoard("SCENE", library.scenes[0], contextMenu.flowPos, contextMenu.sourceNodeId);
-                      setContextMenu(null);
-                    }}
-                    className="rounded-lg bg-white/5 p-1.5 text-center hover:bg-white/10 transition"
-                    title={`Inserir Cena ${library.scenes[0]?.order}`}
-                  >
-                    <div className="text-sm">🎬</div>
-                    <div className="text-[9px] font-medium text-white/70 truncate">Cena</div>
-                  </button>
-                )}
-              </div>
-            </div>
+                    {library.scenes.length > 0 && (
+                      <button
+                        type="button"
+                        onClick={() => {
+                          addLibraryItemToBoard("SCENE", library.scenes[0], contextMenu.flowPos, contextMenu.sourceNodeId);
+                          setContextMenu(null);
+                        }}
+                        className="rounded-lg bg-white/5 p-1.5 text-center hover:bg-white/10 transition"
+                        title={`Inserir Cena ${library.scenes[0]?.order}`}
+                      >
+                        <div className="text-sm">🎬</div>
+                        <div className="text-[9px] font-medium text-white/70 truncate">Cena</div>
+                      </button>
+                    )}
+                  </div>
+                </div>
+              )}
+            </>
           )}
 
           {/* Atalho dica */}
           <div className="mt-2 border-t border-white/10 px-2 pt-1.5 text-[9px] text-white/40 flex items-center justify-between">
             <span>Selecione e tecle <kbd className="font-mono text-white/70 bg-white/10 px-1 rounded">Delete</kbd></span>
             <span>Esc fecha</span>
+          </div>
+        </div>
+      )}
+
+      {/* MODAL 1: Exclusão Segura com Confirmação (Safe Deletion Modal) */}
+      {safeDeleteTarget && (
+        <div className="fixed inset-0 z-[120] flex items-center justify-center bg-black/80 p-4 backdrop-blur-sm">
+          <div className="relative w-full max-w-md rounded-2xl border border-red-500/30 bg-[#121620] p-6 shadow-2xl space-y-4">
+            <div className="flex items-center gap-3">
+              <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-red-500/20 text-red-400 border border-red-500/30 text-xl">
+                🗑️
+              </span>
+              <div>
+                <h3 className="text-base font-bold text-white">Excluir item do Space Board</h3>
+                <p className="text-xs text-white/50">Esta ação remove o nó e todas as conexões vinculadas a ele</p>
+              </div>
+            </div>
+
+            <div className="rounded-xl border border-white/10 bg-white/5 p-3.5 space-y-1.5 text-xs">
+              <div className="flex items-center justify-between">
+                <span className="text-white/50">Item:</span>
+                <span className="font-semibold text-white truncate max-w-[240px]">
+                  {String((safeDeleteTarget.data as any)?.label || safeDeleteTarget.id)}
+                </span>
+              </div>
+              <div className="flex items-center justify-between">
+                <span className="text-white/50">Tipo no Canvas:</span>
+                <span className="font-mono text-primary uppercase text-[10px]">{safeDeleteTarget.type}</span>
+              </div>
+            </div>
+
+            <p className="text-xs text-white/70 leading-relaxed">
+              Tem certeza que deseja excluir este item? Ele deixará de ser exibido no board e os links vinculados a ele serão desfeitos.
+            </p>
+
+            <div className="flex items-center justify-end gap-2 pt-2 border-t border-white/10">
+              <button
+                type="button"
+                onClick={() => setSafeDeleteTarget(null)}
+                className="rounded-xl px-4 py-2 text-xs font-semibold text-white/70 hover:bg-white/10 hover:text-white transition"
+              >
+                Cancelar
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  executeDeleteNode(safeDeleteTarget.id);
+                  setSafeDeleteTarget(null);
+                }}
+                className="rounded-xl bg-red-600 px-4 py-2 text-xs font-bold text-white hover:bg-red-500 transition shadow-lg shadow-red-600/30"
+              >
+                Sim, Excluir do Board
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* MODAL 2: Ações do Item (Bottom Sheet / Mobile & Touch Friendly) */}
+      {nodeActionsTarget && (
+        <div
+          className="fixed inset-0 z-[115] flex items-end sm:items-center justify-center bg-black/75 p-0 sm:p-4 backdrop-blur-sm"
+          onClick={() => setNodeActionsTarget(null)}
+        >
+          <div
+            className="relative w-full max-w-sm rounded-t-3xl sm:rounded-2xl border border-white/15 bg-[#121620] p-5 shadow-2xl space-y-3 animate-in slide-in-from-bottom-6 sm:slide-in-from-bottom-2 duration-200"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="flex items-center justify-between border-b border-white/10 pb-3">
+              <div className="flex items-center gap-2 truncate">
+                <span className="text-base">⚙️</span>
+                <div className="truncate">
+                  <h4 className="text-xs font-bold text-white truncate max-w-[200px]">
+                    {String((nodeActionsTarget.data as any)?.label || "Ações do Item")}
+                  </h4>
+                  <p className="text-[10px] text-white/50 uppercase font-mono">{nodeActionsTarget.type}</p>
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={() => setNodeActionsTarget(null)}
+                className="rounded-lg p-1.5 text-xs text-white/40 hover:bg-white/10 hover:text-white"
+              >
+                ✕
+              </button>
+            </div>
+
+            <div className="space-y-1.5 py-1">
+              <button
+                type="button"
+                onClick={() => {
+                  setPreviewNode(nodeActionsTarget);
+                  setNodeActionsTarget(null);
+                }}
+                className="flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-left text-xs font-medium text-white hover:bg-white/10 transition"
+              >
+                <span>👁️</span> Visualizar em Tela Cheia
+              </button>
+
+              <button
+                type="button"
+                onClick={() => {
+                  const d = nodeActionsTarget.data as Record<string, any>;
+                  setEditNode(nodeActionsTarget);
+                  setEditLabel(String(d?.label || ""));
+                  setEditPrompt(String(d?.prompt || d?.text || ""));
+                  setNodeActionsTarget(null);
+                }}
+                className="flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-left text-xs font-medium text-white hover:bg-white/10 transition"
+              >
+                <span>✏️</span> Editar Informações / Renomear
+              </button>
+
+              <button
+                type="button"
+                onClick={() => {
+                  duplicateNode(nodeActionsTarget);
+                  setNodeActionsTarget(null);
+                }}
+                className="flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-left text-xs font-medium text-white hover:bg-white/10 transition"
+              >
+                <span>📋</span> Duplicar no Board
+              </button>
+
+              {nodeActionsTarget.type === "IMAGE" && (
+                <button
+                  type="button"
+                  onClick={() => {
+                    handleGenerateVideoFromNode(nodeActionsTarget.id);
+                    setNodeActionsTarget(null);
+                  }}
+                  className="flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-left text-xs font-medium text-purple-300 hover:bg-purple-500/20 transition"
+                >
+                  <span>🎥</span> Animar com Vídeo IA
+                </button>
+              )}
+
+              {Boolean((nodeActionsTarget.data as any)?.imageUrl || (nodeActionsTarget.data as any)?.videoUrl) && (
+                <button
+                  type="button"
+                  onClick={() => {
+                    const url = String((nodeActionsTarget.data as any)?.imageUrl || (nodeActionsTarget.data as any)?.videoUrl || "");
+                    const a = document.createElement("a");
+                    a.href = url;
+                    a.download = `space-item-${nodeActionsTarget.id}`;
+                    document.body.appendChild(a);
+                    a.click();
+                    document.body.removeChild(a);
+                    setNodeActionsTarget(null);
+                  }}
+                  className="flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-left text-xs font-medium text-white hover:bg-white/10 transition"
+                >
+                  <span>⬇️</span> Baixar Arquivo
+                </button>
+              )}
+
+              <button
+                type="button"
+                onClick={() => {
+                  const target = nodeActionsTarget;
+                  setNodeActionsTarget(null);
+                  setSafeDeleteTarget(target);
+                }}
+                className="flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-left text-xs font-semibold text-red-400 hover:bg-red-500/15 transition border-t border-white/5 mt-1 pt-2.5"
+              >
+                <span>🗑️</span> Excluir do Space Board
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* MODAL 3: Editar Informações / Renomear */}
+      {editNode && (
+        <div className="fixed inset-0 z-[120] flex items-center justify-center bg-black/80 p-4 backdrop-blur-sm">
+          <div className="relative w-full max-w-md rounded-2xl border border-white/10 bg-[#121620] p-6 shadow-2xl space-y-4">
+            <div className="flex items-center justify-between border-b border-white/10 pb-3">
+              <h3 className="text-base font-bold text-white flex items-center gap-2">
+                <span>✏️</span> Editar Item do Board
+              </h3>
+              <button onClick={() => setEditNode(null)} className="text-xs text-white/50 hover:text-white">
+                ✕
+              </button>
+            </div>
+
+            <div className="space-y-3">
+              <div className="space-y-1">
+                <label className="text-xs font-semibold text-white/70">Título / Rótulo</label>
+                <input
+                  type="text"
+                  value={editLabel}
+                  onChange={(e) => setEditLabel(e.target.value)}
+                  className="w-full rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-xs text-white focus:border-primary focus:outline-none"
+                />
+              </div>
+
+              {(editNode.data.prompt !== undefined || editNode.data.text !== undefined) && (
+                <div className="space-y-1">
+                  <label className="text-xs font-semibold text-white/70">Conteúdo / Prompt</label>
+                  <textarea
+                    rows={4}
+                    value={editPrompt}
+                    onChange={(e) => setEditPrompt(e.target.value)}
+                    className="w-full rounded-xl border border-white/10 bg-white/5 p-3 text-xs text-white focus:border-primary focus:outline-none resize-none"
+                  />
+                </div>
+              )}
+            </div>
+
+            <div className="flex items-center justify-end gap-2 pt-2 border-t border-white/10">
+              <button
+                type="button"
+                onClick={() => setEditNode(null)}
+                className="rounded-xl px-4 py-2 text-xs font-semibold text-white/70 hover:bg-white/10 transition"
+              >
+                Cancelar
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  const updateData: any = { label: editLabel };
+                  if (editNode.data.prompt !== undefined) updateData.prompt = editPrompt;
+                  if (editNode.data.text !== undefined) updateData.text = editPrompt;
+
+                  handleUpdateNodeData(editNode.id, updateData);
+                  setEditNode(null);
+                  setToastMessage("Informações atualizadas!");
+                  setTimeout(() => setToastMessage(null), 3000);
+                }}
+                className="rounded-xl bg-primary px-4 py-2 text-xs font-bold text-black shadow-lg shadow-primary/20 hover:bg-primary/90 transition"
+              >
+                Salvar Alterações
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* MODAL 4: Preview em Tela Cheia */}
+      {previewNode && (
+        <div
+          className="fixed inset-0 z-[130] flex items-center justify-center bg-black/90 p-4 backdrop-blur-md"
+          onClick={() => setPreviewNode(null)}
+        >
+          <div
+            className="relative max-w-4xl max-h-[90vh] w-full flex flex-col items-center justify-center space-y-4"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <button
+              onClick={() => setPreviewNode(null)}
+              className="absolute top-2 right-2 z-10 rounded-full bg-black/60 p-2 text-white/70 hover:bg-black/80 hover:text-white transition"
+            >
+              ✕
+            </button>
+
+            {Boolean((previewNode.data as any)?.imageUrl) && (
+              <img
+                src={String((previewNode.data as any)?.imageUrl)}
+                alt={String((previewNode.data as any)?.label || "Preview")}
+                className="max-h-[75vh] w-auto max-w-full rounded-2xl object-contain shadow-2xl border border-white/10"
+              />
+            )}
+
+            {Boolean((previewNode.data as any)?.videoUrl) && (
+              <video
+                src={String((previewNode.data as any)?.videoUrl)}
+                controls
+                autoPlay
+                playsInline
+                className="max-h-[75vh] w-auto max-w-full rounded-2xl shadow-2xl border border-white/10"
+              />
+            )}
+
+            <div className="w-full bg-[#121620]/90 border border-white/10 rounded-2xl p-4 flex flex-wrap items-center justify-between gap-3 text-xs">
+              <div>
+                <h4 className="font-bold text-white text-sm">{String((previewNode.data as any)?.label || "Item")}</h4>
+                {Boolean((previewNode.data as any)?.prompt) && (
+                  <p className="text-white/60 text-xs mt-0.5 line-clamp-2 max-w-xl">
+                    {String((previewNode.data as any)?.prompt)}
+                  </p>
+                )}
+              </div>
+
+              <div className="flex items-center gap-2">
+                {previewNode.type === "IMAGE" && (
+                  <button
+                    onClick={() => {
+                      const id = previewNode.id;
+                      setPreviewNode(null);
+                      handleGenerateVideoFromNode(id);
+                    }}
+                    className="rounded-xl bg-purple-500/20 border border-purple-500/30 px-3.5 py-1.5 text-xs font-semibold text-purple-300 hover:bg-purple-500/30 transition"
+                  >
+                    🎥 Gerar Vídeo IA
+                  </button>
+                )}
+                <a
+                  href={String((previewNode.data as any)?.imageUrl || (previewNode.data as any)?.videoUrl || "")}
+                  download={`space-preview-${previewNode.id}`}
+                  className="rounded-xl bg-white/10 border border-white/20 px-3.5 py-1.5 text-xs font-semibold text-white hover:bg-white/20 transition"
+                >
+                  ⬇ Baixar Original
+                </a>
+              </div>
+            </div>
           </div>
         </div>
       )}
@@ -2032,8 +2754,11 @@ function SpaceBoardCanvasInner({
               height: 260,
               refType: "GENERATED_IMAGE",
               refId: result.imageId,
-              onDeleteNode: handleDeleteNode,
+              onDeleteNode: handleRequestDeleteNode,
               onUpdateNodeData: handleUpdateNodeData,
+              onOpenNodeActions: handleOpenNodeActions,
+              onPreviewNode: handlePreviewNode,
+              onGenerateVideoFromNode: handleGenerateVideoFromNode,
             },
           };
 
@@ -2053,6 +2778,65 @@ function SpaceBoardCanvasInner({
           }
           setSaveStatus("unsaved");
           setIsGenModalOpen(false);
+        }}
+      />
+
+      {/* Modal de Geração de Vídeo Direta no Board (Pollinations API) */}
+      <DirectVideoModal
+        isOpen={isVideoGenModalOpen}
+        onClose={() => {
+          setIsVideoGenModalOpen(false);
+          setVideoGenSourceNodeId(null);
+          setVideoGenStartFrameUrl(null);
+        }}
+        projectId={projectId}
+        initialPrompt={videoGenPrompt}
+        startFrameUrl={videoGenStartFrameUrl || undefined}
+        onVideoGenerated={(result) => {
+          const pos = genTargetPosRef.current || getNextCanvasPosition();
+          genTargetPosRef.current = null;
+
+          const newVideoNodeId = `node-video-${result.videoId || Date.now()}`;
+          const newNode: Node = {
+            id: newVideoNodeId,
+            type: "VIDEO",
+            position: pos,
+            style: { width: 340, height: 420 },
+            data: {
+              label: `#${nodes.filter((n) => n.type === "VIDEO").length + 1} · Vídeo IA`,
+              videoUrl: result.videoUrl,
+              prompt: result.prompt,
+              duration: result.duration,
+              aspectRatio: "16:9",
+              width: 340,
+              height: 420,
+              refType: "GENERATED_VIDEO",
+              refId: result.videoId,
+              onDeleteNode: handleRequestDeleteNode,
+              onUpdateNodeData: handleUpdateNodeData,
+              onOpenNodeActions: handleOpenNodeActions,
+              onPreviewNode: handlePreviewNode,
+            },
+          };
+
+          setNodes((nds) => [...nds, newNode]);
+
+          if (videoGenSourceNodeId) {
+            setEdges((eds) => [
+              ...eds,
+              {
+                id: `edge-${videoGenSourceNodeId}-${newVideoNodeId}`,
+                source: videoGenSourceNodeId,
+                target: newVideoNodeId,
+                animated: true,
+                style: { stroke: "#a855f7", strokeWidth: 2.2 },
+              },
+            ]);
+          }
+
+          setSaveStatus("unsaved");
+          setToastMessage("Vídeo gerado e inserido no Space Board com sucesso!");
+          setTimeout(() => setToastMessage(null), 4000);
         }}
       />
     </div>
