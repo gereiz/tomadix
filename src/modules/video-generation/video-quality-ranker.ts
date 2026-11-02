@@ -169,3 +169,4 @@ export function rankVideoModelQuality(
     supportsReferenceImage,
   };
 }
+
