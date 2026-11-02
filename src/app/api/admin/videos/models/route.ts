@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { requirePlatformAdmin, AuthorizationError, AuthenticationError } from "@/lib/auth";
 import { VideoGenerationService } from "@/modules/video-generation/video-generation.service";
+import { rankVideoModelQuality } from "@/modules/video-generation/video-quality-ranker";
 import { db } from "@/lib/db";
 import { z } from "zod";
 
@@ -24,10 +25,18 @@ export async function GET() {
       });
     }
 
+    const enrichedModels = models.map((m) => {
+      const rank = rankVideoModelQuality(m.modelId, m.publisher || "", m.name);
+      return {
+        ...m,
+        rank,
+      };
+    });
+
     return NextResponse.json({
       success: true,
       config,
-      models,
+      models: enrichedModels,
     });
   } catch (error: any) {
     if (error instanceof AuthorizationError) {
