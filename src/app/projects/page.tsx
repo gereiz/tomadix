@@ -77,19 +77,7 @@ interface Project {
   }>;
 }
 
-const GENRE_OPTIONS = [
-  "Ficção Científica",
-  "Cyberpunk",
-  "Suspense / Thriller",
-  "Drama",
-  "Fantasia",
-  "Ação / Aventura",
-  "Documentário",
-  "Terror / Horror",
-  "Comercial / Publicidade",
-  "Videoclipe",
-  "Experimental",
-];
+import { GENRE_OPTIONS } from "@/config/genres";
 
 const PLATFORM_OPTIONS = [
   "Google Flow",

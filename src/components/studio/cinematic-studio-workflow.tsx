@@ -8,6 +8,7 @@ import type {
   CinematicAnalysisResult,
 } from "@/modules/cinematic-analysis/cinematic-analysis.schema";
 import { AnalysisResultPanel, MODE_META } from "./analysis/analysis-result-panel";
+import { GENRE_OPTIONS } from "@/config/genres";
 import {
   fileToOptimizedDataUrl,
   urlToRasterDataUrl,
@@ -189,7 +190,7 @@ export function CinematicStudioWorkflow() {
   // Criação de novo projeto diretamente no /studio
   const [newProjectTitle, setNewProjectTitle] = useState<string>("");
   const [newProjectDescription, setNewProjectDescription] = useState<string>("");
-  const [newProjectGenre, setNewProjectGenre] = useState<string>("Comercial");
+  const [newProjectGenre, setNewProjectGenre] = useState<string>("Ficção Científica");
   const [newProjectAspectRatio, setNewProjectAspectRatio] = useState<"16:9" | "9:16" | "2.39:1" | "4:3" | "1:1">("16:9");
   const [isCreatingProject, setIsCreatingProject] = useState<boolean>(false);
   const [createProjectError, setCreateProjectError] = useState<string | null>(null);
@@ -296,7 +297,7 @@ export function CinematicStudioWorkflow() {
         body: JSON.stringify({
           title: newProjectTitle.trim(),
           description: newProjectDescription.trim(),
-          genre: newProjectGenre.trim() || "Comercial",
+          genre: newProjectGenre.trim() || "Ficção Científica",
           language: "pt-BR",
           configuration: {
             aspectRatio: newProjectAspectRatio,
@@ -944,15 +945,19 @@ export function CinematicStudioWorkflow() {
                   <div className="grid grid-cols-2 gap-3">
                     <div>
                       <label className="mb-1 block text-[11px] font-semibold text-white/70">
-                        Gênero / Formato
+                        Gênero / Estilo
                       </label>
-                      <input
-                        type="text"
+                      <select
                         value={newProjectGenre}
                         onChange={(e) => setNewProjectGenre(e.target.value)}
-                        placeholder="Ex: Comercial, Ficção..."
-                        className="w-full rounded-xl border border-white/10 bg-black/40 px-3 py-2 text-xs text-white placeholder-white/30 focus:border-primary focus:outline-none"
-                      />
+                        className="w-full rounded-xl border border-white/10 bg-[#181c21] px-3 py-2 text-xs font-semibold text-white focus:border-primary focus:outline-none"
+                      >
+                        {GENRE_OPTIONS.map((g) => (
+                          <option key={g} value={g}>
+                            {g}
+                          </option>
+                        ))}
+                      </select>
                     </div>
                     <div>
                       <label className="mb-1 block text-[11px] font-semibold text-white/70">
