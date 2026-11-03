@@ -1,5 +1,8 @@
 FROM node:22-alpine AS base
 
+# Dependências do sistema para compatibilidade nativa no Alpine (Prisma, Sharp, etc.)
+RUN apk add --no-cache libc6-compat
+
 # -----------------------------
 # Dependências
 # -----------------------------
