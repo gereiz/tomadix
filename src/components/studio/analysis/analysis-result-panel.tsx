@@ -206,6 +206,8 @@ export function AnalysisResultPanel({
             <img
               src={currentImage.src}
               alt={currentImage.label}
+              loading="lazy"
+              decoding="async"
               onError={() => markFailed(currentImage.index)}
               className="h-full w-full object-cover transition duration-300 group-hover:scale-105"
             />

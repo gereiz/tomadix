@@ -108,6 +108,8 @@ function ImageBoardNode({ id, data, selected }: NodeProps) {
           <img
             src={imageUrl}
             alt={prompt || label}
+            loading="lazy"
+            decoding="async"
             className="h-full w-full object-cover pointer-events-none"
             draggable={false}
           />
@@ -269,6 +271,8 @@ function VideoGeneratorBoardNode({ id, data, selected }: NodeProps) {
             <img
               src={previewUrl}
               alt={label}
+              loading="lazy"
+              decoding="async"
               className="h-full w-full object-cover opacity-90 pointer-events-none"
               draggable={false}
             />
@@ -578,6 +582,8 @@ function EntityBoardNode({ id, data, selected }: NodeProps) {
             <img
               src={d.imageUrl}
               alt={d.title || d.label}
+              loading="lazy"
+              decoding="async"
               className="h-full w-full object-cover pointer-events-none"
             />
           </div>
@@ -1840,6 +1846,8 @@ function SpaceBoardCanvasInner({
                         <img
                           src={img.imageUrl}
                           alt={img.prompt || "Imagem"}
+                          loading="lazy"
+                          decoding="async"
                           className="h-full w-full object-cover"
                         />
                         <div className="theme-preserve-dark absolute inset-0 flex items-end bg-gradient-to-t from-black/80 via-transparent to-transparent p-1.5 opacity-0 transition group-hover:opacity-100">

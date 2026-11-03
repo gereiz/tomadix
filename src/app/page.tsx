@@ -240,10 +240,15 @@ export default function Home() {
           </div>
           <div>Tomadix Engine v2.4 • Produção de alta fidelidade cinematográfica</div>
 
-          <a href="https://pollinations.ai/?ref=badge">
+          <a href="https://pollinations.ai/?ref=badge" target="_blank" rel="noopener noreferrer">
             <img
               src="https://raw.githubusercontent.com/pollinations/pollinations/main/packages/ui/src/brand/badge-made-with.svg"
               alt="Made with pollinations.ai"
+              loading="lazy"
+              decoding="async"
+              width={160}
+              height={30}
+              className="h-7 w-auto opacity-80 hover:opacity-100 transition-opacity"
             />
           </a>
         </div>

@@ -2,6 +2,7 @@ import fs from "fs/promises";
 import fsSync from "fs";
 import path from "path";
 import crypto from "crypto";
+import sharp from "sharp";
 
 export class ImageStorageService {
   /**
@@ -46,7 +47,7 @@ export class ImageStorageService {
     await this.ensureDirectory(targetDir);
 
     const uniqueId = `${Date.now()}_${crypto.randomBytes(6).toString("hex")}`;
-    const filename = `${uniqueId}.jpg`;
+    const filename = `${uniqueId}.webp`;
     const filePath = path.join(targetDir, filename);
     const storageKey = `generated-images/${yearMonth}/${filename}`;
     const publicUrl = `/generated-images/${yearMonth}/${filename}`;
@@ -72,8 +73,18 @@ export class ImageStorageService {
       }
 
       if (buffer) {
+        // Otimizar e comprimir em WebP de alta fidelidade visual (reduz ~70-80% do payload)
+        let finalBuffer = buffer;
+        try {
+          finalBuffer = await sharp(buffer)
+            .webp({ quality: 85, effort: 4 })
+            .toBuffer();
+        } catch (sharpError) {
+          console.warn("[ImageStorageService] Falha ao comprimir em WebP, mantendo buffer original:", sharpError);
+        }
+
         // Gravar no diretório principal (STORAGE_DIR ou public/generated-images)
-        await fs.writeFile(filePath, buffer);
+        await fs.writeFile(filePath, finalBuffer);
 
         // Se STORAGE_DIR estiver definido e diferente de public/generated-images,
         // tentar espelhar em public/generated-images se o diretório for acessível
@@ -81,7 +92,7 @@ export class ImageStorageService {
         if (localPublicDir !== targetDir) {
           try {
             await this.ensureDirectory(localPublicDir);
-            await fs.writeFile(path.join(localPublicDir, filename), buffer);
+            await fs.writeFile(path.join(localPublicDir, filename), finalBuffer);
           } catch {
             // Ignorar falha no espelho secundário
           }
@@ -119,14 +130,23 @@ export class ImageStorageService {
       .replace(/^\/?generated-images\//, "")
       .replace(/^\//, "");
 
+    const ext = path.extname(cleanRelative);
+    const altExt = ext === ".webp" ? ".jpg" : ext === ".jpg" ? ".webp" : "";
+    const altRelative = altExt ? cleanRelative.slice(0, -ext.length) + altExt : "";
+
     const baseDir = this.getStorageBaseDir();
     const primaryPath = path.join(baseDir, cleanRelative);
+    const primaryAltPath = altRelative ? path.join(baseDir, altRelative) : null;
 
     let deleted = false;
 
     try {
       if (fsSync.existsSync(primaryPath)) {
         await fs.unlink(primaryPath);
+        deleted = true;
+      }
+      if (primaryAltPath && fsSync.existsSync(primaryAltPath)) {
+        await fs.unlink(primaryAltPath);
         deleted = true;
       }
     } catch (err) {
@@ -139,6 +159,13 @@ export class ImageStorageService {
       if (localPublicDir !== primaryPath && fsSync.existsSync(localPublicDir)) {
         await fs.unlink(localPublicDir);
         deleted = true;
+      }
+      if (altRelative) {
+        const localPublicAltDir = path.join(process.cwd(), "public", "generated-images", altRelative);
+        if (localPublicAltDir !== primaryAltPath && fsSync.existsSync(localPublicAltDir)) {
+          await fs.unlink(localPublicAltDir);
+          deleted = true;
+        }
       }
     } catch {
       // Ignorar falha no espelho

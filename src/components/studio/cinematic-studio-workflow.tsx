@@ -81,7 +81,7 @@ const DEFAULT_REFERENCES: ReferenceItem[] = [
     title: "Neon Noir • Rua chuvosa à noite",
     badge: "NEON",
     category: "Estética & Iluminação",
-    imageUrl: "/studio-references/neon-noir.jpg",
+    imageUrl: "/studio-references/neon-noir.webp",
     description: "Close-up sob letreiros neon magenta e ciano, reflexos molhados e fundo desfocado.",
     technicalTag: "85mm • f/1.4 • Neon Noir",
   },
@@ -90,7 +90,7 @@ const DEFAULT_REFERENCES: ReferenceItem[] = [
     title: "Câmera na mão • Movimento",
     badge: "MOVIMENTO",
     category: "Movimento & Câmera",
-    imageUrl: "/studio-references/motion-blur.jpg",
+    imageUrl: "/studio-references/motion-blur.webp",
     description: "Plataforma de metrô com borrão de movimento e rastros de luz — sensação documental.",
     technicalTag: "35mm • 1/15s • Handheld",
   },
@@ -99,7 +99,7 @@ const DEFAULT_REFERENCES: ReferenceItem[] = [
     title: "Chiaroscuro • Luz dura lateral",
     badge: "CONTRASTE",
     category: "Iluminação Cinematográfica",
-    imageUrl: "/studio-references/chiaroscuro.jpg",
+    imageUrl: "/studio-references/chiaroscuro.webp",
     description: "Retrato com uma única luz lateral: metade do rosto em sombra profunda.",
     technicalTag: "85mm • f/2.0 • Low Key",
   },
@@ -108,7 +108,7 @@ const DEFAULT_REFERENCES: ReferenceItem[] = [
     title: "Golden Hour • Pôr do sol anamórfico",
     badge: "GOLDEN HOUR",
     category: "Color Grading & Tom",
-    imageUrl: "/studio-references/golden-hour.jpg",
+    imageUrl: "/studio-references/golden-hour.webp",
     description: "Contraluz dourado no fim de tarde com flare horizontal de lente anamórfica.",
     technicalTag: "Anamórfico 40mm • 2.39:1 • 3200K",
   },
@@ -117,7 +117,7 @@ const DEFAULT_REFERENCES: ReferenceItem[] = [
     title: "Preto e branco • Grão de película",
     badge: "P&B 35MM",
     category: "Película & Textura",
-    imageUrl: "/studio-references/black-white-grain.jpg",
+    imageUrl: "/studio-references/black-white-grain.webp",
     description: "Fotografia analógica P&B com grão marcante e halation nas altas luzes.",
     technicalTag: "35mm • Grão 60% • Tri-X 400",
   },
@@ -126,7 +126,7 @@ const DEFAULT_REFERENCES: ReferenceItem[] = [
     title: "Luz de janela • Natural e suave",
     badge: "LUZ NATURAL",
     category: "Iluminação Cinematográfica",
-    imageUrl: "/studio-references/soft-window-light.jpg",
+    imageUrl: "/studio-references/soft-window-light.webp",
     description: "Luz difusa de dia nublado entrando pela janela, sombras suaves e paleta nórdica.",
     technicalTag: "50mm • f/2.8 • 5600K",
   },
@@ -150,7 +150,16 @@ export function SafeThumb({
     return <div className="flex h-full w-full items-center justify-center text-2xl opacity-50">{fallback}</div>;
   }
   // eslint-disable-next-line @next/next/no-img-element
-  return <img src={src} alt={alt} onError={() => setFailed(true)} className={className} />;
+  return (
+    <img
+      src={src}
+      alt={alt}
+      loading="lazy"
+      decoding="async"
+      onError={() => setFailed(true)}
+      className={className}
+    />
+  );
 }
 
 function StepTitle({ n, title, extra }: { n: number; title: string; extra?: React.ReactNode }) {
@@ -370,7 +379,7 @@ export function CinematicStudioWorkflow() {
         const matchedRef = references.find((ref) => r.referenceTitle?.includes(ref.title));
         if (matchedRef) return matchedRef.imageUrl;
         if (r.referenceTitle.toLowerCase().includes("cyber") || r.referenceTitle.toLowerCase().includes("neon")) {
-          return "/studio-references/neon-noir.jpg";
+          return "/studio-references/neon-noir.webp";
         }
       }
       return undefined;

@@ -43,17 +43,29 @@ export async function GET(
     candidateDirs.push(path.join(process.cwd(), "uploads"));
     candidateDirs.push(path.join(process.cwd(), "uploads", "generated-images"));
 
+    const extReq = path.extname(relativePath).toLowerCase();
+    const candidateRelatives = [relativePath];
+    if (extReq === ".jpg" || extReq === ".jpeg" || extReq === ".png") {
+      candidateRelatives.unshift(relativePath.slice(0, -extReq.length) + ".webp");
+    } else if (extReq === ".webp") {
+      candidateRelatives.push(relativePath.slice(0, -extReq.length) + ".jpg");
+      candidateRelatives.push(relativePath.slice(0, -extReq.length) + ".png");
+    }
+
     let resolvedPath: string | null = null;
 
-    for (const baseDir of candidateDirs) {
-      const fullPath = path.join(baseDir, relativePath);
-      if (fs.existsSync(fullPath)) {
-        const stat = fs.statSync(fullPath);
-        if (stat.isFile()) {
-          resolvedPath = fullPath;
-          break;
+    for (const rel of candidateRelatives) {
+      for (const baseDir of candidateDirs) {
+        const fullPath = path.join(baseDir, rel);
+        if (fs.existsSync(fullPath)) {
+          const stat = fs.statSync(fullPath);
+          if (stat.isFile()) {
+            resolvedPath = fullPath;
+            break;
+          }
         }
       }
+      if (resolvedPath) break;
     }
 
     if (!resolvedPath) {

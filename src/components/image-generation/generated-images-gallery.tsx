@@ -236,6 +236,7 @@ export function GeneratedImagesGallery({
                 src={img.imageUrl}
                 alt={img.prompt}
                 loading="lazy"
+                decoding="async"
                 className="w-full h-full object-cover transition duration-300 group-hover:scale-105"
               />
 
@@ -356,6 +357,8 @@ export function GeneratedImagesGallery({
               <img
                 src={selectedImage.imageUrl}
                 alt={selectedImage.prompt}
+                loading="lazy"
+                decoding="async"
                 className="max-h-[480px] w-auto object-contain"
               />
             </div>
