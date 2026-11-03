@@ -118,6 +118,7 @@ export function ScenesTab({ projectId, onStatsUpdate, onOpenPromptEngine }: Scen
 
   // Dynamic Parameters State
   const [paramValues, setParamValues] = useState<Record<string, any>>({});
+  const [paramKeyMap, setParamKeyMap] = useState<Record<string, string>>({});
 
   // Modal Continuidade
   const [continuityModalOpen, setContinuityModalOpen] = useState(false);
@@ -1219,7 +1220,12 @@ export function ScenesTab({ projectId, onStatsUpdate, onOpenPromptEngine }: Scen
                     label="Enquadramento da Cena (Framing)"
                     description="Define a proximidade e a relação de proporção do sujeito no quadro."
                     value={formData.framing}
-                    onChange={(val) => setFormData((prev) => ({ ...prev, framing: val }))}
+                    onChange={(val) => {
+                      setFormData((prev) => ({ ...prev, framing: val }));
+                      if (paramKeyMap.tipo_de_plano) {
+                        setParamValues((prev) => ({ ...prev, [paramKeyMap.tipo_de_plano]: val }));
+                      }
+                    }}
                     category="FRAMING"
                     compactInitial={true}
                   />
@@ -1228,7 +1234,12 @@ export function ScenesTab({ projectId, onStatsUpdate, onOpenPromptEngine }: Scen
                     label="Movimento de Câmera (Camera Movement)"
                     description="Define a dinâmica espacial, velocidade e trajetória da câmera durante o plano."
                     value={formData.cameraMovement}
-                    onChange={(val) => setFormData((prev) => ({ ...prev, cameraMovement: val }))}
+                    onChange={(val) => {
+                      setFormData((prev) => ({ ...prev, cameraMovement: val }));
+                      if (paramKeyMap.movimento_camera) {
+                        setParamValues((prev) => ({ ...prev, [paramKeyMap.movimento_camera]: val }));
+                      }
+                    }}
                     category="CAMERA_MOVEMENT"
                     compactInitial={true}
                   />
@@ -1237,7 +1248,12 @@ export function ScenesTab({ projectId, onStatsUpdate, onOpenPromptEngine }: Scen
                     label="Estilo de Iluminação (Lighting)"
                     description="Define o contraste, temperatura, direção e atmosfera das fontes de luz."
                     value={formData.lighting}
-                    onChange={(val) => setFormData((prev) => ({ ...prev, lighting: val }))}
+                    onChange={(val) => {
+                      setFormData((prev) => ({ ...prev, lighting: val }));
+                      if (paramKeyMap.estilo_iluminacao) {
+                        setParamValues((prev) => ({ ...prev, [paramKeyMap.estilo_iluminacao]: val }));
+                      }
+                    }}
                     category="LIGHTING"
                     compactInitial={true}
                   />
@@ -1476,15 +1492,25 @@ export function ScenesTab({ projectId, onStatsUpdate, onOpenPromptEngine }: Scen
                 />
               </div>
 
-              {/* Seção Dinâmica: Parâmetros Cinematográficos */}
+              {/* Seção Dinâmica: Parâmetros Cinematográficos Adicionais (sem duplicação com Linguagem de Câmera) */}
               <EntityParametersSection
                 projectId={projectId}
                 targetType="SCENE"
                 targetId={editingScene?.id}
                 values={paramValues}
+                excludeKeys={["tipo_de_plano", "movimento_camera", "estilo_iluminacao"]}
+                title="Parâmetros Cinematográficos Adicionais"
+                description="Lentes, composição de quadro, ângulo e especificações técnicas complementares desta tomada."
                 onChange={(defId, val) =>
                   setParamValues((prev) => ({ ...prev, [defId]: val }))
                 }
+                onParametersLoaded={(loaded) => {
+                  const mapping: Record<string, string> = {};
+                  for (const p of loaded) {
+                    mapping[p.key] = p.definitionId;
+                  }
+                  setParamKeyMap(mapping);
+                }}
               />
 
               {/* Botões do Rodapé */}

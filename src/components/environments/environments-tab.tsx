@@ -817,12 +817,25 @@ export function EnvironmentsTab({ projectId, onStatsUpdate }: EnvironmentsTabPro
                 </div>
               </div>
 
-              {/* Seção Dinâmica: Parâmetros Cinematográficos */}
+              {/* Seção Dinâmica: Parâmetros do Ambiente (sem duplicação de câmera e fotometria) */}
               <EntityParametersSection
                 projectId={projectId}
                 targetType="ENVIRONMENT"
                 targetId={editingEnvironment?.id}
                 values={paramValues}
+                excludeKeys={[
+                  "formato_sensor_camera",
+                  "tipo_de_plano",
+                  "movimento_camera",
+                  "distancia_focal_lente",
+                  "angulo_camera_posicao",
+                  "composicao_quadro",
+                  "profundidade_campo_foco",
+                  "velocidade_obturador_movimento",
+                  "paleta_cor_dominante",
+                ]}
+                title="Parâmetros Cinematográficos do Ambiente"
+                description="Variáveis dinâmicas de atmosfera, volumetria e clima aplicadas a este cenário."
                 onChange={(defId, val) =>
                   setParamValues((prev) => ({ ...prev, [defId]: val }))
                 }

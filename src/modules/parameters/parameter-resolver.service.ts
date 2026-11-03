@@ -48,12 +48,12 @@ export class ParameterResolver {
     }
 
     const checkSingle = (s: string) => {
-      if (s === "GLOBAL" || s === "ALL") return true;
-      if (targetType === "PROJECT") return s === "GLOBAL" || s === "OUTPUT";
+      if (s === "ALL") return true;
+      if (targetType === "PROJECT") return s === "GLOBAL" || s === "PROJECT" || s === "OUTPUT";
       if (targetType === "ENVIRONMENT") return s === "ENVIRONMENT";
       if (targetType === "CHARACTER") return s === "CHARACTER";
-      if (targetType === "SCENE") return s === "SCENE";
-      if (targetType === "OUTPUT") return s === "OUTPUT";
+      if (targetType === "SCENE") return s === "SCENE" || s === "GLOBAL";
+      if (targetType === "OUTPUT") return s === "OUTPUT" || s === "GLOBAL";
       return false;
     };
 

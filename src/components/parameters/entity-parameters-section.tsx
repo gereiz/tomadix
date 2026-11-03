@@ -36,6 +36,7 @@ interface EntityParametersSectionProps {
   title?: string;
   description?: string;
   isAdmin?: boolean;
+  excludeKeys?: string[];
 }
 
 // Cache leve em memória de sessão de usuário no cliente
@@ -75,6 +76,7 @@ export function EntityParametersSection({
   title = "Parâmetros Cinematográficos Dinâmicos",
   description = "Variáveis e atributos cinematográficos (globais e deste escopo) aplicados na geração de prompts.",
   isAdmin: propIsAdmin,
+  excludeKeys = [],
 }: EntityParametersSectionProps) {
   const [paramsList, setParamsList] = useState<ResolvedParamItem[]>([]);
   const [loading, setLoading] = useState(true);
@@ -164,8 +166,12 @@ export function EntityParametersSection({
     );
   }
 
-  if (error || paramsList.length === 0) {
-    // Se não há parâmetros ativos para este escopo, não polui o formulário
+  const filteredParams = excludeKeys && excludeKeys.length > 0
+    ? paramsList.filter((p) => !excludeKeys.includes(p.key) && !excludeKeys.includes(p.definitionId))
+    : paramsList;
+
+  if (error || filteredParams.length === 0) {
+    // Se não há parâmetros ativos ou restantes para este escopo, não polui o formulário
     return null;
   }
 
@@ -179,7 +185,7 @@ export function EntityParametersSection({
               {title}
             </h4>
             <span className="rounded-full bg-primary/10 px-2 py-0.5 text-[10px] font-semibold text-primary border border-primary/20">
-              {paramsList.length} {paramsList.length === 1 ? "parâmetro ativo" : "parâmetros ativos"}
+              {filteredParams.length} {filteredParams.length === 1 ? "parâmetro ativo" : "parâmetros ativos"}
             </span>
           </div>
           <p className="mt-1 text-[11px] text-white/50">{description}</p>
@@ -187,7 +193,7 @@ export function EntityParametersSection({
       </div>
 
       <div className="grid gap-4 sm:grid-cols-2">
-        {paramsList.map((param) => {
+        {filteredParams.map((param) => {
           const currentValue = values[param.definitionId] !== undefined ? values[param.definitionId] : (param.value ?? "");
           const isExplicitHere = values[param.definitionId] !== undefined && values[param.definitionId] !== "";
 

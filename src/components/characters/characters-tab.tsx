@@ -859,12 +859,27 @@ export function CharactersTab({ projectId, onStatsUpdate }: CharactersTabProps) 
                 </div>
               </div>
 
-              {/* Seção Dinâmica: Parâmetros Cinematográficos */}
+              {/* Seção Dinâmica: Parâmetros Específicos do Personagem */}
               <EntityParametersSection
                 projectId={projectId}
                 targetType="CHARACTER"
                 targetId={editingCharacter?.id}
                 values={paramValues}
+                excludeKeys={[
+                  "formato_sensor_camera",
+                  "tipo_de_plano",
+                  "movimento_camera",
+                  "estilo_iluminacao",
+                  "distancia_focal_lente",
+                  "angulo_camera_posicao",
+                  "composicao_quadro",
+                  "profundidade_campo_foco",
+                  "velocidade_obturador_movimento",
+                  "paleta_cor_dominante",
+                  "atmosfera_climatica_particulas",
+                ]}
+                title="Parâmetros de Consistência do Personagem"
+                description="Diretrizes específicas de anatomia, continuidade e vestimenta aplicadas a este personagem."
                 onChange={(defId, val) =>
                   setParamValues((prev) => ({ ...prev, [defId]: val }))
                 }

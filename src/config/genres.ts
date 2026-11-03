@@ -13,3 +13,4 @@ export const GENRE_OPTIONS = [
 ] as const;
 
 export type GenreOption = (typeof GENRE_OPTIONS)[number];
+
