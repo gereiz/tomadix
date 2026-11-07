@@ -543,31 +543,39 @@ export class ParameterService {
     });
     if (!project) throw new Error("Projeto não encontrado.");
 
-    const results = [];
+    if (values.length === 0) return [];
+
+    // Mesmo alvo repetido na entrada: vale o último valor (mesma semântica do laço sequencial anterior)
+    const unique = new Map<string, (typeof values)[number]>();
     for (const item of values) {
-      // Excluir registros prévios para evitar duplicatas do mesmo parâmetro no mesmo alvo
-      await db.parameterValue.deleteMany({
+      unique.set(`${item.parameterDefinitionId}|${item.targetType}|${item.targetId ?? ""}`, item);
+    }
+    const items = [...unique.values()];
+
+    // Uma única transação atômica: exclui os registros prévios e insere os novos em lote
+    const [, created] = await db.$transaction([
+      db.parameterValue.deleteMany({
         where: {
           projectId,
-          parameterDefinitionId: item.parameterDefinitionId,
-          targetType: item.targetType,
-          targetId: item.targetId ?? null,
+          OR: items.map((item) => ({
+            parameterDefinitionId: item.parameterDefinitionId,
+            targetType: item.targetType,
+            targetId: item.targetId ?? null,
+          })),
         },
-      });
-
-      const created = await db.parameterValue.create({
-        data: {
+      }),
+      db.parameterValue.createManyAndReturn({
+        data: items.map((item) => ({
           projectId,
           parameterDefinitionId: item.parameterDefinitionId,
           targetType: item.targetType,
           targetId: item.targetId ?? null,
           value: item.value as Prisma.InputJsonValue,
-        },
-      });
-      results.push(created);
-    }
+        })),
+      }),
+    ]);
 
-    return results;
+    return created;
   }
 
   /**
@@ -578,14 +586,18 @@ export class ParameterService {
     workspaceId: string,
     target: TargetContext
   ) {
-    // 1. Obter definições ativas do workspace (utilizando cache em memória)
-    const definitions = await this.listParameters(workspaceId, { enabled: true });
+    // 1-3. Consultas independentes executadas em paralelo:
+    // definições ativas (cache em memória), configuração do projeto e valores gravados
+    const [definitions, project, allProjectValues] = await Promise.all([
+      this.listParameters(workspaceId, { enabled: true }),
+      db.project.findFirst({
+        where: { id: projectId, workspaceId },
+        select: { configuration: true },
+      }),
+      db.parameterValue.findMany({ where: { projectId } }),
+    ]);
 
     // 2. Filtrar apenas os parâmetros habilitados na configuração do projeto (Etapas 3 e 4)
-    const project = await db.project.findFirst({
-      where: { id: projectId, workspaceId },
-      select: { configuration: true },
-    });
     const config = (project?.configuration as any) || {};
     const settings = config.parameterSettings;
 
@@ -594,11 +606,6 @@ export class ParameterService {
       const allowedSet = new Set(settings.enabledParameterKeys);
       activeDefs = definitions.filter((d) => allowedSet.has(d.key));
     }
-
-    // 3. Obter todos os valores gravados no projeto
-    const allProjectValues = await db.parameterValue.findMany({
-      where: { projectId },
-    });
 
     // 4. Executar o motor de resolução com precedência estrita
     return ParameterResolver.resolveForTarget(activeDefs, allProjectValues, target);

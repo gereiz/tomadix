@@ -139,6 +139,7 @@ model User {
 
   @@index([platformRole])
   @@index([isSuspended])
+  @@index([createdAt])
 }
 
 model ConsentRecord {
@@ -202,6 +203,7 @@ model Session {
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@index([userId, expiresAt])
+  @@index([expiresAt])
 }
 
 model AuditLog {
@@ -372,6 +374,8 @@ model Invoice {
   subscription     Subscription? @relation(fields: [subscriptionId], references: [id], onDelete: SetNull)
 
   @@index([workspaceId, createdAt])
+  @@index([status])
+  @@index([subscriptionId])
 }
 
 model CreditLedger {
@@ -393,6 +397,8 @@ model CreditLedger {
   @@index([workspaceId, createdAt])
   @@index([lotId])
   @@index([idempotencyKey])
+  @@index([userId])
+  @@index([createdAt, amount])
 }
 
 model CreditLot {
@@ -422,6 +428,9 @@ model CreditLot {
   @@index([workspaceId, status, expiresAt])
   @@index([workspaceId, origin])
   @@index([eventId])
+  @@index([userId])
+  @@index([subscriptionId])
+  @@index([status, expiresAt])
 }
 
 model CreditConsumptionConfig {
@@ -476,6 +485,7 @@ model WorkspaceInvite {
   @@index([workspaceId, status])
   @@index([email, status])
   @@index([token])
+  @@index([invitedById])
 }
 
 model Project {
@@ -511,6 +521,7 @@ model Project {
   @@index([workspaceId, isArchived])
   @@index([workspaceId, visibility])
   @@index([ownerUserId])
+  @@index([workspaceId, createdAt])
 }
 
 model SpaceMember {
@@ -737,6 +748,7 @@ model PromptVersion {
 
   @@index([projectId, createdAt(sort: Desc)])
   @@index([sceneId, createdAt])
+  @@index([projectId, templateKey, sceneId, createdAt(sort: Desc)])
 }
 
 model GenerationJob {
@@ -755,6 +767,8 @@ model GenerationJob {
   createdAt      DateTime         @default(now())
 
   @@index([projectId, status, createdAt])
+  @@index([createdAt])
+  @@index([status, createdAt])
 }
 
 model CommercialPolicy {
@@ -1189,6 +1203,10 @@ model GeneratedImage {
   @@index([userId, createdAt(sort: Desc)])
   @@index([projectId, createdAt(sort: Desc)])
   @@index([status, createdAt(sort: Desc)])
+  @@index([characterId])
+  @@index([environmentId])
+  @@index([sceneId])
+  @@index([promptVersionId])
 }
 
 model ImageOperationLog {
@@ -1362,6 +1380,7 @@ model GeneratedVideo {
   @@index([userId, createdAt(sort: Desc)])
   @@index([projectId, createdAt(sort: Desc)])
   @@index([status, createdAt(sort: Desc)])
+  @@index([sceneId])
 }
 
 model VideoOperationLog {

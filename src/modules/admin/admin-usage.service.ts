@@ -30,7 +30,7 @@ export class AdminUsageService {
       recentFailures,
       tokensAgg,
       creditsConsumedAgg,
-      jobsWithWorkspace,
+      jobsByProject,
     ] = await Promise.all([
       db.generationJob.count({
         where: { createdAt: { gte: cutoffDate } },
@@ -106,25 +106,11 @@ export class AdminUsageService {
         },
         _sum: { amount: true },
       }),
-      db.generationJob.findMany({
+      // Contagem por projeto feita no banco (em vez de carregar uma linha por job)
+      db.generationJob.groupBy({
+        by: ["projectId"],
         where: { createdAt: { gte: cutoffDate } },
-        select: {
-          id: true,
-          project: {
-            select: {
-              workspaceId: true,
-              workspace: {
-                select: {
-                  id: true,
-                  name: true,
-                  subscription: {
-                    select: { planTier: true },
-                  },
-                },
-              },
-            },
-          },
-        },
+        _count: { id: true },
       }),
     ]);
 
@@ -181,17 +167,34 @@ export class AdminUsageService {
     const planCounts: Record<string, number> = {};
     const workspaceMap: Record<string, { workspaceId: string; name: string; jobsCount: number }> = {};
 
-    for (const job of jobsWithWorkspace) {
-      const tier = job.project?.workspace?.subscription?.planTier || "FREE";
-      planCounts[tier] = (planCounts[tier] || 0) + 1;
+    // Apenas os projetos distintos com jobs no período (muito menos linhas que os jobs)
+    const projectsInfo = jobsByProject.length
+      ? await db.project.findMany({
+          where: { id: { in: jobsByProject.map((g) => g.projectId) } },
+          select: {
+            id: true,
+            workspaceId: true,
+            workspace: {
+              select: { id: true, name: true, subscription: { select: { planTier: true } } },
+            },
+          },
+        })
+      : [];
+    const projectInfoById = new Map(projectsInfo.map((p) => [p.id, p]));
 
-      const wsId = job.project?.workspaceId;
-      const wsName = job.project?.workspace?.name || "Workspace Desconhecido";
+    for (const group of jobsByProject) {
+      const info = projectInfoById.get(group.projectId);
+      const jobs = group._count.id;
+      const tier = info?.workspace?.subscription?.planTier || "FREE";
+      planCounts[tier] = (planCounts[tier] || 0) + jobs;
+
+      const wsId = info?.workspaceId;
+      const wsName = info?.workspace?.name || "Workspace Desconhecido";
       if (wsId) {
         if (!workspaceMap[wsId]) {
           workspaceMap[wsId] = { workspaceId: wsId, name: wsName, jobsCount: 0 };
         }
-        workspaceMap[wsId].jobsCount += 1;
+        workspaceMap[wsId].jobsCount += jobs;
       }
     }
 

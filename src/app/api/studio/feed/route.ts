@@ -118,12 +118,26 @@ export async function GET(request: NextRequest) {
         }
       : null;
 
-    const [projects, characters, environments, scenes, prompts] = await Promise.all([
+    // Paginação correta sobre fontes agregadas: cada tipo traz até (page * limit) itens já na
+    // ordenação pedida; o merge em memória escolhe a janela da página. O total vem de COUNT no banco.
+    const fetchLimit = page * limit;
+    const orderFor = (titleField: string, updatedField: "updatedAt" | "createdAt") =>
+      sort === "title_asc"
+        ? { [titleField]: "asc" as const }
+        : sort === "createdAt_asc"
+        ? { createdAt: "asc" as const }
+        : { [updatedField]: "desc" as const };
+
+    const [
+      [projects, characters, environments, scenes, prompts],
+      [projectsTotal, charactersTotal, environmentsTotal, scenesTotal, promptsTotal],
+    ] = await Promise.all([
+      Promise.all([
       shouldFetchProjects
         ? db.project.findMany({
             where: projectsWhere,
-            orderBy: { updatedAt: "desc" },
-            take: limit,
+            orderBy: orderFor("title", "updatedAt"),
+            take: fetchLimit,
             select: {
               id: true,
               title: true,
@@ -147,8 +161,8 @@ export async function GET(request: NextRequest) {
       shouldFetchCharacters
         ? db.character.findMany({
             where: charWhere,
-            orderBy: { updatedAt: "desc" },
-            take: limit,
+            orderBy: orderFor("name", "updatedAt"),
+            take: fetchLimit,
             select: {
               id: true,
               projectId: true,
@@ -165,8 +179,8 @@ export async function GET(request: NextRequest) {
       shouldFetchEnvironments
         ? db.environment.findMany({
             where: envWhere,
-            orderBy: { updatedAt: "desc" },
-            take: limit,
+            orderBy: orderFor("name", "updatedAt"),
+            take: fetchLimit,
             select: {
               id: true,
               projectId: true,
@@ -183,8 +197,8 @@ export async function GET(request: NextRequest) {
       shouldFetchScenes
         ? db.scene.findMany({
             where: sceneWhere,
-            orderBy: { updatedAt: "desc" },
-            take: limit,
+            orderBy: orderFor("title", "updatedAt"),
+            take: fetchLimit,
             select: {
               id: true,
               projectId: true,
@@ -203,8 +217,8 @@ export async function GET(request: NextRequest) {
       shouldFetchPrompts
         ? db.promptVersion.findMany({
             where: promptWhere,
-            orderBy: { createdAt: "desc" },
-            take: limit,
+            orderBy: orderFor("targetTool", "createdAt"),
+            take: fetchLimit,
             select: {
               id: true,
               projectId: true,
@@ -218,7 +232,16 @@ export async function GET(request: NextRequest) {
             },
           })
         : Promise.resolve([]),
+      ]),
+      Promise.all([
+        shouldFetchProjects ? db.project.count({ where: projectsWhere }) : Promise.resolve(0),
+        shouldFetchCharacters ? db.character.count({ where: charWhere }) : Promise.resolve(0),
+        shouldFetchEnvironments ? db.environment.count({ where: envWhere }) : Promise.resolve(0),
+        shouldFetchScenes ? db.scene.count({ where: sceneWhere }) : Promise.resolve(0),
+        shouldFetchPrompts ? db.promptVersion.count({ where: promptWhere }) : Promise.resolve(0),
+      ]),
     ]);
+    const total = projectsTotal + charactersTotal + environmentsTotal + scenesTotal + promptsTotal;
 
     // PROCESSAMENTO DOS RESULTADOS AGREGADOS
     for (const p of projects) {
@@ -301,7 +324,7 @@ export async function GET(request: NextRequest) {
     }
 
     for (const pr of prompts) {
-      const previewText = pr.outputText || `Prompt ${pr.templateKey} (${pr.targetTool})`;
+      const previewText = pr.outputText ? pr.outputText.slice(0, 600) : `Prompt ${pr.templateKey} (${pr.targetTool})`;
 
       items.push({
         id: pr.id,
@@ -337,10 +360,10 @@ export async function GET(request: NextRequest) {
 
     return NextResponse.json({
       data: paginatedItems,
-      total: items.length,
+      total,
       page,
       limit,
-      totalPages: Math.ceil(items.length / limit) || 1,
+      totalPages: Math.ceil(total / limit) || 1,
       availableProjects,
     });
   } catch (error) {

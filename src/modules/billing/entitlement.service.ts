@@ -27,17 +27,27 @@ export class EntitlementService {
     });
 
     if (!sub) {
-      // Auto-provisionar FREE
-      sub = await db.subscription.create({
-        data: {
-          workspaceId,
-          planTier: PlanTier.FREE,
-          status: SubscriptionStatus.ACTIVE,
-          interval: BillingInterval.MONTHLY,
-          currentPeriodStart: new Date(),
-        },
-        include: { plan: true },
-      });
+      // Auto-provisionar FREE. Requisições concorrentes podem tentar criar ao mesmo tempo:
+      // quem perde a corrida (P2002 em workspaceId) apenas relê a assinatura já criada.
+      try {
+        sub = await db.subscription.create({
+          data: {
+            workspaceId,
+            planTier: PlanTier.FREE,
+            status: SubscriptionStatus.ACTIVE,
+            interval: BillingInterval.MONTHLY,
+            currentPeriodStart: new Date(),
+          },
+          include: { plan: true },
+        });
+      } catch (err) {
+        if ((err as { code?: string })?.code !== "P2002") throw err;
+        sub = await db.subscription.findUnique({
+          where: { workspaceId },
+          include: { plan: true },
+        });
+        if (!sub) throw err;
+      }
     }
 
     return sub;
@@ -66,22 +76,17 @@ export class EntitlementService {
       throw new EntitlementError("Workspace não encontrado.", "WORKSPACE_NOT_FOUND", 404);
     }
 
-    // Garantir concessão transparente de créditos diários para o workspace
-    const dailyGranted = await CreditDailyMaintenanceService.ensureDailyCreditsForWorkspace(workspaceId).catch((err) => {
+    // Consultas independentes em paralelo: concessão JIT de créditos diários, assinatura
+    // (quando ausente) e concessão administrativa (Override) ativa.
+    const dailyGrantedPromise = CreditDailyMaintenanceService.ensureDailyCreditsForWorkspace(workspaceId).catch((err) => {
       console.warn("[EntitlementService] Concessão JIT de créditos diários adiada:", err?.message);
       return null;
     });
+    const subPromise = workspace.subscription
+      ? Promise.resolve(workspace.subscription)
+      : this.getWorkspaceSubscription(workspaceId);
 
-    let currentCreditsBalance = workspace.creditsBalance;
-    if (dailyGranted) {
-      const freshWs = await db.workspace.findUnique({ where: { id: workspaceId }, select: { creditsBalance: true } });
-      if (freshWs) currentCreditsBalance = freshWs.creditsBalance;
-    }
-
-    const sub = workspace.subscription || (await this.getWorkspaceSubscription(workspaceId));
-
-    // 1. Identificar se há concessão administrativa (Override) ativa
-    const activeOverride = await db.userEntitlementOverride.findFirst({
+    const overridePromise = db.userEntitlementOverride.findFirst({
       where: {
         OR: [
           { workspaceId },
@@ -109,9 +114,19 @@ export class EntitlementService {
       orderBy: { createdAt: "desc" },
     });
 
+    const [dailyGranted, sub, activeOverride] = await Promise.all([
+      dailyGrantedPromise,
+      subPromise,
+      overridePromise,
+    ]);
+
+    let currentCreditsBalance = workspace.creditsBalance;
+    if (dailyGranted) {
+      const freshWs = await db.workspace.findUnique({ where: { id: workspaceId }, select: { creditsBalance: true } });
+      if (freshWs) currentCreditsBalance = freshWs.creditsBalance;
+    }
+
     const effectiveTier = activeOverride?.grantedPlanTier || sub.planTier;
-    const dbPlan = await db.plan.findUnique({ where: { tier: effectiveTier } });
-    const planConfig = dbPlan || getPlanConfig(effectiveTier);
 
     let grandfathered = (sub.metadata as any)?.grandfatheredContract;
 
@@ -120,11 +135,19 @@ export class EntitlementService {
       grandfathered = null;
     }
 
+    // Plano e snapshot comercial são independentes entre si: buscados em paralelo
+    const [dbPlan, snapshot] = await Promise.all([
+      db.plan.findUnique({ where: { tier: effectiveTier } }),
+      grandfathered
+        ? Promise.resolve(null)
+        : db.commercialSnapshot.findFirst({
+            where: { workspaceId, planTier: effectiveTier },
+            orderBy: { acceptedAt: "desc" },
+          }),
+    ]);
+    const planConfig = dbPlan || getPlanConfig(effectiveTier);
+
     if (!grandfathered) {
-      const snapshot = await db.commercialSnapshot.findFirst({
-        where: { workspaceId, planTier: effectiveTier },
-        orderBy: { acceptedAt: "desc" },
-      });
 
       if (snapshot?.snapshotData) {
         const data = snapshot.snapshotData as any;
@@ -447,6 +470,12 @@ export class EntitlementService {
     metadata?: any
   ): Promise<number> {
     return await db.$transaction(async (tx) => {
+      // Débito atômico condicionado ao saldo: evita gasto duplo em requisições concorrentes.
+      const debited = await tx.workspace.updateMany({
+        where: { id: workspaceId, creditsBalance: { gte: amount } },
+        data: { creditsBalance: { decrement: amount } },
+      });
+
       const workspace = await tx.workspace.findUnique({
         where: { id: workspaceId },
         select: { creditsBalance: true },
@@ -456,7 +485,7 @@ export class EntitlementService {
         throw new EntitlementError("Workspace não encontrado.", "WORKSPACE_NOT_FOUND", 404);
       }
 
-      if (workspace.creditsBalance < amount) {
+      if (debited.count === 0) {
         throw new EntitlementError(
           `Saldo insuficiente de créditos (${workspace.creditsBalance} disponíveis, ${amount} necessários).`,
           "INSUFFICIENT_CREDITS",
@@ -464,12 +493,7 @@ export class EntitlementService {
         );
       }
 
-      const newBalance = workspace.creditsBalance - amount;
-
-      await tx.workspace.update({
-        where: { id: workspaceId },
-        data: { creditsBalance: newBalance },
-      });
+      const newBalance = workspace.creditsBalance;
 
       await tx.creditLedger.create({
         data: {

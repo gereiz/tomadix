@@ -104,21 +104,28 @@ export const PROTECTED_REAL_USER_EMAILS = [
 const CUSTOMIZATION_POLICY_KEY = "PLATFORM_CUSTOMIZATION";
 const GENERAL_SETTINGS_POLICY_KEY = "PLATFORM_GENERAL_SETTINGS";
 
+const CUSTOMIZATION_CACHE_TTL_MS = 60 * 1000;
+let customizationCache: { value: CustomizationSettings; expiresAt: number } | null = null;
+
 export class PlatformSettingsService {
   /**
    * Obtém a personalização visual atual da plataforma com fallback seguro para padrões.
    */
   static async getCustomization(): Promise<CustomizationSettings> {
+    // Cache em memória de curta duração: o layout raiz lê isto em toda requisição.
+    if (customizationCache && customizationCache.expiresAt > Date.now()) {
+      return customizationCache.value;
+    }
     try {
       const record = await db.commercialPolicy.findUnique({
         where: { key: CUSTOMIZATION_POLICY_KEY },
       });
-      if (record?.value && typeof record.value === "object") {
-        return {
-          ...DEFAULT_CUSTOMIZATION,
-          ...(record.value as Partial<CustomizationSettings>),
-        };
-      }
+      const value: CustomizationSettings =
+        record?.value && typeof record.value === "object"
+          ? { ...DEFAULT_CUSTOMIZATION, ...(record.value as Partial<CustomizationSettings>) }
+          : DEFAULT_CUSTOMIZATION;
+      customizationCache = { value, expiresAt: Date.now() + CUSTOMIZATION_CACHE_TTL_MS };
+      return value;
     } catch (error) {
       console.error("Erro ao buscar personalização da plataforma:", error);
     }
@@ -132,6 +139,7 @@ export class PlatformSettingsService {
     data: Partial<CustomizationSettings>,
     adminUserId: string
   ): Promise<CustomizationSettings> {
+    customizationCache = null;
     const current = await this.getCustomization();
     const updated: CustomizationSettings = {
       ...current,
@@ -156,6 +164,7 @@ export class PlatformSettingsService {
         updatedBy: adminUserId,
       },
     });
+    customizationCache = null;
 
     await AdminAuditService.logAction({
       adminUserId,

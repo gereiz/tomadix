@@ -13,8 +13,12 @@ export async function GET(_request: NextRequest, { params }: RouteParams) {
     const { id } = await params;
     const { workspace, user, role } = await getCurrentWorkspace(null, "projects:read");
 
-    await assertSpaceAccess(id, workspace.id, user?.id, role, "view");
-    const project = await ProjectService.getProjectById(id, workspace.id);
+    // Verificação de acesso e carga do projeto são independentes: rodam em paralelo.
+    // O acesso é conferido primeiro (lança antes de qualquer retorno de dados).
+    const [, project] = await Promise.all([
+      assertSpaceAccess(id, workspace.id, user?.id, role, "view"),
+      ProjectService.getProjectById(id, workspace.id),
+    ]);
     if (!project) {
       return NextResponse.json({ error: "Projeto não encontrado." }, { status: 404 });
     }
@@ -43,11 +47,8 @@ export async function PATCH(request: NextRequest, { params }: RouteParams) {
     const body = await request.json();
     const validatedData = updateProjectSchema.parse(body);
 
+    // assertSpaceAccess já lança NotFoundError se o projeto não existir no workspace.
     await assertSpaceAccess(id, workspace.id, user?.id, role, "edit");
-    const existing = await ProjectService.getProjectById(id, workspace.id);
-    if (!existing) {
-      return NextResponse.json({ error: "Projeto não encontrado ou acesso negado." }, { status: 404 });
-    }
 
     const updated = await ProjectService.updateProject(id, workspace.id, validatedData);
 

@@ -6,6 +6,8 @@ export const db =
   globalForPrisma.prisma ??
   new PrismaClient({
     log: process.env.NODE_ENV === "development" ? ["warn", "error"] : ["error"],
+    // Defaults do Prisma (maxWait 2s / timeout 5s) estouram sob carga com pool pequeno.
+    transactionOptions: { maxWait: 5000, timeout: 15000 },
   });
 
 if (process.env.NODE_ENV !== "production") globalForPrisma.prisma = db;
@@ -27,7 +29,7 @@ export async function withDbRetry<T>(
       lastError = err;
       const isConnectionError =
         err?.code === "P1001" ||
-        err?.code === "P2024" ||
+        err?.code === "P1017" ||
         err?.message?.includes("Can't reach database server") ||
         err?.message?.includes("timed out") ||
         err?.message?.includes("connection closed") ||

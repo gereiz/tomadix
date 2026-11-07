@@ -1,3 +1,4 @@
+import { cache } from "react";
 import { db, withDbRetry } from "./db";
 import { headers, cookies } from "next/headers";
 import { SESSION_COOKIE_NAME } from "./session";
@@ -32,7 +33,7 @@ export class NotFoundError extends Error {
  * Obtém o usuário atual a partir de sessão autenticada (cookie ou Bearer token),
  * ou header 'x-user-id' (para testes e ambientes de desenvolvimento integrados).
  */
-export async function getCurrentUser() {
+export const getCurrentUser = cache(async function getCurrentUser() {
   const headersList = await headers();
   const cookieStore = await cookies();
 
@@ -76,7 +77,7 @@ export async function getCurrentUser() {
   }
 
   return null;
-}
+});
 
 /**
  * Exige que um usuário esteja devidamente autenticado, lançando AuthenticationError se anônimo

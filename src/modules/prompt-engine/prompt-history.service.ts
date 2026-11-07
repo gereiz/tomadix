@@ -478,17 +478,24 @@ export class PromptHistoryService {
       },
     });
 
-    // Para cada cena, buscar a última versão de prompt gerada (video_prompt ou individual_scene)
-    const sequenceItems = await Promise.all(
-      scenes.map(async (scene: any) => {
-        const latestPrompt = await db.promptVersion.findFirst({
+    // Última versão de prompt gerada por cena (video_prompt ou individual_scene) em UMA query,
+    // em vez de uma query por cena (N+1)
+    const latestPrompts = scenes.length
+      ? await db.promptVersion.findMany({
           where: {
             projectId,
-            sceneId: scene.id,
+            sceneId: { in: scenes.map((sc: any) => sc.id) },
             templateKey: { in: ["video_prompt", "individual_scene"] },
           },
           orderBy: { createdAt: "desc" },
-        });
+          distinct: ["sceneId"],
+        })
+      : [];
+    const latestPromptByScene = new Map(latestPrompts.map((p) => [p.sceneId, p]));
+
+    const sequenceItems = await Promise.all(
+      scenes.map(async (scene: any) => {
+        const latestPrompt = latestPromptByScene.get(scene.id) ?? null;
 
         const sceneConfig = (scene.configuration as any) || {};
 

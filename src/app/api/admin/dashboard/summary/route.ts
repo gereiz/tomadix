@@ -5,6 +5,10 @@ import { AdminBillingService } from "@/modules/admin/admin-billing.service";
 import { AdminUsageService } from "@/modules/admin/admin-usage.service";
 import { AdminAuditService } from "@/modules/admin/admin-audit.service";
 
+// Métricas agregadas mudam devagar: cache em memória de 60s por período (após checagem de admin)
+const SUMMARY_CACHE_TTL_MS = 60 * 1000;
+const summaryCache = new Map<number, { payload: unknown; expiresAt: number }>();
+
 export async function GET(request: NextRequest) {
   try {
     await requirePlatformAdmin();
@@ -16,6 +20,11 @@ export async function GET(request: NextRequest) {
     if (periodParam === "today") periodDays = 1;
     else if (periodParam === "7d") periodDays = 7;
     else if (periodParam === "90d") periodDays = 90;
+
+    const cached = summaryCache.get(periodDays);
+    if (cached && cached.expiresAt > Date.now()) {
+      return NextResponse.json(cached.payload);
+    }
 
     const [
       commercialMetrics,
@@ -46,7 +55,7 @@ export async function GET(request: NextRequest) {
       AdminAuditService.listLogs({ page: 1, limit: 6 }).catch(() => ({ logs: [] })),
     ]);
 
-    return NextResponse.json({
+    const payload = {
       periodDays,
       commercial: commercialMetrics,
       usage: usageMetrics,
@@ -59,7 +68,9 @@ export async function GET(request: NextRequest) {
       },
       recentUsers,
       recentAuditLogs: recentAuditLogs.logs,
-    });
+    };
+    summaryCache.set(periodDays, { payload, expiresAt: Date.now() + SUMMARY_CACHE_TTL_MS });
+    return NextResponse.json(payload);
   } catch (error: any) {
     if (error instanceof AuthorizationError) {
       return NextResponse.json({ error: error.message }, { status: 403 });
