@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import Link from "next/link";
 import dynamic from "next/dynamic";
 import { QuickCreationBar } from "@/components/studio/quick-creation-bar";
@@ -23,6 +24,7 @@ export type { SceneCharacterLink, SceneEnvironmentLink, SceneItem, CharacterItem
 
 export default function ProjectDetail(props: { params: Promise<{ id: string }> }) {
   const s = useProjectDetailTab(props);
+  const [promptSceneId, setPromptSceneId] = useState<string | undefined>(undefined);
   const { project, loading, error, activeTab, setActiveTab, visitedTabs, refreshKey, isShareModalOpen, setIsShareModalOpen, isAdmin, loadProject, handleQuickItemCreated } = s;
 
   if (loading) {
@@ -116,7 +118,10 @@ export default function ProjectDetail(props: { params: Promise<{ id: string }> }
                 loadProject(true);
                 window.dispatchEvent(new CustomEvent("tomadix:entities-updated", { detail: { projectId: project.id } }));
               }}
-              onOpenPromptEngine={() => setActiveTab("prompts")}
+              onOpenPromptEngine={(sceneId) => {
+                setPromptSceneId(sceneId);
+                setActiveTab("prompts");
+              }}
             />
           </div>
         )}
@@ -129,7 +134,7 @@ export default function ProjectDetail(props: { params: Promise<{ id: string }> }
 
         {visitedTabs["prompts"] && (
           <div className={activeTab === "prompts" ? "block" : "hidden"}>
-            <PromptsTab key={`prompt-${refreshKey}`} projectId={project.id} onStatsUpdate={() => loadProject(true)} />
+            <PromptsTab key={`prompt-${refreshKey}`} projectId={project.id} initialSceneId={promptSceneId} onStatsUpdate={() => loadProject(true)} />
           </div>
         )}
 

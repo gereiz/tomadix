@@ -26,6 +26,22 @@ export function usePromptsTab({ projectId, initialSceneId, onStatsUpdate }: Prom
   const [selectedEnvironmentId, setSelectedEnvironmentId] = useState<string>("");
   const [customInstructions, setCustomInstructions] = useState<string>("");
 
+  // Modo simples (padrão) esconde template versionado, formato e diretrizes
+  const [showAdvanced, setShowAdvanced] = useState(false);
+  const [loadError, setLoadError] = useState<string | null>(null);
+
+  // Aviso leve (substitui alert()); some sozinho
+  const [notice, setNotice] = useState<{ type: "error" | "success"; text: string } | null>(null);
+  const notify = useCallback((type: "error" | "success", text: string) => {
+    setNotice({ type, text });
+    setTimeout(() => setNotice((cur) => (cur?.text === text ? null : cur)), 5000);
+  }, []);
+
+  // Atalho "Gerar Prompt" de uma cena: reage quando outra cena é pedida
+  useEffect(() => {
+    if (initialSceneId) setSelectedSceneId(initialSceneId);
+  }, [initialSceneId]);
+
   // History Filter State
   const [filterTemplate, setFilterTemplate] = useState<string>("ALL");
   const [filterStatus, setFilterStatus] = useState<string>("ALL");
@@ -85,6 +101,7 @@ export function usePromptsTab({ projectId, initialSceneId, onStatsUpdate }: Prom
   const loadData = useCallback(async () => {
     try {
       setLoading(true);
+      setLoadError(null);
       const [templatesRes, historyRes, scenesRes, charsRes, envsRes] = await Promise.all([
         fetch(`/api/projects/${projectId}/prompts/templates`),
         fetch(`/api/projects/${projectId}/prompts/history`),
@@ -97,6 +114,8 @@ export function usePromptsTab({ projectId, initialSceneId, onStatsUpdate }: Prom
         const json = await templatesRes.json();
         setTemplates(json.data?.templates || []);
         setToolProfiles(json.data?.toolProfiles || []);
+      } else {
+        setLoadError("Não foi possível carregar templates e dados do projeto. Usando opções padrão.");
       }
 
       if (historyRes.ok) {
@@ -141,6 +160,7 @@ export function usePromptsTab({ projectId, initialSceneId, onStatsUpdate }: Prom
       }
     } catch (err) {
       console.error(err);
+      setLoadError("Não foi possível carregar templates e dados do projeto. Usando opções padrão.");
     } finally {
       setLoading(false);
     }
@@ -183,7 +203,7 @@ export function usePromptsTab({ projectId, initialSceneId, onStatsUpdate }: Prom
         window.dispatchEvent(new CustomEvent("tomadix:credits-updated", { detail: { newBalance: data.newBalance } }));
       }
     } catch (err: any) {
-      alert(err.message || "Erro ao aprimorar prompt com IA.");
+      notify("error", err.message || "Erro ao aprimorar prompt com IA.");
     } finally {
       setEnhancingPrompt(false);
     }
@@ -191,6 +211,10 @@ export function usePromptsTab({ projectId, initialSceneId, onStatsUpdate }: Prom
 
   // Submeter Geração de Prompt via Gemini
   const handleGenerate = async () => {
+    if (blockReason) {
+      setGenerationError(blockReason);
+      return;
+    }
     try {
       setGenerating(true);
       setGenerationError(null);
@@ -298,7 +322,7 @@ export function usePromptsTab({ projectId, initialSceneId, onStatsUpdate }: Prom
       await fetchHistory();
       if (onStatsUpdate) onStatsUpdate();
     } catch (err: any) {
-      alert(err.message || "Erro ao regenerar prompt.");
+      notify("error", err.message || "Erro ao regenerar prompt.");
     } finally {
       setIsRegenerating(false);
     }
@@ -315,11 +339,11 @@ export function usePromptsTab({ projectId, initialSceneId, onStatsUpdate }: Prom
         setVersions((prev) => prev.filter((v) => v.id !== jobId));
       } else {
         const data = await res.json();
-        alert(data.error || "Erro ao excluir registro de erro.");
+        notify("error", data.error || "Erro ao excluir registro de erro.");
       }
     } catch (err: any) {
       console.error("Erro ao excluir erro:", err);
-      alert(err.message || "Erro ao excluir registro de erro.");
+      notify("error", err.message || "Erro ao excluir registro de erro.");
     } finally {
       setDeletingJobId(null);
     }
@@ -337,11 +361,11 @@ export function usePromptsTab({ projectId, initialSceneId, onStatsUpdate }: Prom
         setVersions((prev) => prev.filter((v) => v.status !== "FAILED"));
       } else {
         const data = await res.json();
-        alert(data.error || "Erro ao limpar registros de erros.");
+        notify("error", data.error || "Erro ao limpar registros de erros.");
       }
     } catch (err: any) {
       console.error("Erro ao limpar erros:", err);
-      alert(err.message || "Erro ao limpar registros de erros.");
+      notify("error", err.message || "Erro ao limpar registros de erros.");
     } finally {
       setIsClearingAllErrors(false);
     }
@@ -367,22 +391,35 @@ export function usePromptsTab({ projectId, initialSceneId, onStatsUpdate }: Prom
       }
       setComparisonResult(data.data);
     } catch (err: any) {
-      alert(err.message || "Erro ao executar comparação.");
+      notify("error", err.message || "Erro ao executar comparação.");
     } finally {
       setComparingLoading(false);
     }
   };
 
-  const handleCopy = (text: string, label: string) => {
-    navigator.clipboard.writeText(text);
-    setCopySuccess(label);
-    setTimeout(() => setCopySuccess(null), 2500);
+  const handleCopy = async (text: string, label: string) => {
+    try {
+      await navigator.clipboard.writeText(text);
+      setCopySuccess(label);
+      setTimeout(() => setCopySuccess(null), 2500);
+    } catch {
+      notify("error", "Não foi possível copiar. Selecione o texto e copie manualmente.");
+    }
   };
 
   // Determinar se o template exige cena, personagem ou ambiente
   const needsScene = ["video_prompt", "individual_scene"].includes(selectedTemplate);
   const needsCharacter = selectedTemplate === "character_definition";
   const needsEnvironment = selectedTemplate === "environment_definition";
+
+  // Motivo pelo qual "Gerar" está bloqueado (null = pode gerar)
+  const blockReason: string | null = needsScene && !selectedSceneId
+    ? "Crie ao menos uma cena na aba Cenas para gerar este prompt."
+    : needsCharacter && !selectedCharacterId
+      ? "Crie ao menos um personagem na aba Personagens."
+      : needsEnvironment && !selectedEnvironmentId
+        ? "Crie ao menos um ambiente na aba Ambientes."
+        : null;
 
 
   const succeededVersions = versions.filter((v) => v.status === "SUCCEEDED");
@@ -420,6 +457,12 @@ export function usePromptsTab({ projectId, initialSceneId, onStatsUpdate }: Prom
     needsScene,
     needsCharacter,
     needsEnvironment,
+    blockReason,
+    showAdvanced,
+    setShowAdvanced,
+    notice,
+    setNotice,
+    loadError,
     setPromptForImageGen,
     currentResult,
     activeViewTab,

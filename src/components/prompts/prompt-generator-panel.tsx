@@ -10,8 +10,14 @@ interface PromptGeneratorPanelProps {
 }
 
 export function PromptGeneratorPanel({ s }: PromptGeneratorPanelProps) {
-  const { projectId, templates, toolProfiles, scenes, characters, environments, selectedTemplate, setSelectedTemplate, selectedTool, setSelectedTool, selectedSceneId, setSelectedSceneId, selectedCharacterId, setSelectedCharacterId, selectedEnvironmentId, setSelectedEnvironmentId, customInstructions, setCustomInstructions, outputFormat, setOutputFormat, generating, generationError, enhancingPrompt, handleEnhancePrompt, handleGenerate, needsScene, needsCharacter, needsEnvironment } = s;
+  const { projectId, templates, toolProfiles, scenes, characters, environments, selectedTemplate, setSelectedTemplate, selectedTool, setSelectedTool, selectedSceneId, setSelectedSceneId, selectedCharacterId, setSelectedCharacterId, selectedEnvironmentId, setSelectedEnvironmentId, customInstructions, setCustomInstructions, outputFormat, setOutputFormat, generating, generationError, enhancingPrompt, handleEnhancePrompt, handleGenerate, needsScene, needsCharacter, needsEnvironment, blockReason, showAdvanced, setShowAdvanced, loadError } = s;
 
+  const quickChoices: { key: TemplateKey; icon: string; label: string }[] = [
+    { key: "video_prompt", icon: "🎬", label: "Vídeo" },
+    { key: "image_prompt", icon: "📸", label: "Imagem" },
+    { key: "character_definition", icon: "👤", label: "Personagem" },
+    { key: "environment_definition", icon: "🏛️", label: "Ambiente" },
+  ];
 
   return (
     <div className="lg:col-span-5 space-y-6">
@@ -28,7 +34,36 @@ export function PromptGeneratorPanel({ s }: PromptGeneratorPanelProps) {
           </p>
         </div>
     
-        {/* Seleção do Template */}
+        {loadError && (
+          <p className="text-xs text-amber-300/90 bg-amber-500/10 p-2.5 rounded-xl border border-amber-500/20">
+            {loadError}
+          </p>
+        )}
+
+        {/* O que gerar (modo simples) */}
+        <div>
+          <label className="block text-xs font-semibold text-white/80 mb-1.5">O que você quer gerar?</label>
+          <div className="grid grid-cols-4 gap-2">
+            {quickChoices.map((c) => (
+              <button
+                key={c.key}
+                type="button"
+                onClick={() => setSelectedTemplate(c.key)}
+                className={`rounded-xl p-2.5 text-center text-xs font-medium border transition ${
+                  selectedTemplate === c.key
+                    ? "bg-primary/20 text-primary border-primary/40 font-semibold"
+                    : "bg-white/5 text-white/60 border-white/10 hover:text-white"
+                }`}
+              >
+                <span className="block text-base">{c.icon}</span>
+                <span className="mt-1 block text-[11px] truncate">{c.label}</span>
+              </button>
+            ))}
+          </div>
+        </div>
+
+        {/* Seleção do Template (avançado) */}
+        {showAdvanced && (
         <div>
           <label className="block text-xs font-semibold text-white/80 mb-1.5">
             Tipo de Composição (Template Versionado)
@@ -57,7 +92,8 @@ export function PromptGeneratorPanel({ s }: PromptGeneratorPanelProps) {
             )}
           </select>
         </div>
-    
+        )}
+
         {/* Ferramenta de Destino (Perfil de Saída) */}
         <div>
           <label className="block text-xs font-semibold text-white/80 mb-1.5">
@@ -167,6 +203,16 @@ export function PromptGeneratorPanel({ s }: PromptGeneratorPanelProps) {
           </div>
         )}
     
+        <button
+          type="button"
+          onClick={() => setShowAdvanced(!showAdvanced)}
+          className="text-[11px] font-semibold text-primary hover:underline"
+        >
+          {showAdvanced ? "Ocultar opções avançadas" : "Opções avançadas (template, formato, diretrizes)"}
+        </button>
+
+        {showAdvanced && (
+        <>
         {/* Formato de Saída Principal (JSON ou Texto Simples) */}
         <div>
           <label className="block text-xs font-semibold text-white/80 mb-1.5 flex items-center justify-between">
@@ -226,7 +272,9 @@ export function PromptGeneratorPanel({ s }: PromptGeneratorPanelProps) {
             className="w-full rounded-xl border border-white/10 bg-[#0f1218] p-3 text-xs text-white placeholder-white/30 focus:border-primary focus:outline-none resize-none"
           />
         </div>
-    
+        </>
+        )}
+
         {/* Mensagem de Erro na Geração */}
         {generationError && (
           <div className="rounded-xl border border-red-500/30 bg-red-500/10 p-3 text-xs text-red-300">
@@ -252,9 +300,13 @@ export function PromptGeneratorPanel({ s }: PromptGeneratorPanelProps) {
             <span className="text-[10px] font-mono text-white/40">Tabela de créditos</span>
           </div>
     
+          {blockReason && (
+            <p className="text-[11px] text-amber-300/90 px-1">{blockReason}</p>
+          )}
+
           <button
             onClick={handleGenerate}
-            disabled={generating}
+            disabled={generating || Boolean(blockReason)}
             className="w-full flex items-center justify-center gap-2 rounded-xl bg-primary px-4 py-3 text-xs font-bold text-on-primary shadow-lg shadow-primary/20 hover:opacity-90 transition disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {generating ? (

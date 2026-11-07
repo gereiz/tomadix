@@ -73,6 +73,24 @@ export function PromptsTab(props: PromptsTabProps) {
       </div>
       )}
 
+      {s.notice && (
+        <div
+          role="status"
+          className={`fixed bottom-6 right-6 z-50 max-w-sm rounded-xl border px-4 py-3 text-xs shadow-lg ${
+            s.notice.type === "error"
+              ? "border-red-500/30 bg-red-950 text-red-200"
+              : "border-emerald-500/30 bg-emerald-950 text-emerald-200"
+          }`}
+        >
+          <div className="flex items-start gap-3">
+            <span className="flex-1">{s.notice.text}</span>
+            <button type="button" onClick={() => s.setNotice(null)} className="text-white/60 hover:text-white" aria-label="Fechar aviso">
+              ×
+            </button>
+          </div>
+        </div>
+      )}
+
       {s.regeneratingVersion && (
         <RegenerateModal s={s} />
       )}
