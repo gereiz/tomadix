@@ -30,6 +30,7 @@ export interface ProjectConfig {
   targetPlatform?: string;
   colorGrade?: string;
   pacing?: string;
+  filmGrain?: number;
   soundDesign?: string;
   customNotes?: string;
 }

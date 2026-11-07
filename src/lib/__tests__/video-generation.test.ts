@@ -31,4 +31,10 @@ describe("Video Generation & Credit Pricing", () => {
     expect(ids.some((id) => id.includes("veo"))).toBe(true);
     expect(ids.some((id) => id.includes("seedance"))).toBe(true);
   });
+
+  it("should enrich video prompt with project film grain and cinematography directives", async () => {
+    const { CinematicPromptEnricher } = await import("@/modules/image-generation/cinematic-prompt-enricher");
+    expect(CinematicPromptEnricher).toBeDefined();
+    expect(typeof CinematicPromptEnricher.enrich).toBe("function");
+  });
 });

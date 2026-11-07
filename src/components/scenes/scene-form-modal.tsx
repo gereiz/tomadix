@@ -180,6 +180,99 @@ export function SceneFormModal({ s }: SceneFormModalProps) {
                 category="LIGHTING"
                 compactInitial={true}
               />
+
+              {/* Granulação de Película (Film Grain) da Cena */}
+              <div className="rounded-xl border border-white/10 bg-black/40 p-3.5 space-y-2.5">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <span className="text-sm">🎞️</span>
+                    <div>
+                      <h5 className="text-xs font-semibold text-white">
+                        Granulação da Película (Film Grain):{" "}
+                        <span className="font-bold text-amber-400">{formData.filmGrain ?? 25}%</span>
+                      </h5>
+                      <p className="text-[10px] text-white/50">
+                        Intensidade da textura analógica e ruído de filme na imagem final da tomada.
+                      </p>
+                    </div>
+                  </div>
+                  <span
+                    className={`rounded-full px-2 py-0.5 text-[10px] font-semibold border ${
+                      (formData.filmGrain ?? 25) === 0
+                        ? "bg-cyan-500/10 text-cyan-300 border-cyan-500/30"
+                        : (formData.filmGrain ?? 25) <= 30
+                        ? "bg-emerald-500/10 text-emerald-300 border-emerald-500/30"
+                        : (formData.filmGrain ?? 25) <= 65
+                        ? "bg-amber-500/10 text-amber-300 border-amber-500/30"
+                        : "bg-purple-500/10 text-purple-300 border-purple-500/30"
+                    }`}
+                  >
+                    {(formData.filmGrain ?? 25) === 0
+                      ? "Digital Limpo (0% Ruído)"
+                      : (formData.filmGrain ?? 25) <= 30
+                      ? "35mm Suave (Orgânico)"
+                      : (formData.filmGrain ?? 25) <= 65
+                      ? "Granulado Clássico (Marcante)"
+                      : "16mm / VHS Vintage (Intenso)"}
+                  </span>
+                </div>
+
+                <div className="flex items-center gap-3 pt-1">
+                  <input
+                    type="range"
+                    min="0"
+                    max="100"
+                    step="5"
+                    value={formData.filmGrain ?? 25}
+                    onChange={(e) => {
+                      const val = Number(e.target.value);
+                      setFormData((prev) => ({ ...prev, filmGrain: val }));
+                      if (paramKeyMap.nivel_granulacao_pelicula) {
+                        setParamValues((prev) => ({
+                          ...prev,
+                          [paramKeyMap.nivel_granulacao_pelicula]: val,
+                        }));
+                      }
+                    }}
+                    className="w-full accent-amber-400 h-1.5 bg-white/10 rounded-lg cursor-pointer"
+                  />
+                  <span className="font-mono text-xs font-bold text-amber-400 min-w-[3rem] text-right">
+                    {formData.filmGrain ?? 25}%
+                  </span>
+                </div>
+
+                {/* Presets rápidos */}
+                <div className="flex flex-wrap gap-1.5 pt-0.5">
+                  {[
+                    { label: "0% Digital", value: 0 },
+                    { label: "25% 35mm Suave", value: 25 },
+                    { label: "50% Clássico", value: 50 },
+                    { label: "75% 16mm Vintage", value: 75 },
+                    { label: "100% VHS Intenso", value: 100 },
+                  ].map((preset) => (
+                    <button
+                      key={preset.value}
+                      type="button"
+                      onClick={() => {
+                        setFormData((prev) => ({ ...prev, filmGrain: preset.value }));
+                        if (paramKeyMap.nivel_granulacao_pelicula) {
+                          setParamValues((prev) => ({
+                            ...prev,
+                            [paramKeyMap.nivel_granulacao_pelicula]: preset.value,
+                          }));
+                        }
+                      }}
+                      className={`rounded-lg px-2.5 py-1 text-[11px] font-medium border transition ${
+                        (formData.filmGrain ?? 25) === preset.value
+                          ? "bg-amber-400/20 text-amber-300 border-amber-400/40 font-semibold"
+                          : "bg-white/5 text-white/60 border-white/10 hover:text-white hover:bg-white/10"
+                      }`}
+                    >
+                      {preset.label}
+                    </button>
+                  ))}
+                </div>
+              </div>
             </div>
           </div>
     
@@ -421,7 +514,7 @@ export function SceneFormModal({ s }: SceneFormModalProps) {
             targetType="SCENE"
             targetId={editingScene?.id}
             values={paramValues}
-            excludeKeys={["tipo_de_plano", "movimento_camera", "estilo_iluminacao"]}
+            excludeKeys={["tipo_de_plano", "movimento_camera", "estilo_iluminacao", "nivel_granulacao_pelicula"]}
             title="Parâmetros Cinematográficos Adicionais"
             description="Lentes, composição de quadro, ângulo e especificações técnicas complementares desta tomada."
             onChange={(defId, val) =>

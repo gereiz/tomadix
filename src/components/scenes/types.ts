@@ -32,6 +32,7 @@ export interface SceneItem {
       description?: string;
     };
     restrictions?: string;
+    filmGrain?: number;
     parameters?: Record<string, any>;
   };
   characters: Array<{

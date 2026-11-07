@@ -292,6 +292,12 @@ export function CinematicStudioWorkflow() {
     setIsCreatingProject(true);
     setCreateProjectError(null);
     try {
+      const activeResult = selectedResult || sessionResults[0];
+      const analyzedFilmGrain =
+        activeResult?.technicalData?.filmGrain !== undefined
+          ? Number(activeResult.technicalData.filmGrain)
+          : 25;
+
       const res = await fetch("/api/projects", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -303,6 +309,16 @@ export function CinematicStudioWorkflow() {
           configuration: {
             aspectRatio: newProjectAspectRatio,
             targetPlatform: "Google Flow",
+            filmGrain: analyzedFilmGrain,
+            colorGrade:
+              activeResult?.technicalData?.colorHarmony ||
+              activeResult?.technicalData?.visualAesthetic ||
+              undefined,
+            parameterSettings: {
+              values: {
+                nivel_granulacao_pelicula: analyzedFilmGrain,
+              },
+            },
           },
         }),
       });

@@ -169,6 +169,38 @@ export class CinematicPromptEnricher {
       if (scene && scene.configuration && typeof scene.configuration === "object") {
         sceneConfig = scene.configuration as Record<string, any>;
       }
+
+      // Carregar parâmetros específicos da cena salvos na tabela ParameterValue
+      const sceneParams = await db.parameterValue.findMany({
+        where: { targetType: "SCENE", targetId: sceneId },
+        include: { definition: true },
+      });
+      for (const sp of sceneParams) {
+        let val = sp.value;
+        if (typeof val === "string") {
+          try {
+            const parsed = JSON.parse(val);
+            val = parsed.value !== undefined ? parsed.value : parsed;
+          } catch {}
+        } else if (typeof val === "object" && val !== null && (val as any).value !== undefined) {
+          val = (val as any).value;
+        }
+        paramValuesMap[sp.definition.key] = val;
+      }
+    }
+
+    // Se a Bíblia Visual ainda não tiver parâmetros definidos, buscar a última análise cinematográfica salva do projeto
+    let latestAnalysisTech: Record<string, any> = {};
+    const latestJob = await db.generationJob.findFirst({
+      where: { projectId, status: "SUCCEEDED" },
+      orderBy: { createdAt: "desc" },
+      select: { result: true },
+    });
+    if (latestJob?.result && typeof latestJob.result === "object") {
+      const res = latestJob.result as any;
+      if (res.technicalData && typeof res.technicalData === "object") {
+        latestAnalysisTech = res.technicalData;
+      }
     }
 
     // 3. Avaliação e Injeção de Iluminação (Lighting)
@@ -463,18 +495,28 @@ export class CinematicPromptEnricher {
 
     // 8. Granulação de Película e Acabamento de Cinema
     const grainLevel = Number(
+      sceneConfig.filmGrain ??
       paramValuesMap["nivel_granulacao_pelicula"] ??
+      config.filmGrain ??
       vb.filmGrain ??
       tech.filmGrain ??
-      config.filmGrain ??
+      latestAnalysisTech.filmGrain ??
       25
     );
-    let finishDirective = "fotografia de filme 35mm, visual de cinema autêntico, ultra-realista 8k, movie still frame";
-    if (grainLevel >= 40) {
+
+    let finishDirective = "";
+    if (grainLevel <= 5) {
       finishDirective =
-        "fotografia de filme 35mm analógico com granulação pesada e marcada (heavy 35mm analog film grain, visible film noise, gritty textured film still, pronounced grain structure)";
-    } else if (grainLevel > 20) {
-      finishDirective += `, textura de grão de película analógica (${grainLevel}%) orgânica`;
+        "fotografia digital de cinema cristalina e impecável, textura ultranítida sem ruído (clean digital cinema photography, zero film grain, razor-sharp pristine image, 8k movie still)";
+    } else if (grainLevel >= 70) {
+      finishDirective =
+        `estética analógica vintage com granulação extrema e textura crua (${grainLevel}% intense heavy analog film grain, raw 16mm/8mm film stock, heavy film noise and scanline texture, vintage VHS analog noise, gritty cinema texture, authentic analog halation)`;
+    } else if (grainLevel >= 35) {
+      finishDirective =
+        `fotografia de filme 35mm analógico com granulação pesada e marcada (${grainLevel}% heavy 35mm analog film grain, visible film noise, gritty textured film still, pronounced grain structure, authentic film stock halation)`;
+    } else {
+      finishDirective =
+        `fotografia de filme 35mm, visual de cinema autêntico, movie still frame, textura de grão de película analógica orgânica suave (${grainLevel}% subtle organic 35mm film grain, cinematic film stock texture)`;
     }
     appliedDirectives.push(finishDirective);
 

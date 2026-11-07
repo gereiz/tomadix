@@ -273,6 +273,77 @@ export function ProjectFormModal({ s }: ProjectFormModalProps) {
                   className="mt-1.5 w-full rounded-xl border border-white/10 bg-black/40 px-3 py-2 text-xs text-white focus:border-primary focus:outline-none"
                 />
               </div>
+
+              <div className="sm:col-span-2 border-t border-white/5 pt-3">
+                <div className="flex items-center justify-between mb-1.5">
+                  <div className="flex items-center gap-2">
+                    <span className="text-sm">🎞️</span>
+                    <label className="text-xs font-semibold text-white/80">
+                      Granulação da Película (Film Grain):{" "}
+                      <span className="font-bold text-primary">{formData.filmGrain ?? 25}%</span>
+                    </label>
+                  </div>
+                  <span className={`rounded-full px-2 py-0.5 text-[10px] font-semibold border ${
+                    (formData.filmGrain ?? 25) === 0
+                      ? "bg-cyan-500/10 text-cyan-300 border-cyan-500/30"
+                      : (formData.filmGrain ?? 25) <= 30
+                      ? "bg-emerald-500/10 text-emerald-300 border-emerald-500/30"
+                      : (formData.filmGrain ?? 25) <= 65
+                      ? "bg-amber-500/10 text-amber-300 border-amber-500/30"
+                      : "bg-purple-500/10 text-purple-300 border-purple-500/30"
+                  }`}>
+                    {(formData.filmGrain ?? 25) === 0
+                      ? "Digital Limpo (0% Ruído)"
+                      : (formData.filmGrain ?? 25) <= 30
+                      ? "35mm Suave (Orgânico)"
+                      : (formData.filmGrain ?? 25) <= 65
+                      ? "Granulado Clássico (Marcante)"
+                      : "16mm / VHS Vintage (Intenso)"}
+                  </span>
+                </div>
+
+                <div className="flex items-center gap-3">
+                  <input
+                    type="range"
+                    min="0"
+                    max="100"
+                    step="5"
+                    value={formData.filmGrain ?? 25}
+                    onChange={(e) => setFormData({ ...formData, filmGrain: Number(e.target.value) })}
+                    className="w-full accent-primary h-1.5 bg-white/10 rounded-lg cursor-pointer"
+                  />
+                  <span className="font-mono text-xs font-bold text-primary min-w-[3rem] text-right">
+                    {formData.filmGrain ?? 25}%
+                  </span>
+                </div>
+
+                {/* Presets rápidos */}
+                <div className="mt-2.5 flex flex-wrap gap-1.5">
+                  {[
+                    { label: "0% Digital", value: 0 },
+                    { label: "25% 35mm Suave", value: 25 },
+                    { label: "50% Clássico", value: 50 },
+                    { label: "75% 16mm Vintage", value: 75 },
+                    { label: "100% VHS / Grão Pesado", value: 100 },
+                  ].map((preset) => (
+                    <button
+                      key={preset.value}
+                      type="button"
+                      onClick={() => setFormData({ ...formData, filmGrain: preset.value })}
+                      className={`rounded-lg px-2.5 py-1 text-[11px] font-medium border transition ${
+                        (formData.filmGrain ?? 25) === preset.value
+                          ? "bg-primary/20 text-primary border-primary/40 font-semibold"
+                          : "bg-white/5 text-white/60 border-white/10 hover:text-white hover:bg-white/10"
+                      }`}
+                    >
+                      {preset.label}
+                    </button>
+                  ))}
+                </div>
+                <p className="mt-1.5 text-[11px] text-white/40">
+                  Define a intensidade de textura analógica herdada nas gerações de imagem e vídeo deste projeto.
+                </p>
+              </div>
             </div>
           </div>
     

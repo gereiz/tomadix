@@ -17,6 +17,12 @@ vi.mock("@/lib/db", () => ({
     environment: {
       findUnique: vi.fn(),
     },
+    parameterValue: {
+      findMany: vi.fn().mockResolvedValue([]),
+    },
+    generationJob: {
+      findFirst: vi.fn().mockResolvedValue(null),
+    },
   },
 }));
 
@@ -264,6 +270,55 @@ describe("CinematicPromptEnricher Parameter Inheritance", () => {
 
     expect(resultFromUser.enrichedPrompt).toContain("corpo inteiro da cabeça aos pés");
     expect(resultFromUser.enrichedNegativePrompt).toContain("cropped legs");
+  });
+
+  it("inherits filmGrain from scene configuration over project default", async () => {
+    (db.project.findUnique as any).mockResolvedValue({
+      id: "proj-grain",
+      title: "Projeto Vintage",
+      configuration: {
+        filmGrain: 25,
+      },
+      parameterValues: [],
+    });
+
+    (db.scene.findUnique as any).mockResolvedValue({
+      id: "scene-vhs",
+      title: "Cena de Fita VHS",
+      configuration: {
+        filmGrain: 85,
+      },
+    });
+
+    const result = await CinematicPromptEnricher.enrich({
+      userPrompt: "Soldados na praia em 1950",
+      projectId: "proj-grain",
+      sceneId: "scene-vhs",
+      workspaceId: "ws-1",
+    });
+
+    expect(result.enrichedPrompt).toContain("vintage VHS analog noise");
+    expect(result.enrichedPrompt).toContain("85% intense heavy analog film grain");
+  });
+
+  it("applies clean digital directives when filmGrain is 0%", async () => {
+    (db.project.findUnique as any).mockResolvedValue({
+      id: "proj-digital",
+      title: "Alta Moda Digital",
+      configuration: {
+        filmGrain: 0,
+      },
+      parameterValues: [],
+    });
+
+    const result = await CinematicPromptEnricher.enrich({
+      userPrompt: "Retrato clean de alta moda na passarela",
+      projectId: "proj-digital",
+      workspaceId: "ws-1",
+    });
+
+    expect(result.enrichedPrompt).toContain("clean digital cinema photography, zero film grain");
+    expect(result.enrichedPrompt).not.toContain("fotografia de filme 35mm");
   });
 });
 

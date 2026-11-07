@@ -45,6 +45,7 @@ export function useScenesTab({ projectId, onStatsUpdate, onOpenPromptEngine }: S
     musicEnabled: false,
     musicDescription: "",
     restrictions: "",
+    filmGrain: 25,
   });
 
   // Dynamic Parameters State
@@ -199,6 +200,7 @@ export function useScenesTab({ projectId, onStatsUpdate, onOpenPromptEngine }: S
       musicEnabled: false,
       musicDescription: "",
       restrictions: "",
+      filmGrain: 25,
     });
     setFormError(null);
     setModalOpen(true);
@@ -233,6 +235,7 @@ export function useScenesTab({ projectId, onStatsUpdate, onOpenPromptEngine }: S
       musicEnabled: config.music?.enabled || false,
       musicDescription: config.music?.description || "",
       restrictions: config.restrictions || "",
+      filmGrain: config.filmGrain !== undefined ? Number(config.filmGrain) : 25,
     });
     setFormError(null);
     setModalOpen(true);
@@ -279,6 +282,7 @@ export function useScenesTab({ projectId, onStatsUpdate, onOpenPromptEngine }: S
             description: formData.musicDescription.trim(),
           },
           restrictions: formData.restrictions.trim(),
+          filmGrain: Number(formData.filmGrain) ?? 25,
         },
       };
 
@@ -301,10 +305,16 @@ export function useScenesTab({ projectId, onStatsUpdate, onOpenPromptEngine }: S
       const responseJson = await res.json();
       const savedSceneId = editingScene?.id || responseJson.data?.id;
 
+      // Sincroniza granulação de película nos parâmetros dinâmicos se o mapping existir
+      const effectiveParamValues = { ...paramValues };
+      if (paramKeyMap.nivel_granulacao_pelicula) {
+        effectiveParamValues[paramKeyMap.nivel_granulacao_pelicula] = Number(formData.filmGrain) ?? 25;
+      }
+
       // Salva os valores dos parâmetros dinâmicos se preenchidos
-      if (savedSceneId && Object.keys(paramValues).length > 0) {
+      if (savedSceneId && Object.keys(effectiveParamValues).length > 0) {
         const paramPayload = {
-          values: Object.entries(paramValues)
+          values: Object.entries(effectiveParamValues)
             .filter(([_, val]) => val !== undefined && val !== null && val !== "")
             .map(([defId, val]) => ({
               parameterDefinitionId: defId,

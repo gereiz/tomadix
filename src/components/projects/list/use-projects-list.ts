@@ -75,6 +75,7 @@ export function useProjectsListTab() {
     targetPlatform: "Google Flow",
     colorGrade: "",
     pacing: "",
+    filmGrain: 25,
   });
   const [formErrors, setFormErrors] = useState<Record<string, string>>({});
   const [submitting, setSubmitting] = useState(false);
@@ -228,6 +229,7 @@ export function useProjectsListTab() {
       targetPlatform: preset.targetPlatform,
       colorGrade: preset.colorGrade,
       pacing: preset.pacing,
+      filmGrain: (preset as any).filmGrain ?? 25,
     });
     setIsPresetsModalOpen(false);
     setIsCreateModalOpen(true);
@@ -246,6 +248,7 @@ export function useProjectsListTab() {
       targetPlatform: "Google Flow",
       colorGrade: "",
       pacing: "",
+      filmGrain: 25,
     });
     setFormErrors({});
     setFormSubmitError(null);
@@ -269,6 +272,7 @@ export function useProjectsListTab() {
       targetPlatform: project.configuration?.targetPlatform || "Google Flow",
       colorGrade: project.configuration?.colorGrade || "",
       pacing: project.configuration?.pacing || "",
+      filmGrain: project.configuration?.filmGrain !== undefined ? Number(project.configuration.filmGrain) : 25,
     });
     setFormErrors({});
     setFormSubmitError(null);
@@ -317,8 +321,12 @@ export function useProjectsListTab() {
           targetPlatform: formData.targetPlatform,
           colorGrade: formData.colorGrade.trim() || undefined,
           pacing: formData.pacing.trim() || undefined,
+          filmGrain: Number(formData.filmGrain) ?? 25,
           parameterSettings: {
             enabledParameterKeys: Array.from(selectedParamKeys),
+            values: {
+              nivel_granulacao_pelicula: Number(formData.filmGrain) ?? 25,
+            },
           },
         },
       };

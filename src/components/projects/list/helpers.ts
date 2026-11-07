@@ -39,6 +39,7 @@ export const CINEMA_PRESETS = [
     durationSeconds: "60",
     colorGrade: "Teal and Orange Saturado",
     pacing: "Dinâmico / Ação Rápida",
+    filmGrain: 20,
   },
   {
     title: "Cinema Noir VHS Anos 90",
@@ -49,6 +50,7 @@ export const CINEMA_PRESETS = [
     durationSeconds: "30",
     colorGrade: "Preto e Branco / Tons Terrosos Desbotados",
     pacing: "Lento / Contemplativo",
+    filmGrain: 85,
   },
   {
     title: "Alta Moda Editorial Futurista",
@@ -59,6 +61,7 @@ export const CINEMA_PRESETS = [
     durationSeconds: "15",
     colorGrade: "Daylight 5600K Imaculado",
     pacing: "Rítmico / High Fashion",
+    filmGrain: 0,
   },
   {
     title: "Odisseia Sci-Fi Planetária",
@@ -69,6 +72,7 @@ export const CINEMA_PRESETS = [
     durationSeconds: "90",
     colorGrade: "Monocromático Âmbar e Ciano Frio",
     pacing: "Épico / Gravitacional",
+    filmGrain: 30,
   },
 ];
 

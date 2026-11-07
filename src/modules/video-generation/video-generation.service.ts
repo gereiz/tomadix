@@ -5,6 +5,7 @@ import { EntitlementService } from "@/modules/billing/entitlement.service";
 import { CreditPricingService } from "@/modules/billing/credit-pricing.service";
 import { CreditExecutionService } from "@/modules/billing/credit-execution.service";
 import { ImageProviderRegistryService } from "@/modules/image-generation/image-provider-registry.service";
+import { CinematicPromptEnricher } from "@/modules/image-generation/cinematic-prompt-enricher";
 import { PollinationsVideoProvider } from "./pollinations-video-provider";
 import { VideoStorageService } from "./video-storage.service";
 import {
@@ -206,6 +207,25 @@ export class VideoGenerationService {
       );
     }
 
+    // 3.1 Enriquecimento cinemático do prompt (herança de granulação de película, estilo e iluminação)
+    let effectivePrompt = prompt;
+    let enrichmentApplied: any = null;
+    if (projectId) {
+      try {
+        const enrichment = await CinematicPromptEnricher.enrich({
+          userPrompt: prompt,
+          projectId,
+          workspaceId,
+          sceneId,
+          aspectRatio,
+        });
+        effectivePrompt = enrichment.enrichedPrompt;
+        enrichmentApplied = enrichment;
+      } catch (enrichErr) {
+        console.warn("[VideoGenerationService] Erro ao enriquecer prompt cinemático:", enrichErr);
+      }
+    }
+
     // 4. Execução transacional com débito de créditos e estorno em caso de falha
     const creditExecution = await CreditExecutionService.executeWithCredits(
       {
@@ -220,11 +240,13 @@ export class VideoGenerationService {
           model: effectiveModelId,
           durationSeconds,
           aspectRatio,
+          originalPrompt: prompt,
+          appliedDirectives: enrichmentApplied?.appliedDirectives,
         },
       },
       async () => {
         const options: VideoGenerationOptions = {
-          prompt,
+          prompt: effectivePrompt,
           model: effectiveModelId,
           durationSeconds,
           aspectRatio,
@@ -259,7 +281,7 @@ export class VideoGenerationService {
         sceneId,
         providerId: "pollinations",
         modelId: effectiveModelId,
-        prompt,
+        prompt: effectivePrompt,
         aspectRatio,
         durationSeconds,
         startFrameUrl,
@@ -278,7 +300,11 @@ export class VideoGenerationService {
         externalCostUnit: generationResult.externalCostUnit,
         status: "SUCCEEDED",
         generationTimeMs: durationMs,
-        metadata,
+        metadata: {
+          ...(metadata || {}),
+          originalPrompt: prompt,
+          appliedDirectives: enrichmentApplied?.appliedDirectives,
+        },
       },
     });
 

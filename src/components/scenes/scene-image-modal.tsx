@@ -11,6 +11,9 @@ export function SceneImageModal({ s }: SceneImageModalProps) {
   const { projectId, scenes, imageModalOpen, setImageModalOpen, imageModalScene, setImageModalScene, imageModalFrameType, fetchScenes } = s;
   if (!imageModalScene) return null;
 
+  const sceneGrain = imageModalScene.configuration?.filmGrain !== undefined ? Number(imageModalScene.configuration.filmGrain) : 25;
+  const grainText = sceneGrain === 0 ? "textura digital impecável e nítida sem ruído" : sceneGrain >= 70 ? "estética vintage com granulação analógica acentuada VHS/16mm" : `textura cinematográfica com granulação orgânica ${sceneGrain}%`;
+
   return (
     <DirectEntityImageModal
       isOpen={imageModalOpen}
@@ -45,12 +48,12 @@ export function SceneImageModal({ s }: SceneImageModalProps) {
               imageModalScene.configuration?.lighting || "Natural"
             }. Personagens: ${imageModalScene.characters.map((c) => c.character.name).join(", ") || "Em cena"}. Locação: ${
               imageModalScene.environments.map((e) => e.environment.name).join(", ") || "Locação da cena"
-            }. Still cinematográfico nítido, granulação 35mm sutil, 8k.`
+            }. Still cinematográfico nítido, ${grainText}, 8k.`
           : `Plano de cinema de desfecho (end frame) da cena: "${imageModalScene.title}". Resolução da ação: ${
               imageModalScene.configuration?.mainAction || imageModalScene.description || ""
             }. Enquadramento: ${imageModalScene.configuration?.framing || "Plano Médio"}. Iluminação: ${
               imageModalScene.configuration?.lighting || "Natural"
-            }. Still cinematográfico final, composição dramática de resolução, 8k.`
+            }. Still cinematográfico final, composição dramática de resolução, ${grainText}, 8k.`
       }
       onImageGenerated={() => {
         fetchScenes();

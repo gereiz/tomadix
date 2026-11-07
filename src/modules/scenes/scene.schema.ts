@@ -27,6 +27,7 @@ export const sceneConfigurationBaseSchema = z.object({
   dialogue: sceneDialogueSchema.optional(),
   music: sceneMusicSchema.optional(),
   restrictions: z.string().max(2000).default(""),
+  filmGrain: z.number().min(0).max(100).default(25).optional(),
   parameters: z.record(z.any()).default({}),
 });
 
