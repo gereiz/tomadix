@@ -302,7 +302,7 @@ export default function AdminCreditsConfigPage() {
       {/* Notificação Toast */}
       {notification && (
         <div
-          className={`fixed bottom-6 right-6 z-50 rounded-xl px-4 py-3 text-xs font-semibold shadow-2xl backdrop-blur-md transition-all ${
+          className={`fixed bottom-6 right-6 z-50 rounded-xl px-4 py-3 text-xs font-semibold shadow-2xl transition-all ${
             notification.type === "success"
               ? "bg-primary/20 text-primary border border-primary/40"
               : "bg-red-950/90 text-red-300 border border-red-500/40"
@@ -571,7 +571,7 @@ export default function AdminCreditsConfigPage() {
 
       {/* MODAL: EDIÇÃO RÁPIDA DE CUSTO */}
       {editingOp && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4">
           <div className="max-w-md w-full rounded-2xl border border-white/10 bg-[#0d1017] p-6 space-y-4">
             <div className="flex items-center justify-between">
               <h3 className="text-base font-bold text-white">Configurar Custo de Criação</h3>
@@ -660,7 +660,7 @@ export default function AdminCreditsConfigPage() {
 
       {/* MODAL: REGRAS ESPECÍFICAS POR PLANO */}
       {ruleModalOp && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4">
           <div className="max-w-lg w-full rounded-2xl border border-white/10 bg-[#0d1017] p-6 space-y-4 max-h-[90vh] overflow-y-auto">
             <div className="flex items-center justify-between">
               <div>
@@ -770,7 +770,7 @@ export default function AdminCreditsConfigPage() {
 
       {/* MODAL: CRIAR NOVA OPERAÇÃO */}
       {showCreateModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4">
           <div className="max-w-md w-full rounded-2xl border border-white/10 bg-[#0d1017] p-6 space-y-4">
             <div className="flex items-center justify-between">
               <h3 className="text-base font-bold text-white">Cadastrar Nova Operação</h3>

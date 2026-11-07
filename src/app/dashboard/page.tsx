@@ -3,9 +3,19 @@
 import { useEffect, useState, useCallback } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { OnboardingModal, OnboardingState } from "@/components/onboarding/onboarding-modal";
+import dynamic from "next/dynamic";
+import type { OnboardingState } from "@/components/onboarding/onboarding-modal";
 import { ToastNotification } from "@/components/ui/toast";
-import { PlanLimitModal } from "@/components/ui/plan-limit-modal";
+
+// Modais carregados sob demanda: só entram no bundle quando abertos
+const OnboardingModal = dynamic(
+  () => import("@/components/onboarding/onboarding-modal").then((m) => m.OnboardingModal),
+  { ssr: false }
+);
+const PlanLimitModal = dynamic(
+  () => import("@/components/ui/plan-limit-modal").then((m) => m.PlanLimitModal),
+  { ssr: false }
+);
 
 interface DashboardData {
   user: {
@@ -325,7 +335,7 @@ export default function DashboardPage() {
             {alerts.map((alert) => (
               <div
                 key={alert.id}
-                className={`flex flex-col sm:flex-row sm:items-center justify-between gap-3 rounded-2xl border p-4 backdrop-blur-md transition ${
+                className={`flex flex-col sm:flex-row sm:items-center justify-between gap-3 rounded-2xl border p-4 transition ${
                   alert.type === "danger"
                     ? "border-red-500/40 bg-red-950/30 text-red-200"
                     : alert.type === "warning"
@@ -410,7 +420,7 @@ export default function DashboardPage() {
         {/* 4 Cards de Métricas Principais (DADOS 100% REAIS) */}
         <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
           {/* Card 1: Projetos */}
-          <div className="rounded-3xl border border-white/10 bg-white/[0.02] p-5 backdrop-blur-md">
+          <div className="rounded-3xl border border-white/10 bg-white/[0.02] p-5">
             <div className="flex items-center justify-between">
               <span className="text-[11px] font-bold uppercase tracking-wider text-white/50">
                 Projetos no Estúdio
@@ -446,7 +456,7 @@ export default function DashboardPage() {
           </div>
 
           {/* Card 2: Cenas Decupadas */}
-          <div className="rounded-3xl border border-white/10 bg-white/[0.02] p-5 backdrop-blur-md">
+          <div className="rounded-3xl border border-white/10 bg-white/[0.02] p-5">
             <div className="flex items-center justify-between">
               <span className="text-[11px] font-bold uppercase tracking-wider text-white/50">
                 Cenas Decupadas
@@ -465,7 +475,7 @@ export default function DashboardPage() {
           </div>
 
           {/* Card 3: Personagens & Locações */}
-          <div className="rounded-3xl border border-white/10 bg-white/[0.02] p-5 backdrop-blur-md">
+          <div className="rounded-3xl border border-white/10 bg-white/[0.02] p-5">
             <div className="flex items-center justify-between">
               <span className="text-[11px] font-bold uppercase tracking-wider text-white/50">
                 Bíblia Visual
@@ -488,7 +498,7 @@ export default function DashboardPage() {
           </div>
 
           {/* Card 4: Saldo de Créditos IA */}
-          <div className="rounded-3xl border border-amber-500/20 bg-amber-500/[0.03] p-5 backdrop-blur-md">
+          <div className="rounded-3xl border border-amber-500/20 bg-amber-500/[0.03] p-5">
             <div className="flex items-center justify-between">
               <span className="text-[11px] font-bold uppercase tracking-wider text-amber-400">
                 Créditos de IA
@@ -657,14 +667,17 @@ export default function DashboardPage() {
       </main>
 
       {/* Modal de Onboarding / Boas-vindas */}
+      {isOnboardingOpen && (
       <OnboardingModal
         isOpen={isOnboardingOpen}
         onClose={() => setIsOnboardingOpen(false)}
         state={onboardingState}
         onStateUpdate={fetchDashboardData}
       />
+      )}
 
       {/* Modal de Limite do Plano */}
+      {limitModalOpen && (
       <PlanLimitModal
         isOpen={limitModalOpen}
         onClose={() => setLimitModalOpen(false)}
@@ -674,6 +687,7 @@ export default function DashboardPage() {
         currentUsage={usageSummary.projectsCount}
         maxLimit={usageSummary.maxProjects}
       />
+      )}
 
       {/* Toast Flutuante */}
       <ToastNotification

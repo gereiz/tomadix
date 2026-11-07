@@ -156,7 +156,6 @@ export default function PricingPage() {
     <div className="min-h-screen bg-[#07090e] text-white">
       {/* Background gradients */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute -top-40 left-1/2 -translate-x-1/2 w-[900px] h-[500px] bg-gradient-to-b from-primary/10 via-primary/5 to-transparent blur-3xl" />
       </div>
 
       <div className="relative w-full px-4 sm:px-6 lg:px-8 py-16 sm:py-24">
@@ -244,7 +243,7 @@ export default function PricingPage() {
               return (
                 <div
                   key={plan.tier}
-                  className={`relative flex flex-col justify-between rounded-2xl border p-8 transition duration-200 backdrop-blur-sm ${
+                  className={`relative flex flex-col justify-between rounded-2xl border p-8 transition duration-200 ${
                     isPopular
                       ? "border-primary/60 bg-gradient-to-b from-primary/15 via-white/[0.03] to-transparent shadow-xl shadow-primary/10 ring-1 ring-primary/30"
                       : "border-white/10 bg-white/[0.02] hover:border-white/20"

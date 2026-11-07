@@ -1,5 +1,6 @@
 "use client";
 
+import { cachedFetch } from "@/lib/client-fetch-cache";
 import { useEffect, useState, useCallback } from "react";
 import Link from "next/link";
 import { ParameterInputPreview } from "@/components/parameters/parameter-input-preview";
@@ -155,7 +156,7 @@ export default function ParametersPage() {
 
   // Verificar papel administrativo do usuário atual
   useEffect(() => {
-    fetch("/api/auth/me")
+    cachedFetch("/api/auth/me", 10_000)
       .then((res) => (res.ok ? res.json() : null))
       .then((data) => {
         if (data?.authenticated && data?.user?.isPlatformAdmin) {
@@ -412,7 +413,7 @@ export default function ParametersPage() {
       {/* Toast */}
       {toast && (
         <div
-          className={`fixed bottom-6 right-6 z-50 flex items-center gap-3 rounded-xl border px-4 py-3 shadow-2xl backdrop-blur-md transition-all ${
+          className={`fixed bottom-6 right-6 z-50 flex items-center gap-3 rounded-xl border px-4 py-3 shadow-2xl transition-all ${
             toast.type === "success"
               ? "border-primary/30 bg-primary/90 text-primary"
               : "border-red-500/30 bg-red-950/90 text-red-200"
@@ -722,7 +723,7 @@ export default function ParametersPage() {
 
       {/* Modal / Painel de Criação e Edição com Live Preview Interativo */}
       {isPlatformAdmin && isModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4 backdrop-blur-md">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4">
           <div className="relative max-h-[92vh] w-full max-w-4xl overflow-y-auto rounded-3xl border border-white/10 bg-[#12161f] p-6 shadow-2xl md:p-8">
             <div className="flex items-center justify-between border-b border-white/10 pb-4">
               <div>
@@ -1083,7 +1084,7 @@ export default function ParametersPage() {
 
       {/* Modal de Exclusão */}
       {isPlatformAdmin && paramToDelete && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4 backdrop-blur-sm">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4">
           <div className="w-full max-w-md rounded-3xl border border-red-500/30 bg-[#141215] p-6 shadow-2xl">
             <h3 className="text-lg font-bold text-white">Excluir Parâmetro</h3>
             <p className="mt-2 text-xs leading-relaxed text-white/70">

@@ -1,5 +1,6 @@
 "use client";
 
+import { Spinner } from "@/components/ui/spinner";
 import { useState, useRef } from "react";
 
 interface ImageReferencePickerProps {
@@ -118,7 +119,7 @@ export function ImageReferencePicker({
       {value ? (
         <div className="relative flex items-center gap-3.5 p-2.5 rounded-xl border border-amber-500/30 bg-amber-500/5 group">
           <div className="h-16 w-16 rounded-lg overflow-hidden border border-white/20 bg-black/60 shrink-0">
-            <img src={value} alt="Referência" className="h-full w-full object-cover" />
+            <img loading="lazy" decoding="async" src={value} alt="Referência" className="h-full w-full object-cover" />
           </div>
 
           <div className="flex-1 min-w-0 space-y-1">
@@ -174,7 +175,7 @@ export function ImageReferencePicker({
 
       {/* Modal / Gaveta de Seleção da Galeria */}
       {modalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4 animate-fade-in">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4 animate-fade-in">
           <div className="relative w-full max-w-2xl max-h-[85vh] rounded-2xl bg-[#0f1218] border border-white/15 p-5 shadow-2xl flex flex-col space-y-4">
             <div className="flex items-center justify-between border-b border-white/10 pb-3">
               <div>
@@ -198,7 +199,7 @@ export function ImageReferencePicker({
             <div className="flex-1 overflow-y-auto pr-1 min-h-[250px] max-h-[55vh]">
               {loadingGallery ? (
                 <div className="p-12 text-center text-xs text-white/50">
-                  <span className="animate-spin inline-block h-5 w-5 border-2 border-amber-400 border-t-transparent rounded-full mb-2" />
+                  <Spinner className="h-5 w-5 border-2 border-amber-400 mb-2" />
                   <p>Carregando imagens do estúdio...</p>
                 </div>
               ) : galleryImages.length === 0 ? (
@@ -217,7 +218,7 @@ export function ImageReferencePicker({
                       onClick={() => handleSelectFromGallery(img.imageUrl)}
                       className="group relative aspect-square rounded-xl overflow-hidden border border-white/10 hover:border-amber-400 focus:outline-none focus:ring-2 focus:ring-amber-400 transition"
                     >
-                      <img
+                      <img loading="lazy" decoding="async"
                         src={img.imageUrl}
                         alt=""
                         className="h-full w-full object-cover transition duration-300 group-hover:scale-105"

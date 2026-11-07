@@ -136,7 +136,7 @@ export function DirectVideoModal({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/85 p-4 backdrop-blur-md overflow-y-auto">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/85 p-4 overflow-y-auto">
       <div className="relative w-full max-w-2xl rounded-3xl border border-white/10 bg-[#0f1218] p-6 shadow-2xl space-y-5 my-8">
         {/* Header */}
         <div className="flex items-center justify-between border-b border-white/10 pb-4">
@@ -177,7 +177,7 @@ export function DirectVideoModal({
         {/* Start Frame Preview if present */}
         {startFrameUrl && (
           <div className="flex items-center gap-3 rounded-xl border border-white/10 bg-white/5 p-2.5">
-            <img src={startFrameUrl} alt="Frame inicial" className="h-12 w-16 object-cover rounded-lg border border-white/10" />
+            <img loading="lazy" decoding="async" src={startFrameUrl} alt="Frame inicial" className="h-12 w-16 object-cover rounded-lg border border-white/10" />
             <div className="text-xs">
               <span className="font-semibold text-white">Frame de Referência Inicial</span>
               <p className="text-[10px] text-white/50">O movimento do vídeo partirá desta imagem de referência.</p>

@@ -282,7 +282,7 @@ export function WebhooksTab({ onNotify }: { onNotify: (type: "success" | "error"
 
       {/* MODAL: VISUALIZAR PAYLOAD ORIGINAL */}
       {viewPayloadModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4 backdrop-blur-sm">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4">
           <div className="max-w-2xl w-full rounded-2xl border border-white/10 bg-[#0d111c] p-6 space-y-4">
             <div className="flex items-center justify-between border-b border-white/10 pb-3">
               <div>

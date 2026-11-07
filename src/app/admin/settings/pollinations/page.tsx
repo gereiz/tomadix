@@ -155,7 +155,7 @@ export default function AdminPollinationsCentralPage() {
 
       {/* Alerta de Permissão ou Chave */}
       {data?.warning && (
-        <div className="rounded-2xl border border-amber-500/30 bg-amber-500/10 p-5 backdrop-blur-md space-y-3">
+        <div className="rounded-2xl border border-amber-500/30 bg-amber-500/10 p-5 space-y-3">
           <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
             <div className="space-y-1">
               <div className="flex items-center gap-2">
@@ -422,7 +422,7 @@ export default function AdminPollinationsCentralPage() {
       {/* Modal: Atualizar Chave da Pollinations */}
       {isEditingKey && (
         <div
-          className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4 backdrop-blur-sm"
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4"
           onClick={() => !savingKey && setIsEditingKey(false)}
         >
           <div

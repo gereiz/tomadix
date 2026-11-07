@@ -1,5 +1,6 @@
 "use client";
 
+import { Spinner } from "@/components/ui/spinner";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import type {
@@ -997,7 +998,7 @@ export function CinematicStudioWorkflow() {
                   >
                     {isCreatingProject ? (
                       <>
-                        <span className="h-3.5 w-3.5 animate-spin rounded-full border-2 border-black border-t-transparent" />
+                        <Spinner className="h-3.5 w-3.5 border-2 border-black" />
                         <span>Criando projeto...</span>
                       </>
                     ) : (
@@ -1204,7 +1205,7 @@ export function CinematicStudioWorkflow() {
                               <div className="flex items-start gap-3">
                                 <div className="relative h-16 w-28 flex-shrink-0 overflow-hidden rounded-xl border border-white/10 bg-black">
                                   {/* eslint-disable-next-line @next/next/no-img-element */}
-                                  <img src={img.thumbnailUrl} alt={img.name} className="h-full w-full object-cover" />
+                                  <img loading="lazy" decoding="async" src={img.thumbnailUrl} alt={img.name} className="h-full w-full object-cover" />
                                   <span
                                     className={`absolute left-1 top-1 rounded px-1.5 py-0.5 text-[9px] font-black uppercase ${
                                       isPrimary ? "bg-primary text-on-primary" : "bg-black/75 text-white/80"
@@ -1331,7 +1332,7 @@ export function CinematicStudioWorkflow() {
                   {comparisonImage ? (
                     <div className="relative aspect-video w-full overflow-hidden rounded-2xl border border-white/10 bg-black/30">
                       {/* eslint-disable-next-line @next/next/no-img-element */}
-                      <img src={comparisonImage} alt="Tomada B" className="h-full w-full object-contain" />
+                      <img loading="lazy" decoding="async" src={comparisonImage} alt="Tomada B" className="h-full w-full object-contain" />
                       <div className="absolute inset-x-0 bottom-0 flex justify-end gap-2 bg-gradient-to-t from-black/90 to-transparent p-2">
                         <button
                           type="button"
@@ -1419,7 +1420,7 @@ export function CinematicStudioWorkflow() {
               >
                 {isAnalyzing ? (
                   <>
-                    <span className="h-4 w-4 animate-spin rounded-full border-2 border-on-primary border-t-transparent" />
+                    <Spinner className="h-4 w-4 border-2 border-on-primary" />
                     Analisando…
                   </>
                 ) : source === "upload" && uploadedImages.length > 1 ? (
@@ -1448,7 +1449,7 @@ export function CinematicStudioWorkflow() {
             {isAnalyzing ? (
               <div className="flex flex-col gap-5">
                 <div className="flex items-center gap-3">
-                  <span className="h-5 w-5 animate-spin rounded-full border-2 border-primary border-t-transparent" />
+                  <Spinner className="h-5 w-5 border-2 border-primary" />
                   <p className="text-sm font-semibold text-white">{LOADING_STEPS[loadingStep]}</p>
                 </div>
                 <div className="flex gap-1.5">
@@ -1625,7 +1626,7 @@ export function CinematicStudioWorkflow() {
                           }}
                           aria-label="Excluir análise"
                           title="Excluir análise"
-                          className="absolute left-1.5 top-1.5 flex h-7 w-7 items-center justify-center rounded-full bg-black/60 text-xs text-white/80 opacity-0 backdrop-blur transition hover:bg-rose-500 hover:text-white group-hover:opacity-100 focus:opacity-100"
+                          className="absolute left-1.5 top-1.5 flex h-7 w-7 items-center justify-center rounded-full bg-black/60 text-xs text-white/80 opacity-0 transition hover:bg-rose-500 hover:text-white group-hover:opacity-100 focus:opacity-100"
                         >
                           🗑
                         </button>
@@ -1635,14 +1636,14 @@ export function CinematicStudioWorkflow() {
                             toggleFavorite(r.id);
                           }}
                           aria-label={fav ? "Remover dos favoritos" : "Favoritar"}
-                          className={`absolute right-1.5 top-1.5 flex h-7 w-7 items-center justify-center rounded-full text-sm backdrop-blur transition ${
+                          className={`absolute right-1.5 top-1.5 flex h-7 w-7 items-center justify-center rounded-full text-sm transition ${
                             fav ? "bg-rose-500 text-white" : "bg-black/50 text-white/70 opacity-0 group-hover:opacity-100 hover:text-white"
                           }`}
                         >
                           {fav ? "♥" : "♡"}
                         </button>
                         {r.auxiliarySummary && r.auxiliarySummary.length > 0 && (
-                          <span className="absolute bottom-2 right-1.5 rounded bg-black/75 px-1.5 py-0.5 text-[9px] font-bold text-primary backdrop-blur">
+                          <span className="absolute bottom-2 right-1.5 rounded bg-black/75 px-1.5 py-0.5 text-[9px] font-bold text-primary">
                             +{r.auxiliarySummary.length} ref{r.auxiliarySummary.length > 1 ? "s" : ""}
                           </span>
                         )}
@@ -1676,7 +1677,7 @@ export function CinematicStudioWorkflow() {
       {/* Confirmação de exclusão */}
       {pendingDelete && (
         <div
-          className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-4 backdrop-blur-sm"
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-4"
           onClick={() => !isDeleting && setPendingDelete(null)}
         >
           <div
@@ -1705,7 +1706,7 @@ export function CinematicStudioWorkflow() {
                 onClick={handleConfirmDelete}
                 className="inline-flex items-center gap-2 rounded-xl bg-rose-500 px-4 py-2 text-xs font-bold text-white hover:bg-rose-400 disabled:opacity-60"
               >
-                {isDeleting && <span className="h-3.5 w-3.5 animate-spin rounded-full border-2 border-white border-t-transparent" />}
+                {isDeleting && <Spinner className="h-3.5 w-3.5 border-2 border-white" />}
                 Excluir
               </button>
             </div>
@@ -1718,7 +1719,7 @@ export function CinematicStudioWorkflow() {
         {toasts.map((t) => (
           <div
             key={t.id}
-            className={`pointer-events-auto rounded-xl border px-4 py-2.5 text-xs font-semibold shadow-2xl backdrop-blur-md ${
+            className={`pointer-events-auto rounded-xl border px-4 py-2.5 text-xs font-semibold shadow-2xl ${
               t.type === "success"
                 ? "border-primary/30 bg-surface-container text-primary"
                 : t.type === "error"

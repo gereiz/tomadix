@@ -52,7 +52,7 @@ export function VisualOptionCard({
 
         {/* Badge da Categoria */}
         <div className="absolute top-2 left-2.5">
-          <span className="rounded-md bg-black/70 px-2 py-0.5 text-[9px] font-mono font-semibold uppercase text-white/80 backdrop-blur-sm border border-white/10">
+          <span className="rounded-md bg-black/70 px-2 py-0.5 text-[9px] font-mono font-semibold uppercase text-white/80 border border-white/10">
             {option.categoryLabel || option.category}
           </span>
         </div>
@@ -73,7 +73,7 @@ export function VisualOptionCard({
             e.stopPropagation();
             onOpenDetails(option);
           }}
-          className="absolute bottom-2 right-2 rounded-lg bg-black/75 px-2 py-1 text-[10px] font-medium text-white/80 opacity-0 group-hover:opacity-100 hover:bg-black hover:text-white transition backdrop-blur-sm border border-white/15 flex items-center gap-1 shadow-md"
+          className="absolute bottom-2 right-2 rounded-lg bg-black/75 px-2 py-1 text-[10px] font-medium text-white/80 opacity-0 group-hover:opacity-100 hover:bg-black hover:text-white transition border border-white/15 flex items-center gap-1 shadow-md"
           title="Ver imagem ampliada e explicação completa"
         >
           <span>🔍</span> Detalhes

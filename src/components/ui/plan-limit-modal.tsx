@@ -31,12 +31,10 @@ export function PlanLimitModal({
       role="dialog"
       aria-modal="true"
       aria-labelledby="plan-limit-title"
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4 backdrop-blur-md animate-in fade-in duration-200"
+      className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4 animate-in fade-in duration-200"
     >
       <div className="relative w-full max-w-lg overflow-hidden rounded-3xl border border-amber-500/30 bg-gradient-to-b from-neutral-900 via-neutral-950 to-black p-6 sm:p-8 text-white shadow-2xl shadow-amber-500/10">
         {/* Glow de fundo */}
-        <div className="pointer-events-none absolute -top-24 -left-24 h-48 w-48 rounded-full bg-amber-500/20 blur-3xl" />
-        <div className="pointer-events-none absolute -bottom-24 -right-24 h-48 w-48 rounded-full bg-primary/10 blur-3xl" />
 
         {/* Header do Modal */}
         <div className="flex items-start justify-between">

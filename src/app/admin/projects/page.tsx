@@ -1,5 +1,6 @@
 "use client";
 
+import { Spinner } from "@/components/ui/spinner";
 import { useEffect, useState, useCallback } from "react";
 import Link from "next/link";
 
@@ -229,7 +230,7 @@ export default function AdminProjectsPage() {
       {/* Toast de Notificação */}
       {notification && (
         <div
-          className={`fixed bottom-6 right-6 z-50 rounded-xl p-4 text-sm font-semibold shadow-2xl backdrop-blur-md transition-all ${
+          className={`fixed bottom-6 right-6 z-50 rounded-xl p-4 text-sm font-semibold shadow-2xl transition-all ${
             notification.type === "success"
               ? "border border-primary/40 bg-primary/90 text-primary"
               : "border border-rose-500/40 bg-rose-950/90 text-rose-200"
@@ -335,7 +336,7 @@ export default function AdminProjectsPage() {
               {loading ? (
                 <tr>
                   <td colSpan={6} className="py-12 text-center text-white/40">
-                    <div className="inline-block h-6 w-6 animate-spin rounded-full border-2 border-amber-400 border-t-transparent mb-2" />
+                    <Spinner block className="h-6 w-6 border-2 border-amber-400 mb-2" />
                     <p>Carregando projetos da plataforma...</p>
                   </td>
                 </tr>
@@ -495,7 +496,7 @@ export default function AdminProjectsPage() {
 
       {/* Modal: Detalhes do Projeto */}
       {selectedProject && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4 backdrop-blur-sm animate-in fade-in duration-200">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4 animate-in fade-in duration-200">
           <div className="relative max-h-[90vh] w-full max-w-4xl overflow-y-auto rounded-3xl border border-white/15 bg-[#0d1017] p-6 sm:p-8 text-white shadow-2xl">
             <button
               onClick={() => {
@@ -509,7 +510,7 @@ export default function AdminProjectsPage() {
 
             {loadingDetails || !projectDetails ? (
               <div className="py-20 text-center text-white/50">
-                <div className="inline-block h-8 w-8 animate-spin rounded-full border-2 border-amber-400 border-t-transparent mb-3" />
+                <Spinner block className="h-8 w-8 border-2 border-amber-400 mb-3" />
                 <p>Carregando prontuário técnico do projeto...</p>
               </div>
             ) : (
@@ -651,7 +652,7 @@ export default function AdminProjectsPage() {
 
       {/* Modal: Arquivar Projeto */}
       {archiveTarget && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4 backdrop-blur-sm animate-in fade-in duration-200">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4 animate-in fade-in duration-200">
           <div className="w-full max-w-md rounded-3xl border border-amber-500/30 bg-[#0d1017] p-6 text-white shadow-2xl">
             <h2 className="text-lg font-bold text-white flex items-center gap-2">
               <span>⚠️</span> Arquivar Projeto
@@ -697,7 +698,7 @@ export default function AdminProjectsPage() {
 
       {/* Modal: Transferir Projeto */}
       {transferTarget && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4 backdrop-blur-sm animate-in fade-in duration-200">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4 animate-in fade-in duration-200">
           <div className="w-full max-w-lg rounded-3xl border border-indigo-500/30 bg-[#0d1017] p-6 text-white shadow-2xl">
             <h2 className="text-lg font-bold text-white flex items-center gap-2">
               <span>🔄</span> Transferir Projeto de Estúdio
@@ -767,7 +768,7 @@ export default function AdminProjectsPage() {
 
       {/* Modal: Excluir Projeto */}
       {deleteTarget && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4 backdrop-blur-sm animate-in fade-in duration-200">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4 animate-in fade-in duration-200">
           <div className="w-full max-w-md rounded-3xl border border-rose-500/40 bg-[#0d1017] p-6 text-white shadow-2xl">
             <h2 className="text-lg font-bold text-rose-300 flex items-center gap-2">
               <span>⚠️</span> Excluir Projeto Permanentemente

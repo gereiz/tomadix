@@ -660,7 +660,7 @@ function AdminSettingsContent() {
 
       {/* Safety Confirmation Modal for Test Data Cleanup */}
       {cleanupModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4">
           <div className="w-full max-w-lg rounded-2xl border border-rose-500/40 bg-[#0d111c] p-6 shadow-2xl space-y-5 animate-scale-up">
             <div className="flex items-center gap-3 text-rose-400">
               <span className="text-2xl">⚠️</span>

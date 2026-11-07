@@ -1,5 +1,6 @@
 "use client";
 
+import { Spinner } from "@/components/ui/spinner";
 import { useState, useEffect } from "react";
 import { downloadImage } from "@/lib/utils/download-image";
 
@@ -212,7 +213,7 @@ export function GeneratedImagesGallery({
 
       {loading ? (
         <div className="p-8 text-center text-white/50 font-mono text-xs">
-          <span className="animate-spin inline-block h-5 w-5 border-2 border-amber-400 border-t-transparent rounded-full mb-2" />
+          <Spinner className="h-5 w-5 border-2 border-amber-400 mb-2" />
           <p>Carregando galeria...</p>
         </div>
       ) : images.length === 0 ? (
@@ -243,17 +244,17 @@ export function GeneratedImagesGallery({
               {/* Badges de Origem */}
               <div className="absolute top-1.5 left-1.5 z-10 flex flex-col gap-1 pointer-events-none">
                 {img.character && (
-                  <span className="text-[9px] px-1.5 py-0.5 rounded bg-black/80 text-primary border border-primary/30 font-semibold backdrop-blur-sm shadow">
+                  <span className="text-[9px] px-1.5 py-0.5 rounded bg-black/80 text-primary border border-primary/30 font-semibold shadow">
                     👤 {img.character.name}
                   </span>
                 )}
                 {img.environment && (
-                  <span className="text-[9px] px-1.5 py-0.5 rounded bg-black/80 text-blue-300 border border-blue-500/30 font-semibold backdrop-blur-sm shadow">
+                  <span className="text-[9px] px-1.5 py-0.5 rounded bg-black/80 text-blue-300 border border-blue-500/30 font-semibold shadow">
                     🏙️ {img.environment.name}
                   </span>
                 )}
                 {img.scene && (
-                  <span className="text-[9px] px-1.5 py-0.5 rounded bg-black/80 text-purple-300 border border-purple-500/30 font-semibold backdrop-blur-sm shadow">
+                  <span className="text-[9px] px-1.5 py-0.5 rounded bg-black/80 text-purple-300 border border-purple-500/30 font-semibold shadow">
                     🎥 Cena {img.scene.order + 1}
                   </span>
                 )}
@@ -283,7 +284,7 @@ export function GeneratedImagesGallery({
                   title="Excluir imagem do servidor"
                 >
                   {deletingId === img.id ? (
-                    <span className="animate-spin inline-block h-3 w-3 border border-red-400 border-t-transparent rounded-full" />
+                    <Spinner className="h-3 w-3 border border-red-400" />
                   ) : (
                     "🗑️"
                   )}
@@ -329,7 +330,7 @@ export function GeneratedImagesGallery({
       {/* Modal de Detalhes da Imagem */}
       {selectedImage && (
         <div
-          className="fixed inset-0 z-50 bg-black/90 backdrop-blur-md flex items-center justify-center p-4 animate-fade-in"
+          className="fixed inset-0 z-50 bg-black/90 flex items-center justify-center p-4 animate-fade-in"
           onClick={() => setSelectedImage(null)}
         >
           <div

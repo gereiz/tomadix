@@ -24,7 +24,7 @@ export function ToastNotification({ message, onClose }: ToastProps) {
       className="fixed bottom-6 right-6 z-[100] max-w-md animate-in fade-in slide-in-from-bottom-5 duration-300"
     >
       <div
-        className={`flex items-start gap-3 rounded-2xl border p-4 shadow-2xl backdrop-blur-xl ${
+        className={`flex items-start gap-3 rounded-2xl border p-4 shadow-2xl ${
           isError
             ? "border-red-500/40 bg-red-950/80 text-red-200 shadow-red-500/10"
             : isWarning

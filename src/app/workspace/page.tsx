@@ -7,7 +7,7 @@ export default function WorkspacePage() {
   return (
     <div className="min-h-screen bg-surface text-on-surface selection:bg-primary selection:text-on-primary">
       {/* 1. Header do Workspace & Sub-Navegação */}
-      <div className="border-b border-outline-variant/20 bg-surface-container-lowest/60 backdrop-blur-md sticky top-0 z-30">
+      <div className="border-b border-outline-variant/20 bg-surface-container-lowest/60 sticky top-0 z-30">
         <div className="w-full px-4 sm:px-6 lg:px-8 py-4 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
           <div className="flex flex-col gap-1">
             <div className="flex items-center gap-2.5">

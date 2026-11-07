@@ -1,5 +1,6 @@
 "use client";
 
+import { cachedFetch, invalidateClientCache } from "@/lib/client-fetch-cache";
 import { useEffect, useState, useRef } from "react";
 import { useRouter } from "next/navigation";
 
@@ -25,7 +26,7 @@ export function WorkspaceSelector() {
 
   const fetchWorkspaces = async () => {
     try {
-      const res = await fetch("/api/workspaces");
+      const res = await cachedFetch("/api/workspaces", 10_000);
       if (res.ok) {
         const data = await res.json();
         const list: WorkspaceItem[] = data.data || [];
@@ -104,6 +105,7 @@ export function WorkspaceSelector() {
 
       setShowCreateModal(false);
       setNewWorkspaceName("");
+      invalidateClientCache("/api/workspaces");
       await fetchWorkspaces();
 
       // Alternar para o novo workspace
@@ -148,7 +150,7 @@ export function WorkspaceSelector() {
 
       {/* Dropdown Menu */}
       {isOpen && (
-        <div className="absolute right-0 sm:right-auto sm:left-0 mt-2 w-64 max-w-[calc(100vw-2rem)] origin-top-right sm:origin-top-left rounded-2xl border border-white/15 bg-[#0d1017] p-2 shadow-2xl z-50 backdrop-blur-xl">
+        <div className="absolute right-0 sm:right-auto sm:left-0 mt-2 w-64 max-w-[calc(100vw-2rem)] origin-top-right sm:origin-top-left rounded-2xl border border-white/15 bg-[#0d1017] p-2 shadow-2xl z-50">
           <div className="px-3 py-2 text-[10px] uppercase font-bold tracking-wider text-white/40 border-b border-white/10">
             Seus Estúdios & Equipes
           </div>
@@ -205,7 +207,7 @@ export function WorkspaceSelector() {
 
       {/* Modal Criar Workspace */}
       {showCreateModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4">
           <div className="max-w-md w-full rounded-2xl border border-white/10 bg-[#0d1017] p-6 space-y-4">
             <div className="flex items-center justify-between">
               <h3 className="text-lg font-bold text-white">Criar Novo Workspace</h3>

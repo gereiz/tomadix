@@ -1,5 +1,6 @@
 "use client";
 
+import { Spinner } from "@/components/ui/spinner";
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import { ImageAspectRatio } from "@/modules/image-generation/image-generation.types";
@@ -192,7 +193,7 @@ export function DirectImageGenerator({
   if (loading) {
     return (
       <div className="p-8 text-center text-white/50 font-mono text-xs">
-        <span className="animate-spin inline-block h-5 w-5 border-2 border-amber-400 border-t-transparent rounded-full mb-2" />
+        <Spinner className="h-5 w-5 border-2 border-amber-400 mb-2" />
         <p>Verificando permissões e modelos de IA...</p>
       </div>
     );
@@ -423,7 +424,7 @@ export function DirectImageGenerator({
             >
               {generating ? (
                 <>
-                  <span className="animate-spin inline-block h-3.5 w-3.5 border-2 border-black border-t-transparent rounded-full" />
+                  <Spinner className="h-3.5 w-3.5 border-2 border-black" />
                   <span>Gerando Imagem com IA...</span>
                 </>
               ) : (
@@ -472,7 +473,7 @@ export function DirectImageGenerator({
           {/* Imagem em destaque */}
           <div className="relative rounded-xl overflow-hidden border border-white/10 bg-black/80 flex items-center justify-center max-h-[600px] group">
             {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img
+            <img loading="lazy" decoding="async"
               src={generatedImage.imageUrl}
               alt={generatedImage.prompt}
               className="max-h-[580px] w-auto object-contain cursor-zoom-in transition-transform duration-300 group-hover:scale-[1.01]"
@@ -511,7 +512,7 @@ export function DirectImageGenerator({
       {/* Modal Lightbox (Zoom em Tela Cheia) */}
       {lightboxOpen && generatedImage && (
         <div
-          className="fixed inset-0 z-50 bg-black/90 backdrop-blur-md flex items-center justify-center p-4 animate-fade-in"
+          className="fixed inset-0 z-50 bg-black/90 flex items-center justify-center p-4 animate-fade-in"
           onClick={() => setLightboxOpen(false)}
         >
           <div className="relative max-w-7xl max-h-[92vh] flex flex-col items-center">
@@ -523,7 +524,7 @@ export function DirectImageGenerator({
               ✕
             </button>
             {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img
+            <img loading="lazy" decoding="async"
               src={generatedImage.imageUrl}
               alt={generatedImage.prompt}
               className="max-h-[85vh] max-w-full object-contain rounded-xl shadow-2xl border border-white/15"

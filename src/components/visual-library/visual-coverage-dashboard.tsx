@@ -402,7 +402,7 @@ export function VisualCoverageDashboard() {
                           className="h-12 w-20 rounded-xl overflow-hidden bg-black border border-white/10 cursor-pointer hover:border-primary transition flex-shrink-0"
                           title="Clique para ampliar"
                         >
-                          <img
+                          <img loading="lazy" decoding="async"
                             src={opt.imageUrl}
                             alt={opt.label}
                             className="h-full w-full object-cover"
@@ -479,7 +479,7 @@ export function VisualCoverageDashboard() {
 
       {/* MODAL: EDITAR / ASSOCIAR IMAGEM E DIDÁTICA (SEÇÃO 7) */}
       {editingOption && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/85 backdrop-blur-md p-4 overflow-y-auto">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/85 p-4 overflow-y-auto">
           <div className="relative w-full max-w-xl max-h-[90vh] overflow-y-auto rounded-3xl border border-white/15 bg-[#0b0f19] p-6 shadow-2xl space-y-5">
             <div className="flex items-center justify-between border-b border-white/10 pb-4">
               <div>
@@ -501,7 +501,7 @@ export function VisualCoverageDashboard() {
               <div className="rounded-2xl border border-white/10 bg-black/40 p-4 space-y-2">
                 <span className="text-[11px] font-semibold text-white/70">Prévia Visual da Referência:</span>
                 <div className="aspect-[16/9] w-full max-w-md mx-auto rounded-xl overflow-hidden bg-black border border-white/10 flex items-center justify-center">
-                  <img
+                  <img loading="lazy" decoding="async"
                     src={uploadFile ? URL.createObjectURL(uploadFile) : formImageUrl || "/visual-references/placeholder.svg"}
                     alt="Prévia"
                     className="h-full w-full object-contain"

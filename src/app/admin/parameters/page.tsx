@@ -1,5 +1,6 @@
 "use client";
 
+import { Spinner } from "@/components/ui/spinner";
 import { useEffect, useState, useMemo, useCallback } from "react";
 import Link from "next/link";
 import {
@@ -359,7 +360,7 @@ export default function AdminParametersPage() {
       {/* Toast Notification */}
       {toast && (
         <div
-          className={`fixed bottom-6 right-6 z-50 flex items-center gap-3 px-5 py-3 rounded-xl shadow-2xl border backdrop-blur-md transition-all animate-in fade-in slide-in-from-bottom-4 ${
+          className={`fixed bottom-6 right-6 z-50 flex items-center gap-3 px-5 py-3 rounded-xl shadow-2xl border transition-all animate-in fade-in slide-in-from-bottom-4 ${
             toast.type === "success"
               ? "bg-primary/10 border-primary/40 text-primary shadow-primary/40"
               : "bg-[#291014]/90 border-rose-500/40 text-rose-300 shadow-rose-950/40"
@@ -672,7 +673,7 @@ export default function AdminParametersPage() {
       {/* Lista / Grid de Parâmetros */}
       {loading ? (
         <div className="p-16 rounded-2xl bg-[#0b0e17] border border-white/5 flex flex-col items-center justify-center gap-3">
-          <div className="h-8 w-8 animate-spin rounded-full border-2 border-primary border-t-transparent" />
+          <Spinner block className="h-8 w-8 border-2 border-primary" />
           <p className="text-xs text-white/50 font-mono tracking-wider uppercase">
             Carregando catálogo cinematográfico...
           </p>
@@ -890,9 +891,9 @@ export default function AdminParametersPage() {
 
       {/* Modal de Criação / Edição de Parâmetro */}
       {isFormOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-in fade-in">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 animate-in fade-in">
           <div className="bg-[#0e121a] border border-white/10 rounded-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto shadow-2xl flex flex-col">
-            <div className="p-6 border-b border-white/5 flex items-center justify-between sticky top-0 bg-[#0e121a]/95 backdrop-blur-md z-10">
+            <div className="p-6 border-b border-white/5 flex items-center justify-between sticky top-0 bg-[#0e121a]/95 z-10">
               <div>
                 <h3 className="text-lg font-bold text-white flex items-center gap-2">
                   <span>{editingParam ? "✏️" : "✨"}</span>
@@ -1212,7 +1213,7 @@ export default function AdminParametersPage() {
 
       {/* Modal de Exclusão Segura */}
       {deletingParam && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-in fade-in">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 animate-in fade-in">
           <div className="bg-[#121622] border border-rose-500/30 rounded-2xl p-6 max-w-md w-full shadow-2xl">
             <div className="flex items-center gap-3 text-rose-400 mb-3">
               <span className="text-2xl">⚠️</span>

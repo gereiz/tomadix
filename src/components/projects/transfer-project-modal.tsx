@@ -1,5 +1,6 @@
 "use client";
 
+import { cachedFetch } from "@/lib/client-fetch-cache";
 import { useEffect, useState } from "react";
 
 interface WorkspaceOption {
@@ -34,7 +35,7 @@ export function TransferProjectModal({
   useEffect(() => {
     if (!isOpen) return;
 
-    fetch("/api/workspaces")
+    cachedFetch("/api/workspaces", 10_000)
       .then((res) => (res.ok ? res.json() : null))
       .then((data) => {
         if (data?.data) {
@@ -80,7 +81,7 @@ export function TransferProjectModal({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4 text-white">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4 text-white">
       <div className="max-w-md w-full rounded-2xl border border-white/10 bg-[#0d1017] p-6 space-y-4">
         <div className="flex items-center justify-between">
           <h3 className="text-lg font-bold">Transferir Projeto</h3>

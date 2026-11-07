@@ -105,7 +105,7 @@ export function ThemeToggle({ compact = false }: { compact?: boolean }) {
             className="fixed inset-0 z-40"
             onClick={() => setIsOpen(false)}
           />
-          <div className="absolute right-0 mt-2 z-50 w-44 rounded-xl border border-outline-variant/30 bg-surface-container p-1.5 shadow-xl backdrop-blur-xl">
+          <div className="absolute right-0 mt-2 z-50 w-44 rounded-xl border border-outline-variant/30 bg-surface-container p-1.5 shadow-xl">
             <div className="px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider text-on-surface-variant/70">
               Aparência do Sistema
             </div>

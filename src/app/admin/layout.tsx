@@ -1,5 +1,7 @@
 "use client";
 
+import { cachedFetch } from "@/lib/client-fetch-cache";
+import { Spinner } from "@/components/ui/spinner";
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { AdminSidebar } from "@/components/admin/admin-sidebar";
@@ -29,7 +31,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
       }
     } catch {}
 
-    fetch("/api/auth/me")
+    cachedFetch("/api/auth/me", 10_000)
       .then((res) => (res.ok ? res.json() : null))
       .then((data) => {
         if (data?.authenticated && data?.user?.isPlatformAdmin) {
@@ -56,7 +58,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
     return (
       <div className="min-h-screen bg-[#07090e] text-white flex items-center justify-center">
         <div className="flex flex-col items-center gap-3">
-          <div className="h-8 w-8 animate-spin rounded-full border-2 border-amber-500 border-t-transparent" />
+          <Spinner block className="h-8 w-8 border-2 border-amber-500" />
           <p className="text-xs text-white/50 tracking-wider uppercase font-mono">
             Verificando credenciais administrativas...
           </p>
@@ -68,7 +70,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   if (accessDenied || !admin) {
     return (
       <div className="min-h-screen bg-[#07090e] text-white flex items-center justify-center p-6">
-        <div className="max-w-md w-full rounded-2xl border border-rose-500/30 bg-rose-950/20 p-8 text-center backdrop-blur-xl">
+        <div className="max-w-md w-full rounded-2xl border border-rose-500/30 bg-rose-950/20 p-8 text-center">
           <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-rose-500/10 text-2xl text-rose-400 mb-4">
             ⛔
           </div>

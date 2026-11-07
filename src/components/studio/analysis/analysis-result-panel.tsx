@@ -227,7 +227,7 @@ export function AnalysisResultPanel({
           </span>
 
           {currentImage?.src && !failedIndices.has(currentImage.index) && (
-            <span className="absolute right-2 top-2 rounded-md bg-black/70 px-2 py-0.5 text-[10px] font-semibold text-white/80 opacity-0 backdrop-blur transition group-hover:opacity-100">
+            <span className="absolute right-2 top-2 rounded-md bg-black/70 px-2 py-0.5 text-[10px] font-semibold text-white/80 opacity-0 transition group-hover:opacity-100">
               🔍 Ampliar
             </span>
           )}
@@ -344,7 +344,7 @@ export function AnalysisResultPanel({
                   <div className="relative h-14 w-24 flex-shrink-0 overflow-hidden rounded-lg border border-white/10 bg-[#0c0f13]">
                     {hasValidThumb ? (
                       // eslint-disable-next-line @next/next/no-img-element
-                      <img
+                      <img loading="lazy" decoding="async"
                         src={img.src}
                         alt={img.label}
                         onError={() => markFailed(img.index)}
@@ -479,7 +479,7 @@ export function AnalysisResultPanel({
                 >
                   {hasValidThumb ? (
                     // eslint-disable-next-line @next/next/no-img-element
-                    <img
+                    <img loading="lazy" decoding="async"
                       src={img.src}
                       alt={img.label}
                       onError={() => markFailed(img.index)}
@@ -609,7 +609,7 @@ export function AnalysisResultPanel({
       {/* Lightbox para visualizar qualquer uma das imagens enviadas em tamanho grande */}
       {lightboxEntry && (
         <div
-          className="fixed inset-0 z-50 flex items-center justify-center bg-black/85 p-4 backdrop-blur-md"
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/85 p-4"
           onClick={() => setLightboxIndex(null)}
         >
           <div
@@ -642,7 +642,7 @@ export function AnalysisResultPanel({
             <div className="relative flex flex-1 items-center justify-center bg-black/60 p-4 min-h-[320px]">
               {lightboxEntry.src ? (
                 // eslint-disable-next-line @next/next/no-img-element
-                <img
+                <img loading="lazy" decoding="async"
                   src={lightboxEntry.src}
                   alt={lightboxEntry.label}
                   className="max-h-[68vh] w-auto max-w-full rounded-xl object-contain"
@@ -688,7 +688,7 @@ export function AnalysisResultPanel({
                   >
                     {img.src && (
                       // eslint-disable-next-line @next/next/no-img-element
-                      <img src={img.src} alt={img.label} className="h-8 w-12 rounded object-cover" />
+                      <img loading="lazy" decoding="async" src={img.src} alt={img.label} className="h-8 w-12 rounded object-cover" />
                     )}
                     <div>
                       <p className="text-[10px] font-bold">{img.role}</p>

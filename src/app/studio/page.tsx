@@ -1,5 +1,6 @@
 "use client";
 
+import { Spinner } from "@/components/ui/spinner";
 import dynamic from "next/dynamic";
 
 const CinematicStudioWorkflow = dynamic(
@@ -9,7 +10,7 @@ const CinematicStudioWorkflow = dynamic(
     loading: () => (
       <div className="flex min-h-[85vh] w-full items-center justify-center">
         <div className="flex flex-col items-center gap-3">
-          <div className="h-10 w-10 animate-spin rounded-full border-2 border-primary border-t-transparent" />
+          <Spinner block className="h-10 w-10 border-2 border-primary" />
           <span className="font-label-code text-xs text-white/50 tracking-wider uppercase">
             Iniciando Estúdio de IA & Visão Computacional...
           </span>

@@ -1,5 +1,6 @@
 "use client";
 
+import { cachedFetch } from "@/lib/client-fetch-cache";
 import { useState, useMemo, useEffect } from "react";
 import { VisualReferenceOption, VisualCategory } from "@/modules/visual-library/visual-reference.types";
 import { VisualReferenceResolver } from "@/modules/visual-library/visual-reference.resolver";
@@ -49,7 +50,7 @@ export function VisualParameterSelector({
       setIsAdmin(propIsAdmin);
       return;
     }
-    fetch("/api/auth/me")
+    cachedFetch("/api/auth/me", 10_000)
       .then((r) => (r.ok ? r.json() : null))
       .then((data) => {
         if (data?.authenticated && data?.user) {
@@ -172,7 +173,7 @@ export function VisualParameterSelector({
         <div className="rounded-2xl border border-primary/30 bg-primary/10 p-3.5 flex flex-col sm:flex-row sm:items-center justify-between gap-4 transition">
           <div className="flex items-center gap-3.5">
             <div className="relative h-14 w-24 flex-shrink-0 rounded-xl overflow-hidden bg-black border border-white/10">
-              <img
+              <img loading="lazy" decoding="async"
                 src={currentSelectedOption.imageUrl}
                 alt={currentSelectedOption.label}
                 className="h-full w-full object-cover"
@@ -353,7 +354,7 @@ export function VisualParameterSelector({
                     }`}
                   >
                     <div className="flex items-center gap-3">
-                      <img
+                      <img loading="lazy" decoding="async"
                         src={opt.imageUrl}
                         alt={opt.label}
                         className="h-9 w-14 rounded-lg object-cover bg-black"

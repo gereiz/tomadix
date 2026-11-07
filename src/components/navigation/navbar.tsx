@@ -1,5 +1,6 @@
 "use client";
 
+import { cachedFetch, invalidateClientCache } from "@/lib/client-fetch-cache";
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
@@ -25,9 +26,20 @@ export function Navbar() {
   const router = useRouter();
   const [user, setUser] = useState<AuthUser | null>(null);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  // Monta apenas uma instância de WorkspaceSelector/CreditBadge (desktop OU mobile),
+  // evitando requisições duplicadas a /api/workspaces e /api/billing/subscription.
+  const [isDesktop, setIsDesktop] = useState<boolean | null>(null);
 
   useEffect(() => {
-    fetch("/api/auth/me")
+    const mql = window.matchMedia("(min-width: 768px)");
+    const update = () => setIsDesktop(mql.matches);
+    update();
+    mql.addEventListener("change", update);
+    return () => mql.removeEventListener("change", update);
+  }, []);
+
+  useEffect(() => {
+    cachedFetch("/api/auth/me", 10_000)
       .then((res) => (res.ok ? res.json() : null))
       .then((data) => {
         if (data?.authenticated) {
@@ -46,6 +58,7 @@ export function Navbar() {
 
   const handleLogout = async () => {
     await fetch("/api/auth/logout", { method: "POST" });
+    invalidateClientCache();
     setUser(null);
     router.push("/login");
     router.refresh();
@@ -63,7 +76,7 @@ export function Navbar() {
   ];
 
   return (
-    <header className="sticky top-0 z-40 border-b border-outline-variant/30 bg-surface/85 backdrop-blur-xl">
+    <header className="sticky top-0 z-40 border-b border-outline-variant/30 bg-surface/85">
       <div className="w-full flex items-center justify-between px-4 sm:px-6 lg:px-8 py-2.5">
         {/* Lado Esquerdo: Logo + Links Desktop */}
         <div className="flex items-center gap-6 lg:gap-8">
@@ -105,8 +118,12 @@ export function Navbar() {
           <ThemeToggle />
           {user ? (
             <>
-              <WorkspaceSelector />
-              <CreditBadge />
+              {isDesktop === true && (
+                <>
+                  <WorkspaceSelector />
+                  <CreditBadge />
+                </>
+              )}
 
               {/*<Link
                 href="/workspace"
@@ -187,7 +204,7 @@ export function Navbar() {
         {/* Lado Direito Mobile (< md) */}
         <div className="flex md:hidden items-center gap-2">
           <ThemeToggle compact />
-          {user && (
+          {user && isDesktop === false && (
             <>
               <div className="max-w-[110px] sm:max-w-[140px] truncate">
                 <WorkspaceSelector />
@@ -227,7 +244,7 @@ export function Navbar() {
 
       {/* Painel Mobile Dropdown Drawer */}
       {isMobileMenuOpen && (
-        <div className="md:hidden border-t border-white/10 bg-[#090c13]/98 px-4 py-4 space-y-4 backdrop-blur-2xl shadow-2xl animate-in slide-in-from-top-2 duration-200">
+        <div className="md:hidden border-t border-white/10 bg-[#090c13]/98 px-4 py-4 space-y-4 shadow-2xl animate-in slide-in-from-top-2 duration-200">
           {/* Navegação Geral */}
           <div className="space-y-1">
             <div className="text-[10px] font-bold uppercase tracking-wider text-white/40 px-3 py-1">

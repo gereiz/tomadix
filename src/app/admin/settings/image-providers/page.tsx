@@ -1,5 +1,6 @@
 "use client";
 
+import { Spinner } from "@/components/ui/spinner";
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { rankModelQuality } from "@/modules/image-generation/model-quality-ranker";
@@ -452,7 +453,7 @@ export default function ImageProvidersAdminPage() {
             className="flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-semibold bg-emerald-500/15 border border-emerald-500/30 text-emerald-300 hover:bg-emerald-500/25 transition disabled:opacity-40"
           >
             {testing ? (
-              <span className="animate-spin inline-block h-3.5 w-3.5 border-2 border-emerald-300 border-t-transparent rounded-full" />
+              <Spinner className="h-3.5 w-3.5 border-2 border-emerald-300" />
             ) : (
               <span>⚡</span>
             )}
@@ -467,7 +468,7 @@ export default function ImageProvidersAdminPage() {
             title="Exclui imagens expiradas de acordo com as políticas de retenção de cada plano para liberar espaço em disco"
           >
             {cleaningRetention ? (
-              <span className="animate-spin inline-block h-3.5 w-3.5 border-2 border-red-300 border-t-transparent rounded-full" />
+              <Spinner className="h-3.5 w-3.5 border-2 border-red-300" />
             ) : (
               <span>🧹</span>
             )}
@@ -481,7 +482,7 @@ export default function ImageProvidersAdminPage() {
             className="flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-semibold bg-amber-400/15 border border-amber-400/30 text-amber-300 hover:bg-amber-400/25 transition disabled:opacity-40"
           >
             {syncing ? (
-              <span className="animate-spin inline-block h-3.5 w-3.5 border-2 border-amber-300 border-t-transparent rounded-full" />
+              <Spinner className="h-3.5 w-3.5 border-2 border-amber-300" />
             ) : (
               <span>🔄</span>
             )}
@@ -512,7 +513,7 @@ export default function ImageProvidersAdminPage() {
 
       {loading ? (
         <div className="p-12 text-center text-white/50 font-mono text-xs">
-          <span className="animate-spin inline-block h-6 w-6 border-2 border-amber-400 border-t-transparent rounded-full mb-3" />
+          <Spinner className="h-6 w-6 border-2 border-amber-400 mb-3" />
           <p>Carregando configurações dos provedores de imagem...</p>
         </div>
       ) : (
@@ -887,7 +888,7 @@ export default function ImageProvidersAdminPage() {
               ) : (
                 <div className="overflow-x-auto max-h-[620px] overflow-y-auto rounded-xl border border-white/10 scrollbar-thin scrollbar-thumb-white/20 scrollbar-track-transparent">
                   <table className="w-full text-left text-xs">
-                    <thead className="sticky top-0 bg-[#0e121b] z-20 shadow-md border-b border-white/10 backdrop-blur-md">
+                    <thead className="sticky top-0 bg-[#0e121b] z-20 shadow-md border-b border-white/10">
                       <tr className="text-[10px] font-mono text-white/40 uppercase">
                         <th className="py-2.5 px-3">Modelo</th>
                         <th className="py-2.5 px-3">Ranking de Qualidade</th>
@@ -1067,7 +1068,7 @@ export default function ImageProvidersAdminPage() {
             className="flex items-center gap-2 px-3.5 py-1.5 rounded-xl text-xs font-semibold bg-white/5 border border-white/10 text-white hover:bg-white/15 transition disabled:opacity-40"
           >
             {loadingAccount ? (
-              <span className="animate-spin inline-block h-3.5 w-3.5 border-2 border-amber-300 border-t-transparent rounded-full" />
+              <Spinner className="h-3.5 w-3.5 border-2 border-amber-300" />
             ) : (
               <span>🔄</span>
             )}
@@ -1123,7 +1124,7 @@ export default function ImageProvidersAdminPage() {
             <span className="text-[10px] font-mono uppercase text-white/40 block">Credencial Ativa</span>
             <div className="flex items-center gap-2">
               {accountMetrics?.profile?.image && (
-                <img
+                <img loading="lazy" decoding="async"
                   src={accountMetrics.profile.image}
                   alt="Avatar"
                   className="h-6 w-6 rounded-full border border-white/20"

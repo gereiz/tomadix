@@ -1,5 +1,6 @@
 "use client";
 
+import { Spinner } from "@/components/ui/spinner";
 import { useEffect, useState, useCallback } from "react";
 import Image from "next/image";
 import {
@@ -211,7 +212,7 @@ export function ProjectParameterSettings({ projectId }: ProjectParameterSettings
       {/* Toast flutuante de sucesso */}
       {successMessage && (
         <div className="fixed top-20 right-6 z-50 animate-in fade-in slide-in-from-top-4 duration-300">
-          <div className="flex items-center gap-3 rounded-2xl border border-primary/40 bg-[#12151E]/95 p-4 shadow-lg shadow-primary/20 backdrop-blur-xl">
+          <div className="flex items-center gap-3 rounded-2xl border border-primary/40 bg-[#12151E]/95 p-4 shadow-lg shadow-primary/20">
             <span className="flex h-7 w-7 items-center justify-center rounded-xl bg-primary font-bold text-on-primary text-xs shadow-sm shadow-primary/20">
               ✓
             </span>
@@ -221,7 +222,7 @@ export function ProjectParameterSettings({ projectId }: ProjectParameterSettings
       )}
 
       {/* Header com Estatísticas e Presets */}
-      <div className="rounded-3xl border border-white/10 bg-[#12151E] p-6 shadow-2xl backdrop-blur-xl">
+      <div className="rounded-3xl border border-white/10 bg-[#12151E] p-6 shadow-2xl">
         <div className="flex flex-col gap-6 lg:flex-row lg:items-center lg:justify-between">
           <div className="space-y-2">
             <div className="inline-flex items-center gap-2 rounded-full border border-primary/20 bg-primary/10 px-3 py-1 text-[11px] font-semibold text-primary">
@@ -262,7 +263,7 @@ export function ProjectParameterSettings({ projectId }: ProjectParameterSettings
             >
               {saving ? (
                 <>
-                  <span className="h-3 w-3 animate-spin rounded-full border-2 border-black border-t-transparent" />
+                  <Spinner className="h-3 w-3 border-2 border-black" />
                   <span>Salvando...</span>
                 </>
               ) : (
@@ -533,7 +534,7 @@ export function ProjectParameterSettings({ projectId }: ProjectParameterSettings
       {/* Modal de Detalhes da Referência Visual */}
       {selectedVisualRef && (
         <div
-          className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4 backdrop-blur-md animate-in fade-in duration-200"
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4 animate-in fade-in duration-200"
           onClick={() => setSelectedVisualRef(null)}
         >
           <div

@@ -1,5 +1,6 @@
 "use client";
 
+import { cachedFetch } from "@/lib/client-fetch-cache";
 import { useEffect, useState, useCallback } from "react";
 import Link from "next/link";
 
@@ -15,7 +16,7 @@ export function CreditBadge({ className = "", showAddButton = true }: CreditBadg
 
   const fetchCredits = useCallback(async () => {
     try {
-      const res = await fetch("/api/billing/subscription", { cache: "no-store" });
+      const res = await cachedFetch("/api/billing/subscription", 5_000);
       if (res.ok) {
         const json = await res.json();
         const balance = json?.data?.creditsBalance ?? 0;

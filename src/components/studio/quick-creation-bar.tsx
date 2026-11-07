@@ -1,5 +1,6 @@
 "use client";
 
+import { Spinner } from "@/components/ui/spinner";
 import { useState, useEffect, useRef, useCallback } from "react";
 import { useRouter } from "next/navigation";
 
@@ -443,7 +444,7 @@ export function QuickCreationBar({
         <button
           type="button"
           onClick={toggleCollapsed}
-          className="flex items-center gap-2 rounded-full border border-white/10 bg-[#12151E]/95 px-4 py-2.5 text-xs font-semibold text-white shadow-2xl backdrop-blur-xl transition hover:border-primary/50 hover:bg-[#181C28] group"
+          className="flex items-center gap-2 rounded-full border border-white/10 bg-[#12151E]/95 px-4 py-2.5 text-xs font-semibold text-white shadow-2xl transition hover:border-primary/50 hover:bg-[#181C28] group"
         >
           <span className="flex h-5 w-5 items-center justify-center rounded-full bg-primary/20 text-primary text-xs">
             ⚡
@@ -466,7 +467,7 @@ export function QuickCreationBar({
         {/* Feedback flutuante */}
         {feedback && (
           <div
-            className={`mb-2 inline-flex items-center gap-2 rounded-xl px-4 py-2 text-xs font-semibold shadow-lg backdrop-blur-md transition-all ${
+            className={`mb-2 inline-flex items-center gap-2 rounded-xl px-4 py-2 text-xs font-semibold shadow-lg transition-all ${
               feedback.type === "success"
                 ? "bg-primary/20 text-primary border border-primary/40"
                 : "bg-red-950/90 text-red-300 border border-red-500/30"
@@ -480,7 +481,7 @@ export function QuickCreationBar({
         {/* Container Principal com Redimensionamento */}
         <div
           style={{ minHeight: `${barHeight}px` }}
-          className="relative flex flex-col justify-between rounded-2xl border border-white/10 bg-[#12151E]/95 p-2 sm:p-3 shadow-[0_20px_50px_rgba(0,0,0,0.85)] backdrop-blur-xl transition-[height] duration-75"
+          className="relative flex flex-col justify-between rounded-2xl border border-white/10 bg-[#12151E]/95 p-2 sm:p-3 shadow-[0_20px_50px_rgba(0,0,0,0.85)] transition-[height] duration-75"
         >
           {/* Barra Superior de Arraste (Resize Handle) */}
           <div
@@ -493,7 +494,7 @@ export function QuickCreationBar({
 
           {/* Popover de Menções Autocomplete */}
           {mentionState.active && suggestions.length > 0 && (
-            <div className="absolute bottom-[calc(100%+8px)] left-4 z-40 w-72 rounded-xl border border-white/10 bg-[#181C28]/95 p-1.5 shadow-2xl backdrop-blur-xl">
+            <div className="absolute bottom-[calc(100%+8px)] left-4 z-40 w-72 rounded-xl border border-white/10 bg-[#181C28]/95 p-1.5 shadow-2xl">
               <div className="px-2 py-1 text-[10px] font-semibold uppercase tracking-wider text-white/40">
                 Mencionar {mentionState.type === "character" ? "Personagem" : mentionState.type === "environment" ? "Ambiente" : "Cena"}
               </div>
@@ -682,7 +683,7 @@ export function QuickCreationBar({
               >
                 {loading ? (
                   <>
-                    <span className="inline-block h-3.5 w-3.5 animate-spin rounded-full border-2 border-current border-t-transparent" />
+                    <Spinner className="h-3.5 w-3.5 border-2 border-current" />
                     <span className="hidden sm:inline">Criando...</span>
                   </>
                 ) : (

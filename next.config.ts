@@ -4,6 +4,9 @@ const nextConfig: NextConfig = {
   output: "standalone",
   poweredByHeader: false,
   compress: true,
+  experimental: {
+    optimizePackageImports: ["@xyflow/react"],
+  },
   eslint: {
     ignoreDuringBuilds: true,
   },

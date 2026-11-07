@@ -77,7 +77,7 @@ export function StudioGallery({ initialProjectId, refreshTrigger }: StudioGaller
   return (
     <div className="w-full pb-36">
       {/* Barra de Controles: Abas de Tipo, Pesquisa e Ordenação */}
-      <div className="sticky top-[60px] z-20 border-b border-white/5 bg-[#0B0D12]/95 backdrop-blur-md py-4">
+      <div className="sticky top-[60px] z-20 border-b border-white/5 bg-[#0B0D12]/95 py-4">
         <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
           {/* Abas de Tipos de Conteúdo */}
           <div className="flex items-center gap-1.5 overflow-x-auto scrollbar-none pb-1 md:pb-0">

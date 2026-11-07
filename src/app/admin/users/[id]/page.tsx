@@ -1,5 +1,6 @@
 "use client";
 
+import { Spinner } from "@/components/ui/spinner";
 import { useEffect, useState, use } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -355,7 +356,7 @@ export default function AdminUserDetailsPage({ params }: { params: Promise<{ id:
   if (loading) {
     return (
       <div className="p-12 text-center text-xs text-white/50 flex flex-col items-center gap-3 animate-pulse">
-        <div className="h-6 w-6 animate-spin rounded-full border-2 border-amber-400 border-t-transparent" />
+        <Spinner block className="h-6 w-6 border-2 border-amber-400" />
         Carregando prontuário operacional do usuário...
       </div>
     );
@@ -933,7 +934,7 @@ export default function AdminUserDetailsPage({ params }: { params: Promise<{ id:
 
       {/* MODAL: VERIFICAÇÃO MANUAL DE E-MAIL COM JUSTIFICATIVA */}
       {emailModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4">
           <div className="max-w-md w-full rounded-2xl border border-amber-500/30 bg-[#16120d] p-6 space-y-4">
             <h3 className="text-base font-bold text-amber-300">Confirmação Manual de E-mail</h3>
             <p className="text-xs text-white/70 leading-relaxed">
@@ -975,7 +976,7 @@ export default function AdminUserDetailsPage({ params }: { params: Promise<{ id:
 
       {/* MODAL: PERMISSÕES GRANULARES */}
       {permsModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4">
           <div className="max-w-2xl w-full rounded-2xl border border-indigo-500/30 bg-[#0c1020] p-6 space-y-4 max-h-[90vh] overflow-y-auto">
             <div className="flex justify-between items-start border-b border-white/10 pb-3">
               <div>
@@ -1059,7 +1060,7 @@ export default function AdminUserDetailsPage({ params }: { params: Promise<{ id:
 
       {/* MODAL: AJUSTAR CRÉDITOS (+ / -) */}
       {creditModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4">
           <div className="max-w-md w-full rounded-2xl border border-primary/30 bg-[#0c141c] p-6 space-y-4">
             <h3 className="text-base font-bold text-primary">Ajuste de Créditos (+ Concessão / - Retirada)</h3>
             <p className="text-xs text-white/70 leading-relaxed">
@@ -1129,7 +1130,7 @@ export default function AdminUserDetailsPage({ params }: { params: Promise<{ id:
 
       {/* MODAL: ALTERAÇÃO DEFINITIVA DE PLANO */}
       {changePlanModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4">
           <div className="max-w-md w-full rounded-2xl border border-primary/40 bg-[#0c141c] p-6 space-y-4">
             <h3 className="text-base font-bold text-primary">Alterar Plano Contratado do Estúdio</h3>
             <p className="text-xs text-white/70 leading-relaxed">
@@ -1195,7 +1196,7 @@ export default function AdminUserDetailsPage({ params }: { params: Promise<{ id:
 
       {/* MODAL: CONCESSÃO ADMINISTRATIVA TEMPORÁRIA (OVERRIDE) */}
       {overrideModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4">
           <div className="max-w-md w-full rounded-2xl border border-indigo-500/30 bg-[#0c1020] p-6 space-y-4">
             <h3 className="text-base font-bold text-indigo-300">Conceder Plano Temporário / Cortesia</h3>
             <p className="text-xs text-white/70 leading-relaxed">
@@ -1272,7 +1273,7 @@ export default function AdminUserDetailsPage({ params }: { params: Promise<{ id:
 
       {/* MODAL: TRANSFERÊNCIA DE PROJETO */}
       {transferProjectTarget && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4">
           <div className="max-w-md w-full rounded-2xl border border-indigo-500/30 bg-[#0c1020] p-6 space-y-4">
             <h3 className="text-base font-bold text-indigo-300">Transferir Projeto entre Estúdios</h3>
             <p className="text-xs text-white/70 leading-relaxed">
@@ -1327,7 +1328,7 @@ export default function AdminUserDetailsPage({ params }: { params: Promise<{ id:
 
       {/* MODAL: SUSPENDER CONTA */}
       {suspendModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4">
           <div className="max-w-md w-full rounded-2xl border border-rose-500/30 bg-[#160d10] p-6 space-y-4">
             <h3 className="text-base font-bold text-rose-300">Suspender Conta de Usuário</h3>
             <p className="text-xs text-white/70 leading-relaxed">

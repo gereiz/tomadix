@@ -148,12 +148,10 @@ export function OnboardingModal({
       role="dialog"
       aria-modal="true"
       aria-labelledby="onboarding-step-title"
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black/85 p-4 backdrop-blur-md animate-in fade-in duration-200"
+      className="fixed inset-0 z-50 flex items-center justify-center bg-black/85 p-4 animate-in fade-in duration-200"
     >
       <div className="relative flex max-h-[92vh] w-full max-w-2xl flex-col overflow-hidden rounded-3xl border border-white/10 bg-gradient-to-b from-[#121620] via-[#0d1017] to-black text-white shadow-2xl">
         {/* Glow de fundo */}
-        <div className="pointer-events-none absolute -top-32 -left-32 h-64 w-64 rounded-full bg-primary/15 blur-3xl" />
-        <div className="pointer-events-none absolute -bottom-32 -right-32 h-64 w-64 rounded-full bg-amber-500/10 blur-3xl" />
 
         {/* Topo / Barra de Progresso */}
         <div className="border-b border-white/10 p-6 pb-4">

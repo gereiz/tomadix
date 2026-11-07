@@ -1,5 +1,6 @@
 "use client";
 
+import { Spinner } from "@/components/ui/spinner";
 import { useState, useEffect } from "react";
 import { ImageAspectRatio } from "@/modules/image-generation/image-generation.types";
 import { downloadImage } from "@/lib/utils/download-image";
@@ -179,7 +180,7 @@ export function DirectEntityImageModal({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4 backdrop-blur-md overflow-y-auto">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4 overflow-y-auto">
       <div className="relative w-full max-w-2xl rounded-3xl border border-white/10 bg-[#0f1218] p-6 shadow-2xl space-y-5 my-8">
         {/* Cabeçalho */}
         <div className="flex items-center justify-between border-b border-white/10 pb-4">
@@ -205,7 +206,7 @@ export function DirectEntityImageModal({
         {/* Preview da Imagem (se já houver) */}
         {generatedUrl && (
           <div className="relative overflow-hidden rounded-2xl border border-white/10 bg-[#07090e] group p-2">
-            <img
+            <img loading="lazy" decoding="async"
               src={generatedUrl}
               alt="Imagem Gerada"
               className="w-full max-h-72 object-contain mx-auto rounded-xl"
@@ -226,7 +227,7 @@ export function DirectEntityImageModal({
               </button>
             </div>
             <div className="absolute bottom-4 left-4">
-              <span className="px-2.5 py-1 rounded-lg bg-emerald-500/25 border border-emerald-500/40 text-emerald-300 font-mono text-[10px] font-semibold backdrop-blur-md">
+              <span className="px-2.5 py-1 rounded-lg bg-emerald-500/25 border border-emerald-500/40 text-emerald-300 font-mono text-[10px] font-semibold">
                 ✓ Imagem vinculada com sucesso
               </span>
             </div>
@@ -364,7 +365,7 @@ export function DirectEntityImageModal({
             >
               {generating ? (
                 <>
-                  <span className="inline-block h-3.5 w-3.5 animate-spin rounded-full border-2 border-black border-t-transparent" />
+                  <Spinner className="h-3.5 w-3.5 border-2 border-black" />
                   <span>Gerando Imagem com IA...</span>
                 </>
               ) : (

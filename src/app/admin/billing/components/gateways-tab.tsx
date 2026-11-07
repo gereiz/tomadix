@@ -647,7 +647,7 @@ export function GatewaysTab({ onNotify }: { onNotify: (type: "success" | "error"
 
       {/* MODAL 1: TESTE DE CONEXÃO REALIZADO */}
       {testResultModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4 backdrop-blur-sm">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4">
           <div className="max-w-md w-full rounded-2xl border border-white/10 bg-[#0d111c] p-6 space-y-4">
             <div className="flex items-center gap-3">
               <div
@@ -698,7 +698,7 @@ export function GatewaysTab({ onNotify }: { onNotify: (type: "success" | "error"
 
       {/* MODAL 2: GESTÃO SEGURA DE CREDENCIAIS */}
       {editCredsModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4 backdrop-blur-sm">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4">
           <div className="max-w-lg w-full rounded-2xl border border-white/10 bg-[#0d111c] p-6 space-y-5">
             <div className="flex items-center justify-between border-b border-white/10 pb-3">
               <div>
@@ -841,7 +841,7 @@ export function GatewaysTab({ onNotify }: { onNotify: (type: "success" | "error"
 
       {/* MODAL 3: CONFIRMAÇÃO DE ALTERNÂNCIA DE STATUS COM AVISO DE ASSINATURAS */}
       {toggleConfirmModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4 backdrop-blur-sm">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4">
           <div className="max-w-md w-full rounded-2xl border border-white/10 bg-[#0d111c] p-6 space-y-4">
             <h3 className="text-base font-bold text-white">
               {toggleConfirmModal.newStatus === "ACTIVE"
@@ -891,7 +891,7 @@ export function GatewaysTab({ onNotify }: { onNotify: (type: "success" | "error"
 
       {/* MODAL 4: MAPEAMENTO DE PLANO COM CATÁLOGO EXTERNO */}
       {mappingModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4 backdrop-blur-sm">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4">
           <div className="max-w-lg w-full rounded-2xl border border-white/10 bg-[#0d111c] p-6 space-y-4">
             <h3 className="text-base font-bold text-white">
               Associação de Plano com Catálogo Externo

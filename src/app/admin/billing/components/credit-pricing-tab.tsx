@@ -626,7 +626,7 @@ export function CreditPricingTab() {
 
       {/* MODAL: ADICIONAR REGRA POR PLANO */}
       {ruleModalOp && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4">
           <div className="w-full max-w-md rounded-2xl border border-white/10 bg-[#0d111c] p-6 shadow-2xl">
             <h3 className="text-sm font-bold text-white">Preço Específico para {ruleModalOp.name}</h3>
             <p className="text-xs text-white/50 mt-1">
@@ -698,7 +698,7 @@ export function CreditPricingTab() {
 
       {/* MODAL: CADASTRAR NOVA OPERAÇÃO COBRÁVEL */}
       {showNewOpModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4">
           <div className="w-full max-w-md rounded-2xl border border-white/10 bg-[#0d111c] p-6 shadow-2xl">
             <h3 className="text-sm font-bold text-white">Cadastrar Nova Operação Cobrada</h3>
             <p className="text-xs text-white/50 mt-1">
@@ -786,7 +786,7 @@ export function CreditPricingTab() {
 
       {/* MODAL: NOVA POLÍTICA DE RENOVAÇÃO */}
       {showRenewalModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4">
           <div className="w-full max-w-md rounded-2xl border border-white/10 bg-[#0d111c] p-6 shadow-2xl">
             <h3 className="text-sm font-bold text-white">Criar Política de Renovação de Créditos</h3>
             <p className="text-xs text-white/50 mt-1">

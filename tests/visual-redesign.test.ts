@@ -8,11 +8,12 @@ describe("Etapa 4: Implementação do Redesign Visual V1 e Identidade Cinematogr
     const content = fs.readFileSync(globalsCssPath, "utf-8");
 
     // Cores oficiais
-    expect(content).toContain("--color-surface: #101418;");
-    expect(content).toContain("--color-primary: #4edea3;");
-    expect(content).toContain("--color-primary-container: #10b981;");
+    // Os tokens são personalizáveis pelo admin (variáveis --brand-*), com o valor oficial como fallback
+    expect(content).toContain("--color-surface: var(--brand-surface, #101418);");
+    expect(content).toContain("--color-primary: var(--brand-primary, #4edea3);");
+    expect(content).toContain("--color-primary-container: var(--brand-primary, #10b981);");
     expect(content).toContain("--color-surface-container-lowest: #0b0f13;");
-    expect(content).toContain("--color-outline-variant: #3c4a42;");
+    expect(content).toContain("--color-outline-variant: var(--brand-border, #3c4a42);");
 
     // Tipografia
     expect(content).toContain('--font-display-hero: "Plus Jakarta Sans"');
@@ -20,43 +21,54 @@ describe("Etapa 4: Implementação do Redesign Visual V1 e Identidade Cinematogr
     expect(content).toContain('--font-label-code: "JetBrains Mono"');
   });
 
-  it("2. Fontes e Layout Global: layout.tsx deve carregar Google Fonts e Material Symbols", () => {
+  it("2. Fontes e Layout Global: layout.tsx carrega Google Fonts, sem a fonte de ícones Material Symbols", () => {
     const layoutPath = path.join(process.cwd(), "src/app/layout.tsx");
     const content = fs.readFileSync(layoutPath, "utf-8");
 
     expect(content).toContain("Plus+Jakarta+Sans");
     expect(content).toContain("Inter");
     expect(content).toContain("JetBrains+Mono");
-    expect(content).toContain("Material+Symbols+Outlined");
+    // Ícones agora são SVGs inline (src/components/ui/icon.tsx)
+    expect(content).not.toContain("Material+Symbols+Outlined");
     expect(content).toContain("bg-surface font-body-md text-on-surface");
   });
 
-  it("3. Navbar Redesenhado: deve possuir backdrop-blur, links com tokens e logo moderno", () => {
+  it("3. Navbar Redesenhado: links com tokens e logo moderno, sem backdrop-blur", () => {
     const navbarPath = path.join(process.cwd(), "src/components/navigation/navbar.tsx");
     const content = fs.readFileSync(navbarPath, "utf-8");
 
-    expect(content).toContain("bg-surface/85 backdrop-blur-xl");
+    // backdrop-blur foi removido de todo o sistema por custo de GPU (veja CLAUDE.md)
+    expect(content).not.toContain("backdrop-blur");
     expect(content).toContain("border-outline-variant/30");
     expect(content).toContain("text-primary");
     expect(content).toContain("TOMA");
     expect(content).toContain("DIX");
   });
 
-  it("4. Landing Page Home: deve conter Hero cinematográfico, ambient glow e terminal JSON", () => {
-    const homePath = path.join(process.cwd(), "src/app/page.tsx");
-    const content = fs.readFileSync(homePath, "utf-8");
+  it("4. Landing Page Home: Hero, exemplo de prompt JSON e fluxo em 4 passos (componentes reutilizáveis)", () => {
+    const root = process.cwd();
+    const page = fs.readFileSync(path.join(root, "src/app/page.tsx"), "utf-8");
+    const content = fs.readFileSync(path.join(root, "src/config/home-content.ts"), "utf-8");
+    const preview = fs.readFileSync(path.join(root, "src/components/home/prompt-preview.tsx"), "utf-8");
 
-    expect(content).toContain("AI-Powered Pre-Production • Engine v2.4");
-    expect(content).toContain("Da ideia ao prompt.");
-    expect(content).toContain("Com direção cinematográfica.");
-    expect(content).toContain("prompt_compiler.json");
-    expect(content).toContain("Midjourney v6.1");
-    expect(content).toContain("Flux Pro");
+    expect(page).toContain("Escreva a cena.");
+    expect(page).toContain("Receba o prompt pronto.");
+    expect(page).toContain("PromptPreview");
+    expect(page).toContain("HOME_STEPS");
+    expect(page).not.toContain('"use client"');
+    expect(preview).toContain("HOME_PROMPT_SAMPLE");
+    expect(content).toContain("cena-03.json");
+    expect(content).toContain("Google Flow");
   });
 
   it("5. Página de Projetos: deve possuir cards widescreen 16:9, atalho ⌘K, presets e 4 métricas", () => {
-    const projectsPath = path.join(process.cwd(), "src/app/projects/page.tsx");
-    const content = fs.readFileSync(projectsPath, "utf-8");
+    // A página foi dividida em componentes: a rota apenas reexporta src/components/projects/list
+    const listDir = path.join(process.cwd(), "src/components/projects/list");
+    const content = fs
+      .readdirSync(listDir)
+      .filter((name) => /\.tsx?$/.test(name))
+      .map((name) => fs.readFileSync(path.join(listDir, name), "utf-8"))
+      .join("\n");
 
     // Aspect ratio 16:9 widescreen card
     expect(content).toContain("aspect-[16/9]");
@@ -75,6 +87,6 @@ describe("Etapa 4: Implementação do Redesign Visual V1 e Identidade Cinematogr
     expect(content).toContain("Cinema Noir VHS Anos 90");
 
     // Ação Abrir Módulos
-    expect(content).toContain("Abrir Módulos");
+    expect(content).toContain("Abrir");
   });
 });

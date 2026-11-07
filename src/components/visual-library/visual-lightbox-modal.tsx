@@ -112,7 +112,7 @@ export function VisualLightboxModal({
       role="dialog"
       aria-modal="true"
       aria-labelledby="lightbox-title"
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black/85 backdrop-blur-md p-4 animate-in fade-in duration-200"
+      className="fixed inset-0 z-50 flex items-center justify-center bg-black/85 p-4 animate-in fade-in duration-200"
       onClick={onClose}
     >
       <div
@@ -139,7 +139,7 @@ export function VisualLightboxModal({
 
         {/* Imagem Ampliada */}
         <div className="relative aspect-[16/9] w-full bg-black/60 flex items-center justify-center overflow-hidden border-b border-white/10">
-          <img
+          <img loading="lazy" decoding="async"
             src={currentImageUrl || option.imageUrl}
             alt={option.altText || option.label}
             className="h-full w-full object-contain"
@@ -149,7 +149,7 @@ export function VisualLightboxModal({
           />
 
           {option.license && (
-            <div className="absolute bottom-2 right-3 rounded-full bg-black/70 px-2.5 py-0.5 text-[9px] text-white/50 backdrop-blur-sm border border-white/10">
+            <div className="absolute bottom-2 right-3 rounded-full bg-black/70 px-2.5 py-0.5 text-[9px] text-white/50 border border-white/10">
               Licença: {option.license}
             </div>
           )}

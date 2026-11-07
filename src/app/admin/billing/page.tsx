@@ -1077,7 +1077,7 @@ export default function AdminBillingPage() {
 
       {/* MODAL 1: EDITAR / CONFIGURAR PLANO COMPLETO */}
       {editingPlan && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4 backdrop-blur-sm overflow-y-auto">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4 overflow-y-auto">
           <div className="max-w-4xl w-full rounded-2xl border border-white/10 bg-[#0d111c] p-6 space-y-5 my-8">
             <div className="flex items-center justify-between border-b border-white/10 pb-4">
               <div>
@@ -1280,7 +1280,7 @@ export default function AdminBillingPage() {
                 {planSimulation?.services ? (
                   <div className="overflow-x-auto max-h-52 overflow-y-auto rounded-lg border border-white/5">
                     <table className="w-full text-left text-xs">
-                      <thead className="bg-white/5 border-b border-white/10 text-white/50 sticky top-0 backdrop-blur-md">
+                      <thead className="bg-white/5 border-b border-white/10 text-white/50 sticky top-0">
                         <tr>
                           <th className="p-2.5">Funcionalidade</th>
                           <th className="p-2.5 text-center">Custo Unitário</th>
@@ -1576,7 +1576,7 @@ export default function AdminBillingPage() {
 
       {/* MODAL 2: DUPLICAR PLANO */}
       {duplicateModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4 backdrop-blur-sm">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4">
           <div className="max-w-md w-full rounded-2xl border border-white/10 bg-[#0d111c] p-6 space-y-4">
             <h3 className="text-base font-bold text-white">Duplicar Plano ({duplicateModal.sourceTier})</h3>
             <p className="text-xs text-white/50">Crie um novo plano rascunho com base nas configurações existentes.</p>
@@ -1615,7 +1615,7 @@ export default function AdminBillingPage() {
 
       {/* MODAL 3: ARQUIVAR PLANO */}
       {archiveModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4 backdrop-blur-sm">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4">
           <div className="max-w-md w-full rounded-2xl border border-rose-500/30 bg-[#0d111c] p-6 space-y-4">
             <h3 className="text-base font-bold text-white flex items-center gap-2">
               <span>⚠️</span>
@@ -1647,7 +1647,7 @@ export default function AdminBillingPage() {
 
       {/* MODAL 4: EDITAR POLÍTICA GLOBAL */}
       {policyEditModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4 backdrop-blur-sm">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4">
           <div className="max-w-md w-full rounded-2xl border border-white/10 bg-[#0d111c] p-6 space-y-4">
             <h3 className="text-base font-bold text-white">{policyEditModal.label}</h3>
             <p className="text-xs font-mono text-amber-400/80">Chave: {policyEditModal.key}</p>

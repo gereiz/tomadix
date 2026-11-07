@@ -1,5 +1,6 @@
 "use client";
 
+import { cachedFetch } from "@/lib/client-fetch-cache";
 import { useState, useEffect, useCallback } from "react";
 import { VisualParameterSelector } from "@/components/visual-library/visual-parameter-selector";
 
@@ -42,8 +43,10 @@ interface EntityParametersSectionProps {
 // Cache leve em memória de sessão de usuário no cliente
 let cachedUserPromise: Promise<{ isAdmin: boolean }> | null = null;
 function getUserAdminStatusCached(): Promise<{ isAdmin: boolean }> {
+  // Compartilha a requisição via cachedFetch (TTL curto) em vez de memorizar para sempre
+  cachedUserPromise = null;
   if (!cachedUserPromise) {
-    cachedUserPromise = fetch("/api/auth/me")
+    cachedUserPromise = cachedFetch("/api/auth/me", 10_000)
       .then((r) => (r.ok ? r.json() : null))
       .then((data) => {
         if (data?.authenticated && data?.user) {

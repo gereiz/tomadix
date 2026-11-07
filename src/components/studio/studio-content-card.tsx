@@ -100,7 +100,7 @@ export function StudioContentCard({ item, onDuplicate, onDelete }: StudioContent
 
           {/* Tag de Projeto pai quando aplicável */}
           {item.projectName && item.type !== "PROJECT" && (
-            <div className="absolute bottom-2 left-2 max-w-[85%] truncate rounded-md bg-black/70 px-2 py-0.5 text-[10px] font-medium text-white/70 backdrop-blur-md">
+            <div className="absolute bottom-2 left-2 max-w-[85%] truncate rounded-md bg-black/70 px-2 py-0.5 text-[10px] font-medium text-white/70">
               {item.projectName}
             </div>
           )}

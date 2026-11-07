@@ -1,5 +1,6 @@
 "use client";
 
+import { Spinner } from "@/components/ui/spinner";
 import { useEffect, useState } from "react";
 import {
   SanitizedConnectionInfo,
@@ -329,7 +330,7 @@ export function AdminDatabaseManager() {
                 >
                   {testingCurrent ? (
                     <>
-                      <div className="h-3.5 w-3.5 animate-spin rounded-full border-2 border-amber-300 border-t-transparent" />
+                      <Spinner block className="h-3.5 w-3.5 border-2 border-amber-300" />
                       <span>Testando...</span>
                     </>
                   ) : (
@@ -619,7 +620,7 @@ export function AdminDatabaseManager() {
               >
                 {testingCandidate ? (
                   <>
-                    <div className="h-3 w-3 animate-spin rounded-full border-2 border-amber-300 border-t-transparent" />
+                    <Spinner block className="h-3 w-3 border-2 border-amber-300" />
                     <span>Testando Conexão Temporária...</span>
                   </>
                 ) : (
@@ -963,7 +964,7 @@ export function AdminDatabaseManager() {
                   >
                     {initializing ? (
                       <>
-                        <div className="h-3.5 w-3.5 animate-spin rounded-full border-2 border-black border-t-transparent" />
+                        <Spinner block className="h-3.5 w-3.5 border-2 border-black" />
                         <span>Inicializando Plataforma...</span>
                       </>
                     ) : (

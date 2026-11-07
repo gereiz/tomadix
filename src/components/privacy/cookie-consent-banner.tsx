@@ -42,7 +42,7 @@ export function CookieConsentBanner() {
 
   return (
     <div className="fixed bottom-4 left-4 right-4 md:left-auto md:right-6 md:max-w-md z-50 animate-fade-in">
-      <div className="rounded-2xl border border-white/15 bg-[#0b0e17]/95 p-5 shadow-2xl backdrop-blur-xl space-y-3 text-xs">
+      <div className="rounded-2xl border border-white/15 bg-[#0b0e17]/95 p-5 shadow-2xl space-y-3 text-xs">
         <div className="flex items-start gap-3">
           <span className="text-xl">🍪</span>
           <div className="space-y-1">

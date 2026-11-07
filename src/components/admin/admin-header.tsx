@@ -35,7 +35,7 @@ export function AdminHeader({ admin, onOpenMobileSidebar }: AdminHeaderProps) {
   }
 
   return (
-    <header className="sticky top-[57px] z-20 border-b border-white/10 bg-[#090c14]/90 backdrop-blur-md">
+    <header className="sticky top-[57px] z-20 border-b border-white/10 bg-[#090c14]/90">
       <div className="flex h-14 w-full items-center justify-between px-4 sm:px-6">
         {/* Left: Mobile Toggle & Breadcrumbs */}
         <div className="flex items-center gap-3">

@@ -381,7 +381,7 @@ export default function ProfilePage() {
           {activeTab === "account" && (
             <div className="grid gap-8 lg:grid-cols-2">
               {/* Card de Informações da Conta */}
-              <div className="rounded-3xl border border-white/10 bg-white/[0.02] p-6 backdrop-blur-md">
+              <div className="rounded-3xl border border-white/10 bg-white/[0.02] p-6">
                 <h3 className="text-base font-bold text-white">Dados da Conta</h3>
                 <p className="text-xs text-white/50 mt-1">Como seu nome é visto pelos colaboradores.</p>
 
@@ -423,7 +423,7 @@ export default function ProfilePage() {
               </div>
 
               {/* Card de Alteração de Senha Segura */}
-              <div className="rounded-3xl border border-white/10 bg-white/[0.02] p-6 backdrop-blur-md">
+              <div className="rounded-3xl border border-white/10 bg-white/[0.02] p-6">
                 <h3 className="text-base font-bold text-white">Segurança & Senha</h3>
                 <p className="text-xs text-white/50 mt-1">
                   Atualize sua senha criptografada (revogará outras sessões ativas).
@@ -486,7 +486,7 @@ export default function ProfilePage() {
           {activeTab === "preferences" && (
             <div className="space-y-8">
               {/* Preferências de Interface */}
-              <div className="rounded-3xl border border-white/10 bg-white/[0.02] p-6 backdrop-blur-md">
+              <div className="rounded-3xl border border-white/10 bg-white/[0.02] p-6">
                 <h3 className="text-base font-bold text-white">Preferências de Interface</h3>
                 <p className="text-xs text-white/50 mt-1">Personalize sua experiência visual no estúdio.</p>
 
@@ -539,7 +539,7 @@ export default function ProfilePage() {
               </div>
 
               {/* Preferências Cinematográficas Padrão */}
-              <div className="rounded-3xl border border-white/10 bg-white/[0.02] p-6 backdrop-blur-md">
+              <div className="rounded-3xl border border-white/10 bg-white/[0.02] p-6">
                 <h3 className="text-base font-bold text-white">Padrões de Produção Cinematográfica</h3>
                 <p className="text-xs text-white/50 mt-1">
                   Valores pré-preenchidos ao criar novos projetos ou cenas.
@@ -603,7 +603,7 @@ export default function ProfilePage() {
 
           {/* Aba 3: Notificações */}
           {activeTab === "notifications" && (
-            <div className="rounded-3xl border border-white/10 bg-white/[0.02] p-6 backdrop-blur-md w-full">
+            <div className="rounded-3xl border border-white/10 bg-white/[0.02] p-6 w-full">
               <h3 className="text-base font-bold text-white">Canais de Notificação</h3>
               <p className="text-xs text-white/50 mt-1">Escolha quais comunicações você deseja receber.</p>
 
@@ -683,7 +683,7 @@ export default function ProfilePage() {
 
           {/* Aba 4: Sessões Ativas */}
           {activeTab === "sessions" && (
-            <div className="rounded-3xl border border-white/10 bg-white/[0.02] p-6 backdrop-blur-md">
+            <div className="rounded-3xl border border-white/10 bg-white/[0.02] p-6">
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                 <div>
                   <h3 className="text-base font-bold text-white">Sessões Ativas</h3>
@@ -744,7 +744,7 @@ export default function ProfilePage() {
           {activeTab === "privacy" && (
             <div className="space-y-8 w-full">
               {/* Exportação de Dados Pessoais */}
-              <div className="rounded-3xl border border-white/10 bg-white/[0.02] p-6 backdrop-blur-md">
+              <div className="rounded-3xl border border-white/10 bg-white/[0.02] p-6">
                 <div className="flex items-start gap-4">
                   <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-blue-500/20 text-blue-400 border border-blue-500/30">
                     <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -771,7 +771,7 @@ export default function ProfilePage() {
               </div>
 
               {/* Zona de Perigo: Exclusão de Conta */}
-              <div className="rounded-3xl border border-red-500/30 bg-red-950/20 p-6 backdrop-blur-md">
+              <div className="rounded-3xl border border-red-500/30 bg-red-950/20 p-6">
                 <div className="flex items-start gap-4">
                   <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-red-500/20 text-red-400 border border-red-500/30">
                     <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -812,7 +812,7 @@ export default function ProfilePage() {
 
       {/* Modal Seguro de Confirmação de Exclusão */}
       {isDeleteModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/85 p-4 backdrop-blur-md animate-in fade-in duration-200">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/85 p-4 animate-in fade-in duration-200">
           <div className="w-full max-w-lg rounded-3xl border border-red-500/40 bg-[#120f12] p-6 sm:p-8 text-white shadow-2xl shadow-red-500/10">
             <div className="flex items-center gap-3 text-red-400">
               <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-red-500/20 border border-red-500/30">

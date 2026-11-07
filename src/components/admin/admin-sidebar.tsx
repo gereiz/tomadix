@@ -138,7 +138,7 @@ export function AdminSidebar({
       {/* Mobile Drawer Overlay */}
       {mobileOpen && (
         <div
-          className="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm lg:hidden animate-fade-in"
+          className="fixed inset-0 z-50 bg-black/70 lg:hidden animate-fade-in"
           onClick={onCloseMobile}
         >
           <aside
