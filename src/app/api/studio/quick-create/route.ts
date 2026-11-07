@@ -16,6 +16,18 @@ const quickCreateSchema = z.object({
   projectId: z.string().optional().nullable(),
   title: z.string().trim().max(120).optional(),
   generateImageAlso: z.boolean().optional().default(false),
+  // Template do motor de prompts (apenas para type PROMPT). Sem ele: vídeo se houver cena, senão imagem.
+  templateKey: z
+    .enum([
+      "visual_bible",
+      "character_definition",
+      "environment_definition",
+      "image_prompt",
+      "video_prompt",
+      "scene_sequence",
+      "individual_scene",
+    ])
+    .optional(),
   references: z
     .object({
       characterIds: z.array(z.string()).optional(),
@@ -244,12 +256,17 @@ export async function POST(request: NextRequest) {
 
     // 5. CRIAÇÃO / GERAÇÃO DE PROMPT
     if (validated.type === "PROMPT") {
+      const referencedSceneId = validated.references?.sceneIds?.[0];
+      const templateKey =
+        validated.templateKey ?? (referencedSceneId ? "video_prompt" : "image_prompt");
+
       const promptResult = await PromptEngineService.generate(
         effectiveProjectId!,
         workspace.id,
         {
           targetTool: "google_flow",
-          templateKey: "visual_bible",
+          templateKey,
+          sceneId: referencedSceneId,
           customInstructions: validated.prompt,
           references: validated.references,
         }

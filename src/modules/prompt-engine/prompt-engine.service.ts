@@ -11,9 +11,9 @@ import { composePromptInstructions } from "./compose-prompt";
 import { generateStructuredJson } from "../ai/gemini-provider";
 import { ParameterService } from "../parameters/parameter.service";
 import { formatPromptToPlainText } from "./format-plain-text";
-import { BillingPolicyService } from "../billing/billing-policy.service";
 import { EntitlementService } from "../billing/entitlement.service";
 import { CreditPricingService } from "../billing/credit-pricing.service";
+import { CreditExecutionService } from "../billing/credit-execution.service";
 
 export interface GeneratePromptResult {
   jobId: string;
@@ -250,26 +250,11 @@ export class PromptEngineService {
       },
     });
 
-    let charged = false;
-
     try {
-      if (creditCost > 0) {
-        await EntitlementService.deductCredits(
-          workspaceId,
-          creditCost,
-          `Geração de prompt (${costResolution.operationName} / ${req.targetTool})`,
-          {
-            projectId,
-            templateKey: req.templateKey,
-            targetTool: req.targetTool,
-            operationCode,
-            appliedRule: costResolution.appliedRule,
-            ruleVersion: costResolution.version,
-          }
-        );
-        charged = true;
-      }
-
+      // Corpo da geração (IA + persistência). Quando há custo, roda dentro de
+      // executeWithCredits: débito por lote (ordem de consumo/FEFO) antes e
+      // estorno por lote automático se qualquer etapa falhar.
+      const runGeneration = async (): Promise<GeneratePromptResult> => {
       // 8 & 9. Enviar à Gemini API no servidor e obter JSON estruturado
       const geminiResult = await generateStructuredJson(userPrompt, template.schema, {
         model: modelName,
@@ -395,7 +380,27 @@ export class PromptEngineService {
         tokens: geminiResult.tokens,
         createdAt: promptVersion.createdAt.toISOString(),
       };
+      };
 
+      if (creditCost > 0) {
+        const execution = await CreditExecutionService.executeWithCredits(
+          {
+            workspaceId,
+            operationCode,
+            description: `Geração de prompt (${costResolution.operationName} / ${req.targetTool})`,
+            projectId,
+            metadata: {
+              jobId: job.id,
+              templateKey: req.templateKey,
+              targetTool: req.targetTool,
+            },
+          },
+          runGeneration
+        );
+        return execution.result;
+      }
+
+      return await runGeneration();
     } catch (err: any) {
       // Registrar falha no GenerationJob
       try {
@@ -409,35 +414,6 @@ export class PromptEngineService {
         });
       } catch (jobUpdateError) {
         console.error("Erro ao registrar falha do job de geração:", jobUpdateError);
-      }
-
-      // Estorno automático de créditos em caso de falha se a política permitir
-      if (charged && creditCost > 0) {
-        try {
-          const autoRefund = await BillingPolicyService.getPolicyValue<boolean>(
-            "CREDIT_REFUND_ON_FAILURE",
-            true
-          );
-          if (autoRefund) {
-            const ws = await db.workspace.update({
-              where: { id: workspaceId },
-              data: { creditsBalance: { increment: creditCost } },
-              select: { creditsBalance: true },
-            });
-
-            await db.creditLedger.create({
-              data: {
-                workspaceId,
-                amount: creditCost,
-                balanceAfter: ws.creditsBalance,
-                reason: `Estorno automático por falha na geração de prompt: ${err?.message || "Falha de IA"}`,
-                metadata: { jobId: job.id, projectId },
-              },
-            });
-          }
-        } catch (refundError) {
-          console.error("Erro ao estornar créditos de geração com falha:", refundError);
-        }
       }
 
       throw err;

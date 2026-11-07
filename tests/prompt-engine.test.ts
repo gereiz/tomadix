@@ -43,6 +43,7 @@ describe("PromptEngineService - Motor de Composição e Geração com Gemini", (
         data: {
           name: "Estúdio Prompt Alpha",
           slug: `prompt-alpha-${Date.now()}`,
+          creditsBalance: 500,
         },
       })
     );
@@ -361,6 +362,60 @@ describe("PromptEngineService - Motor de Composição e Geração com Gemini", (
 
       spy.mockRestore();
 
+    });
+
+    it("deve estornar integralmente os créditos quando a geração falha", async () => {
+      const before = await db.workspace.findUnique({
+        where: { id: workspaceAId },
+        select: { creditsBalance: true },
+      });
+
+      const spy = vi
+        .spyOn(geminiProvider, "generateStructuredJson")
+        .mockRejectedValueOnce(new GeminiTimeoutError("Tempo limite esgotado."));
+
+      await expect(
+        PromptEngineService.generate(projectId, workspaceAId, {
+          templateKey: "image_prompt",
+          targetTool: "google_flow",
+        })
+      ).rejects.toThrow(GeminiTimeoutError);
+
+      const after = await db.workspace.findUnique({
+        where: { id: workspaceAId },
+        select: { creditsBalance: true },
+      });
+      expect(after?.creditsBalance).toBe(before?.creditsBalance);
+
+      spy.mockRestore();
+    });
+
+    it("não cobra créditos nem exige saldo quando skipCharge está ativo (uso em lote)", async () => {
+      const before = await db.workspace.findUnique({
+        where: { id: workspaceAId },
+        select: { creditsBalance: true },
+      });
+
+      const spy = vi
+        .spyOn(geminiProvider, "generateStructuredJson")
+        .mockRejectedValueOnce(new GeminiQuotaError("Cota esgotada."));
+
+      await expect(
+        PromptEngineService.generate(
+          projectId,
+          workspaceAId,
+          { templateKey: "image_prompt", targetTool: "google_flow" },
+          { skipCharge: true }
+        )
+      ).rejects.toThrow(GeminiQuotaError);
+
+      const after = await db.workspace.findUnique({
+        where: { id: workspaceAId },
+        select: { creditsBalance: true },
+      });
+      expect(after?.creditsBalance).toBe(before?.creditsBalance);
+
+      spy.mockRestore();
     });
 
     it("deve tratar erro de cota (GeminiQuotaError) adequadamente", async () => {
