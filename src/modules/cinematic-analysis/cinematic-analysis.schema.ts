@@ -107,5 +107,7 @@ export const CinematicAnalysisResultSchema = z.object({
   continuityReport: ContinuityReportSchema.optional(),
   parameterSettings: ProjectParameterMappingSchema.describe("Parâmetros prontos para aplicação direta no Tomadix"),
   isFavorited: z.boolean().default(false),
+  // true quando a IA falhou/retornou JSON inválido e os dados vieram da heurística de contingência (não é uma análise real da imagem)
+  isFallback: z.boolean().optional(),
 });
 export type CinematicAnalysisResult = z.infer<typeof CinematicAnalysisResultSchema>;

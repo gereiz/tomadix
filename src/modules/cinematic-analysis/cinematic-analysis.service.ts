@@ -350,10 +350,13 @@ Importante: Em "technicalData" e em todos os "prompts", combine os parâmetros g
       refHints.includes("pb");
 
     let parsedResult: any = {};
+    let usedFallback = false;
     try {
       parsedResult = JSON.parse(cleanJson);
     } catch {
-      // Fallback gracioso com valores coerentes com a entrada do usuário
+      usedFallback = true;
+      console.warn("[CinematicAnalysis] Resposta da IA ausente ou inválida: devolvendo heurística de contingência marcada como isFallback.");
+      // Contingência com valores genéricos coerentes com a entrada do usuário (NÃO é análise real da imagem)
       parsedResult = {
         technicalData: {
           cameraSensor: "Full Frame 35mm (Padrão Cinema)",
@@ -518,6 +521,7 @@ Importante: Em "technicalData" e em todos os "prompts", combine os parâmetros g
       continuityReport,
       parameterSettings: mappedParameters,
       isFavorited: false,
+      isFallback: usedFallback || undefined,
     };
 
     // Salvar registro de auditoria / job no banco de dados se houver projeto

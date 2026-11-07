@@ -201,7 +201,7 @@ export class PromptEngineService {
 
     // 7. Política Comercial: Resolução dinâmica de custos via Catálogo Central de Operações
     let operationCode = "GEN_IMAGE_PROMPT";
-    if (["runway_gen3", "sora", "kling_ai", "luma_dream_machine"].includes(req.targetTool || "google_flow") || req.templateKey === "video_prompt") {
+    if (req.templateKey === "video_prompt") {
       operationCode = "GEN_VIDEO_PROMPT";
     } else if (req.templateKey === "character_definition") {
       operationCode = "GEN_CHARACTER";

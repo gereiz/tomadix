@@ -192,6 +192,14 @@ export function AnalysisResultPanel({
 
   return (
     <div className="flex flex-col gap-5">
+      {result.isFallback && (
+        <div role="alert" className="rounded-xl border border-amber-500/30 bg-amber-500/10 p-3 text-xs text-amber-200">
+          <p className="font-semibold">Resultado genérico (a IA não respondeu)</p>
+          <p className="mt-0.5 text-amber-200/80">
+            Estes valores são uma estimativa padrão e <strong>não</strong> refletem a imagem enviada. Refaça a análise antes de aplicá-los ao projeto.
+          </p>
+        </div>
+      )}
       {/* Cabeçalho do resultado */}
       <div className="flex flex-col sm:flex-row gap-4">
         <div
