@@ -8,12 +8,17 @@ export async function POST(request: NextRequest) {
     const authHeader = request.headers.get("authorization");
     const cronSecret = process.env.CRON_SECRET;
 
+    if (!cronSecret && process.env.NODE_ENV === "production") {
+      return NextResponse.json({ error: "CRON_SECRET não configurado no servidor." }, { status: 503 });
+    }
+
     if (cronSecret && authHeader !== `Bearer ${cronSecret}`) {
       return NextResponse.json({ error: "Acesso não autorizado para execução do cron." }, { status: 401 });
     }
 
     const body = await request.json().catch(() => ({}));
-    const customDateKey = typeof body.dateKey === "string" ? body.dateKey : undefined;
+    const customDateKey =
+      typeof body.dateKey === "string" && /^\d{4}-\d{2}-\d{2}$/.test(body.dateKey) ? body.dateKey : undefined;
 
     const [creditsResult, imagesCleanupResult] = await Promise.all([
       CreditDailyMaintenanceService.executeDailyMaintenance(customDateKey),
@@ -31,7 +36,7 @@ export async function POST(request: NextRequest) {
   } catch (error: any) {
     console.error("Erro na rota do cron de manutenção de créditos:", error);
     return NextResponse.json(
-      { error: error?.message || "Falha na execução da manutenção diária de créditos." },
+      { error: "Falha na execução da manutenção diária de créditos." },
       { status: 500 }
     );
   }

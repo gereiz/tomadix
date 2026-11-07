@@ -66,7 +66,7 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
     }
     if (error instanceof GeminiInvalidJsonError) {
       return NextResponse.json(
-        { error: error.message, code: error.code, raw: error.rawResponse },
+        { error: error.message, code: error.code },
         { status: 502 }
       );
     }
@@ -78,9 +78,18 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
     }
 
     console.error("Erro na geração do prompt:", error);
+    const message = String(error?.message ?? "");
+    const isNotFound = /não encontrad/i.test(message);
+    const isClientRule = /créditos|saldo|obrigatóri|parâmetro|selecione|informe/i.test(message);
+    if (isNotFound) {
+      return NextResponse.json({ error: message }, { status: 404 });
+    }
+    if (isClientRule) {
+      return NextResponse.json({ error: message }, { status: error?.statusCode || 400 });
+    }
     return NextResponse.json(
-      { error: error?.message || "Falha ao processar solicitação de prompt." },
-      { status: error?.statusCode || 500 }
+      { error: "Falha ao processar solicitação de prompt." },
+      { status: 500 }
     );
   }
 }

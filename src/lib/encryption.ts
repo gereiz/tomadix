@@ -9,10 +9,17 @@ const AUTH_TAG_LENGTH = 16;
  * A chave de criptografia NUNCA é armazenada no banco de dados.
  */
 function getMasterKey(): Buffer {
-  const secret =
-    process.env.ENCRYPTION_SECRET ||
-    process.env.SESSION_SECRET ||
-    "cineprompt-studio-super-master-key-32bytes-secret!";
+  const secret = process.env.ENCRYPTION_SECRET || process.env.SESSION_SECRET;
+
+  if (!secret) {
+    if (process.env.NODE_ENV === "production") {
+      throw new Error(
+        "ENCRYPTION_SECRET (ou SESSION_SECRET) não está definido. Defina a variável de ambiente antes de iniciar em produção."
+      );
+    }
+    // Apenas desenvolvimento/testes: chave fixa e pública, nunca usar em produção.
+    return crypto.createHash("sha256").update("cineprompt-studio-super-master-key-32bytes-secret!").digest();
+  }
 
   return crypto.createHash("sha256").update(secret).digest();
 }

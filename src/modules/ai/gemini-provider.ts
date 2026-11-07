@@ -228,17 +228,12 @@ export async function generateStructuredJson<T>(
               continue;
             }
 
-            // Fallback de última instância: se schema aceitar objeto padrão {}
-            const defaultFallback = schema.safeParse({});
-            if (defaultFallback.success) {
-              console.warn("[GeminiProvider] Aplicando fallback com defaults de schema.");
-              validationResult = defaultFallback;
-            } else {
-              throw new GeminiValidationError(
-                "A resposta gerada pelo Gemini não atende ao schema contratual.",
-                validationResult.error.flatten()
-              );
-            }
+            // Sem fallback silencioso: uma saída vazia/inválida nunca deve ser
+            // entregue (e cobrada) como sucesso. O chamador estorna os créditos.
+            throw new GeminiValidationError(
+              "A resposta gerada pelo Gemini não atende ao schema contratual.",
+              validationResult.error.flatten()
+            );
           }
 
           const usage = (response as any).usageMetadata;

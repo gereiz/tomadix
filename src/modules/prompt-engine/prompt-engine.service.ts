@@ -52,7 +52,8 @@ export class PromptEngineService {
   static async generate(
     projectId: string,
     workspaceId: string,
-    req: GeneratePromptRequest
+    req: GeneratePromptRequest,
+    options?: { skipCharge?: boolean }
   ): Promise<GeneratePromptResult> {
     const startTime = new Date();
 
@@ -219,23 +220,13 @@ export class PromptEngineService {
     const currentPlanTier = wsSub?.planTier || "FREE";
 
     const costResolution = await CreditPricingService.resolveCost(operationCode, currentPlanTier);
-    const creditCost = costResolution.creditCost;
+    // Chamadores que já cobram a operação como um todo (ex.: lote) evitam cobrança dupla.
+    const creditCost = options?.skipCharge ? 0 : costResolution.creditCost;
 
+    // Pré-checagem de saldo (o débito efetivo ocorre após a criação do job,
+    // para que uma falha ao registrar o job nunca deixe créditos cobrados).
     if (creditCost > 0) {
       await EntitlementService.assertCanConsumeCredits(workspaceId, creditCost);
-      await EntitlementService.deductCredits(
-        workspaceId,
-        creditCost,
-        `Geração de prompt (${costResolution.operationName} / ${req.targetTool})`,
-        {
-          projectId,
-          templateKey: req.templateKey,
-          targetTool: req.targetTool,
-          operationCode,
-          appliedRule: costResolution.appliedRule,
-          ruleVersion: costResolution.version,
-        }
-      );
     }
 
     // 8. Registrar GenerationJob com status PENDING
@@ -259,7 +250,26 @@ export class PromptEngineService {
       },
     });
 
+    let charged = false;
+
     try {
+      if (creditCost > 0) {
+        await EntitlementService.deductCredits(
+          workspaceId,
+          creditCost,
+          `Geração de prompt (${costResolution.operationName} / ${req.targetTool})`,
+          {
+            projectId,
+            templateKey: req.templateKey,
+            targetTool: req.targetTool,
+            operationCode,
+            appliedRule: costResolution.appliedRule,
+            ruleVersion: costResolution.version,
+          }
+        );
+        charged = true;
+      }
+
       // 8 & 9. Enviar à Gemini API no servidor e obter JSON estruturado
       const geminiResult = await generateStructuredJson(userPrompt, template.schema, {
         model: modelName,
@@ -388,17 +398,21 @@ export class PromptEngineService {
 
     } catch (err: any) {
       // Registrar falha no GenerationJob
-      await db.generationJob.update({
-        where: { id: job.id },
-        data: {
-          status: GenerationStatus.FAILED,
-          errorMessage: err?.message || "Erro desconhecido na geração do prompt.",
-          finishedAt: new Date(),
-        },
-      });
+      try {
+        await db.generationJob.update({
+          where: { id: job.id },
+          data: {
+            status: GenerationStatus.FAILED,
+            errorMessage: err?.message || "Erro desconhecido na geração do prompt.",
+            finishedAt: new Date(),
+          },
+        });
+      } catch (jobUpdateError) {
+        console.error("Erro ao registrar falha do job de geração:", jobUpdateError);
+      }
 
       // Estorno automático de créditos em caso de falha se a política permitir
-      if (creditCost > 0) {
+      if (charged && creditCost > 0) {
         try {
           const autoRefund = await BillingPolicyService.getPolicyValue<boolean>(
             "CREDIT_REFUND_ON_FAILURE",

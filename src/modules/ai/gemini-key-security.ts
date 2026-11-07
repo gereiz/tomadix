@@ -1,7 +1,6 @@
 import crypto from "crypto";
 
 // Chave mestra de criptografia obtida de variável de ambiente ou derivada
-const ENCRYPTION_SECRET = process.env.TOMADIX_ENCRYPTION_KEY || process.env.NEXTAUTH_SECRET || "tomadix-secure-gemini-key-encryption-secret-32b";
 const ALGORITHM = "aes-256-gcm";
 const IV_LENGTH = 16;
 const TAG_LENGTH = 16;
@@ -10,7 +9,15 @@ const TAG_LENGTH = 16;
  * Deriva uma chave simétrica de 32 bytes compatível com AES-256 a partir do segredo.
  */
 function getDerivedKey(): Buffer {
-  return crypto.createHash("sha256").update(ENCRYPTION_SECRET).digest();
+  const secret = process.env.TOMADIX_ENCRYPTION_KEY || process.env.NEXTAUTH_SECRET;
+  if (!secret && process.env.NODE_ENV === "production") {
+    throw new Error(
+      "TOMADIX_ENCRYPTION_KEY (ou NEXTAUTH_SECRET) não está definido. Defina a variável de ambiente antes de iniciar em produção."
+    );
+  }
+  // Fallback fixo apenas para desenvolvimento/testes.
+  const effective = secret || "tomadix-secure-gemini-key-encryption-secret-32b";
+  return crypto.createHash("sha256").update(effective).digest();
 }
 
 /**

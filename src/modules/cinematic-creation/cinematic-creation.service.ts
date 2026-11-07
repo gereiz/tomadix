@@ -1009,18 +1009,30 @@ Retorne o prompt enriquecido e as notas técnicas do que foi aprimorado.`;
         for (const scene of scenes) {
           try {
             const config = (scene.configuration as any) || {};
-            const result = await PromptEngineService.generate(projectId, workspaceId, {
-              templateKey: "video_prompt",
-              targetTool: (input.targetTool === "nano_banana" ? "nano_banana" : "google_flow"),
-              sceneId: scene.id,
-              subject: scene.title,
-              action: config.mainAction || scene.description,
-              environment: scene.environments[0]?.environment?.name || "Ambiente Cinematográfico",
-              framing: config.framing || "Plano Médio",
-              lighting: config.lighting || "Luz Natural",
-              cameraMovement: config.cameraMovement,
-              characterIds: scene.characters.map((c) => c.characterId),
-            } as any);
+            const hints = [
+              `Sujeito: ${scene.title}`,
+              `Ação: ${config.mainAction || scene.description || "—"}`,
+              `Ambiente: ${scene.environments[0]?.environment?.name || "Ambiente Cinematográfico"}`,
+              `Enquadramento: ${config.framing || "Plano Médio"}`,
+              `Iluminação: ${config.lighting || "Luz Natural"}`,
+              config.cameraMovement ? `Movimento de câmera: ${config.cameraMovement}` : null,
+            ]
+              .filter(Boolean)
+              .join(". ");
+
+            // skipCharge: o lote inteiro já é cobrado por BATCH_GENERATION.
+            const result = await PromptEngineService.generate(
+              projectId,
+              workspaceId,
+              {
+                templateKey: "video_prompt",
+                targetTool: input.targetTool === "nano_banana" ? "nano_banana" : "google_flow",
+                sceneId: scene.id,
+                customInstructions: hints.slice(0, 2000),
+                references: { characterIds: scene.characters.map((c) => c.characterId) },
+              },
+              { skipCharge: true }
+            );
 
             generatedList.push({
               sceneId: scene.id,
@@ -1036,6 +1048,11 @@ Retorne o prompt enriquecido e as notas técnicas do que foi aprimorado.`;
               error: err.message,
             });
           }
+        }
+
+        // Se nenhuma cena foi gerada, falha para que os créditos do lote sejam estornados.
+        if (generatedList.every((g) => !g.success)) {
+          throw new Error("Falha ao gerar o lote: nenhuma cena pôde ser processada.");
         }
 
         return {
