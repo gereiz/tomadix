@@ -1,3 +1,4 @@
+import { parseJsonBody, transferProjectBodySchema } from "@/lib/api-validation";
 import { NextRequest, NextResponse } from "next/server";
 import { requireCurrentUser, AuthorizationError, NotFoundError } from "@/lib/auth";
 import { ProjectService } from "@/modules/projects/project.service";
@@ -11,15 +12,9 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
   try {
     const { id: projectId } = await params;
     const user = await requireCurrentUser();
-    const body = await request.json();
-    const { targetWorkspaceId } = body;
-
-    if (!targetWorkspaceId) {
-      return NextResponse.json(
-        { error: "targetWorkspaceId é obrigatório." },
-        { status: 400 }
-      );
-    }
+    const parsed = await parseJsonBody(request, transferProjectBodySchema);
+    if (parsed.response) return parsed.response;
+    const { targetWorkspaceId } = parsed.data;
 
     const transferred = await ProjectService.transferProject(
       projectId,

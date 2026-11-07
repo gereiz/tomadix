@@ -1,3 +1,4 @@
+import { parseJsonBody, updateProfileBodySchema } from "@/lib/api-validation";
 import { NextRequest, NextResponse } from "next/server";
 import { requireCurrentUser, AuthenticationError } from "@/lib/auth";
 import { UserProfileService } from "@/modules/users/user-profile.service";
@@ -19,11 +20,12 @@ export async function GET() {
 export async function PATCH(request: NextRequest) {
   try {
     const user = await requireCurrentUser();
-    const body = await request.json().catch(() => ({}));
+    const parsed = await parseJsonBody(request, updateProfileBodySchema);
+    if (parsed.response) return parsed.response;
 
     const updated = await UserProfileService.updateProfile(user.id, {
-      displayName: body.displayName,
-      preferences: body.preferences,
+      displayName: parsed.data.displayName,
+      preferences: parsed.data.preferences,
     });
 
     return NextResponse.json({

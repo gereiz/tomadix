@@ -1,3 +1,4 @@
+import { parseJsonBody, createInviteBodySchema } from "@/lib/api-validation";
 import { NextRequest, NextResponse } from "next/server";
 import { requireCurrentUser, AuthorizationError, NotFoundError } from "@/lib/auth";
 import { InviteService } from "@/modules/workspaces/invite.service";
@@ -35,14 +36,11 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
   try {
     const { id: workspaceId } = await params;
     const user = await requireCurrentUser();
-    const body = await request.json();
-    const { email, role = WorkspaceRole.MEMBER } = body;
+    const parsed = await parseJsonBody(request, createInviteBodySchema);
+    if (parsed.response) return parsed.response;
+    const { email, role } = parsed.data;
 
-    if (!email) {
-      return NextResponse.json({ error: "O e-mail do convidado é obrigatório." }, { status: 400 });
-    }
-
-    const invite = await InviteService.createInvite(workspaceId, user.id, email, role);
+    const invite = await InviteService.createInvite(workspaceId, user.id, email, role as WorkspaceRole);
 
     return NextResponse.json(
       {

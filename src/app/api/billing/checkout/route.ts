@@ -1,3 +1,4 @@
+import { parseJsonBody, checkoutBodySchema } from "@/lib/api-validation";
 import { NextRequest, NextResponse } from "next/server";
 import { getCurrentWorkspace, AuthenticationError, AuthorizationError } from "@/lib/auth";
 import { BillingService } from "@/modules/billing/billing.service";
@@ -5,15 +6,9 @@ import { PlanTier, BillingInterval } from "@/modules/billing/billing.types";
 
 export async function POST(request: NextRequest) {
   try {
-    const body = await request.json();
-    const { workspaceId, planTier, interval = BillingInterval.MONTHLY } = body;
-
-    if (!workspaceId || !planTier) {
-      return NextResponse.json(
-        { error: "Parâmetros obrigatórios ausentes (workspaceId, planTier)." },
-        { status: 400 }
-      );
-    }
+    const parsed = await parseJsonBody(request, checkoutBodySchema);
+    if (parsed.response) return parsed.response;
+    const { workspaceId, planTier, interval = BillingInterval.MONTHLY } = parsed.data;
 
     if (!Object.values(PlanTier).includes(planTier)) {
       return NextResponse.json({ error: "Plano inválido." }, { status: 400 });

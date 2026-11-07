@@ -1,3 +1,4 @@
+import { parseJsonBody, changePasswordBodySchema } from "@/lib/api-validation";
 import { NextRequest, NextResponse } from "next/server";
 import { requireCurrentUser, AuthenticationError, AuthorizationError } from "@/lib/auth";
 import { UserProfileService } from "@/modules/users/user-profile.service";
@@ -6,15 +7,9 @@ import { cookies } from "next/headers";
 export async function POST(request: NextRequest) {
   try {
     const user = await requireCurrentUser();
-    const body = await request.json().catch(() => ({}));
-    const { currentPassword, newPassword } = body;
-
-    if (!currentPassword || !newPassword) {
-      return NextResponse.json(
-        { error: "Senha atual e nova senha são obrigatórias." },
-        { status: 400 }
-      );
-    }
+    const parsed = await parseJsonBody(request, changePasswordBodySchema);
+    if (parsed.response) return parsed.response;
+    const { currentPassword, newPassword } = parsed.data;
 
     const cookieStore = await cookies();
     const sessionCookie = cookieStore.get("cineprompt_session")?.value;

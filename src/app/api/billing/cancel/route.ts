@@ -1,18 +1,13 @@
+import { parseJsonBody, cancelBodySchema } from "@/lib/api-validation";
 import { NextRequest, NextResponse } from "next/server";
 import { getCurrentWorkspace, AuthenticationError, AuthorizationError } from "@/lib/auth";
 import { BillingService } from "@/modules/billing/billing.service";
 
 export async function POST(request: NextRequest) {
   try {
-    const body = await request.json();
-    const { workspaceId, atPeriodEnd = true } = body;
-
-    if (!workspaceId) {
-      return NextResponse.json(
-        { error: "workspaceId é obrigatório." },
-        { status: 400 }
-      );
-    }
+    const parsed = await parseJsonBody(request, cancelBodySchema);
+    if (parsed.response) return parsed.response;
+    const { workspaceId, atPeriodEnd } = parsed.data;
 
     const { workspace, user } = await getCurrentWorkspace(workspaceId, "billing:manage");
 

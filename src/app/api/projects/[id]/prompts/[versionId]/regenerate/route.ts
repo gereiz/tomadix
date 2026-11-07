@@ -1,3 +1,4 @@
+import { aiRateLimitResponse } from "@/lib/ai-rate-limit";
 import { NextRequest, NextResponse } from "next/server";
 import { getCurrentWorkspace, AuthorizationError } from "@/lib/auth";
 import { PromptHistoryService } from "@/modules/prompt-engine/prompt-history.service";
@@ -11,6 +12,8 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
   try {
     const { id: projectId, versionId } = await params;
     const { workspace } = await getCurrentWorkspace();
+    const rateLimited = aiRateLimitResponse(workspace.id);
+    if (rateLimited) return rateLimited;
 
     const body = await request.json().catch(() => ({}));
     const validated = regeneratePromptRequestSchema.parse(body);

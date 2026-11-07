@@ -1,3 +1,4 @@
+import { aiRateLimitResponse } from "@/lib/ai-rate-limit";
 import { NextRequest, NextResponse } from "next/server";
 import { getCurrentWorkspace, AuthenticationError, AuthorizationError } from "@/lib/auth";
 import { VideoGenerationService } from "@/modules/video-generation/video-generation.service";
@@ -24,6 +25,8 @@ const generateVideoSchema = z.object({
 export async function POST(request: NextRequest) {
   try {
     const { user, workspace } = await getCurrentWorkspace();
+    const rateLimited = aiRateLimitResponse(workspace.id);
+    if (rateLimited) return rateLimited;
     const body = await request.json().catch(() => ({}));
     const validated = generateVideoSchema.parse(body);
 

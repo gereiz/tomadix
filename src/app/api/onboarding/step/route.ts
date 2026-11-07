@@ -1,3 +1,4 @@
+import { parseJsonBody, onboardingStepBodySchema } from "@/lib/api-validation";
 import { NextRequest, NextResponse } from "next/server";
 import { requireCurrentUser, AuthenticationError } from "@/lib/auth";
 import { OnboardingService } from "@/modules/onboarding/onboarding.service";
@@ -5,9 +6,9 @@ import { OnboardingService } from "@/modules/onboarding/onboarding.service";
 export async function POST(request: NextRequest) {
   try {
     const user = await requireCurrentUser();
-    const body = await request.json().catch(() => ({}));
-    const step = Number(body.step) || 1;
-    const completed = Boolean(body.completed);
+    const parsed = await parseJsonBody(request, onboardingStepBodySchema);
+    if (parsed.response) return parsed.response;
+    const { step, completed } = parsed.data;
 
     const updated = await OnboardingService.updateStep(user.id, step, completed);
     return NextResponse.json({

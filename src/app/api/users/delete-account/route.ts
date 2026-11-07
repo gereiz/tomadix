@@ -1,3 +1,4 @@
+import { parseJsonBody, deleteAccountBodySchema } from "@/lib/api-validation";
 import { NextRequest, NextResponse } from "next/server";
 import { requireCurrentUser, AuthenticationError, AuthorizationError } from "@/lib/auth";
 import { UserProfileService } from "@/modules/users/user-profile.service";
@@ -6,15 +7,9 @@ import { cookies } from "next/headers";
 export async function POST(request: NextRequest) {
   try {
     const user = await requireCurrentUser();
-    const body = await request.json().catch(() => ({}));
-    const { passwordConfirmation } = body;
-
-    if (!passwordConfirmation) {
-      return NextResponse.json(
-        { error: "A confirmação de senha é obrigatória para excluir a conta." },
-        { status: 400 }
-      );
-    }
+    const parsed = await parseJsonBody(request, deleteAccountBodySchema);
+    if (parsed.response) return parsed.response;
+    const { passwordConfirmation } = parsed.data;
 
     await UserProfileService.deleteAccount(user.id, passwordConfirmation);
 

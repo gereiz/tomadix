@@ -1,3 +1,4 @@
+import { aiRateLimitResponse } from "@/lib/ai-rate-limit";
 import { NextRequest, NextResponse } from "next/server";
 import { getCurrentWorkspace, AuthorizationError } from "@/lib/auth";
 import { CinematicCreationService } from "@/modules/cinematic-creation/cinematic-creation.service";
@@ -14,6 +15,8 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
   try {
     const { id: projectId } = await params;
     const { workspace, user } = await getCurrentWorkspace();
+    const rateLimited = aiRateLimitResponse(workspace.id);
+    if (rateLimited) return rateLimited;
     const body = await request.json();
 
     const validatedInput = generateEnvironmentSchema.parse(body);

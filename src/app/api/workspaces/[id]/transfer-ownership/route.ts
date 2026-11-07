@@ -1,3 +1,4 @@
+import { parseJsonBody, transferOwnershipBodySchema } from "@/lib/api-validation";
 import { NextRequest, NextResponse } from "next/server";
 import { requireCurrentUser, AuthorizationError, NotFoundError } from "@/lib/auth";
 import { WorkspaceService } from "@/modules/workspaces/workspace.service";
@@ -10,15 +11,9 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
   try {
     const { id: workspaceId } = await params;
     const user = await requireCurrentUser();
-    const body = await request.json();
-    const { newOwnerMembershipId } = body;
-
-    if (!newOwnerMembershipId) {
-      return NextResponse.json(
-        { error: "newOwnerMembershipId é obrigatório." },
-        { status: 400 }
-      );
-    }
+    const parsed = await parseJsonBody(request, transferOwnershipBodySchema);
+    if (parsed.response) return parsed.response;
+    const { newOwnerMembershipId } = parsed.data;
 
     const result = await WorkspaceService.transferOwnership(
       workspaceId,

@@ -1,3 +1,4 @@
+import { aiRateLimitResponse } from "@/lib/ai-rate-limit";
 import { NextRequest, NextResponse } from "next/server";
 import { getCurrentWorkspace, AuthenticationError, AuthorizationError } from "@/lib/auth";
 import { ImageGenerationService } from "@/modules/image-generation/image-generation.service";
@@ -23,6 +24,8 @@ const generateImageSchema = z.object({
 export async function POST(request: NextRequest) {
   try {
     const { user, workspace } = await getCurrentWorkspace();
+    const rateLimited = aiRateLimitResponse(workspace.id);
+    if (rateLimited) return rateLimited;
     const body = await request.json().catch(() => ({}));
     const validated = generateImageSchema.parse(body);
 
