@@ -1,7 +1,6 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import Link from "next/link";
 import { useRouter } from "next/navigation";
 
 export interface OnboardingState {
@@ -45,10 +44,10 @@ export function OnboardingModal({
   const router = useRouter();
   const [currentStep, setCurrentStep] = useState(1);
   const [creatingStarter, setCreatingStarter] = useState(false);
-  const [selectedTemplate, setSelectedTemplate] = useState("cyberpunk_nordestino");
+  const [selectedTemplate, setSelectedTemplate] = useState("");
   const [error, setError] = useState<string | null>(null);
 
-  const totalSteps = 7;
+  const totalSteps = 3;
 
   useEffect(() => {
     if (isOpen) {
@@ -82,11 +81,16 @@ export function OnboardingModal({
     const next = stepToSave || currentStep + 1;
     setError(null);
     try {
-      await fetch("/api/onboarding/step", {
+      const res = await fetch("/api/onboarding/step", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ step: next, completed: next >= totalSteps }),
+        body: JSON.stringify({ step: next, completed: next > totalSteps }),
       });
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}));
+        setError(data.error || "Não foi possível salvar o progresso. Tente novamente.");
+        return;
+      }
       if (next > totalSteps) {
         onClose();
         if (onStateUpdate) onStateUpdate();
@@ -96,6 +100,7 @@ export function OnboardingModal({
       }
     } catch (e) {
       console.error(e);
+      setError("Falha de conexão ao salvar o progresso.");
     }
   };
 
@@ -134,7 +139,7 @@ export function OnboardingModal({
 
       onClose();
       if (onStateUpdate) onStateUpdate();
-      router.push(`/projects/${data.data.id}`);
+      router.push(`/projects/${data.data.id}?tab=prompts`);
       router.refresh();
     } catch (err: any) {
       setError(err.message || "Erro ao criar projeto inicial.");
@@ -251,95 +256,8 @@ export function OnboardingModal({
             </div>
           )}
 
-          {/* Etapa 2: Apresentação do Produto */}
+          {/* Etapa 2: Arquitetura Cinematográfica */}
           {currentStep === 2 && (
-            <div className="space-y-4 animate-in fade-in duration-300">
-              <div className="inline-flex rounded-2xl border border-blue-500/30 bg-blue-500/10 p-3 text-blue-400">
-                <svg className="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M7 4v16M17 4v16M3 8h4m10 0h4M3 12h18M3 16h4m10 0h4M4 20h16a1 1 0 001-1V5a1 1 0 00-1-1H4a1 1 0 00-1 1v14a1 1 0 001 1z" />
-                </svg>
-              </div>
-              <h2 id="onboarding-step-title" className="text-2xl font-bold tracking-tight">
-                Da ideia ao prompt pronto para produção
-              </h2>
-              <p className="text-sm text-white/70 leading-relaxed">
-                Na Tomadix, o seu processo de pré-produção não é um bloco de texto solto: é um ecossistema modular e conectado.
-              </p>
-
-              <div className="grid gap-3 sm:grid-cols-2 mt-4 text-xs">
-                <div className="rounded-2xl border border-white/10 bg-white/[0.02] p-4">
-                  <span className="text-primary font-bold text-sm">01. Consistência Visual</span>
-                  <p className="mt-1 text-white/60">
-                    Defina atores, roupas e rostos uma única vez e reaproveite em todas as cenas sem discrepâncias visuais.
-                  </p>
-                </div>
-                <div className="rounded-2xl border border-white/10 bg-white/[0.02] p-4">
-                  <span className="text-primary font-bold text-sm">02. Decupagem Técnica</span>
-                  <p className="mt-1 text-white/60">
-                    Lentes, movimentos de câmera, proporção anamórfica e iluminação organizados cena por cena.
-                  </p>
-                </div>
-                <div className="rounded-2xl border border-white/10 bg-white/[0.02] p-4">
-                  <span className="text-primary font-bold text-sm">03. Otimizado para IA</span>
-                  <p className="mt-1 text-white/60">
-                    Prompts prontos para Google Flow, Runway Gen-3, OpenAI Sora, Midjourney e Kling AI.
-                  </p>
-                </div>
-                <div className="rounded-2xl border border-white/10 bg-white/[0.02] p-4">
-                  <span className="text-primary font-bold text-sm">04. Exportação Profissional</span>
-                  <p className="mt-1 text-white/60">
-                    Exporte roteiros técnicos em JSON limpo e Markdown para sua equipe ou pós-produção.
-                  </p>
-                </div>
-              </div>
-            </div>
-          )}
-
-          {/* Etapa 3: Workspace Ativo */}
-          {currentStep === 3 && (
-            <div className="space-y-4 animate-in fade-in duration-300">
-              <div className="inline-flex rounded-2xl border border-purple-500/30 bg-purple-500/10 p-3 text-purple-400">
-                <svg className="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
-                </svg>
-              </div>
-              <h2 id="onboarding-step-title" className="text-2xl font-bold tracking-tight">
-                Seu Estúdio de Criação (Workspace)
-              </h2>
-              <p className="text-sm text-white/70 leading-relaxed">
-                Toda a sua produção fica organizada em um Workspace isolado e seguro. Você já possui um estúdio pessoal ativo:
-              </p>
-
-              <div className="mt-4 rounded-2xl border border-purple-500/30 bg-purple-950/20 p-5">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <span className="text-[10px] font-bold uppercase tracking-wider text-purple-300">
-                      Estúdio Ativo
-                    </span>
-                    <h3 className="text-lg font-bold text-white">
-                      {state.activeWorkspace?.name || "Meu Estúdio Pessoal"}
-                    </h3>
-                    <p className="text-xs text-white/50 mt-0.5">
-                      Slug: /{state.activeWorkspace?.slug || "estudio"} • Plano:{" "}
-                      <span className="text-primary font-semibold">
-                        {state.activeWorkspace?.planName || "Plano Gratuito"}
-                      </span>
-                    </p>
-                  </div>
-                  <span className="rounded-xl bg-purple-400/20 px-3 py-1.5 text-xs font-bold text-purple-200 border border-purple-400/30">
-                    OWNER
-                  </span>
-                </div>
-              </div>
-
-              <p className="text-xs text-white/50">
-                Mais tarde, você poderá criar workspaces de equipe adicionais e convidar colaboradores com papéis de Admin, Membro ou Visualizador.
-              </p>
-            </div>
-          )}
-
-          {/* Etapa 4: Arquitetura Cinematográfica */}
-          {currentStep === 4 && (
             <div className="space-y-4 animate-in fade-in duration-300">
               <div className="inline-flex rounded-2xl border border-amber-500/30 bg-amber-500/10 p-3 text-amber-400">
                 <svg className="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -382,8 +300,8 @@ export function OnboardingModal({
             </div>
           )}
 
-          {/* Etapa 5: Criar Primeiro Projeto ou Escolher Template */}
-          {currentStep === 5 && (
+          {/* Etapa 3: Criar Primeiro Projeto ou Escolher Template */}
+          {currentStep === 3 && (
             <div className="space-y-4 animate-in fade-in duration-300">
               <div className="inline-flex rounded-2xl border border-primary/30 bg-primary/10 p-3 text-primary">
                 <svg className="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -403,7 +321,7 @@ export function OnboardingModal({
                     key={template.key}
                     onClick={() => setSelectedTemplate(template.key)}
                     className={`cursor-pointer rounded-2xl border p-4 transition-all ${
-                      selectedTemplate === template.key
+                      (selectedTemplate || state.starterTemplates[0]?.key) === template.key
                         ? "border-primary bg-primary/20 shadow-lg shadow-primary/10"
                         : "border-white/10 bg-white/[0.02] hover:bg-white/[0.04]"
                     }`}
@@ -412,7 +330,7 @@ export function OnboardingModal({
                       <span className="rounded-full bg-white/10 px-2 py-0.5 text-[10px] font-semibold text-white/60">
                         {template.genre}
                       </span>
-                      {selectedTemplate === template.key && (
+                      {(selectedTemplate || state.starterTemplates[0]?.key) === template.key && (
                         <span className="text-primary text-xs font-bold">✓ Selecionado</span>
                       )}
                     </div>
@@ -432,94 +350,22 @@ export function OnboardingModal({
               <div className="mt-4 flex flex-col sm:flex-row gap-3">
                 <button
                   type="button"
-                  disabled={creatingStarter}
-                  onClick={() => handleCreateStarterProject(selectedTemplate)}
+                  disabled={creatingStarter || !(selectedTemplate || state.starterTemplates[0]?.key)}
+                  onClick={() => handleCreateStarterProject(selectedTemplate || state.starterTemplates[0]?.key)}
                   className="flex-1 rounded-xl bg-primary py-3 text-xs font-bold text-on-primary transition hover:opacity-90 shadow-lg shadow-primary/20 disabled:opacity-50 text-center"
                 >
-                  {creatingStarter ? "Criando Universo..." : `Criar Projeto Inicial com "${selectedTemplate === "cyberpunk_nordestino" ? "Neo-Sertão 2099" : "Sombras da Guanabara"}"`}
+                  {creatingStarter ? "Criando Universo..." : `Criar Projeto e Gerar meu Primeiro Prompt`}
                 </button>
                 {state.activeWorkspace?.hasProjects && (
                   <button
                     type="button"
-                    onClick={() => handleNextStep(6)}
+                    onClick={() => handleNextStep(totalSteps + 1)}
                     className="rounded-xl border border-white/20 bg-white/5 px-4 py-3 text-xs font-semibold text-white/80 hover:bg-white/10 hover:text-white transition text-center"
                   >
                     Manter meus projetos atuais →
                   </button>
                 )}
               </div>
-            </div>
-          )}
-
-          {/* Etapa 6: Motor de Prompts */}
-          {currentStep === 6 && (
-            <div className="space-y-4 animate-in fade-in duration-300">
-              <div className="inline-flex rounded-2xl border border-primary/30 bg-primary/10 p-3 text-primary">
-                <svg className="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M13 10V3L4 14h7v7l9-11h-7z" />
-                </svg>
-              </div>
-              <h2 id="onboarding-step-title" className="text-2xl font-bold tracking-tight">
-                O Motor de Prompts Inteligente
-              </h2>
-              <p className="text-sm text-white/70 leading-relaxed">
-                Dentro de cada cena, você encontra o motor de prompts alimentado pelo Google Gemini. Ele compila a bíblia visual e gera instruções de alta densidade sem que você precise digitar parágrafos repetitivos:
-              </p>
-
-              <div className="rounded-2xl border border-primary/30 bg-black/60 p-4 font-mono text-xs text-white/80">
-                <div className="flex items-center justify-between border-b border-white/10 pb-2 mb-2 text-[10px] text-primary">
-                  <span>EXEMPLO DE PROMPT ESTRUTURADO</span>
-                  <span>JSON / Flow V1</span>
-                </div>
-                <p className="text-primary font-semibold">{`// Prompt pronto para o gerador de vídeo:`}</p>
-                <p className="mt-1">{`"Cinematic 2.39:1 anamorphic shot of Valquíria do Sol wearing cybernetic leather armor, standing under dust haze in Juazeiro Neural Market, intense amber sun, 50mm lens f/1.8, hyperdetailed textures --ar 2.39:1 --v 6.0"`}</p>
-              </div>
-
-              <p className="text-xs text-white/50">
-                Cada geração é salva no histórico com controle de versão, permitindo comparar resultados, restaurar versões anteriores e analisar a continuidade.
-              </p>
-            </div>
-          )}
-
-          {/* Etapa 7: Limites do Plano & Conclusão */}
-          {currentStep === 7 && (
-            <div className="space-y-4 animate-in fade-in duration-300">
-              <div className="inline-flex rounded-2xl border border-primary/30 bg-primary/10 p-3 text-primary">
-                <svg className="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                </svg>
-              </div>
-              <h2 id="onboarding-step-title" className="text-2xl font-bold tracking-tight">
-                Tudo pronto para começar!
-              </h2>
-              <p className="text-sm text-white/70 leading-relaxed">
-                Seu estúdio está configurado. Conheça os limites e recursos do seu plano contratado:
-              </p>
-
-              <div className="rounded-2xl border border-white/10 bg-white/[0.02] p-4 text-xs space-y-2.5">
-                <div className="flex justify-between items-center py-1 border-b border-white/5">
-                  <span className="text-white/60">Plano Atual:</span>
-                  <span className="font-bold text-primary">
-                    {state.activeWorkspace?.planName || "Plano Gratuito"}
-                  </span>
-                </div>
-                <div className="flex justify-between items-center py-1 border-b border-white/5">
-                  <span className="text-white/60">Capacidade de Projetos:</span>
-                  <span className="font-semibold text-white">2 Projetos Ativos</span>
-                </div>
-                <div className="flex justify-between items-center py-1 border-b border-white/5">
-                  <span className="text-white/60">Créditos de IA Inclusos:</span>
-                  <span className="font-semibold text-white">20 créditos mensais</span>
-                </div>
-                <div className="flex justify-between items-center py-1">
-                  <span className="text-white/60">Colaboração de Equipe:</span>
-                  <span className="font-semibold text-white">1 Membro (Individual)</span>
-                </div>
-              </div>
-
-              <p className="text-xs text-white/50">
-                Precisa de projetos ilimitados ou colaboração em equipe? Você pode fazer upgrade para o Plano PRO ou TEAM a qualquer momento na página de Planos.
-              </p>
             </div>
           )}
         </div>
@@ -550,7 +396,7 @@ export function OnboardingModal({
             ) : (
               <button
                 type="button"
-                onClick={() => handleNextStep(8)}
+                onClick={() => handleNextStep(totalSteps + 1)}
                 className="rounded-xl bg-primary px-6 py-2.5 text-xs font-bold text-on-primary transition hover:opacity-90 shadow-lg shadow-primary/20"
               >
                 Concluir e Explorar Estúdio
