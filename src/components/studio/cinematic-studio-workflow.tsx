@@ -650,6 +650,10 @@ export function CinematicStudioWorkflow() {
       notify("Selecione um projeto para aplicar os parâmetros.", "error");
       return;
     }
+    if (result.isFallback) {
+      notify("Este resultado é genérico (a IA não respondeu). Refaça a análise antes de aplicar.", "error");
+      return;
+    }
     setIsApplying(true);
     try {
       const res = await fetch("/api/cinematic-analysis/apply", {
@@ -661,6 +665,7 @@ export function CinematicStudioWorkflow() {
           technicalData: result.technicalData,
           prompts: result.prompts,
           analysisId: result.id,
+          isFallback: Boolean(result.isFallback),
         }),
       });
       const data = await res.json().catch(() => ({}));

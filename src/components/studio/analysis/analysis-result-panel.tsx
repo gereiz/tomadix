@@ -276,8 +276,14 @@ export function AnalysisResultPanel({
           <div className="mt-auto flex flex-wrap items-center gap-2 pt-1">
             <button
               onClick={onApply}
-              disabled={!canApply || isApplying}
-              title={canApply ? "Mescla os parâmetros na Bíblia Visual do projeto" : "Selecione um projeto no topo da página"}
+              disabled={!canApply || isApplying || Boolean(result.isFallback)}
+              title={
+                result.isFallback
+                  ? "Resultado genérico (a IA não respondeu): refaça a análise para poder aplicar"
+                  : canApply
+                  ? "Mescla os parâmetros na Bíblia Visual do projeto"
+                  : "Selecione um projeto no topo da página"
+              }
               className="inline-flex items-center gap-1.5 rounded-xl bg-primary px-3.5 py-2 text-xs font-bold text-on-primary transition hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-40 shadow-sm shadow-primary/20"
             >
               {isApplying ? (

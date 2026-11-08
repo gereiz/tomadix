@@ -551,6 +551,23 @@ Importante: Em "technicalData" e em todos os "prompts", combine os parâmetros g
   }
 
   /**
+   * Indica se a análise salva (GenerationJob) veio da heurística de contingência,
+   * ou seja, não reflete a imagem enviada e não deve ser aplicada ao projeto.
+   */
+  static async isFallbackAnalysis(projectId: string, workspaceId: string, analysisId: string): Promise<boolean> {
+    const saved = await db.generationJob.findFirst({
+      where: {
+        projectId,
+        project: { workspaceId },
+        result: { path: ["id"], equals: analysisId },
+      },
+      select: { result: true },
+    });
+    const savedResult = saved?.result as { isFallback?: boolean } | null;
+    return Boolean(savedResult?.isFallback);
+  }
+
+  /**
    * Aplica diretamente os parâmetros extraídos da análise à configuração e aos registros
    * de parâmetros do projeto selecionado (ProjectParameterValue e Bíblia Visual).
    */
