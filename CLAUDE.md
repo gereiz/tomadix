@@ -64,9 +64,24 @@ Conceitos que atravessam vários arquivos:
 - **Código sob demanda**: componentes pesados e modais usados só após interação entram via `next/dynamic` (veja `src/components/projects/list/helpers.ts` e o canvas em `projects/detail`).
 - **Página inicial**: componentes em `src/components/home/` e textos em `src/config/home-content.ts`; é Server Component, sem JS de cliente. Mantenha os tokens de cor do tema (`bg-surface`, `text-on-surface`, `bg-primary`...), pois o admin personaliza a marca por eles.
 
+## Responsividade (celulares 360–430px e tablets 768–1024px)
+
+Mobile-first: escreva a classe base para o celular e acrescente `sm:`/`md:`/`lg:` para telas maiores. `tests/responsive-audit.test.ts` lê o código-fonte e falha se algum destes padrões voltar.
+
+- **Altura**: nunca `h-screen`, `min-h-screen`, `100vh` nem `Nvh`; use `dvh` (`min-h-dvh`, `max-h-[90dvh]`), que respeita a barra de endereço do celular. A navbar tem `--navbar-h` (CSS) para barras sticky e sidebars abaixo dela.
+- **Modais**: preferir `<Modal>` (`src/components/ui/modal.tsx`, bottom sheet no celular, ESC, foco, rolagem interna) e `<Drawer>` para painéis laterais. Overlays escritos à mão devem ter `fixed inset-0 overflow-y-auto … items-center-safe` (o `-safe` evita cortar o topo de painéis altos) e `p-3 sm:p-4`.
+- **Tabelas**: toda `<table>` fica dentro de `overflow-x-auto` e declara `min-w-[Npx]`; `<TableScroll>` (`ui/table-scroll.tsx`) faz isso para código novo.
+- **Grades**: grids de 3+ colunas começam com `grid-cols-1` ou `-2` (`grid-cols-1 sm:grid-cols-3`); formulários com dois campos lado a lado também (`grid-cols-1 sm:grid-cols-2`).
+- **Toque**: controles principais com ≥ 40–44px (`<TouchIconButton>` ou `min-h-11`). Botões pequenos ganham área de toque extra via CSS em `@media (pointer: coarse)` (`globals.css`), mas não conte só com isso em ações importantes.
+- **Área segura**: `viewportFit: "cover"` está ligado; use `safe-bottom`/`safe-top` em elementos fixos (toasts, barras, banners).
+- **Navbar**: o menu completo só aparece a partir de `xl` (1280px); abaixo disso (inclusive tablets) é o painel do hambúrguer. A conta (Equipe, Assinatura, Perfil, Sair) fica em `UserMenu`.
+- **Board de Spaces**: toolbar horizontal rolável no celular, biblioteca como bottom sheet e zoom escondido (use pinça) até `sm`.
+- **Verificação visual**: o navegador embutido emula tamanhos com `resize_window` (360×740, 768×1024). Páginas autenticadas precisam de login; sem sessão elas mostram só o shell vazio.
+- **Cache em dev**: `next.config.ts` só aplica cache imutável em `/_next/static` em produção; em dev os chunks não têm hash e o navegador serviria código antigo.
+
 ## Reescrita por módulos (em andamento)
 
-A reescrita do frontend segue módulo a módulo: **spaces** (feito) → **projetos** (feito) → admin → demais. Para cada módulo: separar em componentes/hooks, otimizar, rodar typecheck + lint + build + testes e só então seguir.
+A reescrita do frontend segue módulo a módulo: **spaces** (feito) → **projetos** (feito) → **responsividade global** (feito) → admin → demais. Para cada módulo: separar em componentes/hooks, otimizar, rodar typecheck + lint + build + testes e só então seguir.
 
 - **spaces** (`src/components/spaces/`): `space-board-canvas.tsx` guarda só o estado e a lógica do board (React Flow). Os nós ficam em `nodes/` (`BOARD_NODE_TYPES` é constante de módulo), a UI do board em `board/` (barra, toolbar, biblioteca, menu de contexto, modais), o compartilhamento em `share/` (`useSpaceSharing` + `VisibilityOptions` + `MemberPicker`) e os tipos em `types.ts`. As rotas `/spaces` são apenas aliases das páginas de `/projects`.
 - **projetos**: as rotas `src/app/projects/page.tsx` e `[id]/page.tsx` só reexportam `src/components/projects/list/projects-list.tsx` e `detail/project-detail.tsx`. Padrão usado nas abas grandes (`scenes/`, `prompts/`, `projects/list`, `projects/detail`): um hook `use-*.ts(x)` com todo o estado e a lógica, `types.ts`/`helpers.ts` e um componente por bloco de JSX que recebe o retorno do hook em `s` (`const { ... } = s`). Para continuar a dividir, extraia mais blocos para componentes com props explícitas em vez de passar `s`.

@@ -9,11 +9,11 @@ interface ZoomControlsProps {
 
 export function ZoomControls({ zoomPercent, onZoomIn, onZoomOut }: ZoomControlsProps) {
   return (
-    <div className="pointer-events-auto absolute bottom-3.5 right-3.5 z-20 flex items-center gap-1.5 rounded-xl border border-outline-variant/30 bg-surface-container/95 px-2.5 py-1.5 text-xs font-medium text-on-surface-variant shadow-xl">
+    <div className="pointer-events-auto absolute bottom-3.5 right-3.5 z-20 hidden items-center gap-1.5 rounded-xl sm:flex border border-outline-variant/30 bg-surface-container/95 px-2.5 py-1.5 text-xs font-medium text-on-surface-variant shadow-xl">
       <button
         type="button"
         onClick={onZoomOut}
-        className="px-1.5 hover:text-on-surface"
+        className="px-2 py-1 hover:text-on-surface"
         title="Diminuir zoom"
       >
         −
@@ -24,7 +24,7 @@ export function ZoomControls({ zoomPercent, onZoomIn, onZoomOut }: ZoomControlsP
       <button
         type="button"
         onClick={onZoomIn}
-        className="px-1.5 hover:text-on-surface"
+        className="px-2 py-1 hover:text-on-surface"
         title="Aumentar zoom"
       >
         +

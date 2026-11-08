@@ -14,7 +14,7 @@ interface LibraryDrawerProps {
 
 export function LibraryDrawer({ canEdit, libraryTab, setLibraryTab, library, onClose, onGenerateImage, addLibraryItemToBoard }: LibraryDrawerProps) {
   return (
-    <div className="pointer-events-auto absolute left-16 top-16 bottom-16 z-20 flex w-80 flex-col rounded-2xl border border-outline-variant/30 bg-surface-container/95 shadow-2xl animate-in slide-in-from-left-2 duration-150">
+    <div className="pointer-events-auto absolute inset-x-2 bottom-2 top-16 z-30 flex flex-col rounded-2xl md:inset-x-auto md:bottom-16 md:left-16 md:z-20 md:w-80 border border-outline-variant/30 bg-surface-container/95 shadow-2xl animate-in slide-in-from-left-2 duration-150">
       <div className="flex items-center justify-between border-b border-outline-variant/20 px-4 py-3">
         <div>
           <h3 className="text-xs font-bold uppercase tracking-wider text-on-surface">

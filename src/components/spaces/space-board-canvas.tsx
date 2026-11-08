@@ -941,7 +941,7 @@ function SpaceBoardCanvasInner({
   };
 
   return (
-    <div className="relative h-[calc(100vh-120px)] min-h-[640px] w-full overflow-hidden rounded-2xl border border-outline-variant/30 bg-surface-container-lowest shadow-2xl">
+    <div className="relative h-[calc(100dvh-8.5rem)] min-h-[440px] sm:min-h-[560px] w-full overflow-hidden rounded-2xl border border-outline-variant/30 bg-surface-container-lowest shadow-2xl">
       <BoardTopBar projectTitle={projectTitle} saveStatus={saveStatus} canEdit={canEdit} onSwitchToClassicStudio={onSwitchToClassicStudio} onOpenShareModal={onOpenShareModal} />
 
       <BoardToolbar canEdit={canEdit} isLibraryOpen={isLibraryOpen} onToggleLibrary={() => setIsLibraryOpen((prev) => !prev)} onGenerateImage={openImageGenerator} onGenerateVideo={openVideoGenerator} addVideoGeneratorNode={addVideoGeneratorNode} addPromptNode={() => addPromptNode()} addNoteNode={addNoteNode} handleAutoOrganize={handleAutoOrganize} onFitView={() => reactFlowInstance.fitView({ padding: 0.2, duration: 350 })} />

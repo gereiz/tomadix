@@ -33,12 +33,12 @@ export function BoardContextMenu({ contextMenu, setContextMenu, genTargetPosRef,
     <div
       style={{
         position: "fixed",
-        left: Math.min(contextMenu.x, (typeof window !== "undefined" ? window.innerWidth : 1200) - 280),
-        top: Math.min(contextMenu.y, (typeof window !== "undefined" ? window.innerHeight : 800) - 400),
+        left: Math.max(8, Math.min(contextMenu.x, (typeof window !== "undefined" ? window.innerWidth : 1200) - 272)),
+        top: Math.max(8, Math.min(contextMenu.y, (typeof window !== "undefined" ? window.innerHeight : 800) - 400)),
         zIndex: 100,
       }}
       onClick={(e) => e.stopPropagation()}
-      className="theme-preserve-dark w-64 rounded-2xl border border-white/20 bg-[#0e131f]/95 p-2 shadow-2xl animate-in fade-in zoom-in-95 duration-150 text-white select-none"
+      className="theme-preserve-dark max-h-[calc(100dvh-1rem)] w-64 max-w-[calc(100vw-1rem)] overflow-y-auto rounded-2xl border border-white/20 bg-[#0e131f]/95 p-2 shadow-2xl animate-in fade-in zoom-in-95 duration-150 text-white select-none"
     >
       {/* Header */}
       <div className="flex items-center justify-between border-b border-white/10 px-2 py-1.5 mb-1.5">
@@ -254,7 +254,7 @@ export function BoardContextMenu({ contextMenu, setContextMenu, genTargetPosRef,
               <div className="px-2 pb-1 text-[9px] font-bold uppercase tracking-wider text-white/40">
                 Inserir do Projeto
               </div>
-              <div className="grid grid-cols-3 gap-1">
+              <div className="grid grid-cols-2 gap-1 min-[380px]:grid-cols-3">
                 {library.characters.length > 0 && (
                   <button
                     type="button"
