@@ -168,6 +168,81 @@ body {
 }
 
 /* ==========================================================================
+   RESPONSIVIDADE (celulares e tablets)
+   ========================================================================== */
+
+:root {
+  /* Altura da navbar global; usada por barras sticky e sidebars que ficam abaixo dela */
+  --navbar-h: 57px;
+}
+
+/* Respeita notch e barra de gestos (exige viewportFit: "cover" no layout) */
+@utility safe-top {
+  padding-top: env(safe-area-inset-top);
+}
+@utility safe-bottom {
+  padding-bottom: env(safe-area-inset-bottom);
+}
+@utility safe-inset-x {
+  padding-left: env(safe-area-inset-left);
+  padding-right: env(safe-area-inset-right);
+}
+
+/* Área mínima de toque recomendada para controles principais */
+@utility touch-target {
+  min-height: 44px;
+  min-width: 44px;
+}
+
+/* Animações de entrada leves (substituem as classes animate-in/fade-in que não tinham definição) */
+@keyframes tx-fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+@keyframes tx-slide-in-left {
+  from {
+    opacity: 0.6;
+    transform: translateX(-100%);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+@keyframes tx-slide-in-up {
+  from {
+    opacity: 0.6;
+    transform: translateY(1.5rem);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+.animate-in,
+.animate-fade-in {
+  animation: tx-fade-in 160ms ease-out both;
+}
+.animate-slide-right {
+  animation: tx-slide-in-left 200ms ease-out both;
+}
+.animate-sheet-up {
+  animation: tx-slide-in-up 200ms ease-out both;
+}
+@media (prefers-reduced-motion: reduce) {
+  .animate-in,
+  .animate-fade-in,
+  .animate-slide-right,
+  .animate-sheet-up {
+    animation: none;
+  }
+}
+
+/* ==========================================================================
    SISTEMA DE TEMA CLARO / ESCURO (LIGHT & DARK MODE)
    ========================================================================== */
 

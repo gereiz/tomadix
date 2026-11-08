@@ -11,6 +11,7 @@ export const viewport: Viewport = {
   width: "device-width",
   initialScale: 1,
   maximumScale: 5,
+  viewportFit: "cover",
   themeColor: "#0b0d12",
 };
 
@@ -51,7 +52,7 @@ export default async function RootLayout({ children }: Readonly<{ children: Reac
           />
         )}
       </head>
-      <body suppressHydrationWarning className="overflow-x-hidden min-h-screen bg-surface font-body-md text-on-surface antialiased selection:bg-primary selection:text-on-primary">
+      <body suppressHydrationWarning className="overflow-x-hidden min-h-dvh bg-surface font-body-md text-on-surface antialiased selection:bg-primary selection:text-on-primary">
         {customization && <ThemeInjector initialCustomization={customization} />}
         <Navbar />
         {children}
