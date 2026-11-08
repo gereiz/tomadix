@@ -23,6 +23,7 @@ export const PLATFORM_OPTIONS = [
   "Runway Gen-3",
   "OpenAI Sora",
   "Kling AI",
+  "Seedance",
   "Luma Dream Machine",
   "Outra Plataforma",
 ];
@@ -57,7 +58,7 @@ export const CINEMA_PRESETS = [
     genre: "Comercial / Publicidade",
     description: "Retrato clean de passarela com iluminação difusa suave 5600K, close-ups de texturas e transições orgânicas.",
     aspectRatio: "9:16",
-    targetPlatform: "Flux Pro",
+    targetPlatform: "Outra Plataforma",
     durationSeconds: "15",
     colorGrade: "Daylight 5600K Imaculado",
     pacing: "Rítmico / High Fashion",

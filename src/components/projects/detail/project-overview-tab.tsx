@@ -1,5 +1,7 @@
 "use client";
 
+import { AdvancedModeToggle } from "@/components/entities/advanced-mode-toggle";
+import { useAdvancedMode } from "@/components/entities/use-advanced-mode";
 import type { ProjectDetailTabState } from "./use-project-detail";
 
 interface ProjectOverviewTabProps {
@@ -8,6 +10,7 @@ interface ProjectOverviewTabProps {
 
 export function ProjectOverviewTab({ s }: ProjectOverviewTabProps) {
   const { project, activeTab, setActiveTab, setVisitedTabs, setVbModalOpen, handleOpenEditProject, formatDate } = s;
+  const [advanced, setAdvanced] = useAdvancedMode();
   if (!project) return null;
 
   return (
@@ -128,8 +131,10 @@ export function ProjectOverviewTab({ s }: ProjectOverviewTabProps) {
           </div>
         </div>
     
-        {/* Bíblia Visual & Direção de Arte Estética (GEN_VISUAL_BIBLE) */}
-        {(() => {
+        {/* Modo avançado: Bíblia Visual (direção de arte) só aparece quando ligado */}
+        <AdvancedModeToggle advanced={advanced} onChange={setAdvanced} />
+
+        {advanced && (() => {
           const charCount = project._count?.characters ?? project.characters?.length ?? 0;
           const envCount = project._count?.environments ?? project.environments?.length ?? 0;
           const hasValidTitle = Boolean(project.title && project.title.trim().length >= 3);

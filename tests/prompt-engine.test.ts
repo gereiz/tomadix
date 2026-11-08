@@ -542,6 +542,34 @@ describe("PromptEngineService - Motor de Composição e Geração com Gemini", (
       spy.mockRestore();
     });
 
+    it("deve gerar prompt de vídeo sem cena, usando só a ideia do usuário", async () => {
+      const out = {
+        schemaVersion: "1.0",
+        type: "video_prompt",
+        targetTool: "Kling",
+        sceneId: "",
+        narrativeObjective: "x",
+        action: "carro voando",
+        compiledPromptText: "Um carro futurista voando sobre uma ladeira.",
+      };
+      const spy = vi.spyOn(geminiProvider, "generateStructuredJson").mockResolvedValueOnce({
+        data: out,
+        rawText: JSON.stringify(out),
+        model: "gemini-2.5-flash",
+        tokens: { inputTokens: 1, outputTokens: 1 },
+      } as any);
+
+      const result = await PromptEngineService.generate(projectId, workspaceAId, {
+        templateKey: "video_prompt",
+        targetTool: "kling",
+        customInstructions: "carro futurista voando sobre uma ladeira",
+      });
+
+      expect(spy.mock.calls[0][0] as string).toContain("carro futurista voando sobre uma ladeira");
+      expect(result.formattedText).toContain("carro futurista");
+      spy.mockRestore();
+    });
+
     it("deve rejeitar a sequência quando o projeto não tem cenas", async () => {
       const empty = await withRetry(() =>
         ProjectService.createProject(workspaceAId, { title: "Sem cenas", description: "", genre: "Geral", language: "pt-BR", configuration: { aspectRatio: "16:9", targetPlatform: "Google Flow" } })

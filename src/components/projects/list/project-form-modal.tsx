@@ -2,7 +2,9 @@
 
 import Link from "next/link";
 import { GENRE_OPTIONS } from "@/config/genres";
-import { PLATFORM_OPTIONS, ASPECT_RATIO_OPTIONS } from "./helpers";
+import { AdvancedModeToggle } from "@/components/entities/advanced-mode-toggle";
+import { useAdvancedMode } from "@/components/entities/use-advanced-mode";
+import { PLATFORM_OPTIONS, ASPECT_RATIO_OPTIONS, CINEMA_PRESETS } from "./helpers";
 import type { ProjectsListTabState } from "./use-projects-list";
 
 interface ProjectFormModalProps {
@@ -10,7 +12,8 @@ interface ProjectFormModalProps {
 }
 
 export function ProjectFormModal({ s }: ProjectFormModalProps) {
-  const { setIsCreateModalOpen, editingProject, formSubmitError, setFormSubmitError, formData, setFormData, formErrors, submitting, studioParams, selectedParamKeys, setSelectedParamKeys, paramSearch, setParamSearch, paramScopeFilter, setParamScopeFilter, resetForm, handleSubmitForm, isCreateModalOpen } = s;
+  const { setIsCreateModalOpen, editingProject, formSubmitError, setFormSubmitError, formData, setFormData, formErrors, submitting, studioParams, selectedParamKeys, setSelectedParamKeys, paramSearch, setParamSearch, paramScopeFilter, setParamScopeFilter, resetForm, handleSubmitForm, isCreateModalOpen, handleApplyPreset } = s;
+  const [advanced, setAdvanced] = useAdvancedMode();
   if (!isCreateModalOpen) return null;
 
   return (
@@ -98,7 +101,33 @@ export function ProjectFormModal({ s }: ProjectFormModalProps) {
           </div>
         )}
     
-        <form onSubmit={handleSubmitForm} className="mt-6 space-y-5">
+        <div className="mt-5">
+          <AdvancedModeToggle advanced={advanced} onChange={setAdvanced} />
+        </div>
+
+        <form onSubmit={handleSubmitForm} className="mt-5 space-y-5">
+          {/* Modelos prontos: começar com 1 clique (só ao criar) */}
+          {!editingProject && (
+            <div>
+              <label className="block text-xs font-semibold uppercase tracking-wider text-white/70">
+                Começar de um modelo (opcional)
+              </label>
+              <div className="mt-2 grid grid-cols-1 sm:grid-cols-2 gap-2">
+                {CINEMA_PRESETS.map((preset) => (
+                  <button
+                    key={preset.title}
+                    type="button"
+                    onClick={() => handleApplyPreset(preset)}
+                    className="min-h-11 rounded-xl border border-white/10 bg-black/30 p-2.5 text-left transition hover:border-primary/40 hover:bg-white/5"
+                  >
+                    <div className="text-xs font-bold text-white">{preset.title}</div>
+                    <div className="text-[10px] text-white/50">{preset.genre} · {preset.aspectRatio}</div>
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
+
           {/* Nome */}
           <div>
             <label className="block text-xs font-semibold uppercase tracking-wider text-white/70">
@@ -132,6 +161,8 @@ export function ProjectFormModal({ s }: ProjectFormModalProps) {
             />
           </div>
     
+          {advanced && (
+          <>
           {/* Visibilidade e Compartilhamento no Workspace */}
           <div>
             <label className="block text-xs font-semibold uppercase tracking-wider text-white/70">
@@ -518,7 +549,9 @@ export function ProjectFormModal({ s }: ProjectFormModalProps) {
               )}
             </div>
           </div>
-    
+          </>
+          )}
+
           {/* Botões do Formulário */}
           <div className="flex items-center justify-end gap-3 pt-4 border-t border-white/10">
             <button

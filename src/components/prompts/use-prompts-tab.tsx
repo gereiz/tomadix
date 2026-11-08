@@ -227,7 +227,7 @@ export function usePromptsTab({ projectId, initialSceneId, onStatsUpdate }: Prom
         templateKey: selectedTemplate,
         targetTool: selectedTool,
         captureStyle: supportsCaptureStyle ? captureStyle : undefined,
-        sceneId: needsScene ? selectedSceneId : undefined,
+        sceneId: needsScene ? selectedSceneId || undefined : undefined,
         references:
           needsSequence && sequenceScope === "selected" && sequenceSceneIds.length > 0
             ? { sceneIds: sequenceSceneIds }
@@ -424,8 +424,12 @@ export function usePromptsTab({ projectId, initialSceneId, onStatsUpdate }: Prom
   const needsEnvironment = selectedTemplate === "environment_definition";
 
   // Motivo pelo qual "Gerar" está bloqueado (null = pode gerar)
-  const blockReason: string | null = needsScene && !selectedSceneId
+  // Vídeo aceita "sem cena" (só a ideia do usuário); cena individual exige uma cena.
+  const sceneRequired = selectedTemplate === "individual_scene";
+  const blockReason: string | null = sceneRequired && !selectedSceneId
     ? "Crie ao menos uma cena na aba Cenas para gerar este prompt."
+    : selectedTemplate === "video_prompt" && !selectedSceneId && !customInstructions.trim()
+      ? "Escreva sua ideia ou escolha uma cena para gerar o prompt de vídeo."
     : needsSequence && scenes.length === 0
       ? "Crie ao menos uma cena na aba Cenas para gerar a sequência."
       : needsSequence && sequenceScope === "selected" && sequenceSceneIds.length === 0

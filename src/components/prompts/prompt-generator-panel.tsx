@@ -138,34 +138,6 @@ export function PromptGeneratorPanel({ s }: PromptGeneratorPanelProps) {
           </div>
         </div>
     
-        {/* Estilo de Captura (como a imagem/vídeo foi gravado) */}
-        {supportsCaptureStyle && (
-          <div>
-            <label className="block text-xs font-semibold text-white/80 mb-1.5">Estilo de Captura</label>
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
-              {listCaptureStyles().map((st) => (
-                <button
-                  key={st.key}
-                  type="button"
-                  title={st.description}
-                  onClick={() => setCaptureStyle(st.key)}
-                  className={`min-h-11 rounded-xl p-2.5 text-center text-xs font-medium border transition ${
-                    captureStyle === st.key
-                      ? "bg-primary/20 text-primary border-primary/40 font-semibold"
-                      : "bg-white/5 text-white/60 border-white/10 hover:text-white"
-                  }`}
-                >
-                  <span className="block text-base">{st.icon}</span>
-                  <span className="mt-1 block text-[11px] truncate">{st.label}</span>
-                </button>
-              ))}
-            </div>
-            <p className="mt-1.5 text-[11px] text-white/50">
-              {listCaptureStyles().find((st) => st.key === captureStyle)?.description}
-            </p>
-          </div>
-        )}
-
         {/* Contexto Específico (Cena, Personagem ou Ambiente) */}
         {needsScene && (
           <div>
@@ -173,8 +145,10 @@ export function PromptGeneratorPanel({ s }: PromptGeneratorPanelProps) {
               Tomada / Cena de Referência
             </label>
             {scenes.length === 0 ? (
-              <p className="text-xs text-amber-300/80 bg-amber-500/10 p-2.5 rounded-xl border border-amber-500/20">
-                Nenhuma cena cadastrada no projeto. Crie ao menos uma cena na aba &quot;Cenas&quot;.
+              <p className="text-xs text-white/60 bg-white/5 p-2.5 rounded-xl border border-white/10">
+                {selectedTemplate === "video_prompt"
+                  ? "Nenhuma cena criada ainda: tudo bem, descreva sua ideia abaixo."
+                  : "Nenhuma cena cadastrada no projeto. Crie ao menos uma cena na aba \"Cenas\"."}
               </p>
             ) : (
               <select
@@ -182,6 +156,7 @@ export function PromptGeneratorPanel({ s }: PromptGeneratorPanelProps) {
                 onChange={(e) => setSelectedSceneId(e.target.value)}
                 className="w-full rounded-xl border border-white/10 bg-[#0f1218] px-3 py-2 text-xs text-white focus:border-primary focus:outline-none"
               >
+                {selectedTemplate === "video_prompt" && <option value="">Sem cena (usar só a minha ideia)</option>}
                 {scenes.map((s) => (
                   <option key={s.id} value={s.id}>
                     Cena #{s.order} - {s.title}
@@ -300,16 +275,71 @@ export function PromptGeneratorPanel({ s }: PromptGeneratorPanelProps) {
           </div>
         )}
     
+        {/* Sua ideia (sempre visível) */}
+        <div>
+          <div className="flex items-center justify-between mb-1.5">
+            <label className="block text-xs font-semibold text-white/80">
+              Sua ideia {selectedTemplate === "video_prompt" ? "" : "(opcional)"}
+            </label>
+            <button
+              type="button"
+              onClick={handleEnhancePrompt}
+              disabled={enhancingPrompt || !customInstructions.trim()}
+              className="text-[11px] font-semibold text-primary hover:underline flex items-center gap-1 disabled:opacity-40 transition"
+              title="Melhorar o texto com IA"
+            >
+              <span>✨</span>
+              {enhancingPrompt ? "Melhorando..." : "Melhorar com IA"}
+            </button>
+          </div>
+          <textarea
+            value={customInstructions}
+            onChange={(e) => setCustomInstructions(e.target.value)}
+            placeholder="Descreva o que você quer ver. Ex: carro futurista voando numa rua de ladeira, luz de fim de tarde..."
+            rows={3}
+            maxLength={2000}
+            className="w-full rounded-xl border border-white/10 bg-[#0f1218] p-3 text-xs text-white placeholder-white/30 focus:border-primary focus:outline-none resize-none"
+          />
+        </div>
+
         <button
           type="button"
           onClick={() => setShowAdvanced(!showAdvanced)}
           className="text-[11px] font-semibold text-primary hover:underline"
         >
-          {showAdvanced ? "Ocultar opções avançadas" : "Opções avançadas (template, formato, diretrizes)"}
+          {showAdvanced ? "Ocultar opções avançadas" : "Opções avançadas (tipo de conteúdo, estilo de captura, formato)"}
         </button>
 
         {showAdvanced && (
         <>
+        {/* Estilo de Captura (como a imagem/vídeo foi gravado) */}
+        {supportsCaptureStyle && (
+          <div>
+            <label className="block text-xs font-semibold text-white/80 mb-1.5">Estilo de Captura</label>
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+              {listCaptureStyles().map((st) => (
+                <button
+                  key={st.key}
+                  type="button"
+                  title={st.description}
+                  onClick={() => setCaptureStyle(st.key)}
+                  className={`min-h-11 rounded-xl p-2.5 text-center text-xs font-medium border transition ${
+                    captureStyle === st.key
+                      ? "bg-primary/20 text-primary border-primary/40 font-semibold"
+                      : "bg-white/5 text-white/60 border-white/10 hover:text-white"
+                  }`}
+                >
+                  <span className="block text-base">{st.icon}</span>
+                  <span className="mt-1 block text-[11px] truncate">{st.label}</span>
+                </button>
+              ))}
+            </div>
+            <p className="mt-1.5 text-[11px] text-white/50">
+              {listCaptureStyles().find((st) => st.key === captureStyle)?.description}
+            </p>
+          </div>
+        )}
+
         {/* Formato de Saída Principal (JSON ou Texto Simples) */}
         <div>
           <label className="block text-xs font-semibold text-white/80 mb-1.5 flex items-center justify-between">
@@ -344,31 +374,6 @@ export function PromptGeneratorPanel({ s }: PromptGeneratorPanelProps) {
           </div>
         </div>
     
-        {/* Diretrizes Adicionais do Diretor */}
-        <div>
-          <div className="flex items-center justify-between mb-1.5">
-            <label className="block text-xs font-semibold text-white/80">
-              Diretrizes Adicionais do Diretor (Opcional)
-            </label>
-            <button
-              type="button"
-              onClick={handleEnhancePrompt}
-              disabled={enhancingPrompt || !customInstructions.trim()}
-              className="text-[11px] font-semibold text-primary hover:underline flex items-center gap-1 disabled:opacity-40 transition"
-              title="Aprimorar diretrizes e iluminação com IA cinematográfica (REWRITE_ENHANCE)"
-            >
-              <span>✨</span>
-              {enhancingPrompt ? "Aprimorando..." : "Aprimorar com IA"}
-            </button>
-          </div>
-          <textarea
-            value={customInstructions}
-            onChange={(e) => setCustomInstructions(e.target.value)}
-            placeholder="Ex: Enfatizar luz volumétrica de néon, atmosfera de chuva densa, granulação 35mm..."
-            rows={3}
-            className="w-full rounded-xl border border-white/10 bg-[#0f1218] p-3 text-xs text-white placeholder-white/30 focus:border-primary focus:outline-none resize-none"
-          />
-        </div>
         </>
         )}
 
