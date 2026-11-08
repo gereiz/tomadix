@@ -11,8 +11,8 @@ export function ContinuityModal({ s }: ContinuityModalProps) {
   if (!continuityModalOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4 overflow-y-auto">
-      <div className="relative w-full max-w-2xl max-h-[85vh] overflow-y-auto rounded-3xl border border-white/10 bg-[#0f1218] p-6 shadow-2xl">
+    <div className="fixed inset-0 z-50 flex items-center-safe justify-center bg-black/80 p-3 sm:p-4 overflow-y-auto">
+      <div className="relative w-full max-w-2xl max-h-[85dvh] overflow-y-auto rounded-3xl border border-white/10 bg-[#0f1218] p-6 shadow-2xl">
         <div className="flex items-center justify-between border-b border-white/10 pb-4">
           <div className="flex items-center gap-2">
             <span className="rounded-lg bg-purple-500/10 px-2 py-1 text-xs font-mono text-purple-300 border border-purple-500/20">

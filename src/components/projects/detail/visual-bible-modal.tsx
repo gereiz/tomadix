@@ -13,7 +13,7 @@ export function VisualBibleModal({ s }: VisualBibleModalProps) {
   return (
     <>
     {vbModalOpen && (
-      <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4">
+      <div className="fixed inset-0 overflow-y-auto z-50 flex items-center-safe justify-center bg-black/80 p-3 sm:p-4">
         <div className="relative w-full max-w-lg rounded-3xl border border-white/10 bg-[#0f1218] p-6 shadow-2xl">
           <div className="flex items-center justify-between border-b border-white/10 pb-4">
             <div>

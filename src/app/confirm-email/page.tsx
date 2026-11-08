@@ -124,7 +124,7 @@ function ConfirmEmailContent() {
 
 export default function ConfirmEmailPage() {
   return (
-    <main className="flex min-h-screen items-center justify-center bg-[#0b0d12] px-6 py-12">
+    <main className="flex min-h-dvh items-center justify-center bg-[#0b0d12] px-6 py-12">
       <Suspense fallback={<div className="text-white/50">Carregando...</div>}>
         <ConfirmEmailContent />
       </Suspense>

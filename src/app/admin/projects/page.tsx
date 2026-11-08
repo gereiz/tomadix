@@ -496,8 +496,8 @@ export default function AdminProjectsPage() {
 
       {/* Modal: Detalhes do Projeto */}
       {selectedProject && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4 animate-in fade-in duration-200">
-          <div className="relative max-h-[90vh] w-full max-w-4xl overflow-y-auto rounded-3xl border border-white/15 bg-[#0d1017] p-6 sm:p-8 text-white shadow-2xl">
+        <div className="fixed inset-0 overflow-y-auto z-50 flex items-center-safe justify-center bg-black/80 p-3 sm:p-4 animate-in fade-in duration-200">
+          <div className="relative max-h-[90dvh] w-full max-w-4xl overflow-y-auto rounded-3xl border border-white/15 bg-[#0d1017] p-6 sm:p-8 text-white shadow-2xl">
             <button
               onClick={() => {
                 setSelectedProject(null);
@@ -652,7 +652,7 @@ export default function AdminProjectsPage() {
 
       {/* Modal: Arquivar Projeto */}
       {archiveTarget && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4 animate-in fade-in duration-200">
+        <div className="fixed inset-0 overflow-y-auto z-50 flex items-center-safe justify-center bg-black/80 p-3 sm:p-4 animate-in fade-in duration-200">
           <div className="w-full max-w-md rounded-3xl border border-amber-500/30 bg-[#0d1017] p-6 text-white shadow-2xl">
             <h2 className="text-lg font-bold text-white flex items-center gap-2">
               <span>⚠️</span> Arquivar Projeto
@@ -698,7 +698,7 @@ export default function AdminProjectsPage() {
 
       {/* Modal: Transferir Projeto */}
       {transferTarget && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4 animate-in fade-in duration-200">
+        <div className="fixed inset-0 overflow-y-auto z-50 flex items-center-safe justify-center bg-black/80 p-3 sm:p-4 animate-in fade-in duration-200">
           <div className="w-full max-w-lg rounded-3xl border border-indigo-500/30 bg-[#0d1017] p-6 text-white shadow-2xl">
             <h2 className="text-lg font-bold text-white flex items-center gap-2">
               <span>🔄</span> Transferir Projeto de Estúdio
@@ -768,7 +768,7 @@ export default function AdminProjectsPage() {
 
       {/* Modal: Excluir Projeto */}
       {deleteTarget && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4 animate-in fade-in duration-200">
+        <div className="fixed inset-0 overflow-y-auto z-50 flex items-center-safe justify-center bg-black/80 p-3 sm:p-4 animate-in fade-in duration-200">
           <div className="w-full max-w-md rounded-3xl border border-rose-500/40 bg-[#0d1017] p-6 text-white shadow-2xl">
             <h2 className="text-lg font-bold text-rose-300 flex items-center gap-2">
               <span>⚠️</span> Excluir Projeto Permanentemente

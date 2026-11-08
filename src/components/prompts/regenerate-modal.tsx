@@ -13,7 +13,7 @@ export function RegenerateModal({ s }: RegenerateModalProps) {
   if (!regeneratingVersion) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4">
+    <div className="fixed inset-0 overflow-y-auto z-50 flex items-center-safe justify-center bg-black/80 p-3 sm:p-4">
       <div className="relative w-full max-w-lg rounded-3xl border border-white/20 bg-[#0f1218] p-6 shadow-2xl space-y-4">
         <h3 className="text-base font-bold text-white flex items-center gap-2">
           <svg className="h-5 w-5 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor">

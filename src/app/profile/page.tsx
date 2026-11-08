@@ -298,8 +298,8 @@ export default function ProfilePage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-[#0b0d12] text-white">
-        <div className="flex min-h-[60vh] items-center justify-center text-sm text-white/50">
+      <div className="min-h-dvh bg-[#0b0d12] text-white">
+        <div className="flex min-h-[60dvh] items-center justify-center text-sm text-white/50">
           Carregando configurações da conta...
         </div>
       </div>
@@ -311,7 +311,7 @@ export default function ProfilePage() {
     .toUpperCase();
 
   return (
-    <div className="min-h-screen bg-[#0b0d12] text-white">
+    <div className="min-h-dvh bg-[#0b0d12] text-white">
       <main className="w-full px-4 sm:px-6 lg:px-8 py-10">
         {/* Cabeçalho do Perfil */}
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-6 border-b border-white/10 pb-8">
@@ -812,7 +812,7 @@ export default function ProfilePage() {
 
       {/* Modal Seguro de Confirmação de Exclusão */}
       {isDeleteModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/85 p-4 animate-in fade-in duration-200">
+        <div className="fixed inset-0 overflow-y-auto z-50 flex items-center-safe justify-center bg-black/85 p-3 sm:p-4 animate-in fade-in duration-200">
           <div className="w-full max-w-lg rounded-3xl border border-red-500/40 bg-[#120f12] p-6 sm:p-8 text-white shadow-2xl shadow-red-500/10">
             <div className="flex items-center gap-3 text-red-400">
               <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-red-500/20 border border-red-500/30">

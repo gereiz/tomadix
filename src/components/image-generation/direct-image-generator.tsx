@@ -512,10 +512,10 @@ export function DirectImageGenerator({
       {/* Modal Lightbox (Zoom em Tela Cheia) */}
       {lightboxOpen && generatedImage && (
         <div
-          className="fixed inset-0 z-50 bg-black/90 flex items-center justify-center p-4 animate-fade-in"
+          className="fixed inset-0 overflow-y-auto z-50 bg-black/90 flex items-center-safe justify-center p-3 sm:p-4 animate-fade-in"
           onClick={() => setLightboxOpen(false)}
         >
-          <div className="relative max-w-7xl max-h-[92vh] flex flex-col items-center">
+          <div className="relative max-w-7xl max-h-[92dvh] flex flex-col items-center">
             <button
               type="button"
               onClick={() => setLightboxOpen(false)}
@@ -527,7 +527,7 @@ export function DirectImageGenerator({
             <img loading="lazy" decoding="async"
               src={generatedImage.imageUrl}
               alt={generatedImage.prompt}
-              className="max-h-[85vh] max-w-full object-contain rounded-xl shadow-2xl border border-white/15"
+              className="max-h-[85dvh] max-w-full object-contain rounded-xl shadow-2xl border border-white/15"
               onClick={(e) => e.stopPropagation()}
             />
             <div className="flex items-center gap-3 mt-3" onClick={(e) => e.stopPropagation()}>

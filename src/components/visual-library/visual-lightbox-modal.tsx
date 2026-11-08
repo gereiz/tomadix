@@ -112,7 +112,7 @@ export function VisualLightboxModal({
       role="dialog"
       aria-modal="true"
       aria-labelledby="lightbox-title"
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black/85 p-4 animate-in fade-in duration-200"
+      className="fixed inset-0 overflow-y-auto z-50 flex items-center-safe justify-center bg-black/85 p-3 sm:p-4 animate-in fade-in duration-200"
       onClick={onClose}
     >
       <div
@@ -200,7 +200,7 @@ export function VisualLightboxModal({
         )}
 
         {/* Conteúdo Didático e Explicativo */}
-        <div className="p-6 space-y-4 max-h-[45vh] overflow-y-auto">
+        <div className="p-6 space-y-4 max-h-[45dvh] overflow-y-auto">
           <div>
             <h2 id="lightbox-title" className="text-lg font-bold text-white flex items-center gap-2">
               {option.label}

@@ -747,7 +747,7 @@ export function CinematicStudioWorkflow() {
 
   /* ---------------- Render ---------------- */
   return (
-    <div className="min-h-screen bg-[#0e1217] pb-24 font-sans text-[#e0e3e8]">
+    <div className="min-h-dvh bg-[#0e1217] pb-24 font-sans text-[#e0e3e8]">
       {/* Cabeçalho da página */}
       <div className="border-b border-white/5 bg-[#11151a]">
         <div className="flex w-full flex-col gap-4 px-4 py-6 sm:px-6 lg:px-8 md:flex-row md:items-end md:justify-between">
@@ -1698,7 +1698,7 @@ export function CinematicStudioWorkflow() {
       {/* Confirmação de exclusão */}
       {pendingDelete && (
         <div
-          className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-4"
+          className="fixed inset-0 overflow-y-auto z-50 flex items-center-safe justify-center bg-black/70 p-3 sm:p-4"
           onClick={() => !isDeleting && setPendingDelete(null)}
         >
           <div

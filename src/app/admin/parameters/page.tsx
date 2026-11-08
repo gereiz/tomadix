@@ -891,8 +891,8 @@ export default function AdminParametersPage() {
 
       {/* Modal de Criação / Edição de Parâmetro */}
       {isFormOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 animate-in fade-in">
-          <div className="bg-[#0e121a] border border-white/10 rounded-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto shadow-2xl flex flex-col">
+        <div className="fixed inset-0 overflow-y-auto z-50 flex items-center-safe justify-center p-3 sm:p-4 bg-black/80 animate-in fade-in">
+          <div className="bg-[#0e121a] border border-white/10 rounded-2xl w-full max-w-2xl max-h-[90dvh] overflow-y-auto shadow-2xl flex flex-col">
             <div className="p-6 border-b border-white/5 flex items-center justify-between sticky top-0 bg-[#0e121a]/95 z-10">
               <div>
                 <h3 className="text-lg font-bold text-white flex items-center gap-2">
@@ -1213,7 +1213,7 @@ export default function AdminParametersPage() {
 
       {/* Modal de Exclusão Segura */}
       {deletingParam && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 animate-in fade-in">
+        <div className="fixed inset-0 overflow-y-auto z-50 flex items-center-safe justify-center p-3 sm:p-4 bg-black/80 animate-in fade-in">
           <div className="bg-[#121622] border border-rose-500/30 rounded-2xl p-6 max-w-md w-full shadow-2xl">
             <div className="flex items-center gap-3 text-rose-400 mb-3">
               <span className="text-2xl">⚠️</span>

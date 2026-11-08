@@ -560,8 +560,8 @@ export default function AdminUsersPage() {
 
       {/* Modal: Detalhes e Gestão Completa do Usuário */}
       {selectedUser && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4">
-          <div className="max-w-3xl w-full rounded-2xl border border-white/15 bg-[#0f1422] p-6 max-h-[92vh] overflow-y-auto space-y-6">
+        <div className="fixed inset-0 overflow-y-auto z-50 flex items-center-safe justify-center bg-black/80 p-3 sm:p-4">
+          <div className="max-w-3xl w-full rounded-2xl border border-white/15 bg-[#0f1422] p-6 max-h-[92dvh] overflow-y-auto space-y-6">
             <div className="flex items-center justify-between border-b border-white/10 pb-4">
               <div>
                 <h3 className="text-base font-bold text-white">Gerenciamento Completo de Usuário</h3>
@@ -763,8 +763,8 @@ export default function AdminUsersPage() {
 
       {/* Modal: Permissões Granulares */}
       {permissionsTarget && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4">
-          <div className="max-w-2xl w-full rounded-2xl border border-indigo-500/30 bg-[#0c1020] p-6 space-y-4 max-h-[90vh] overflow-y-auto">
+        <div className="fixed inset-0 overflow-y-auto z-50 flex items-center-safe justify-center bg-black/80 p-3 sm:p-4">
+          <div className="max-w-2xl w-full rounded-2xl border border-indigo-500/30 bg-[#0c1020] p-6 space-y-4 max-h-[90dvh] overflow-y-auto">
             <div className="flex justify-between items-start border-b border-white/10 pb-3">
               <div>
                 <h3 className="text-base font-bold text-indigo-300">Permissões Administrativas da Plataforma</h3>
@@ -855,7 +855,7 @@ export default function AdminUsersPage() {
 
       {/* Modal: Suspender Conta */}
       {suspendTarget && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4">
+        <div className="fixed inset-0 overflow-y-auto z-50 flex items-center-safe justify-center bg-black/80 p-3 sm:p-4">
           <div className="max-w-md w-full rounded-2xl border border-rose-500/30 bg-[#160d10] p-6 space-y-4">
             <h3 className="text-base font-bold text-rose-300">Suspender Conta de Usuário</h3>
             <p className="text-xs text-white/70 leading-relaxed">
@@ -901,7 +901,7 @@ export default function AdminUsersPage() {
 
       {/* Modal: Ajustar Créditos */}
       {creditTarget && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4">
+        <div className="fixed inset-0 overflow-y-auto z-50 flex items-center-safe justify-center bg-black/80 p-3 sm:p-4">
           <div className="max-w-md w-full rounded-2xl border border-primary/30 bg-[#0c1410] p-6 space-y-4">
             <h3 className="text-base font-bold text-primary">Ajuste de Créditos no Estúdio</h3>
             <p className="text-xs text-white/70 leading-relaxed">

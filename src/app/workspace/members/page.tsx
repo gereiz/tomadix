@@ -297,7 +297,7 @@ export default function WorkspaceMembersPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-[#07090e] p-8 text-center text-white/40">
+      <div className="min-h-dvh bg-[#07090e] p-8 text-center text-white/40">
         Carregando gestão da equipe...
       </div>
     );
@@ -305,7 +305,7 @@ export default function WorkspaceMembersPage() {
 
   if (!workspace) {
     return (
-      <div className="min-h-screen bg-[#07090e] p-8 text-center text-white/50">
+      <div className="min-h-dvh bg-[#07090e] p-8 text-center text-white/50">
         Nenhum workspace selecionado.
       </div>
     );
@@ -315,7 +315,7 @@ export default function WorkspaceMembersPage() {
     workspace.maxMembers !== -1 && workspace.membersCount >= workspace.maxMembers;
 
   return (
-    <div className="min-h-screen bg-[#07090e] text-white">
+    <div className="min-h-dvh bg-[#07090e] text-white">
       <div className="w-full px-4 sm:px-6 lg:px-8 py-12">
         {/* Header */}
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 border-b border-white/10 pb-6">
@@ -595,7 +595,7 @@ export default function WorkspaceMembersPage() {
 
         {/* Invite Modal */}
         {showInviteModal && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4">
+          <div className="fixed inset-0 overflow-y-auto z-50 flex items-center-safe justify-center bg-black/80 p-3 sm:p-4">
             <div className="max-w-md w-full rounded-2xl border border-white/10 bg-[#0d1017] p-6 space-y-4">
               <div className="flex items-center justify-between">
                 <h3 className="text-lg font-bold text-white">Convidar Colaborador</h3>
@@ -694,7 +694,7 @@ export default function WorkspaceMembersPage() {
 
         {/* Transfer Ownership Modal */}
         {showTransferModal && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4">
+          <div className="fixed inset-0 overflow-y-auto z-50 flex items-center-safe justify-center bg-black/80 p-3 sm:p-4">
             <div className="max-w-md w-full rounded-2xl border border-white/10 bg-[#0d1017] p-6 space-y-4">
               <h3 className="text-lg font-bold text-white">Transferir Propriedade</h3>
               <p className="text-xs text-white/60">

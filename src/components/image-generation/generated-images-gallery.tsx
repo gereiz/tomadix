@@ -330,11 +330,11 @@ export function GeneratedImagesGallery({
       {/* Modal de Detalhes da Imagem */}
       {selectedImage && (
         <div
-          className="fixed inset-0 z-50 bg-black/90 flex items-center justify-center p-4 animate-fade-in"
+          className="fixed inset-0 overflow-y-auto z-50 bg-black/90 flex items-center-safe justify-center p-3 sm:p-4 animate-fade-in"
           onClick={() => setSelectedImage(null)}
         >
           <div
-            className="relative max-w-4xl w-full bg-[#0d1117] border border-white/15 rounded-2xl p-5 space-y-4 max-h-[90vh] overflow-y-auto"
+            className="relative max-w-4xl w-full bg-[#0d1117] border border-white/15 rounded-2xl p-5 space-y-4 max-h-[90dvh] overflow-y-auto"
             onClick={(e) => e.stopPropagation()}
           >
             <div className="flex items-center justify-between border-b border-white/10 pb-3">

@@ -479,8 +479,8 @@ export function VisualCoverageDashboard() {
 
       {/* MODAL: EDITAR / ASSOCIAR IMAGEM E DIDÁTICA (SEÇÃO 7) */}
       {editingOption && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/85 p-4 overflow-y-auto">
-          <div className="relative w-full max-w-xl max-h-[90vh] overflow-y-auto rounded-3xl border border-white/15 bg-[#0b0f19] p-6 shadow-2xl space-y-5">
+        <div className="fixed inset-0 z-50 flex items-center-safe justify-center bg-black/85 p-3 sm:p-4 overflow-y-auto">
+          <div className="relative w-full max-w-xl max-h-[90dvh] overflow-y-auto rounded-3xl border border-white/15 bg-[#0b0f19] p-6 shadow-2xl space-y-5">
             <div className="flex items-center justify-between border-b border-white/10 pb-4">
               <div>
                 <h3 className="text-sm font-bold text-white flex items-center gap-2">

@@ -13,7 +13,7 @@ export function EditProjectModal({ s }: EditProjectModalProps) {
   return (
     <>
     {isEditModalOpen && (
-      <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4">
+      <div className="fixed inset-0 overflow-y-auto z-50 flex items-center-safe justify-center bg-black/80 p-3 sm:p-4">
         <div className="w-full max-w-xl rounded-3xl border border-white/10 bg-[#0d111c] p-6 shadow-2xl space-y-4">
           <div className="flex items-center justify-between border-b border-white/10 pb-4">
             <div>

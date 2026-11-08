@@ -119,7 +119,7 @@ export default function AcceptInvitePage({
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-[#07090e] px-6 py-20 flex items-center justify-center text-white/50">
+      <div className="min-h-dvh bg-[#07090e] px-6 py-20 flex items-center justify-center text-white/50">
         Carregando informações do convite...
       </div>
     );
@@ -127,7 +127,7 @@ export default function AcceptInvitePage({
 
   if (error || !invite) {
     return (
-      <div className="min-h-screen bg-[#07090e] px-6 py-20 flex items-center justify-center text-white">
+      <div className="min-h-dvh bg-[#07090e] px-6 py-20 flex items-center justify-center text-white">
         <div className="mx-auto max-w-md text-center space-y-4">
           <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-red-500/10 border border-red-500/30 text-2xl">
             ⚠️
@@ -151,7 +151,7 @@ export default function AcceptInvitePage({
 
   if (accepted) {
     return (
-      <div className="min-h-screen bg-[#07090e] px-6 py-20 flex items-center justify-center text-white">
+      <div className="min-h-dvh bg-[#07090e] px-6 py-20 flex items-center justify-center text-white">
         <div className="mx-auto max-w-md text-center space-y-4">
           <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-primary/10 border border-primary/30 text-2xl">
             🎉
@@ -168,7 +168,7 @@ export default function AcceptInvitePage({
   const isPending = invite.status === "PENDING";
 
   return (
-    <div className="min-h-screen bg-[#07090e] px-6 py-20 flex items-center justify-center text-white">
+    <div className="min-h-dvh bg-[#07090e] px-6 py-20 flex items-center justify-center text-white">
       <div className="mx-auto max-w-md w-full rounded-2xl border border-white/15 bg-white/[0.02] p-8 shadow-2xl text-center space-y-6">
         <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-2xl bg-primary/10 border border-primary/30 text-3xl">
           🎬

@@ -623,12 +623,12 @@ export function AnalysisResultPanel({
       {/* Lightbox para visualizar qualquer uma das imagens enviadas em tamanho grande */}
       {lightboxEntry && (
         <div
-          className="fixed inset-0 z-50 flex items-center justify-center bg-black/85 p-4"
+          className="fixed inset-0 overflow-y-auto z-50 flex items-center-safe justify-center bg-black/85 p-3 sm:p-4"
           onClick={() => setLightboxIndex(null)}
         >
           <div
             onClick={(e) => e.stopPropagation()}
-            className="flex max-h-[90vh] w-full max-w-4xl flex-col overflow-hidden rounded-3xl border border-white/15 bg-[#12161b] shadow-2xl"
+            className="flex max-h-[90dvh] w-full max-w-4xl flex-col overflow-hidden rounded-3xl border border-white/15 bg-[#12161b] shadow-2xl"
           >
             <div className="flex items-center justify-between border-b border-white/10 px-5 py-3.5">
               <div className="flex items-center gap-2.5 min-w-0">
@@ -659,7 +659,7 @@ export function AnalysisResultPanel({
                 <img loading="lazy" decoding="async"
                   src={lightboxEntry.src}
                   alt={lightboxEntry.label}
-                  className="max-h-[68vh] w-auto max-w-full rounded-xl object-contain"
+                  className="max-h-[68dvh] w-auto max-w-full rounded-xl object-contain"
                 />
               ) : (
                 <p className="text-xs text-white/50">Imagem indisponível</p>

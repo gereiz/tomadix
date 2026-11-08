@@ -534,7 +534,7 @@ export function ProjectParameterSettings({ projectId }: ProjectParameterSettings
       {/* Modal de Detalhes da Referência Visual */}
       {selectedVisualRef && (
         <div
-          className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4 animate-in fade-in duration-200"
+          className="fixed inset-0 overflow-y-auto z-50 flex items-center-safe justify-center bg-black/80 p-3 sm:p-4 animate-in fade-in duration-200"
           onClick={() => setSelectedVisualRef(null)}
         >
           <div

@@ -14,7 +14,7 @@ interface PromptJsonModalProps {
 /** Mostra o prompt JSON compilado de uma entidade, com cópia em um clique. */
 export function PromptJsonModal({ title, promptData, loading, copySuccess, onCopy, onClose }: PromptJsonModalProps) {
   return (
-    <div role="dialog" aria-modal="true" className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4">
+    <div role="dialog" aria-modal="true" className="fixed inset-0 overflow-y-auto z-50 flex items-center-safe justify-center bg-black/80 p-3 sm:p-4">
       <div className="relative w-full max-w-2xl rounded-3xl border border-white/10 bg-[#0f1218] p-6 shadow-2xl">
         <div className="flex items-center justify-between border-b border-white/10 pb-4">
           <div className="flex items-center gap-2">

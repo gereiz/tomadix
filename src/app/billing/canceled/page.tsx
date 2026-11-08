@@ -4,7 +4,7 @@ import Link from "next/link";
 
 export default function BillingCanceledPage() {
   return (
-    <div className="min-h-screen bg-[#07090e] px-6 py-20 flex items-center justify-center text-white">
+    <div className="min-h-dvh bg-[#07090e] px-6 py-20 flex items-center justify-center text-white">
       <div className="mx-auto max-w-md text-center space-y-6">
         <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-2xl bg-amber-500/10 border border-amber-500/30 text-3xl">
           ⏸️

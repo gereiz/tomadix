@@ -29,7 +29,7 @@ export default function ProjectDetail(props: { params: Promise<{ id: string }> }
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-[#0b0d12] text-white">
+      <div className="min-h-dvh bg-[#0b0d12] text-white">
         <main className="w-full px-4 sm:px-6 lg:px-8 py-12">
           <div className="h-6 w-32 animate-pulse rounded bg-white/10" />
           <div className="mt-4 h-10 w-2/3 animate-pulse rounded bg-white/10" />
@@ -44,7 +44,7 @@ export default function ProjectDetail(props: { params: Promise<{ id: string }> }
   }
   if (error || !project) {
     return (
-      <div className="min-h-screen bg-[#0b0d12] text-white">
+      <div className="min-h-dvh bg-[#0b0d12] text-white">
         <main className="w-full px-4 sm:px-6 lg:px-8 py-20 text-center">
           <div className="rounded-3xl border border-red-500/20 bg-red-950/20 p-8">
             <h2 className="text-xl font-bold text-red-300">Não foi possível abrir o projeto</h2>
@@ -62,7 +62,7 @@ export default function ProjectDetail(props: { params: Promise<{ id: string }> }
   }
 
   return (
-    <div className="min-h-screen bg-[#0b0d12] text-white">
+    <div className="min-h-dvh bg-[#0b0d12] text-white">
       <main className={`w-full px-4 sm:px-6 lg:px-8 ${activeTab === "board" ? "pt-3 pb-6" : "pt-6 pb-28"}`}>
       <ProjectTopBar s={s} />
 

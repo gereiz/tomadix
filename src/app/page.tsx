@@ -7,7 +7,7 @@ import { HOME_STEPS } from "@/config/home-content";
 
 export default function Home() {
   return (
-    <main className="min-h-[calc(100vh-4rem)] bg-surface">
+    <main className="min-h-[calc(100dvh-4rem)] bg-surface">
       <section className="grid items-center gap-10 px-4 pb-16 pt-12 sm:px-6 lg:grid-cols-12 lg:gap-14 lg:px-8 lg:pb-24 lg:pt-20">
         <div className="flex flex-col gap-6 lg:col-span-7">
           <h1 className="font-display-hero text-4xl font-bold leading-[1.08] tracking-tight text-on-surface sm:text-5xl lg:text-6xl">

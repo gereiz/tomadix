@@ -437,8 +437,8 @@ export function SubscriptionsTab() {
 
       {/* Modal: Detalhes da Assinatura */}
       {selectedSub && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4">
-          <div className="max-w-2xl w-full rounded-2xl border border-white/15 bg-[#0f1422] p-6 max-h-[90vh] overflow-y-auto space-y-6">
+        <div className="fixed inset-0 overflow-y-auto z-50 flex items-center-safe justify-center bg-black/80 p-3 sm:p-4">
+          <div className="max-w-2xl w-full rounded-2xl border border-white/15 bg-[#0f1422] p-6 max-h-[90dvh] overflow-y-auto space-y-6">
             <div className="flex items-center justify-between border-b border-white/10 pb-4">
               <div>
                 <h3 className="text-base font-bold text-white">Prontuário da Assinatura</h3>
@@ -539,7 +539,7 @@ export function SubscriptionsTab() {
 
       {/* Modal: Editar Assinatura */}
       {editModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4">
+        <div className="fixed inset-0 overflow-y-auto z-50 flex items-center-safe justify-center bg-black/80 p-3 sm:p-4">
           <div className="max-w-md w-full rounded-2xl border border-indigo-500/30 bg-[#0c1020] p-6 space-y-4">
             <h3 className="text-base font-bold text-indigo-300">Modificar Assinatura Comercial</h3>
             <p className="text-xs text-white/70 leading-relaxed">
@@ -656,7 +656,7 @@ export function SubscriptionsTab() {
 
       {/* Modal: Estender Trial */}
       {trialModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4">
+        <div className="fixed inset-0 overflow-y-auto z-50 flex items-center-safe justify-center bg-black/80 p-3 sm:p-4">
           <div className="max-w-md w-full rounded-2xl border border-amber-500/30 bg-[#16120d] p-6 space-y-4">
             <h3 className="text-base font-bold text-amber-300">Estender Período de Testes</h3>
             <p className="text-xs text-white/70 leading-relaxed">
@@ -712,7 +712,7 @@ export function SubscriptionsTab() {
 
       {/* Modal: Cancelar Assinatura */}
       {cancelModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4">
+        <div className="fixed inset-0 overflow-y-auto z-50 flex items-center-safe justify-center bg-black/80 p-3 sm:p-4">
           <div className="max-w-md w-full rounded-2xl border border-rose-500/30 bg-[#160d10] p-6 space-y-4">
             <h3 className="text-base font-bold text-rose-300">Cancelar Assinatura</h3>
             <p className="text-xs text-white/70 leading-relaxed">

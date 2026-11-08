@@ -18,7 +18,7 @@ export default function ProjectsList() {
   const { projects, projectToTransfer, setProjectToTransfer, projectToShare, setProjectToShare, usageSummary, planLimitModal, setPlanLimitModal, toastMessage, setToastMessage, showToast, loadUsage, fetchProjects } = s;
 
   return (
-    <div className="min-h-screen bg-surface font-body-md text-on-surface antialiased selection:bg-primary selection:text-on-primary relative overflow-hidden">
+    <div className="min-h-dvh bg-surface font-body-md text-on-surface antialiased selection:bg-primary selection:text-on-primary relative overflow-hidden">
       {/* Luz ambiente de fundo */}
 
       <main className="relative w-full px-4 sm:px-6 lg:px-8 pt-8 pb-20 flex flex-col gap-8">

@@ -422,7 +422,7 @@ export default function AdminPollinationsCentralPage() {
       {/* Modal: Atualizar Chave da Pollinations */}
       {isEditingKey && (
         <div
-          className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4"
+          className="fixed inset-0 overflow-y-auto z-50 flex items-center-safe justify-center bg-black/80 p-3 sm:p-4"
           onClick={() => !savingKey && setIsEditingKey(false)}
         >
           <div

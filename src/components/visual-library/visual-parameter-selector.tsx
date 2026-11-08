@@ -320,7 +320,7 @@ export function VisualParameterSelector({
             <div
               role="radiogroup"
               aria-label={label}
-              className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3 max-h-[58vh] overflow-y-auto p-1"
+              className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3 max-h-[58dvh] overflow-y-auto p-1"
             >
               {filteredOptions.map((opt) => (
                 <VisualOptionCard
@@ -337,7 +337,7 @@ export function VisualParameterSelector({
             </div>
           ) : (
             /* Modo Lista Rápida com Miniatura */
-            <div className="space-y-1.5 max-h-[58vh] overflow-y-auto p-1">
+            <div className="space-y-1.5 max-h-[58dvh] overflow-y-auto p-1">
               {filteredOptions.map((opt) => {
                 const isSelected = value === opt.value;
                 return (

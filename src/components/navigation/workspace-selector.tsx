@@ -208,7 +208,7 @@ export function WorkspaceSelector() {
 
       {/* Modal Criar Workspace */}
       {showCreateModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4">
+        <div className="fixed inset-0 overflow-y-auto z-50 flex items-center-safe justify-center bg-black/80 p-3 sm:p-4">
           <div className="max-w-md w-full rounded-2xl border border-white/10 bg-[#0d1017] p-6 space-y-4">
             <div className="flex items-center justify-between">
               <h3 className="text-lg font-bold text-white">Criar Novo Workspace</h3>

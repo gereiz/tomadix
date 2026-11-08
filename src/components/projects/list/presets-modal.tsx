@@ -12,8 +12,8 @@ export function PresetsModal({ s }: PresetsModalProps) {
   if (!isPresetsModalOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4">
-      <div className="relative max-h-[90vh] w-full max-w-3xl overflow-y-auto rounded-3xl border border-outline-variant/40 bg-surface-container-low p-6 sm:p-8 shadow-2xl">
+    <div className="fixed inset-0 overflow-y-auto z-50 flex items-center-safe justify-center bg-black/80 p-3 sm:p-4">
+      <div className="relative max-h-[90dvh] w-full max-w-3xl overflow-y-auto rounded-3xl border border-outline-variant/40 bg-surface-container-low p-6 sm:p-8 shadow-2xl">
         <div className="flex items-center justify-between border-b border-outline-variant/30 pb-4">
           <div>
             <span className="text-xs uppercase tracking-wider text-primary font-label-code font-semibold">

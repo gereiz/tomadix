@@ -106,7 +106,7 @@ function SuccessContent() {
 
 export default function BillingSuccessPage() {
   return (
-    <div className="min-h-screen bg-[#07090e] px-6 py-20 flex items-center justify-center">
+    <div className="min-h-dvh bg-[#07090e] px-6 py-20 flex items-center justify-center">
       <Suspense fallback={<div className="text-white/40">Carregando confirmação...</div>}>
         <SuccessContent />
       </Suspense>

@@ -153,7 +153,7 @@ export default function PricingPage() {
   };
 
   return (
-    <div className="min-h-screen bg-[#07090e] text-white">
+    <div className="min-h-dvh bg-[#07090e] text-white">
       {/* Background gradients */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
       </div>

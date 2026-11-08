@@ -136,7 +136,7 @@ export function DirectVideoModal({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/85 p-4 overflow-y-auto">
+    <div className="fixed inset-0 z-50 flex items-center-safe justify-center bg-black/85 p-3 sm:p-4 overflow-y-auto">
       <div className="relative w-full max-w-2xl rounded-3xl border border-white/10 bg-[#0f1218] p-6 shadow-2xl space-y-5 my-8">
         {/* Header */}
         <div className="flex items-center justify-between border-b border-white/10 pb-4">

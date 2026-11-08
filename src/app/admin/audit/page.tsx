@@ -222,8 +222,8 @@ export default function AdminAuditPage() {
 
       {/* Modal: Inspecionar Detalhes Sanitizados */}
       {selectedLog && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4">
-          <div className="max-w-lg w-full rounded-2xl border border-white/15 bg-[#0f1422] p-6 space-y-4 max-h-[85vh] overflow-y-auto text-xs">
+        <div className="fixed inset-0 overflow-y-auto z-50 flex items-center-safe justify-center bg-black/80 p-3 sm:p-4">
+          <div className="max-w-lg w-full rounded-2xl border border-white/15 bg-[#0f1422] p-6 space-y-4 max-h-[85dvh] overflow-y-auto text-xs">
             <div className="flex items-center justify-between border-b border-white/10 pb-3">
               <div>
                 <h3 className="text-base font-bold text-white">Inspeção de Auditoria</h3>

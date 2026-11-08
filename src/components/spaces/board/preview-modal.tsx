@@ -12,11 +12,11 @@ interface PreviewModalProps {
 export function PreviewModal({ previewNode, setPreviewNode, handleGenerateVideoFromNode }: PreviewModalProps) {
   return (
     <div
-      className="fixed inset-0 z-[130] flex items-center justify-center bg-black/90 p-4"
+      className="fixed inset-0 overflow-y-auto z-[130] flex items-center-safe justify-center bg-black/90 p-3 sm:p-4"
       onClick={() => setPreviewNode(null)}
     >
       <div
-        className="relative max-w-4xl max-h-[90vh] w-full flex flex-col items-center justify-center space-y-4"
+        className="relative max-w-4xl max-h-[90dvh] w-full flex flex-col items-center justify-center space-y-4"
         onClick={(e) => e.stopPropagation()}
       >
         <button
@@ -30,7 +30,7 @@ export function PreviewModal({ previewNode, setPreviewNode, handleGenerateVideoF
           <img loading="lazy" decoding="async"
             src={String((previewNode.data as any)?.imageUrl)}
             alt={String((previewNode.data as any)?.label || "Preview")}
-            className="max-h-[75vh] w-auto max-w-full rounded-2xl object-contain shadow-2xl border border-white/10"
+            className="max-h-[75dvh] w-auto max-w-full rounded-2xl object-contain shadow-2xl border border-white/10"
           />
         )}
     
@@ -40,7 +40,7 @@ export function PreviewModal({ previewNode, setPreviewNode, handleGenerateVideoF
             controls
             autoPlay
             playsInline
-            className="max-h-[75vh] w-auto max-w-full rounded-2xl shadow-2xl border border-white/10"
+            className="max-h-[75dvh] w-auto max-w-full rounded-2xl shadow-2xl border border-white/10"
           />
         )}
     

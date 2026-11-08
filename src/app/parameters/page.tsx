@@ -409,7 +409,7 @@ export default function ParametersPage() {
   };
 
   return (
-    <div className="min-h-screen bg-[#0b0d12] text-white">
+    <div className="min-h-dvh bg-[#0b0d12] text-white">
       {/* Toast */}
       {toast && (
         <div
@@ -723,8 +723,8 @@ export default function ParametersPage() {
 
       {/* Modal / Painel de Criação e Edição com Live Preview Interativo */}
       {isPlatformAdmin && isModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4">
-          <div className="relative max-h-[92vh] w-full max-w-4xl overflow-y-auto rounded-3xl border border-white/10 bg-[#12161f] p-6 shadow-2xl md:p-8">
+        <div className="fixed inset-0 overflow-y-auto z-50 flex items-center-safe justify-center bg-black/80 p-3 sm:p-4">
+          <div className="relative max-h-[92dvh] w-full max-w-4xl overflow-y-auto rounded-3xl border border-white/10 bg-[#12161f] p-6 shadow-2xl md:p-8">
             <div className="flex items-center justify-between border-b border-white/10 pb-4">
               <div>
                 <span className="text-xs uppercase tracking-[0.2em] text-primary">
@@ -1084,7 +1084,7 @@ export default function ParametersPage() {
 
       {/* Modal de Exclusão */}
       {isPlatformAdmin && paramToDelete && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4">
+        <div className="fixed inset-0 overflow-y-auto z-50 flex items-center-safe justify-center bg-black/80 p-3 sm:p-4">
           <div className="w-full max-w-md rounded-3xl border border-red-500/30 bg-[#141215] p-6 shadow-2xl">
             <h3 className="text-lg font-bold text-white">Excluir Parâmetro</h3>
             <p className="mt-2 text-xs leading-relaxed text-white/70">

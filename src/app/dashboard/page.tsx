@@ -224,7 +224,7 @@ export default function DashboardPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-[#0b0d12] text-white">
+      <div className="min-h-dvh bg-[#0b0d12] text-white">
         <main className="w-full px-4 sm:px-6 lg:px-8 py-12">
           <div className="animate-pulse space-y-6">
             <div className="h-8 w-64 rounded-xl bg-white/10" />
@@ -242,7 +242,7 @@ export default function DashboardPage() {
 
   if (error || !data) {
     return (
-      <div className="min-h-screen bg-[#0b0d12] text-white">
+      <div className="min-h-dvh bg-[#0b0d12] text-white">
         <main className="w-full px-4 sm:px-6 lg:px-8 py-12">
           <div className="rounded-3xl border border-red-500/20 bg-red-950/20 p-8 text-center">
             <h2 className="text-xl font-bold text-red-400">Falha ao Carregar Dashboard</h2>
@@ -262,7 +262,7 @@ export default function DashboardPage() {
   const { user, workspace, usageSummary, stats, recentProjects, recentGenerations, pendingInvites, alerts } = data;
 
   return (
-    <div className="min-h-screen bg-[#0b0d12] text-white">
+    <div className="min-h-dvh bg-[#0b0d12] text-white">
       <main className="w-full px-4 sm:px-6 lg:px-8 py-8 sm:py-10">
         {/* Cabeçalho do Dashboard */}
         <div className="flex flex-col justify-between gap-4 border-b border-white/10 pb-6 md:flex-row md:items-center">

@@ -41,8 +41,8 @@ export function ImageLightboxModal({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/90 p-4 animate-in fade-in duration-200">
-      <div className="relative flex flex-col max-h-[92vh] max-w-5xl w-full overflow-hidden rounded-3xl border border-white/15 bg-[#0a0d14] shadow-2xl">
+    <div className="fixed inset-0 overflow-y-auto z-50 flex items-center-safe justify-center bg-black/90 p-3 sm:p-4 animate-in fade-in duration-200">
+      <div className="relative flex flex-col max-h-[92dvh] max-w-5xl w-full overflow-hidden rounded-3xl border border-white/15 bg-[#0a0d14] shadow-2xl">
         {/* Header da Barra de Ferramentas */}
         <div className="flex items-center justify-between border-b border-white/10 px-5 py-3.5 bg-black/40">
           <div>
@@ -74,12 +74,12 @@ export function ImageLightboxModal({
         </div>
 
         {/* Visualizador de Imagem com Proporção Preservada */}
-        <div className="relative flex-1 flex items-center justify-center p-4 min-h-[300px] max-h-[70vh] bg-[#05070a] overflow-hidden group">
+        <div className="relative flex-1 flex items-center justify-center p-4 min-h-[300px] max-h-[70dvh] bg-[#05070a] overflow-hidden group">
           {/* Imagem Central Inteira */}
           <img loading="lazy" decoding="async"
             src={imageUrl}
             alt={title}
-            className="relative z-10 max-h-[66vh] max-w-full rounded-xl object-contain shadow-2xl border border-white/10"
+            className="relative z-10 max-h-[66dvh] max-w-full rounded-xl object-contain shadow-2xl border border-white/10"
           />
         </div>
 

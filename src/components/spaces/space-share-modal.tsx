@@ -25,7 +25,7 @@ export function SpaceShareModal({ projectId, projectTitle, isOpen, onClose, onUp
       role="dialog"
       aria-modal="true"
       aria-labelledby="space-share-title"
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-4"
+      className="fixed inset-0 overflow-y-auto z-50 flex items-center-safe justify-center bg-black/70 p-3 sm:p-4"
     >
       <div className="relative w-full max-w-lg rounded-2xl border border-white/15 bg-[#101418] p-6 text-white shadow-2xl">
         <div className="flex items-start justify-between gap-4 border-b border-white/10 pb-4">
