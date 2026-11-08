@@ -108,7 +108,7 @@ export function ConsumptionOrderTab() {
 
   if (loading) {
     return (
-      <div className="rounded-2xl border border-white/10 bg-[#0d111c] p-8 text-center text-xs text-white/50">
+      <div className="rounded-2xl border border-white/10 bg-[#0d111c] p-5 sm:p-8 text-center text-xs text-white/50">
         Carregando configurações de ordem de consumo...
       </div>
     );

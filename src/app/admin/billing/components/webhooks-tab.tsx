@@ -163,7 +163,7 @@ export function WebhooksTab({ onNotify }: { onNotify: (type: "success" | "error"
       {/* Tabela de Eventos */}
       <div className="rounded-2xl border border-white/10 bg-[#0d111c] overflow-hidden">
         <div className="overflow-x-auto">
-          <table className="w-full text-left text-xs">
+          <table className="w-full text-left text-xs min-w-[880px]">
             <thead className="bg-white/5 text-white/50 uppercase font-mono text-[10px]">
               <tr>
                 <th className="p-3">Evento ID</th>
@@ -179,7 +179,7 @@ export function WebhooksTab({ onNotify }: { onNotify: (type: "success" | "error"
             <tbody className="divide-y divide-white/5 font-mono text-[11px]">
               {events.length === 0 ? (
                 <tr>
-                  <td colSpan={8} className="p-8 text-center text-white/40 font-sans">
+                  <td colSpan={8} className="p-5 sm:p-8 text-center text-white/40 font-sans">
                     Nenhum evento de webhook encontrado com os filtros selecionados.
                   </td>
                 </tr>

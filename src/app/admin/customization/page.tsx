@@ -217,7 +217,7 @@ export default function AdminCustomizationPage() {
       )}
 
       {/* Main Form & Live Preview Layout */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 sm:gap-8 items-start">
         {/* Left Form: Tabs & Inputs (7 cols) */}
         <div className="lg:col-span-7 space-y-6">
           {/* Sub-tabs */}
@@ -643,7 +643,7 @@ export default function AdminCustomizationPage() {
               <div className="space-y-4">
                 <div className="space-y-2">
                   <label className="text-xs font-semibold text-white/70">Tema Padrão</label>
-                  <div className="grid grid-cols-3 gap-3">
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                     {[
                       { id: "DARK", label: "Modo Escuro (Padrão)", icon: "🌙" },
                       { id: "LIGHT", label: "Modo Claro", icon: "☀️" },
@@ -668,7 +668,7 @@ export default function AdminCustomizationPage() {
 
                 <div className="space-y-2 pt-2">
                   <label className="text-xs font-semibold text-white/70">Arredondamento de Bordas (Border Radius)</label>
-                  <div className="grid grid-cols-5 gap-2">
+                  <div className="grid grid-cols-2 sm:grid-cols-5 gap-2">
                     {[
                       { id: "none", label: "Reto (0px)" },
                       { id: "sm", label: "Sutil (4px)" },

@@ -70,7 +70,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   if (accessDenied || !admin) {
     return (
       <div className="min-h-dvh bg-[#07090e] text-white flex items-center justify-center p-6">
-        <div className="max-w-md w-full rounded-2xl border border-rose-500/30 bg-rose-950/20 p-8 text-center">
+        <div className="max-w-md w-full rounded-2xl border border-rose-500/30 bg-rose-950/20 p-5 sm:p-8 text-center">
           <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-rose-500/10 text-2xl text-rose-400 mb-4">
             ⛔
           </div>

@@ -189,7 +189,7 @@ export default function AdminUsagePage() {
           <p className="text-xs text-white/40 italic">Nenhum job registrado no período.</p>
         ) : (
           <div className="overflow-x-auto">
-            <table className="w-full text-left text-xs">
+            <table className="w-full text-left text-xs min-w-[660px]">
               <thead>
                 <tr className="border-b border-white/10 bg-white/[0.02] text-white/50">
                   <th className="p-3 font-medium">Modelo</th>
@@ -242,7 +242,7 @@ export default function AdminUsagePage() {
           </div>
 
           <div className="overflow-x-auto">
-            <table className="w-full text-left text-xs">
+            <table className="w-full text-left text-xs min-w-[560px]">
               <thead>
                 <tr className="border-b border-white/10 text-white/40">
                   <th className="pb-2 font-medium">Job ID</th>

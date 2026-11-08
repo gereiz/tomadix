@@ -366,12 +366,12 @@ export function CreditLotsTab() {
 
         {/* Tabela de Lotes */}
         {loading ? (
-          <div className="p-8 text-center text-xs text-white/50">Carregando lotes de créditos...</div>
+          <div className="p-5 sm:p-8 text-center text-xs text-white/50">Carregando lotes de créditos...</div>
         ) : lots.length === 0 ? (
-          <div className="p-8 text-center text-xs text-white/40">Nenhum lote encontrado com os filtros selecionados.</div>
+          <div className="p-5 sm:p-8 text-center text-xs text-white/40">Nenhum lote encontrado com os filtros selecionados.</div>
         ) : (
           <div className="overflow-x-auto">
-            <table className="w-full text-left text-xs">
+            <table className="w-full text-left text-xs min-w-[880px]">
               <thead className="bg-white/[0.02] border-b border-white/10 text-white/50">
                 <tr>
                   <th className="p-3.5">Lote / Workspace</th>
@@ -472,7 +472,7 @@ export function CreditLotsTab() {
                 />
               </div>
 
-              <div className="grid grid-cols-2 gap-3">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div>
                   <label className="text-white/60 block mb-1">Quantidade de Créditos *</label>
                   <input

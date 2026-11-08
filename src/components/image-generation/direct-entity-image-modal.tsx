@@ -255,7 +255,7 @@ export function DirectEntityImageModal({
             <label className="block text-xs font-semibold text-white/80">
               Proporção (Aspect Ratio)
             </label>
-            <div className="grid grid-cols-5 gap-1.5">
+            <div className="grid grid-cols-3 sm:grid-cols-5 gap-1.5">
               {(["16:9", "1:1", "9:16", "4:3", "21:9"] as ImageAspectRatio[]).map((ar) => (
                 <button
                   key={ar}

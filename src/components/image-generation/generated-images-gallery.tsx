@@ -212,7 +212,7 @@ export function GeneratedImagesGallery({
       </div>
 
       {loading ? (
-        <div className="p-8 text-center text-white/50 font-mono text-xs">
+        <div className="p-5 sm:p-8 text-center text-white/50 font-mono text-xs">
           <Spinner className="h-5 w-5 border-2 border-amber-400 mb-2" />
           <p>Carregando galeria...</p>
         </div>

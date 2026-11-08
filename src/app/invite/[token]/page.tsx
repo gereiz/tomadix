@@ -169,7 +169,7 @@ export default function AcceptInvitePage({
 
   return (
     <div className="min-h-dvh bg-[#07090e] px-6 py-20 flex items-center justify-center text-white">
-      <div className="mx-auto max-w-md w-full rounded-2xl border border-white/15 bg-white/[0.02] p-8 shadow-2xl text-center space-y-6">
+      <div className="mx-auto max-w-md w-full rounded-2xl border border-white/15 bg-white/[0.02] p-5 sm:p-8 shadow-2xl text-center space-y-6">
         <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-2xl bg-primary/10 border border-primary/30 text-3xl">
           🎬
         </div>

@@ -364,7 +364,7 @@ export default function AdminUserDetailsPage({ params }: { params: Promise<{ id:
 
   if (!data?.user) {
     return (
-      <div className="p-8 text-center text-xs text-rose-300">
+      <div className="p-5 sm:p-8 text-center text-xs text-rose-300">
         Usuário não encontrado ou sem permissão de acesso.
         <div className="mt-4">
           <Link href="/admin/users" className="text-amber-400 underline">
@@ -504,7 +504,7 @@ export default function AdminUserDetailsPage({ params }: { params: Promise<{ id:
       </div>
 
       {/* Navegação por Abas Internas */}
-      <div className="flex items-center gap-1.5 border-b border-white/10 pb-2 text-xs">
+      <div className="no-scrollbar flex items-center gap-1.5 overflow-x-auto whitespace-nowrap border-b border-white/10 pb-2 text-xs">
         {[
           { key: "profile", label: "Perfil & Permissões", icon: "👤" },
           { key: "subscription", label: "Plano & Concessões", icon: "💳" },
@@ -705,7 +705,7 @@ export default function AdminUserDetailsPage({ params }: { params: Promise<{ id:
       {/* ABA 3: EXTRATO & LEDGER DE CRÉDITOS */}
       {activeTab === "credits" && (
         <div className="space-y-6 text-xs">
-          <div className="grid grid-cols-4 gap-3">
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
             <div className="rounded-xl border border-white/10 bg-[#0d111c] p-3.5">
               <span className="text-white/40">Saldo Atual</span>
               <p className="text-lg font-bold text-primary font-mono mt-1">
@@ -747,10 +747,10 @@ export default function AdminUserDetailsPage({ params }: { params: Promise<{ id:
             </div>
 
             {data.recentLedgerEntries?.length === 0 ? (
-              <div className="p-8 text-center text-white/40 italic">Nenhuma movimentação registrada no livro-razão.</div>
+              <div className="p-5 sm:p-8 text-center text-white/40 italic">Nenhuma movimentação registrada no livro-razão.</div>
             ) : (
               <div className="overflow-x-auto">
-                <table className="w-full text-left text-xs">
+                <table className="w-full text-left text-xs min-w-[560px]">
                   <thead className="bg-white/[0.02] border-b border-white/10 text-white/50">
                     <tr>
                       <th className="p-3">Data/Hora</th>
@@ -792,10 +792,10 @@ export default function AdminUserDetailsPage({ params }: { params: Promise<{ id:
             </div>
 
             {data.userProjects?.length === 0 ? (
-              <div className="p-8 text-center text-white/40 italic">O usuário não possui projetos criados.</div>
+              <div className="p-5 sm:p-8 text-center text-white/40 italic">O usuário não possui projetos criados.</div>
             ) : (
               <div className="overflow-x-auto">
-                <table className="w-full text-left text-xs">
+                <table className="w-full text-left text-xs min-w-[660px]">
                   <thead className="bg-white/[0.02] border-b border-white/10 text-white/50">
                     <tr>
                       <th className="p-3">Título do Projeto</th>
@@ -899,10 +899,10 @@ export default function AdminUserDetailsPage({ params }: { params: Promise<{ id:
             </div>
 
             {data.recentAuditLogs?.length === 0 ? (
-              <div className="p-8 text-center text-white/40 italic">Nenhum evento registrado na auditoria.</div>
+              <div className="p-5 sm:p-8 text-center text-white/40 italic">Nenhum evento registrado na auditoria.</div>
             ) : (
               <div className="overflow-x-auto">
-                <table className="w-full text-left text-xs">
+                <table className="w-full text-left text-xs min-w-[560px]">
                   <thead className="bg-white/[0.02] border-b border-white/10 text-white/50">
                     <tr>
                       <th className="p-3">Data/Hora</th>
@@ -1203,7 +1203,7 @@ export default function AdminUserDetailsPage({ params }: { params: Promise<{ id:
               Concede acesso a recursos de um plano superior por período determinado com expiração automática.
             </p>
 
-            <div className="grid grid-cols-2 gap-3">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <div>
                 <label className="text-[11px] font-semibold text-white/70 block mb-1">Plano Concedido</label>
                 <select

@@ -225,7 +225,7 @@ export default function PricingPage() {
         )}
 
         {/* Cards Grid */}
-        <div className="mt-12 grid grid-cols-1 md:grid-cols-3 gap-8 items-stretch">
+        <div className="mt-12 grid grid-cols-1 md:grid-cols-3 gap-5 sm:gap-8 items-stretch">
           {loading ? (
             <div className="col-span-3 text-center py-20 text-white/40">
               Carregando catálogo de planos comerciais...
@@ -438,7 +438,7 @@ export default function PricingPage() {
           </div>
 
           <div className="overflow-x-auto rounded-xl border border-white/10 bg-white/[0.01]">
-            <table className="w-full text-left text-sm text-white/80">
+            <table className="w-full text-left text-sm text-white/80 min-w-[560px]">
               <thead className="border-b border-white/10 bg-white/[0.03] text-xs uppercase text-white/60">
                 <tr>
                   <th className="px-6 py-4">Recurso / Limite</th>
@@ -514,7 +514,7 @@ export default function PricingPage() {
         </div>
 
         {/* Security & Guarantee Footer */}
-        <div className="mt-16 rounded-2xl border border-white/10 bg-white/[0.02] p-8 text-center sm:flex sm:items-center sm:justify-between sm:text-left">
+        <div className="mt-16 rounded-2xl border border-white/10 bg-white/[0.02] p-5 sm:p-8 text-center sm:flex sm:items-center sm:justify-between sm:text-left">
           <div>
             <h3 className="font-bold text-white">Pagamentos Seguros & Sem Surpresas</h3>
             <p className="mt-1 text-xs text-white/50">

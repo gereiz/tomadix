@@ -361,12 +361,12 @@ export function CreditPricingTab() {
         </div>
 
         {loading ? (
-          <div className="p-8 text-center text-xs text-white/40 animate-pulse">Carregando catálogo de operações...</div>
+          <div className="p-5 sm:p-8 text-center text-xs text-white/40 animate-pulse">Carregando catálogo de operações...</div>
         ) : operations.length === 0 ? (
-          <div className="p-8 text-center text-xs text-white/40">Nenhuma operação cobrada cadastrada.</div>
+          <div className="p-5 sm:p-8 text-center text-xs text-white/40">Nenhuma operação cobrada cadastrada.</div>
         ) : (
           <div className="overflow-x-auto">
-            <table className="w-full text-left text-xs">
+            <table className="w-full text-left text-xs min-w-[560px]">
               <thead className="bg-white/[0.02] border-b border-white/10 text-white/50">
                 <tr>
                   <th className="p-3.5">Código / Operação</th>
@@ -563,7 +563,7 @@ export function CreditPricingTab() {
         )}
 
         <div className="overflow-x-auto">
-          <table className="w-full text-left text-xs">
+          <table className="w-full text-left text-xs min-w-[660px]">
             <thead className="bg-white/[0.02] border-b border-white/10 text-white/50">
               <tr>
                 <th className="p-3.5">Nome / Descrição</th>
@@ -806,7 +806,7 @@ export function CreditPricingTab() {
                 />
               </div>
 
-              <div className="grid grid-cols-2 gap-3">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div>
                   <label className="block text-white/70 mb-1">Plano (Tier)</label>
                   <select

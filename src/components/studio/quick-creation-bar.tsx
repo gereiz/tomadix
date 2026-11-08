@@ -494,7 +494,7 @@ export function QuickCreationBar({
 
           {/* Popover de Menções Autocomplete */}
           {mentionState.active && suggestions.length > 0 && (
-            <div className="absolute bottom-[calc(100%+8px)] left-4 z-40 w-72 rounded-xl border border-white/10 bg-[#181C28]/95 p-1.5 shadow-2xl">
+            <div className="absolute bottom-[calc(100%+8px)] left-4 z-40 w-72 max-w-[calc(100vw-2rem)] rounded-xl border border-white/10 bg-[#181C28]/95 p-1.5 shadow-2xl">
               <div className="px-2 py-1 text-[10px] font-semibold uppercase tracking-wider text-white/40">
                 Mencionar {mentionState.type === "character" ? "Personagem" : mentionState.type === "environment" ? "Ambiente" : "Cena"}
               </div>

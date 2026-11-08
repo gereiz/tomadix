@@ -267,7 +267,7 @@ export default function AdminEmailSettingsPage() {
           Carregando configurações de e-mail...
         </div>
       ) : (
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-5 sm:gap-8">
           {/* Coluna 1 & 2: Formulário Principal */}
           <div className="lg:col-span-2 space-y-6">
             <form onSubmit={handleSave} className="space-y-6">

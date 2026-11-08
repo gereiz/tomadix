@@ -517,7 +517,7 @@ export default function ParametersPage() {
             />
           </div>
 
-          <div className="grid grid-cols-2 gap-2 sm:flex sm:items-center sm:gap-3">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 sm:flex sm:items-center sm:gap-3">
             <select
               value={selectedType}
               onChange={(e) => setSelectedType(e.target.value)}
@@ -746,7 +746,7 @@ export default function ParametersPage() {
             </div>
 
             <form onSubmit={handleSubmit} className="mt-6">
-              <div className="grid gap-8 lg:grid-cols-2">
+              <div className="grid gap-5 sm:gap-8 lg:grid-cols-2">
                 {/* Coluna 1: Formulário de Configuração */}
                 <div className="space-y-4">
                   {/* Chave (snake_case) */}
@@ -965,7 +965,7 @@ export default function ParametersPage() {
 
                   {/* Regras de Validação (Mín / Máx para número / range) */}
                   {["NUMBER", "RANGE"].includes(formData.type) && (
-                    <div className="grid grid-cols-2 gap-3 rounded-2xl border border-white/10 bg-black/30 p-3.5">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 rounded-2xl border border-white/10 bg-black/30 p-3.5">
                       <div>
                         <label className="block text-[11px] text-white/60">Valor Mínimo</label>
                         <input

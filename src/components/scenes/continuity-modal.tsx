@@ -69,7 +69,7 @@ export function ContinuityModal({ s }: ContinuityModalProps) {
     
               {/* Lista de Alertas Explicáveis com Sugestões */}
               {continuityReport.warnings.length === 0 ? (
-                <div className="rounded-2xl border border-white/5 bg-black/20 p-8 text-center text-xs text-white/50">
+                <div className="rounded-2xl border border-white/5 bg-black/20 p-5 sm:p-8 text-center text-xs text-white/50">
                   Nenhuma quebra de continuidade detectada. As transições de ação, iluminação, ambiente e linha de olhar estão consistentes.
                 </div>
               ) : (

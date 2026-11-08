@@ -59,7 +59,7 @@ export function EditProjectModal({ s }: EditProjectModalProps) {
               />
             </div>
     
-            <div className="grid grid-cols-2 gap-3">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <div>
                 <label className="block text-xs font-semibold text-white/80 mb-1">
                   Gênero Cinematográfico *

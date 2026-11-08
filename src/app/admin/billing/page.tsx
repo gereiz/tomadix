@@ -704,7 +704,7 @@ export default function AdminBillingPage() {
             </div>
 
             <div className="overflow-x-auto">
-              <table className="w-full text-left text-xs">
+              <table className="w-full text-left text-xs min-w-[1000px]">
                 <thead className="bg-white/[0.02] border-b border-white/10 text-white/50">
                   <tr>
                     <th className="p-3.5">Plano / Tier</th>
@@ -976,12 +976,12 @@ export default function AdminBillingPage() {
             </div>
 
             {snapshots.length === 0 ? (
-              <div className="p-8 text-center text-xs text-white/40">
+              <div className="p-5 sm:p-8 text-center text-xs text-white/40">
                 Nenhum contrato antigo sob grandfathering registrado até o momento.
               </div>
             ) : (
               <div className="overflow-x-auto">
-                <table className="w-full text-left text-xs">
+                <table className="w-full text-left text-xs min-w-[560px]">
                   <thead className="bg-white/[0.02] border-b border-white/10 text-white/50">
                     <tr>
                       <th className="p-3.5">Data de Aceite</th>
@@ -1019,7 +1019,7 @@ export default function AdminBillingPage() {
             </div>
 
             <div className="overflow-x-auto">
-              <table className="w-full text-left text-xs">
+              <table className="w-full text-left text-xs min-w-[560px]">
                 <thead className="bg-white/[0.02] border-b border-white/10 text-white/50">
                   <tr>
                     <th className="p-3.5">Data/Hora</th>
@@ -1279,7 +1279,7 @@ export default function AdminBillingPage() {
 
                 {planSimulation?.services ? (
                   <div className="overflow-x-auto max-h-52 overflow-y-auto rounded-lg border border-white/5">
-                    <table className="w-full text-left text-xs">
+                    <table className="w-full text-left text-xs min-w-[660px]">
                       <thead className="bg-white/5 border-b border-white/10 text-white/50 sticky top-0">
                         <tr>
                           <th className="p-2.5">Funcionalidade</th>
@@ -1409,7 +1409,7 @@ export default function AdminBillingPage() {
               </div>
 
               {/* Toggles de Funcionalidades */}
-              <div className="grid grid-cols-2 gap-3 pt-2">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2">
                 <label className="flex items-center gap-2 p-3 rounded-xl border border-white/5 bg-white/[0.02] cursor-pointer">
                   <input
                     type="checkbox"

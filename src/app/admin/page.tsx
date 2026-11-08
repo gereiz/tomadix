@@ -249,7 +249,7 @@ export default function AdminOverviewPage() {
               </div>
 
               <div className="overflow-x-auto">
-                <table className="w-full text-left text-xs">
+                <table className="w-full text-left text-xs min-w-[560px]">
                   <thead>
                     <tr className="border-b border-white/10 text-white/40">
                       <th className="pb-2.5 font-medium">Usuário</th>
@@ -321,7 +321,7 @@ export default function AdminOverviewPage() {
               </div>
             ) : (
               <div className="overflow-x-auto">
-                <table className="w-full text-left text-xs">
+                <table className="w-full text-left text-xs min-w-[560px]">
                   <thead>
                     <tr className="border-b border-white/10 text-white/40">
                       <th className="pb-2 font-medium">Ação</th>

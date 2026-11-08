@@ -122,7 +122,7 @@ export default function WorkspaceBillingPage() {
 
   if (loading) {
     return (
-      <div className="min-h-dvh bg-[#07090e] p-8 text-center text-white/50">
+      <div className="min-h-dvh bg-[#07090e] p-5 sm:p-8 text-center text-white/50">
         Carregando informações da assinatura...
       </div>
     );
@@ -130,7 +130,7 @@ export default function WorkspaceBillingPage() {
 
   if (!summary) {
     return (
-      <div className="min-h-dvh bg-[#07090e] p-8 text-center text-white/60">
+      <div className="min-h-dvh bg-[#07090e] p-5 sm:p-8 text-center text-white/60">
         Nenhum workspace selecionado.
       </div>
     );
@@ -383,12 +383,12 @@ export default function WorkspaceBillingPage() {
           <h3 className="text-lg font-bold text-white mb-4">Histórico de Cobrança & Faturas</h3>
 
           {invoices.length === 0 ? (
-            <div className="rounded-xl border border-white/10 bg-white/[0.01] p-8 text-center text-xs text-white/40">
+            <div className="rounded-xl border border-white/10 bg-white/[0.01] p-5 sm:p-8 text-center text-xs text-white/40">
               Nenhuma fatura registrada neste workspace até o momento.
             </div>
           ) : (
             <div className="overflow-x-auto rounded-xl border border-white/10 bg-white/[0.01]">
-              <table className="w-full text-left text-xs text-white/80">
+              <table className="w-full text-left text-xs text-white/80 min-w-[560px]">
                 <thead className="border-b border-white/10 bg-white/[0.03] uppercase text-white/50">
                   <tr>
                     <th className="px-5 py-3.5">Data</th>

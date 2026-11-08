@@ -43,7 +43,7 @@ export function PromptGeneratorPanel({ s }: PromptGeneratorPanelProps) {
         {/* O que gerar (modo simples) */}
         <div>
           <label className="block text-xs font-semibold text-white/80 mb-1.5">O que você quer gerar?</label>
-          <div className="grid grid-cols-4 gap-2">
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
             {quickChoices.map((c) => (
               <button
                 key={c.key}
@@ -99,7 +99,7 @@ export function PromptGeneratorPanel({ s }: PromptGeneratorPanelProps) {
           <label className="block text-xs font-semibold text-white/80 mb-1.5">
             Plataforma de Destino (Perfil de Saída)
           </label>
-          <div className="grid grid-cols-3 gap-2">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
             {(toolProfiles.length > 0
               ? toolProfiles
               : [

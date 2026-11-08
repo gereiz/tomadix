@@ -11,7 +11,7 @@ interface ErrorPageProps {
 export default function ErrorPage({ error, reset }: ErrorPageProps) {
   return (
     <div className="flex min-h-[calc(100dvh-4rem)] items-center justify-center bg-surface p-6">
-      <div className="w-full max-w-md rounded-xl border border-outline-variant/40 bg-surface-container p-8 text-center">
+      <div className="w-full max-w-md rounded-xl border border-outline-variant/40 bg-surface-container p-5 sm:p-8 text-center">
         <Icon name="error" size={32} className="text-error" />
         <h1 className="mt-3 text-xl font-bold text-on-surface">Não foi possível carregar esta página</h1>
         <p className="mt-2 text-sm text-on-surface-variant">

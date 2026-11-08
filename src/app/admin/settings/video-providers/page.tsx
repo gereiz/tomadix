@@ -399,7 +399,7 @@ export default function AdminVideoProvidersPage() {
             </div>
           ) : (
             <div className="overflow-x-auto rounded-xl border border-white/10">
-              <table className="w-full text-left text-xs">
+              <table className="w-full text-left text-xs min-w-[770px]">
                 <thead className="bg-[#0e121b] border-b border-white/10 text-[10px] font-mono text-white/40 uppercase">
                   <tr>
                     <th className="py-3 px-4 min-w-[220px]">Modelo</th>

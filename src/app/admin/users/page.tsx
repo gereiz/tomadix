@@ -334,13 +334,13 @@ export default function AdminUsersPage() {
           </p>
         </div>
 
-        <form onSubmit={handleSearchSubmit} className="flex items-center gap-2">
+        <form onSubmit={handleSearchSubmit} className="flex w-full flex-wrap items-center gap-2 sm:w-auto sm:flex-nowrap">
           <input
             type="text"
             placeholder="Buscar por e-mail ou nome..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="rounded-xl border border-white/10 bg-white/5 px-3.5 py-2 text-xs text-white placeholder-white/40 focus:border-amber-400 focus:outline-none w-64"
+            className="min-w-0 flex-1 rounded-xl border border-white/10 bg-white/5 px-3.5 py-2 text-xs text-white placeholder-white/40 focus:border-amber-400 focus:outline-none sm:w-64"
           />
           <button
             type="submit"
@@ -379,7 +379,7 @@ export default function AdminUsersPage() {
       {/* Users Table */}
       <div className="rounded-2xl border border-white/10 bg-[#0d111c] overflow-hidden">
         {loading ? (
-          <div className="p-8 text-center text-xs text-white/50 animate-pulse">
+          <div className="p-5 sm:p-8 text-center text-xs text-white/50 animate-pulse">
             Carregando usuários do sistema...
           </div>
         ) : users.length === 0 ? (
@@ -388,7 +388,7 @@ export default function AdminUsersPage() {
           </div>
         ) : (
           <div className="overflow-x-auto">
-            <table className="w-full text-left text-xs">
+            <table className="w-full text-left text-xs min-w-[660px]">
               <thead>
                 <tr className="border-b border-white/10 bg-white/[0.02] text-white/50">
                   <th className="p-3.5 font-medium">Usuário</th>
@@ -579,13 +579,13 @@ export default function AdminUsersPage() {
             </div>
 
             {loadingDetails || !userDetails ? (
-              <div className="p-8 text-center text-xs text-white/50 animate-pulse">
+              <div className="p-5 sm:p-8 text-center text-xs text-white/50 animate-pulse">
                 Carregando registros do usuário...
               </div>
             ) : (
               <div className="space-y-6 text-xs">
                 {/* Métricas Agregadas */}
-                <div className="grid grid-cols-4 gap-3">
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
                   <div className="rounded-xl border border-white/10 bg-white/5 p-3">
                     <span className="text-white/40">Workspaces</span>
                     <p className="text-lg font-bold text-white mt-1">{userDetails.metrics.totalWorkspaces}</p>

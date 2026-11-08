@@ -61,7 +61,7 @@ export function PromptsTab(props: PromptsTabProps) {
 
       {/* Modalidade: Gerar Prompt com Gemini (Motor de Prompts Original) */}
       {generationMode === "PROMPT" && (
-      <div className="grid gap-8 lg:grid-cols-12">
+      <div className="grid gap-5 sm:gap-8 lg:grid-cols-12">
       <PromptGeneratorPanel s={s} />
 
         {/* Painel Direito: Exibição Ativa e Histórico (7 colunas) */}

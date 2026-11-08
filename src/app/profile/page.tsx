@@ -379,7 +379,7 @@ export default function ProfilePage() {
         <div className="mt-8">
           {/* Aba 1: Conta & Segurança */}
           {activeTab === "account" && (
-            <div className="grid gap-8 lg:grid-cols-2">
+            <div className="grid gap-5 sm:gap-8 lg:grid-cols-2">
               {/* Card de Informações da Conta */}
               <div className="rounded-3xl border border-white/10 bg-white/[0.02] p-6">
                 <h3 className="text-base font-bold text-white">Dados da Conta</h3>

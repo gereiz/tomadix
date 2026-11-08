@@ -697,7 +697,7 @@ export default function AdminParametersPage() {
       ) : (
         <div className="rounded-2xl bg-[#0b0e17] border border-white/5 overflow-hidden shadow-2xl">
           <div className="overflow-x-auto">
-            <table className="w-full text-left border-collapse">
+            <table className="w-full text-left border-collapse min-w-[770px]">
               <thead>
                 <tr className="border-b border-white/5 bg-white/[0.02] text-[11px] font-mono text-white/40 uppercase tracking-wider">
                   <th className="py-3 px-4">Parâmetro & Chave</th>
@@ -1081,7 +1081,7 @@ export default function AdminParametersPage() {
                         key={idx}
                         className="p-3 rounded-lg bg-[#141824] border border-white/5 space-y-2 relative"
                       >
-                        <div className="grid grid-cols-2 gap-2">
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                           <input
                             type="text"
                             placeholder="Valor técnico (ex: anamorfico_65mm)"
@@ -1106,7 +1106,7 @@ export default function AdminParametersPage() {
                           />
                         </div>
 
-                        <div className="grid grid-cols-2 gap-2">
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                           <input
                             type="text"
                             placeholder="URL da Imagem / Referência Ótica (opcional)"

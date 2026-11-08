@@ -105,7 +105,7 @@ export default function AdminAuditPage() {
       {/* Audit Logs Table */}
       <div className="rounded-2xl border border-white/10 bg-[#0d111c] overflow-hidden">
         {loading ? (
-          <div className="p-8 text-center text-xs text-white/50 animate-pulse">
+          <div className="p-5 sm:p-8 text-center text-xs text-white/50 animate-pulse">
             Carregando eventos de auditoria...
           </div>
         ) : logs.length === 0 ? (
@@ -114,7 +114,7 @@ export default function AdminAuditPage() {
           </div>
         ) : (
           <div className="overflow-x-auto">
-            <table className="w-full text-left text-xs">
+            <table className="w-full text-left text-xs min-w-[770px]">
               <thead>
                 <tr className="border-b border-white/10 bg-white/[0.02] text-white/50">
                   <th className="p-3.5 font-medium">Data / Hora</th>

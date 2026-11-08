@@ -48,7 +48,7 @@ function ConfirmEmailContent() {
   }, [token]);
 
   return (
-    <div className="w-full max-w-md rounded-3xl border border-white/10 bg-[#0f1219]/90 p-8 shadow-2xl">
+    <div className="w-full max-w-md rounded-3xl border border-white/10 bg-[#0f1219]/90 p-5 sm:p-8 shadow-2xl">
       <div className="mb-8 text-center">
         <Link href="/" className="inline-block text-lg font-bold tracking-tight">
           <span className="text-primary">CINE</span>PROMPT{" "}

@@ -429,7 +429,7 @@ export function ProjectOverviewTab({ s }: ProjectOverviewTabProps) {
                   )}
                 </div>
               ) : (
-                <div className="mt-6 rounded-2xl border border-dashed border-white/10 bg-white/[0.01] p-8 text-center">
+                <div className="mt-6 rounded-2xl border border-dashed border-white/10 bg-white/[0.01] p-5 sm:p-8 text-center">
                   <p className="text-xs text-white/50">
                     {isVbReady
                       ? "Todos os pré-requisitos estão atendidos! Clique em 'Gerar Bíblia Visual com IA' para direcionar a estética cinematográfica de toda a produção."

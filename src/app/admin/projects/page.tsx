@@ -321,7 +321,7 @@ export default function AdminProjectsPage() {
       {/* Tabela de Projetos */}
       <div className="rounded-2xl border border-white/10 bg-[#0d1017]/90 overflow-hidden shadow-2xl">
         <div className="overflow-x-auto">
-          <table className="w-full text-left text-xs">
+          <table className="w-full text-left text-xs min-w-[660px]">
             <thead className="border-b border-white/10 bg-white/[0.02] text-white/50 uppercase font-mono tracking-wider text-[10px]">
               <tr>
                 <th className="px-5 py-3.5">Projeto</th>

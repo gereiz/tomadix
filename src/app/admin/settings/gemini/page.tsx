@@ -573,7 +573,7 @@ export default function GeminiKeysAdminPage() {
             </div>
           ) : (
             <div className="overflow-x-auto">
-              <table className="w-full text-left text-xs">
+              <table className="w-full text-left text-xs min-w-[880px]">
                 <thead className="bg-white/[0.02] border-b border-white/10 text-white/50">
                   <tr>
                     <th className="p-3.5 text-center w-16">Prioridade</th>
@@ -907,7 +907,7 @@ export default function GeminiKeysAdminPage() {
             </div>
           ) : (
             <div className="overflow-x-auto">
-              <table className="w-full text-left text-xs">
+              <table className="w-full text-left text-xs min-w-[880px]">
                 <thead className="bg-white/[0.02] border-b border-white/10 text-white/50">
                   <tr>
                     <th className="p-3.5">Data/Hora</th>
@@ -1027,7 +1027,7 @@ export default function GeminiKeysAdminPage() {
                 </span>
               </div>
 
-              <div className="grid grid-cols-2 gap-3">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div>
                   <label className="text-white/60 block mb-1">Prioridade Numérica</label>
                   <input

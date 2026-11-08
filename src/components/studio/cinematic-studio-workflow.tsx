@@ -776,7 +776,7 @@ export function CinematicStudioWorkflow() {
                     setSessionResults([]);
                     setSelectedResultId(null);
                   }}
-                  className="min-w-[220px] rounded-xl border border-white/10 bg-[#181c21] px-3 py-2 text-sm font-semibold text-white focus:border-primary focus:outline-none"
+                  className="w-full min-w-0 sm:min-w-[220px] sm:w-auto rounded-xl border border-white/10 bg-[#181c21] px-3 py-2 text-sm font-semibold text-white focus:border-primary focus:outline-none"
                 >
                   <option value="">Sem projeto (não salva histórico)</option>
                   {projects.map((p) => (
@@ -964,7 +964,7 @@ export function CinematicStudioWorkflow() {
                     />
                   </div>
 
-                  <div className="grid grid-cols-2 gap-3">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                     <div>
                       <label className="mb-1 block text-[11px] font-semibold text-white/70">
                         Gênero / Estilo
@@ -1064,7 +1064,7 @@ export function CinematicStudioWorkflow() {
 
               {source === "library" ? (
                 <>
-                  <div className="grid grid-cols-3 gap-2">
+                  <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
                     {references.map((ref) => {
                       const active = ref.id === selectedRefId;
                       return (

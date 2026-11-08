@@ -731,7 +731,7 @@ export function AdminDatabaseManager() {
             </div>
 
             {/* Stepper Visual */}
-            <div className="grid grid-cols-4 gap-2 border-b border-white/10 pb-5">
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 border-b border-white/10 pb-5">
               {[
                 { step: 1, label: "1. Diagnóstico" },
                 { step: 2, label: "2. Administrador" },

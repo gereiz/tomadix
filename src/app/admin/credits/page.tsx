@@ -712,7 +712,7 @@ export default function AdminCreditsConfigPage() {
             <form onSubmit={handleCreateRule} className="pt-3 border-t border-white/10 space-y-3">
               <span className="text-xs font-bold text-white block">Adicionar Desconto ou Gratuidade por Plano:</span>
 
-              <div className="grid grid-cols-2 gap-2">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                 <div>
                   <label className="text-[10px] text-white/60 block mb-1">Plano Alvo</label>
                   <select
@@ -807,7 +807,7 @@ export default function AdminCreditsConfigPage() {
                 />
               </div>
 
-              <div className="grid grid-cols-2 gap-2">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                 <div>
                   <label className="text-xs text-white/70 block mb-1">Categoria</label>
                   <select

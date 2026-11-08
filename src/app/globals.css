@@ -194,6 +194,34 @@ body {
   min-width: 44px;
 }
 
+/* Em telas de toque, amplia a área clicável de botões pequenos (ícones de 20–32px) sem mudar o visual */
+@media (pointer: coarse) {
+  button:where(
+      [class~="p-0.5"],
+      [class~="p-1"],
+      [class~="p-1.5"],
+      [class~="h-5"],
+      [class~="h-6"],
+      [class~="h-7"],
+      [class~="h-8"]
+    ):not(.absolute, .fixed, .sticky, .relative) {
+    position: relative;
+  }
+  button:where(
+      [class~="p-0.5"],
+      [class~="p-1"],
+      [class~="p-1.5"],
+      [class~="h-5"],
+      [class~="h-6"],
+      [class~="h-7"],
+      [class~="h-8"]
+    )::after {
+    content: "";
+    position: absolute;
+    inset: -0.375rem;
+  }
+}
+
 /* Animações de entrada leves (substituem as classes animate-in/fade-in que não tinham definição) */
 @keyframes tx-fade-in {
   from {

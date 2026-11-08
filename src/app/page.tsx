@@ -40,7 +40,7 @@ export default function Home() {
           title="Da ideia ao prompt em quatro passos"
           description="Cada etapa guarda suas decisões, então você não precisa repeti-las a cada cena."
         />
-        <ol className="mt-10 grid gap-8 sm:grid-cols-2 lg:grid-cols-4">
+        <ol className="mt-10 grid gap-5 sm:gap-8 sm:grid-cols-2 lg:grid-cols-4">
           {HOME_STEPS.map((step, i) => (
             <StepCard key={step.title} step={step} position={i + 1} />
           ))}

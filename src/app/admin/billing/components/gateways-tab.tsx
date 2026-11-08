@@ -564,7 +564,7 @@ export function GatewaysTab({ onNotify }: { onNotify: (type: "success" | "error"
 
         {/* Tabela de Mapeamentos */}
         <div className="overflow-x-auto">
-          <table className="w-full text-left text-xs">
+          <table className="w-full text-left text-xs min-w-[880px]">
             <thead className="bg-white/5 text-white/50 uppercase font-mono text-[10px]">
               <tr>
                 <th className="p-3">Plano Interno</th>
@@ -898,7 +898,7 @@ export function GatewaysTab({ onNotify }: { onNotify: (type: "success" | "error"
             </h3>
 
             <form onSubmit={handleSaveMapping} className="space-y-4 text-xs">
-              <div className="grid grid-cols-2 gap-3">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div>
                   <label className="text-white/60 block mb-1">Gateway</label>
                   <select
@@ -996,7 +996,7 @@ export function GatewaysTab({ onNotify }: { onNotify: (type: "success" | "error"
                 />
               </div>
 
-              <div className="grid grid-cols-2 gap-3">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div>
                   <label className="text-white/60 block mb-1">Price ID Mensal</label>
                   <input

@@ -192,7 +192,7 @@ export function DirectImageGenerator({
 
   if (loading) {
     return (
-      <div className="p-8 text-center text-white/50 font-mono text-xs">
+      <div className="p-5 sm:p-8 text-center text-white/50 font-mono text-xs">
         <Spinner className="h-5 w-5 border-2 border-amber-400 mb-2" />
         <p>Verificando permissões e modelos de IA...</p>
       </div>
@@ -321,7 +321,7 @@ export function DirectImageGenerator({
 
           <div className="space-y-1.5">
             <label className="text-xs font-medium text-white/80">Proporção (Aspect Ratio)</label>
-            <div className="grid grid-cols-5 gap-1.5">
+            <div className="grid grid-cols-3 sm:grid-cols-5 gap-1.5">
               {(["16:9", "1:1", "9:16", "4:3", "21:9"] as ImageAspectRatio[]).map((ratio) => (
                 <button
                   key={ratio}

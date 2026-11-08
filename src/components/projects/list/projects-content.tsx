@@ -31,7 +31,7 @@ export function ProjectsContent({ s }: ProjectsContentProps) {
         ))}
       </div>
     ) : error ? (
-      <div className="rounded-2xl border border-red-500/20 bg-red-950/20 p-8 text-center">
+      <div className="rounded-2xl border border-red-500/20 bg-red-950/20 p-5 sm:p-8 text-center">
         <Icon name="error" className="text-red-400 text-4xl mb-2" />
         <p className="text-red-400 text-sm">{error}</p>
         <button
@@ -377,8 +377,8 @@ export function ProjectsContent({ s }: ProjectsContentProps) {
       </div>
     ) : (
       /* TABELA DETALHADA CINEMATOGRÁFICA */
-      <div className="overflow-hidden rounded-2xl border border-outline-variant/30 bg-surface-container-low/70 shadow-md">
-        <table className="w-full text-left text-sm text-on-surface">
+      <div className="overflow-x-auto rounded-2xl border border-outline-variant/30 bg-surface-container-low/70 shadow-md">
+        <table className="w-full text-left text-sm text-on-surface min-w-[660px]">
           <thead className="border-b border-outline-variant/30 bg-surface-container-lowest/80 text-[11px] font-semibold uppercase tracking-wider text-on-surface-variant">
             <tr>
               <th className="px-6 py-4">Projeto</th>

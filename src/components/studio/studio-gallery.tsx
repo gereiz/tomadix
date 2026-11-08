@@ -174,7 +174,7 @@ export function StudioGallery({ initialProjectId, refreshTrigger }: StudioGaller
             ))}
           </div>
         ) : error ? (
-          <div className="rounded-2xl border border-red-500/20 bg-red-950/20 p-8 text-center">
+          <div className="rounded-2xl border border-red-500/20 bg-red-950/20 p-5 sm:p-8 text-center">
             <p className="text-sm font-semibold text-red-300">{error}</p>
             <button
               onClick={fetchFeed}

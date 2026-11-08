@@ -297,7 +297,7 @@ export default function WorkspaceMembersPage() {
 
   if (loading) {
     return (
-      <div className="min-h-dvh bg-[#07090e] p-8 text-center text-white/40">
+      <div className="min-h-dvh bg-[#07090e] p-5 sm:p-8 text-center text-white/40">
         Carregando gestão da equipe...
       </div>
     );
@@ -305,7 +305,7 @@ export default function WorkspaceMembersPage() {
 
   if (!workspace) {
     return (
-      <div className="min-h-dvh bg-[#07090e] p-8 text-center text-white/50">
+      <div className="min-h-dvh bg-[#07090e] p-5 sm:p-8 text-center text-white/50">
         Nenhum workspace selecionado.
       </div>
     );
@@ -422,7 +422,7 @@ export default function WorkspaceMembersPage() {
           </div>
 
           <div className="overflow-x-auto rounded-2xl border border-white/10 bg-white/[0.02]">
-            <table className="w-full text-left text-xs text-white/80">
+            <table className="w-full text-left text-xs text-white/80 min-w-[560px]">
               <thead className="border-b border-white/10 bg-white/[0.03] uppercase text-white/50">
                 <tr>
                   <th className="px-5 py-3.5">Membro</th>
@@ -502,12 +502,12 @@ export default function WorkspaceMembersPage() {
           </div>
 
           {invites.length === 0 ? (
-            <div className="rounded-2xl border border-white/10 bg-white/[0.01] p-8 text-center text-xs text-white/40">
+            <div className="rounded-2xl border border-white/10 bg-white/[0.01] p-5 sm:p-8 text-center text-xs text-white/40">
               Nenhum convite pendente. Clique em &quot;Convidar Membro&quot; para adicionar colaboradores.
             </div>
           ) : (
             <div className="overflow-x-auto rounded-2xl border border-white/10 bg-white/[0.02]">
-              <table className="w-full text-left text-xs text-white/80">
+              <table className="w-full text-left text-xs text-white/80 min-w-[560px]">
                 <thead className="border-b border-white/10 bg-white/[0.03] uppercase text-white/50">
                   <tr>
                     <th className="px-5 py-3.5">E-mail Convidado</th>

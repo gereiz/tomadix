@@ -238,7 +238,7 @@ export function PromptResultViewer({ s }: PromptResultViewerProps) {
         )}
       </div>
     ) : (
-      <div className="rounded-3xl border border-white/10 bg-white/[0.02] p-8 text-center text-white/50 text-xs">
+      <div className="rounded-3xl border border-white/10 bg-white/[0.02] p-5 sm:p-8 text-center text-white/50 text-xs">
         Nenhum prompt selecionado. Execute uma geração ou escolha uma versão no histórico abaixo.
       </div>
     )}

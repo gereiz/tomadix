@@ -244,7 +244,7 @@ export default function DashboardPage() {
     return (
       <div className="min-h-dvh bg-[#0b0d12] text-white">
         <main className="w-full px-4 sm:px-6 lg:px-8 py-12">
-          <div className="rounded-3xl border border-red-500/20 bg-red-950/20 p-8 text-center">
+          <div className="rounded-3xl border border-red-500/20 bg-red-950/20 p-5 sm:p-8 text-center">
             <h2 className="text-xl font-bold text-red-400">Falha ao Carregar Dashboard</h2>
             <p className="mt-2 text-sm text-white/60">{error}</p>
             <button
@@ -528,7 +528,7 @@ export default function DashboardPage() {
         </div>
 
         {/* Grid de Seções: Projetos Recentes + Últimas Gerações de IA */}
-        <div className="mt-10 grid gap-8 lg:grid-cols-3">
+        <div className="mt-10 grid gap-5 sm:gap-8 lg:grid-cols-3">
           {/* Coluna 1 & 2: Projetos Recentes */}
           <div className="lg:col-span-2 space-y-4">
             <div className="flex items-center justify-between">
@@ -545,7 +545,7 @@ export default function DashboardPage() {
             </div>
 
             {recentProjects.length === 0 ? (
-              <div className="rounded-3xl border border-dashed border-white/10 p-8 text-center bg-white/[0.01]">
+              <div className="rounded-3xl border border-dashed border-white/10 p-5 sm:p-8 text-center bg-white/[0.01]">
                 <p className="text-sm text-white/50">Nenhum projeto ativo neste estúdio ainda.</p>
                 <div className="mt-4 flex justify-center gap-3">
                   <button

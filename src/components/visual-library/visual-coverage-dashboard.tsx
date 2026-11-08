@@ -166,7 +166,7 @@ export function VisualCoverageDashboard() {
 
   if (loading) {
     return (
-      <div className="p-8 text-center text-xs text-white/40 animate-pulse space-y-2">
+      <div className="p-5 sm:p-8 text-center text-xs text-white/40 animate-pulse space-y-2">
         <div className="h-6 w-48 bg-white/10 rounded mx-auto" />
         <p>Carregando diagnóstico da Biblioteca Visual de Parâmetros...</p>
       </div>
@@ -372,7 +372,7 @@ export function VisualCoverageDashboard() {
 
         {/* Tabela de Referências */}
         <div className="overflow-x-auto">
-          <table className="w-full text-left text-xs">
+          <table className="w-full text-left text-xs min-w-[660px]">
             <thead className="bg-white/[0.02] border-b border-white/10 text-white/50 font-mono">
               <tr>
                 <th className="p-3.5">Miniatura</th>
@@ -386,7 +386,7 @@ export function VisualCoverageDashboard() {
             <tbody className="divide-y divide-white/5 text-white/80">
               {filteredOptions.length === 0 ? (
                 <tr>
-                  <td colSpan={6} className="p-8 text-center text-xs text-white/40">
+                  <td colSpan={6} className="p-5 sm:p-8 text-center text-xs text-white/40">
                     Nenhuma opção visual encontrada com os filtros selecionados.
                   </td>
                 </tr>

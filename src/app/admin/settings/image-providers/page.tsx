@@ -882,12 +882,12 @@ export default function ImageProvidersAdminPage() {
               </div>
 
               {rankedModels.length === 0 ? (
-                <div className="p-8 text-center text-xs text-white/40">
+                <div className="p-5 sm:p-8 text-center text-xs text-white/40">
                   Nenhum modelo de imagem corresponde ao filtro.
                 </div>
               ) : (
                 <div className="overflow-x-auto max-h-[620px] overflow-y-auto rounded-xl border border-white/10 scrollbar-thin scrollbar-thumb-white/20 scrollbar-track-transparent">
-                  <table className="w-full text-left text-xs">
+                  <table className="w-full text-left text-xs min-w-[770px]">
                     <thead className="sticky top-0 bg-[#0e121b] z-20 shadow-md border-b border-white/10">
                       <tr className="text-[10px] font-mono text-white/40 uppercase">
                         <th className="py-2.5 px-3">Modelo</th>
@@ -1147,7 +1147,7 @@ export default function ImageProvidersAdminPage() {
               Últimas Requisições Faturadas na Pollinations
             </h4>
             <div className="overflow-x-auto rounded-xl border border-white/10 bg-black/40">
-              <table className="w-full text-left text-xs font-mono">
+              <table className="w-full text-left text-xs font-mono min-w-[560px]">
                 <thead>
                   <tr className="border-b border-white/10 text-[10px] text-white/40 uppercase">
                     <th className="py-2 px-3">Data / Hora (UTC)</th>

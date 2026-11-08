@@ -21,7 +21,7 @@ export default function ProjectsList() {
     <div className="min-h-dvh bg-surface font-body-md text-on-surface antialiased selection:bg-primary selection:text-on-primary relative overflow-hidden">
       {/* Luz ambiente de fundo */}
 
-      <main className="relative w-full px-4 sm:px-6 lg:px-8 pt-8 pb-20 flex flex-col gap-8">
+      <main className="relative w-full px-4 sm:px-6 lg:px-8 pt-8 pb-20 flex flex-col gap-5 sm:gap-8">
       <ProjectsHeader s={s} />
 
       <ProjectLimitBanner s={s} />

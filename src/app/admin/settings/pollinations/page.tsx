@@ -344,7 +344,7 @@ export default function AdminPollinationsCentralPage() {
             </div>
 
             {data.quests.length === 0 ? (
-              <div className="rounded-xl border border-dashed border-white/10 p-8 text-center text-xs text-white/40 space-y-2">
+              <div className="rounded-xl border border-dashed border-white/10 p-5 sm:p-8 text-center text-xs text-white/40 space-y-2">
                 <p>Nenhuma quest ativa retornada pela API no momento.</p>
                 <p className="text-[11px] text-white/30">
                   Fique atento a novidades na comunidade ou participe das discussões no Discord da Pollinations para novas campanhas.

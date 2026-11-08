@@ -303,7 +303,7 @@ export function VisualParameterSelector({
 
           {/* Grade de Cards Visuais */}
           {filteredOptions.length === 0 ? (
-            <div className="p-8 text-center space-y-2">
+            <div className="p-5 sm:p-8 text-center space-y-2">
               <p className="text-xs text-white/50">Nenhuma opção visual encontrada para &quot;{search}&quot;.</p>
               <button
                 type="button"
