@@ -293,7 +293,7 @@ export function OnboardingModal({
                 <div className="flex items-center gap-3 rounded-2xl border border-white/10 bg-white/[0.02] p-3.5">
                   <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-xl bg-amber-400/20 text-amber-300 font-bold">4</span>
                   <div>
-                    <strong className="text-white">Motor de Prompts:</strong> Compilador que une todas as variáveis e gera o prompt cinematográfico perfeito.
+                    <strong className="text-white">Gerador de prompts:</strong> Compilador que une todas as variáveis e gera o prompt cinematográfico perfeito.
                   </div>
                 </div>
               </div>

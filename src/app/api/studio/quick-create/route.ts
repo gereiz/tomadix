@@ -306,7 +306,7 @@ export async function POST(request: NextRequest) {
             type: "IMAGE",
             title: `Imagem IA: ${validated.prompt.slice(0, 30)}...`,
             imageUrl: imageResult.image.imageUrl,
-            href: `/projects/${effectiveProjectId}?tab=gallery`,
+            href: `/projects/${effectiveProjectId}?tab=prompts`,
           },
           creditCost: imageResult.credits.deducted,
           newBalance: imageResult.credits.newBalance,

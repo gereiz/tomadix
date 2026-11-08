@@ -36,10 +36,10 @@ export function PromptGeneratorPanel({ s }: PromptGeneratorPanelProps) {
             <svg className="h-4 w-4 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
             </svg>
-            Motor de Composição Cinemática
+            Criar prompt
           </h3>
           <p className="mt-1 text-xs text-white/50">
-            Selecione o template de saída estruturada e a plataforma de destino.
+            Escolha o que criar e para qual ferramenta.
           </p>
         </div>
     
@@ -75,7 +75,7 @@ export function PromptGeneratorPanel({ s }: PromptGeneratorPanelProps) {
         {showAdvanced && (
         <div>
           <label className="block text-xs font-semibold text-white/80 mb-1.5">
-            Tipo de Composição (Template Versionado)
+            Tipo de conteúdo
           </label>
           <select
             value={selectedTemplate}
@@ -103,10 +103,10 @@ export function PromptGeneratorPanel({ s }: PromptGeneratorPanelProps) {
         </div>
         )}
 
-        {/* Ferramenta de Destino (Perfil de Saída) */}
+        {/* Ferramenta de destino */}
         <div>
           <label className="block text-xs font-semibold text-white/80 mb-1.5">
-            Plataforma de Destino (Perfil de Saída)
+            Gerar para (ferramenta)
           </label>
           <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
             {(toolProfiles.length > 0

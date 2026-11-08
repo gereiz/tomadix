@@ -28,12 +28,13 @@ describe("Separation of Cinematic Analysis and Workspace (Acervo & Produções)"
     expect(content).not.toContain("QuickCreationBar");
   });
 
-  it("should have a dedicated /cinematic-analysis route page (src/app/cinematic-analysis/page.tsx)", () => {
-    const analysisPagePath = path.join(rootDir, "src/app/cinematic-analysis/page.tsx");
-    expect(fs.existsSync(analysisPagePath)).toBe(true);
-
-    const content = fs.readFileSync(analysisPagePath, "utf-8");
-    expect(content).toContain("CinematicStudioWorkflow");
+  it("should keep /cinematic-analysis and /spaces as redirects to the real routes", () => {
+    const analysis = fs.readFileSync(path.join(rootDir, "src/app/cinematic-analysis/page.tsx"), "utf-8");
+    expect(analysis).toContain('redirect("/studio")');
+    const spaces = fs.readFileSync(path.join(rootDir, "src/app/spaces/page.tsx"), "utf-8");
+    expect(spaces).toContain('redirect("/projects")');
+    const spaceById = fs.readFileSync(path.join(rootDir, "src/app/spaces/[id]/page.tsx"), "utf-8");
+    expect(spaceById).toContain("/projects/");
   });
 
   it("should have distinct navigation links in Navbar for Análise Cinematográfica and Workspace", () => {
@@ -42,9 +43,10 @@ describe("Separation of Cinematic Analysis and Workspace (Acervo & Produções)"
 
     const content = fs.readFileSync(navbarPath, "utf-8");
     expect(content).toContain('href: "/studio"');
-    expect(content).toContain('label: "Análise Cinematográfica"');
+    expect(content).toContain('label: "Análise de imagem"');
     expect(content).toContain('href: "/workspace"');
-    expect(content).toContain('label: "Workspace"');
+    expect(content).toContain('label: "Biblioteca"');
+    expect(content).toContain('label: "Projetos"');
   });
 
   it("should have navigation links to Workspace in CinematicStudioWorkflow header", () => {

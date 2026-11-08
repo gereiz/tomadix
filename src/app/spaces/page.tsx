@@ -1,4 +1,6 @@
-import ProjectsPage from "@/app/projects/page";
+import { redirect } from "next/navigation";
 
-export default ProjectsPage;
-
+/** "Spaces" é o mesmo que Projetos: mantém links antigos funcionando. */
+export default function SpacesAliasPage() {
+  redirect("/projects");
+}

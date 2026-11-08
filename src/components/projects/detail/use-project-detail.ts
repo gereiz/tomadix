@@ -1,7 +1,7 @@
 "use client";
 
 import { cachedFetch } from "@/lib/client-fetch-cache";
-import { useEffect, useState, useCallback, use } from "react";
+import { useEffect, useState, useCallback, use, useRef } from "react";
 import { useRouter } from "next/navigation";
 import type { ProjectDetail, TabType } from "./types";
 
@@ -17,6 +17,8 @@ export function useProjectDetailTab({ params }: { params: Promise<{ id: string }
   const [refreshKey, setRefreshKey] = useState(0);
   const [isShareModalOpen, setIsShareModalOpen] = useState(false);
   const [isAdmin, setIsAdmin] = useState(false);
+  // Projeto sem nada criado e sem ?tab= explícito abre em "Prompts" (primeiro passo), uma única vez
+  const initialTabResolved = useRef(false);
 
   useEffect(() => {
     if (typeof window !== "undefined") {
@@ -152,6 +154,17 @@ export function useProjectDetailTab({ params }: { params: Promise<{ id: string }
       }
       const data = await res.json();
       setProject(data.data);
+      if (!initialTabResolved.current) {
+        initialTabResolved.current = true;
+        const hasTabParam = typeof window !== "undefined" && new URLSearchParams(window.location.search).has("tab");
+        const counts = data.data?._count;
+        const isEmpty =
+          counts && counts.characters === 0 && counts.environments === 0 && counts.scenes === 0 && counts.generations === 0;
+        if (!hasTabParam && isEmpty) {
+          setActiveTab("prompts");
+          setVisitedTabs((prev) => ({ ...prev, prompts: true }));
+        }
+      }
     } catch (err) {
       if (!silent) {
         setError(err instanceof Error ? err.message : "Erro inesperado.");

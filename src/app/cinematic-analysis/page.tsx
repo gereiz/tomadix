@@ -1,12 +1,6 @@
-"use client";
+import { redirect } from "next/navigation";
 
-import { CinematicStudioWorkflow } from "@/components/studio/cinematic-studio-workflow";
-
-export default function CinematicAnalysisPageRoute() {
-  return (
-    <div className="min-h-dvh bg-[#0e1217] text-white selection:bg-primary selection:text-on-primary">
-      {/* Ferramenta Dedicada de Análise Cinematográfica Multimodal */}
-      <CinematicStudioWorkflow />
-    </div>
-  );
+/** A Análise de imagem vive em /studio: mantém links antigos funcionando. */
+export default function CinematicAnalysisAliasPage() {
+  redirect("/studio");
 }

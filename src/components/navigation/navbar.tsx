@@ -84,10 +84,10 @@ export function Navbar() {
   };
 
   const navLinks = [
-    { href: "/dashboard", label: "Dashboard", icon: "📊" },
-    { href: "/projects", label: "Spaces", icon: "✨" },
-    { href: "/studio", label: "Análise Cinematográfica", icon: "🎞️" },
-    { href: "/workspace", label: "Workspaces", icon: "🗂️" },
+    { href: "/dashboard", label: "Painel", icon: "📊" },
+    { href: "/projects", label: "Projetos", icon: "✨" },
+    { href: "/studio", label: "Análise de imagem", icon: "🎞️" },
+    { href: "/workspace", label: "Biblioteca", icon: "🗂️" },
     ...(user?.isPlatformAdmin
       ? [{ href: "/parameters", label: "Parâmetros", icon: "⚙️" }]
       : []),
@@ -95,7 +95,7 @@ export function Navbar() {
   ];
 
   const accountLinks = [
-    { href: "/workspace/members", label: "Equipe do Estúdio", icon: "👥" },
+    { href: "/workspace/members", label: "Equipe", icon: "👥" },
     { href: "/workspace/billing", label: "Assinatura & Créditos", icon: "💳" },
     { href: "/profile", label: "Perfil & Configurações", icon: "👤" },
   ];
