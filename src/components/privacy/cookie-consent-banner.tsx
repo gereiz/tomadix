@@ -41,13 +41,13 @@ export function CookieConsentBanner() {
   if (!showBanner) return null;
 
   return (
-    <div className="fixed bottom-4 left-4 right-4 md:left-auto md:right-6 md:max-w-md z-50 animate-fade-in">
-      <div className="rounded-2xl border border-white/15 bg-[#0b0e17]/95 p-5 shadow-2xl space-y-3 text-xs">
+    <div className="fixed inset-x-3 bottom-[max(0.75rem,env(safe-area-inset-bottom))] z-[90] animate-fade-in md:inset-x-auto md:bottom-6 md:right-6 md:max-w-md">
+      <div className="max-h-[70dvh] overflow-y-auto rounded-2xl border border-white/15 bg-[#0b0e17] p-4 shadow-2xl space-y-3 text-xs sm:p-5">
         <div className="flex items-start gap-3">
           <span className="text-xl">🍪</span>
           <div className="space-y-1">
             <h4 className="font-bold text-white">Privacidade e Cookies</h4>
-            <p className="text-white/70 leading-relaxed text-[11px]">
+            <p className="text-white/70 leading-relaxed text-xs">
               Utilizamos cookies essenciais de segurança e sessões para operar o Tomadix. Ao continuar, você concorda com nossos{" "}
               <Link href="/terms" className="text-amber-400 hover:underline">
                 Termos de Uso
@@ -60,16 +60,16 @@ export function CookieConsentBanner() {
           </div>
         </div>
 
-        <div className="flex items-center justify-end gap-2 pt-1 border-t border-white/5">
+        <div className="flex flex-wrap items-center justify-end gap-2 pt-1 border-t border-white/5">
           <button
             onClick={() => handleConsent("essential")}
-            className="rounded-lg border border-white/10 px-3 py-1.5 text-[11px] text-white/70 hover:bg-white/5 transition"
+            className="min-h-10 flex-1 rounded-lg border border-white/10 px-3 py-2 text-xs text-white/70 hover:bg-white/5 transition sm:flex-none"
           >
             Apenas Essenciais
           </button>
           <button
             onClick={() => handleConsent("all")}
-            className="rounded-lg bg-primary px-3.5 py-1.5 text-[11px] font-semibold text-on-primary hover:opacity-90 transition shadow-sm shadow-primary/20"
+            className="min-h-10 flex-1 rounded-lg bg-primary px-3.5 py-2 text-xs font-semibold text-on-primary hover:opacity-90 transition shadow-sm shadow-primary/20 sm:flex-none"
           >
             Aceitar e Continuar
           </button>

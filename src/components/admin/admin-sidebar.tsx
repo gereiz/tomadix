@@ -1,6 +1,8 @@
 "use client";
 
 import Link from "next/link";
+import { Drawer } from "@/components/ui/drawer";
+import { TouchIconButton } from "@/components/ui/touch-icon-button";
 import { usePathname } from "next/navigation";
 import {
   ADMIN_NAV_GROUPS,
@@ -128,7 +130,7 @@ export function AdminSidebar({
     <>
       {/* Desktop Sidebar */}
       <aside
-        className={`hidden lg:block shrink-0 border-r border-white/10 bg-[#090c14] transition-all duration-300 z-30 sticky top-[57px] h-[calc(100vh-57px)] ${
+        className={`hidden lg:block shrink-0 border-r border-white/10 bg-[#090c14] transition-all duration-300 z-30 sticky top-[var(--navbar-h)] h-[calc(100dvh-var(--navbar-h))] ${
           collapsed ? "w-16" : "w-64"
         }`}
       >
@@ -137,25 +139,23 @@ export function AdminSidebar({
 
       {/* Mobile Drawer Overlay */}
       {mobileOpen && (
-        <div
-          className="fixed inset-0 z-50 bg-black/70 lg:hidden animate-fade-in"
-          onClick={onCloseMobile}
-        >
-          <aside
-            className="w-72 max-w-[85vw] h-full bg-[#090c14] border-r border-white/10 shadow-2xl p-2 animate-slide-right"
-            onClick={(e) => e.stopPropagation()}
+        <div className="lg:hidden">
+          <Drawer
+            onClose={onCloseMobile}
+            label="Menu do console administrativo"
+            className="border-r border-white/10 bg-[#090c14] p-2 shadow-2xl"
           >
             <div className="flex justify-end p-2">
-              <button
-                type="button"
+              <TouchIconButton
+                label="Fechar menu"
                 onClick={onCloseMobile}
-                className="h-8 w-8 rounded-lg bg-white/5 border border-white/10 text-white/60 hover:text-white text-sm"
+                className="border border-white/10 bg-white/5 text-sm text-white/60 hover:text-white"
               >
                 ✕
-              </button>
+              </TouchIconButton>
             </div>
             {navContent}
-          </aside>
+          </Drawer>
         </div>
       )}
     </>

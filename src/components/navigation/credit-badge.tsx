@@ -72,7 +72,7 @@ export function CreditBadge({ className = "", showAddButton = true }: CreditBadg
     <Link
       href="/workspace/billing"
       title="Saldo disponível de créditos de IA. Clique para ver detalhes e faturas."
-      className={`group flex items-center gap-1.5 px-2.5 py-1 rounded-xl border transition-all duration-300 ${
+      className={`group flex min-h-9 items-center gap-1.5 px-2.5 py-1 rounded-xl border transition-all duration-300 ${
         pulse
           ? "bg-amber-500/25 border-amber-400 text-amber-300 ring-2 ring-amber-400/50 scale-105"
           : "bg-surface-container-high/80 border-outline-variant/30 text-on-surface hover:border-amber-400/50 hover:bg-surface-container hover:shadow-sm"

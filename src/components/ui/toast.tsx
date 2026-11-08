@@ -20,8 +20,10 @@ export function ToastNotification({ message, onClose }: ToastProps) {
 
   return (
     <aside
+      role="status"
+      aria-live="polite"
       aria-label="Notificação do Sistema"
-      className="fixed bottom-6 right-6 z-[100] max-w-md animate-in fade-in slide-in-from-bottom-5 duration-300"
+      className="fixed inset-x-4 bottom-[max(1rem,env(safe-area-inset-bottom))] z-[100] mx-auto max-w-md animate-in sm:inset-x-auto sm:bottom-6 sm:right-6 sm:mx-0"
     >
       <div
         className={`flex items-start gap-3 rounded-2xl border p-4 shadow-2xl ${
@@ -67,8 +69,9 @@ export function ToastNotification({ message, onClose }: ToastProps) {
 
         <button
           onClick={onClose}
-          className="ml-2 text-white/50 hover:text-white transition p-1"
+          className="-m-2 ml-1 flex h-10 w-10 shrink-0 items-center justify-center text-white/50 hover:text-white transition"
           title="Fechar notificação"
+          aria-label="Fechar notificação"
         >
           <svg className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />

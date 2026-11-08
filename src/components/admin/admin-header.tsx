@@ -35,21 +35,21 @@ export function AdminHeader({ admin, onOpenMobileSidebar }: AdminHeaderProps) {
   }
 
   return (
-    <header className="sticky top-[57px] z-20 border-b border-white/10 bg-[#090c14]/90">
+    <header className="sticky top-[var(--navbar-h)] z-20 border-b border-white/10 bg-[#090c14]/90">
       <div className="flex h-14 w-full items-center justify-between px-4 sm:px-6">
         {/* Left: Mobile Toggle & Breadcrumbs */}
-        <div className="flex items-center gap-3">
+        <div className="flex min-w-0 items-center gap-3">
           <button
             type="button"
             onClick={onOpenMobileSidebar}
-            className="flex h-8 w-8 items-center justify-center rounded-lg border border-white/10 bg-white/5 text-white/70 hover:bg-white/10 hover:text-white lg:hidden"
+            className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg border border-white/10 bg-white/5 text-white/70 hover:bg-white/10 hover:text-white lg:hidden"
             aria-label="Abrir menu lateral"
           >
             ☰
           </button>
 
           {/* Breadcrumbs */}
-          <nav aria-label="Breadcrumb" className="flex items-center gap-2 text-xs">
+          <nav aria-label="Breadcrumb" className="flex min-w-0 items-center gap-2 text-xs">
             <Link
               href="/admin"
               className="text-white/40 hover:text-white transition font-mono"
@@ -59,7 +59,7 @@ export function AdminHeader({ admin, onOpenMobileSidebar }: AdminHeaderProps) {
             <span className="text-white/20">/</span>
             <span className="text-white/50 hidden sm:inline">{currentGroup}</span>
             <span className="text-white/20 hidden sm:inline">/</span>
-            <span className="font-semibold text-amber-300">{currentTitle}</span>
+            <span className="truncate font-semibold text-amber-300">{currentTitle}</span>
           </nav>
         </div>
 
@@ -90,7 +90,7 @@ export function AdminHeader({ admin, onOpenMobileSidebar }: AdminHeaderProps) {
 
           <Link
             href="/dashboard"
-            className="rounded-lg border border-white/15 bg-white/5 px-2.5 sm:px-3 py-1.5 text-xs font-medium text-white/80 transition hover:bg-white/10 hover:text-white flex items-center gap-1.5"
+            className="flex min-h-10 items-center rounded-lg border border-white/15 bg-white/5 px-2.5 sm:px-3 py-1.5 text-xs font-medium text-white/80 transition hover:bg-white/10 hover:text-white flex items-center gap-1.5"
           >
             <span className="hidden sm:inline">Ir para o Estúdio</span>
             <span>➔</span>

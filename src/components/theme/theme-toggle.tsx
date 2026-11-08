@@ -77,7 +77,7 @@ export function ThemeToggle({ compact = false }: { compact?: boolean }) {
             : "Modo Escuro ativo (clique para Modo Claro)"
         }
         aria-label="Alternar tema claro ou escuro"
-        className="flex h-8 w-8 items-center justify-center rounded-lg border border-outline-variant/30 bg-surface-container-low text-on-surface-variant transition hover:bg-surface-container hover:text-on-surface"
+        className="flex h-10 w-10 items-center justify-center rounded-lg border border-outline-variant/30 bg-surface-container-low text-on-surface-variant transition hover:bg-surface-container hover:text-on-surface"
       >
         {effective === "light" ? "☀️" : "🌙"}
       </button>

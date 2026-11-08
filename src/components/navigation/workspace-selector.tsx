@@ -125,13 +125,14 @@ export function WorkspaceSelector() {
     <div className="relative inline-block text-left" ref={dropdownRef}>
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="flex items-center gap-1.5 sm:gap-2 rounded-xl border border-white/10 bg-white/[0.04] px-2 sm:px-3 py-1.5 text-xs text-white transition hover:bg-white/[0.08]"
+        title={activeWorkspace.name}
+        className="flex min-h-10 items-center gap-1.5 sm:gap-2 rounded-xl border border-white/10 bg-white/[0.04] px-2 sm:px-3 py-1.5 text-xs text-white transition hover:bg-white/[0.08]"
       >
         <div className="flex h-5 w-5 flex-shrink-0 items-center justify-center rounded-md bg-primary/20 text-[10px] font-bold text-primary">
           🏢
         </div>
         <div className="flex flex-col text-left truncate">
-          <span className="font-semibold truncate max-w-[80px] xs:max-w-[100px] sm:max-w-[140px]">
+          <span className="font-semibold truncate max-w-[110px] sm:max-w-[140px]">
             {activeWorkspace.name}
           </span>
         </div>
@@ -150,7 +151,7 @@ export function WorkspaceSelector() {
 
       {/* Dropdown Menu */}
       {isOpen && (
-        <div className="absolute right-0 sm:right-auto sm:left-0 mt-2 w-64 max-w-[calc(100vw-2rem)] origin-top-right sm:origin-top-left rounded-2xl border border-white/15 bg-[#0d1017] p-2 shadow-2xl z-50">
+        <div className="absolute left-0 mt-2 w-64 max-w-[calc(100vw-2rem)] origin-top-left rounded-2xl border border-white/15 bg-[#0d1017] p-2 shadow-2xl z-50">
           <div className="px-3 py-2 text-[10px] uppercase font-bold tracking-wider text-white/40 border-b border-white/10">
             Seus Estúdios & Equipes
           </div>

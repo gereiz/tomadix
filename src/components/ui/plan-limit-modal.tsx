@@ -2,6 +2,8 @@
 
 import React from "react";
 import Link from "next/link";
+import { Modal } from "@/components/ui/modal";
+import { TouchIconButton } from "@/components/ui/touch-icon-button";
 
 export interface PlanLimitModalProps {
   isOpen: boolean;
@@ -13,6 +15,13 @@ export interface PlanLimitModalProps {
   maxLimit?: number;
   limitType?: "projects" | "members" | "credits" | "feature";
 }
+
+const LIMIT_UNITS: Record<NonNullable<PlanLimitModalProps["limitType"]>, string> = {
+  projects: "projetos ativos",
+  members: "membros",
+  credits: "créditos",
+  feature: "recursos",
+};
 
 export function PlanLimitModal({
   isOpen,
@@ -26,26 +35,27 @@ export function PlanLimitModal({
 }: PlanLimitModalProps) {
   if (!isOpen) return null;
 
+  const unit = LIMIT_UNITS[limitType];
+
   return (
-    <div
-      role="dialog"
-      aria-modal="true"
-      aria-labelledby="plan-limit-title"
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4 animate-in fade-in duration-200"
+    <Modal
+      size="lg"
+      onClose={onClose}
+      labelledBy="plan-limit-title"
+      panelClassName="border border-amber-500/30 bg-gradient-to-b from-neutral-900 via-neutral-950 to-black text-white shadow-2xl shadow-amber-500/10"
     >
-      <div className="relative w-full max-w-lg overflow-hidden rounded-3xl border border-amber-500/30 bg-gradient-to-b from-neutral-900 via-neutral-950 to-black p-6 sm:p-8 text-white shadow-2xl shadow-amber-500/10">
-        {/* Glow de fundo */}
+      <div className="p-5 sm:p-8">
 
         {/* Header do Modal */}
-        <div className="flex items-start justify-between">
-          <div className="flex items-center gap-3">
-            <div className="flex h-12 w-12 items-center justify-center rounded-2xl border border-amber-500/30 bg-amber-500/20 text-amber-400">
+        <div className="flex items-start justify-between gap-3">
+          <div className="flex min-w-0 items-center gap-3">
+            <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl border border-amber-500/30 bg-amber-500/20 text-amber-400">
               <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
               </svg>
             </div>
-            <div>
-              <span className="rounded-full border border-amber-500/30 bg-amber-500/10 px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wider text-amber-300">
+            <div className="min-w-0">
+              <span className="inline-block rounded-full border border-amber-500/30 bg-amber-500/10 px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wider text-amber-300">
                 {planName} • Limite Atingido
               </span>
               <h3 id="plan-limit-title" className="mt-1 text-lg font-bold sm:text-xl text-white">
@@ -53,22 +63,22 @@ export function PlanLimitModal({
               </h3>
             </div>
           </div>
-          <button
+          <TouchIconButton
+            label="Fechar"
             onClick={onClose}
-            aria-label="Fechar"
-            className="rounded-lg border border-white/10 p-1.5 text-white/50 hover:bg-white/10 hover:text-white transition"
+            className="border border-white/10 text-white/50 hover:bg-white/10 hover:text-white"
           >
             <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
             </svg>
-          </button>
+          </TouchIconButton>
         </div>
 
         {/* Mensagem principal */}
         <div className="mt-5 rounded-2xl border border-white/10 bg-white/[0.03] p-4">
           <p className="text-xs sm:text-sm text-white/80 leading-relaxed">
             {message ||
-              `Seu estúdio atingiu a capacidade máxima de ${currentUsage} de ${maxLimit} projetos ativos inclusos no ${planName}. Para continuar criando novos universos, personagens e prompts cinematográficos sem restrições, faça upgrade para um plano superior.`}
+              `Seu estúdio atingiu a capacidade máxima de ${currentUsage} de ${maxLimit} ${unit} inclusos no ${planName}. Para continuar criando novos universos, personagens e prompts cinematográficos sem restrições, faça upgrade para um plano superior.`}
           </p>
 
           {/* Medidor visual */}
@@ -76,7 +86,7 @@ export function PlanLimitModal({
             <div className="mt-4">
               <div className="flex justify-between text-[11px] font-medium text-white/60 mb-1.5">
                 <span>Capacidade utilizada</span>
-                <span className="text-amber-400 font-semibold">{currentUsage} / {maxLimit} projetos (100%)</span>
+                <span className="text-amber-400 font-semibold">{currentUsage} / {maxLimit} {unit} (100%)</span>
               </div>
               <div className="h-2 w-full overflow-hidden rounded-full bg-white/10">
                 <div className="h-full w-full bg-gradient-to-r from-amber-500 to-rose-500 rounded-full" />
@@ -115,25 +125,25 @@ export function PlanLimitModal({
           <button
             type="button"
             onClick={onClose}
-            className="w-full sm:w-auto rounded-xl border border-white/15 px-4 py-2.5 text-xs font-medium text-white/70 hover:bg-white/10 hover:text-white transition text-center"
+            className="flex min-h-11 w-full items-center justify-center sm:w-auto rounded-xl border border-white/15 px-4 py-2.5 text-xs font-medium text-white/70 hover:bg-white/10 hover:text-white transition text-center"
           >
             Continuar no Plano Atual
           </button>
           <Link
             href="/workspace/billing"
-            className="w-full sm:w-auto rounded-xl border border-white/15 px-4 py-2.5 text-xs font-medium text-white/90 hover:bg-white/10 transition text-center"
+            className="flex min-h-11 w-full items-center justify-center sm:w-auto rounded-xl border border-white/15 px-4 py-2.5 text-xs font-medium text-white/90 hover:bg-white/10 transition text-center"
           >
             Gerenciar Assinatura
           </Link>
           <Link
             href="/pricing"
-            className="w-full sm:w-auto inline-flex items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-amber-400 via-amber-300 to-primary px-5 py-2.5 text-xs font-bold text-black transition hover:opacity-95 shadow-lg shadow-amber-400/20 text-center"
+            className="min-h-11 w-full sm:w-auto inline-flex items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-amber-400 via-amber-300 to-primary px-5 py-2.5 text-xs font-bold text-black transition hover:opacity-95 shadow-lg shadow-amber-400/20 text-center"
           >
             <span>Fazer Upgrade Agora</span>
             <span>→</span>
           </Link>
         </div>
       </div>
-    </div>
+    </Modal>
   );
 }

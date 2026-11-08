@@ -31,6 +31,10 @@ const nextConfig: NextConfig = {
     ],
   },
   async headers() {
+    // Em desenvolvimento os chunks de /_next/static não têm hash no nome: com cache imutável o
+    // navegador serviria código antigo depois de cada edição.
+    if (process.env.NODE_ENV !== "production") return [];
+
     return [
       {
         // Cache imutável para assets estáticos em studio-references e visual-references
