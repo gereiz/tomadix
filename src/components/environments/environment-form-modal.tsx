@@ -1,6 +1,8 @@
 "use client";
 
 import { EntityParametersSection } from "@/components/parameters/entity-parameters-section";
+import { AdvancedModeToggle } from "@/components/entities/advanced-mode-toggle";
+import { useAdvancedMode } from "@/components/entities/use-advanced-mode";
 import type { EnvironmentFormState } from "./types";
 
 interface EnvironmentFormModalProps {
@@ -20,6 +22,13 @@ export function EnvironmentFormModal({ projectId, form }: EnvironmentFormModalPr
     submit: handleSubmitForm,
     close,
   } = form;
+  const [advanced, setAdvanced] = useAdvancedMode();
+  const hiddenCount = [
+    formData.colorPalette,
+    formData.weatherAndAtmosphere,
+    formData.historicalEra,
+    formData.basePrompt,
+  ].filter((v) => typeof v === "string" && v.trim() !== "").length;
 
   return (
     <div className="fixed inset-0 z-50 flex items-center-safe justify-center bg-black/80 p-3 sm:p-4 overflow-y-auto">
@@ -47,6 +56,10 @@ export function EnvironmentFormModal({ projectId, form }: EnvironmentFormModalPr
           </div>
         )}
     
+        <div className="mt-4">
+          <AdvancedModeToggle advanced={advanced} onChange={setAdvanced} hiddenCount={hiddenCount} />
+        </div>
+
         <form onSubmit={handleSubmitForm} className="mt-5 space-y-4">
           {/* Nome e Contexto */}
           <div className="grid gap-3 sm:grid-cols-2">
@@ -120,6 +133,8 @@ export function EnvironmentFormModal({ projectId, form }: EnvironmentFormModalPr
             </div>
           </div>
     
+          {advanced && (
+          <>
           {/* Seção 2: Paleta de Cores & Atmosfera Cinematográfica */}
           <div className="rounded-2xl border border-white/5 bg-black/20 p-4 space-y-3">
             <h4 className="text-xs font-bold uppercase tracking-wider text-amber-400">
@@ -199,7 +214,9 @@ export function EnvironmentFormModal({ projectId, form }: EnvironmentFormModalPr
               className="w-full rounded-xl border border-white/10 bg-white/5 px-3 py-1.5 text-xs text-white placeholder-white/40 focus:border-primary focus:outline-none font-mono"
             />
           </div>
-    
+          </>
+          )}
+
           {/* Botões do Rodapé */}
           <div className="flex items-center justify-end gap-2 pt-3 border-t border-white/10">
             <button

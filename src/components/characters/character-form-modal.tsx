@@ -1,6 +1,8 @@
 "use client";
 
 import { EntityParametersSection } from "@/components/parameters/entity-parameters-section";
+import { AdvancedModeToggle } from "@/components/entities/advanced-mode-toggle";
+import { useAdvancedMode } from "@/components/entities/use-advanced-mode";
 import type { CharacterFormState } from "./types";
 
 interface CharacterFormModalProps {
@@ -20,6 +22,15 @@ export function CharacterFormModal({ projectId, form }: CharacterFormModalProps)
     submit: handleSubmitForm,
     close,
   } = form;
+  const [advanced, setAdvanced] = useAdvancedMode();
+  const hiddenCount = [
+    formData.apparentAge,
+    formData.hairAndFace,
+    formData.personalityAndBehavior,
+    formData.voiceAndLanguage,
+    formData.restrictions,
+    formData.basePrompt,
+  ].filter((v) => typeof v === "string" && v.trim() !== "").length;
 
   return (
     <div className="fixed inset-0 z-50 flex items-center-safe justify-center bg-black/80 p-3 sm:p-4 overflow-y-auto">
@@ -47,10 +58,14 @@ export function CharacterFormModal({ projectId, form }: CharacterFormModalProps)
           </div>
         )}
     
+        <div className="mt-4">
+          <AdvancedModeToggle advanced={advanced} onChange={setAdvanced} hiddenCount={hiddenCount} />
+        </div>
+
         <form onSubmit={handleSubmitForm} className="mt-5 space-y-4">
           {/* Linha 1: Nome e Idade */}
           <div className="grid gap-3 sm:grid-cols-3">
-            <div className="sm:col-span-2">
+            <div className={advanced ? "sm:col-span-2" : "sm:col-span-3"}>
               <label className="block text-xs font-semibold text-white/80 mb-1">
                 Nome do Personagem <span className="text-primary">*</span>
               </label>
@@ -63,6 +78,7 @@ export function CharacterFormModal({ projectId, form }: CharacterFormModalProps)
                 className="w-full rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-xs text-white placeholder-white/40 focus:border-primary focus:outline-none"
               />
             </div>
+            {advanced && (
             <div>
               <label className="block text-xs font-semibold text-white/80 mb-1">Idade Aparente</label>
               <input
@@ -73,6 +89,7 @@ export function CharacterFormModal({ projectId, form }: CharacterFormModalProps)
                 className="w-full rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-xs text-white placeholder-white/40 focus:border-primary focus:outline-none"
               />
             </div>
+            )}
           </div>
     
           {/* Descrição Narrativa */}
@@ -105,6 +122,7 @@ export function CharacterFormModal({ projectId, form }: CharacterFormModalProps)
                 />
               </div>
     
+              {advanced && (
               <div>
                 <label className="block text-[11px] font-medium text-white/70 mb-1">Cabelo e Rosto</label>
                 <input
@@ -115,6 +133,7 @@ export function CharacterFormModal({ projectId, form }: CharacterFormModalProps)
                   className="w-full rounded-xl border border-white/10 bg-white/5 px-3 py-1.5 text-xs text-white placeholder-white/40 focus:border-primary focus:outline-none"
                 />
               </div>
+              )}
             </div>
     
             <div>
@@ -150,6 +169,7 @@ export function CharacterFormModal({ projectId, form }: CharacterFormModalProps)
               />
             </div>
     
+            {advanced && (
             <div className="grid gap-3 sm:grid-cols-2">
               <div>
                 <label className="block text-[11px] font-medium text-white/70 mb-1">Personalidade e Expressão</label>
@@ -172,8 +192,11 @@ export function CharacterFormModal({ projectId, form }: CharacterFormModalProps)
                 />
               </div>
             </div>
+            )}
           </div>
     
+          {advanced && (
+          <>
           {/* Seção 3: Restrições e Prompt Base */}
           <div className="rounded-2xl border border-white/5 bg-black/20 p-4 space-y-3">
             <h4 className="text-xs font-bold uppercase tracking-wider text-amber-400">
@@ -232,7 +255,9 @@ export function CharacterFormModal({ projectId, form }: CharacterFormModalProps)
               setParamValues((prev) => ({ ...prev, [defId]: val }))
             }
           />
-    
+          </>
+          )}
+
           {/* Botões do Rodapé */}
           <div className="flex items-center justify-end gap-2 pt-3 border-t border-white/10">
             <button

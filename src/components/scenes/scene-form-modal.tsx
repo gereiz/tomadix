@@ -2,7 +2,26 @@
 
 import { EntityParametersSection } from "@/components/parameters/entity-parameters-section";
 import { VisualParameterSelector } from "@/components/visual-library/visual-parameter-selector";
+import { AdvancedModeToggle } from "@/components/entities/advanced-mode-toggle";
+import { useAdvancedMode } from "@/components/entities/use-advanced-mode";
 import type { ScenesTabState } from "./use-scenes-tab";
+
+/** Quantos campos avançados da cena já foram alterados em relação ao padrão (para o aviso do modo simples). */
+function countAdvancedFilled(f: ScenesTabState["formData"]): number {
+  const checks = [
+    f.initialState.trim() !== "",
+    f.finalState.trim() !== "",
+    f.characterMovement.trim() !== "",
+    f.ambientSound.trim() !== "",
+    f.cameraMovement !== "Estática",
+    f.lighting !== "Iluminação natural / ambiente",
+    f.focusDepth !== "Profundidade de campo padrão",
+    f.transitionIn !== "Corte Direto (Cut)",
+    f.transitionOut !== "Corte Direto (Cut)",
+    (f.filmGrain ?? 25) !== 25,
+  ];
+  return checks.filter(Boolean).length;
+}
 
 interface SceneFormModalProps {
   s: ScenesTabState;
@@ -10,6 +29,7 @@ interface SceneFormModalProps {
 
 export function SceneFormModal({ s }: SceneFormModalProps) {
   const { projectId, availableCharacters, availableEnvironments, setModalOpen, editingScene, formLoading, formError, formData, setFormData, paramValues, setParamValues, paramKeyMap, setParamKeyMap, handleSubmitForm, modalOpen } = s;
+  const [advanced, setAdvanced] = useAdvancedMode();
   if (!modalOpen) return null;
 
   return (
@@ -21,7 +41,7 @@ export function SceneFormModal({ s }: SceneFormModalProps) {
               {editingScene ? "Editar Tomada / Cena" : "Nova Tomada Cinematográfica"}
             </h3>
             <p className="text-xs text-white/50">
-              Configure ação, câmera, iluminação, som e continuidade para compor o plano.
+              Descreva a cena e quem participa. Ative o modo avançado para ajustar câmera e iluminação.
             </p>
           </div>
           <button
@@ -38,6 +58,10 @@ export function SceneFormModal({ s }: SceneFormModalProps) {
           </div>
         )}
     
+        <div className="mt-4">
+          <AdvancedModeToggle advanced={advanced} onChange={setAdvanced} hiddenCount={countAdvancedFilled(formData)} />
+        </div>
+
         <form onSubmit={handleSubmitForm} className="mt-5 space-y-5">
           {/* Seção 1: Identificação e Duração Planejada */}
           <div className="grid gap-3 sm:grid-cols-3">
@@ -85,6 +109,25 @@ export function SceneFormModal({ s }: SceneFormModalProps) {
             />
           </div>
     
+          {/* Plano / Enquadramento (sempre visível, também no modo simples) */}
+          <div className="rounded-2xl border border-white/5 bg-black/20 p-4">
+            <VisualParameterSelector
+              label="Plano / Enquadramento"
+              description="Plano médio, plano inteiro (corpo inteiro), close-up etc.: define a proximidade do sujeito no quadro."
+              value={formData.framing}
+              onChange={(val) => {
+                setFormData((prev) => ({ ...prev, framing: val }));
+                if (paramKeyMap.tipo_de_plano) {
+                  setParamValues((prev) => ({ ...prev, [paramKeyMap.tipo_de_plano]: val }));
+                }
+              }}
+              category="FRAMING"
+              compactInitial={true}
+            />
+          </div>
+
+          {advanced && (
+          <>
           {/* Seção 2: Foco e Transições Cinematográficas */}
           <div className="rounded-2xl border border-white/5 bg-black/20 p-4 space-y-3">
             <h4 className="text-xs font-bold uppercase tracking-wider text-blue-400">
@@ -139,20 +182,6 @@ export function SceneFormModal({ s }: SceneFormModalProps) {
             </div>
     
             <div className="space-y-4">
-              <VisualParameterSelector
-                label="Enquadramento da Cena (Framing)"
-                description="Define a proximidade e a relação de proporção do sujeito no quadro."
-                value={formData.framing}
-                onChange={(val) => {
-                  setFormData((prev) => ({ ...prev, framing: val }));
-                  if (paramKeyMap.tipo_de_plano) {
-                    setParamValues((prev) => ({ ...prev, [paramKeyMap.tipo_de_plano]: val }));
-                  }
-                }}
-                category="FRAMING"
-                compactInitial={true}
-              />
-    
               <VisualParameterSelector
                 label="Movimento de Câmera (Camera Movement)"
                 description="Define a dinâmica espacial, velocidade e trajetória da câmera durante o plano."
@@ -275,7 +304,9 @@ export function SceneFormModal({ s }: SceneFormModalProps) {
               </div>
             </div>
           </div>
-    
+          </>
+          )}
+
           {/* Seção 3: Ação, Continuidade e Movimentação */}
           <div className="rounded-2xl border border-white/5 bg-black/20 p-4 space-y-3">
             <h4 className="text-xs font-bold uppercase tracking-wider text-primary">
@@ -295,6 +326,8 @@ export function SceneFormModal({ s }: SceneFormModalProps) {
               />
             </div>
     
+            {advanced && (
+            <>
             <div className="grid gap-3 sm:grid-cols-2">
               <div>
                 <label className="block text-[11px] font-medium text-white/70 mb-1">
@@ -334,6 +367,8 @@ export function SceneFormModal({ s }: SceneFormModalProps) {
                 className="w-full rounded-xl border border-white/10 bg-white/5 px-3 py-1.5 text-xs text-white placeholder-white/40 focus:border-primary focus:outline-none"
               />
             </div>
+            </>
+            )}
           </div>
     
           {/* Seção 4: Vínculo de Personagens e Ambientes */}
@@ -417,6 +452,7 @@ export function SceneFormModal({ s }: SceneFormModalProps) {
               Desenho de Som, Diálogos & Trilha
             </h4>
     
+            {advanced && (
             <div>
               <label className="block text-[11px] font-medium text-white/70 mb-1">Som Ambiente</label>
               <input
@@ -427,6 +463,7 @@ export function SceneFormModal({ s }: SceneFormModalProps) {
                 className="w-full rounded-xl border border-white/10 bg-white/5 px-3 py-1.5 text-xs text-white placeholder-white/40 focus:border-primary focus:outline-none"
               />
             </div>
+            )}
     
             {/* Diálogo */}
             <div className="rounded-xl border border-white/5 bg-black/30 p-3 space-y-2">
@@ -508,6 +545,8 @@ export function SceneFormModal({ s }: SceneFormModalProps) {
             />
           </div>
     
+          {advanced && (
+          <>
           {/* Seção Dinâmica: Parâmetros Cinematográficos Adicionais (sem duplicação com Linguagem de Câmera) */}
           <EntityParametersSection
             projectId={projectId}
@@ -528,7 +567,9 @@ export function SceneFormModal({ s }: SceneFormModalProps) {
               setParamKeyMap(mapping);
             }}
           />
-    
+          </>
+          )}
+
           {/* Botões do Rodapé */}
           <div className="flex items-center justify-end gap-2 pt-3 border-t border-white/10">
             <button
