@@ -1,3 +1,4 @@
+import { CAPTURE_STYLE_KEYS } from "./capture-styles";
 import { z } from "zod";
 
 // 1. Schema: Bíblia Visual do Projeto
@@ -198,10 +199,11 @@ export const generatePromptRequestSchema = z.object({
     "scene_sequence",
     "individual_scene",
   ]),
-  targetTool: z.enum(["google_flow", "nano_banana", "generic"]).optional().default("google_flow"),
+  targetTool: z.enum(["google_flow", "nano_banana", "seedance", "kling", "generic"]).optional().default("google_flow"),
   sceneId: z.string().optional(),
   characterId: z.string().optional(),
   environmentId: z.string().optional(),
+  captureStyle: z.enum(CAPTURE_STYLE_KEYS).optional().default("cinematic"),
   customInstructions: z.string().max(2000).optional(),
   model: z.string().optional(),
   parentVersionId: z.string().optional(),
@@ -232,7 +234,7 @@ export type PromptHistoryFilter = z.input<typeof promptHistoryFilterSchema>;
 // Requisição de regeneração a partir de versão anterior
 export const regeneratePromptRequestSchema = z.object({
   customInstructions: z.string().max(2000).optional(),
-  targetTool: z.enum(["google_flow", "nano_banana", "generic"]).optional(),
+  targetTool: z.enum(["google_flow", "nano_banana", "seedance", "kling", "generic"]).optional(),
   model: z.string().optional(),
   outputFormat: z.enum(["json", "text"]).optional().default("json"),
 });

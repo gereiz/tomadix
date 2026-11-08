@@ -1,5 +1,6 @@
 import { ToolProfile } from "./tool-profiles";
 import { SystemPromptTemplate } from "./prompt-template.catalog";
+import { CAPTURE_STYLE_TEMPLATES, getCaptureStyle } from "./capture-styles";
 
 export interface CompositionContext {
   project: {
@@ -40,14 +41,30 @@ export interface CompositionContext {
     environments?: Array<{ id: string; name: string; description: string; attributes: any }>;
     scenes?: Array<{ id: string; title: string; order: number; description: string; configuration: any }>;
   };
+  /** Cenas reais do projeto (ordenadas) para o template scene_sequence. */
+  sequenceScenes?: Array<{
+    id: string;
+    order: number;
+    title: string;
+    description: string;
+    durationSeconds: number | null;
+    configuration: any;
+    characters: Array<{ character: { name: string; description: string; attributes: any } }>;
+    environments: Array<{ environment: { name: string; description: string; attributes: any } }>;
+  }>;
   customInstructions?: string;
+  /** Estilo de captura (cinematic = padrão). */
+  captureStyle?: string;
 }
 
 export function composePromptInstructions(ctx: CompositionContext): {
   systemInstruction: string;
   userPrompt: string;
 } {
-  const { project, toolProfile, template, resolvedParameters, scene, character, environment, contextualReferences, customInstructions } = ctx;
+  const { project, toolProfile, template, resolvedParameters, scene, character, environment, contextualReferences, customInstructions, sequenceScenes, captureStyle } = ctx;
+  const capture = getCaptureStyle(captureStyle);
+  const useCapture = capture.key !== "cinematic" && CAPTURE_STYLE_TEMPLATES.includes(template.key);
+  const isSequence = template.key === "scene_sequence";
 
   const systemInstruction = [
     template.systemInstructions,
@@ -60,6 +77,17 @@ export function composePromptInstructions(ctx: CompositionContext): {
     `5. O idioma de saída para textos e diálogos deve ser: ${project.language} (Português do Brasil por padrão).`,
     `6. Otimize a estrutura especificamente para a ferramenta de destino: ${toolProfile.name}.`,
     ...toolProfile.promptFormattingRules.map((rule) => `   - ${rule}`),
+    `7. Campos de prompt compilado (ex.: compiledPromptText, promptText, compiledProductionPrompt, compiledBasePrompt, shotPrompt) devem ser completos, mas SEM ultrapassar ${toolProfile.features.maxPromptCharacters} caracteres. O Texto Simples exibido ao usuário é limitado a ${toolProfile.features.maxPlainTextCharacters} caracteres, então coloque as informações mais importantes no INÍCIO do prompt compilado e mantenha-o objetivo (alvo de até ~${Math.round(toolProfile.features.maxPlainTextCharacters * 0.7)} caracteres sempre que possível).`,
+    ...(useCapture
+      ? [
+          `9. ESTILO DE CAPTURA "${capture.label}": ignore jargões cinematográficos de luz, lente, grão e cor das regras da ferramenta; descreva a imagem como uma captura real nesse estilo (veja a seção ESTILO DE CAPTURA OBRIGATÓRIO).`,
+        ]
+      : []),
+    ...(isSequence
+      ? [
+          "8. SEQUÊNCIA DE CENAS: use EXATAMENTE as cenas listadas em 'CENAS REAIS DO PROJETO', na mesma ordem e quantidade. É PROIBIDO criar, remover, fundir, reordenar ou renomear cenas. Copie sceneId, order e title literalmente.",
+        ]
+      : []),
   ].join("\n");
 
   const promptSections: string[] = [];
@@ -106,6 +134,27 @@ ${scene.characters.map((c) => `- ${c.character.name}: ${c.character.description 
 
 Ambiente da Cena:
 ${scene.environments.map((e) => `- ${e.environment.name}: ${e.environment.description || ""} (Arquitetura: ${e.environment.attributes?.architecture || "Padrão"})`).join("\n") || "Nenhum"}`
+    );
+  }
+
+  // 3b. Cenas reais do projeto (sequência de cenas): fonte de verdade, em ordem
+  if (isSequence && sequenceScenes && sequenceScenes.length > 0) {
+    const blocks = sequenceScenes.map((s) => {
+      const config = s.configuration || {};
+      return `CENA #${s.order} - "${s.title}" (sceneId: ${s.id})
+- Descrição: ${s.description || "Não especificada"}
+- Duração planejada: ${s.durationSeconds ? `${s.durationSeconds} segundos` : "Livre"}
+- Ação principal: ${config.mainAction || "Não declarada"} | Estado inicial: ${config.initialState || "Não declarado"} | Estado final: ${config.finalState || "Não declarado"}
+- Câmera: ${config.framing || "Plano Médio"} / ${config.cameraMovement || "Estática"} | Iluminação: ${config.lighting || "Ambiente natural"}
+- Transições: entrada (${config.transitionIn || "Corte"}) / saída (${config.transitionOut || "Corte"})
+- Personagens: ${s.characters.map((c) => `${c.character.name} (${c.character.attributes?.visualIdentity || c.character.description || "Padrão"})`).join("; ") || "Nenhum"}
+- Ambientes: ${s.environments.map((e) => `${e.environment.name} (${e.environment.attributes?.architecture || e.environment.description || "Padrão"})`).join("; ") || "Nenhum"}`;
+    });
+    promptSections.push(
+      `### CENAS REAIS DO PROJETO (FONTE DE VERDADE, ${sequenceScenes.length} cenas, EM ORDEM):
+Estas são as cenas criadas pelo diretor. A sequência DEVE conter exatamente estas ${sequenceScenes.length} cenas, nesta ordem, sem inventar nenhuma outra.
+
+${blocks.join("\n\n")}`
     );
   }
 
@@ -193,6 +242,17 @@ ${refParts.join("\n\n")}`
     }
   }
 
+  // 6b. Estilo de captura (amador/celular, segurança, found footage)
+  if (useCapture) {
+    promptSections.push(
+      `### ESTILO DE CAPTURA OBRIGATÓRIO: ${capture.label}
+${capture.description}
+Este estilo SUBSTITUI qualquer jargão cinematográfico (lentes anamórficas, 35mm, iluminação volumétrica, grão de película, color grading, vetores de câmera sofisticados) das regras da plataforma e dos parâmetros acima. Os campos de câmera, lente, iluminação, estilo e o prompt compilado devem descrever a imagem COMO SE tivesse sido gravada assim:
+${capture.instructions.map((i) => `- ${i}`).join("\n")}
+No prompt negativo inclua: ${capture.negativeHints.join(", ")}.`
+    );
+  }
+
   // 7. Instruções Customizadas do Usuário
   if (customInstructions && customInstructions.trim()) {
     promptSections.push(
@@ -208,7 +268,8 @@ ${refParts.join("\n\n")}`
     toolProfile,
     scene,
     character,
-    environment
+    environment,
+    sequenceScenes
   );
 
   promptSections.push(
@@ -236,7 +297,8 @@ function getTemplateJsonSkeleton(
   toolProfile: ToolProfile,
   scene?: { id: string; title: string; order: number },
   character?: { id: string; name: string },
-  environment?: { id: string; name: string }
+  environment?: { id: string; name: string },
+  sequenceScenes?: Array<{ id: string; order: number; title: string; durationSeconds: number | null }>
 ): Record<string, any> {
   switch (templateKey) {
     case "visual_bible":
@@ -358,17 +420,28 @@ function getTemplateJsonSkeleton(
         sequenceTitle: "Título da sequência",
         targetTool: toolProfile.name,
         narrativePacing: "Ritmo e velocidade de montagem",
-        scenes: [
-          {
-            sceneId: scene?.id || "id_cena",
-            order: 1,
-            title: "Título da tomada",
-            durationSeconds: 5,
-            shotPrompt: "Prompt da tomada",
-            transition: "Corte Direto",
-            continuityNotes: "Notas de continuidade",
-          },
-        ],
+        scenes:
+          sequenceScenes && sequenceScenes.length > 0
+            ? sequenceScenes.map((s) => ({
+                sceneId: s.id,
+                order: s.order,
+                title: s.title,
+                durationSeconds: s.durationSeconds ?? 5,
+                shotPrompt: "Prompt da tomada desta cena (preencha)",
+                transition: "Transição para a próxima cena",
+                continuityNotes: "Notas de continuidade com as cenas vizinhas",
+              }))
+            : [
+                {
+                  sceneId: scene?.id || "id_cena",
+                  order: 1,
+                  title: "Título da tomada",
+                  durationSeconds: 5,
+                  shotPrompt: "Prompt da tomada",
+                  transition: "Corte Direto",
+                  continuityNotes: "Notas de continuidade",
+                },
+              ],
         globalAtmosphere: "Atmosfera unificada da sequência",
       };
 

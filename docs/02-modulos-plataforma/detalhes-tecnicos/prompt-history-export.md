@@ -39,7 +39,7 @@ Permite selecionar uma versão prévia e disparar nova geração com instruçõe
 Baixa um arquivo `.json` sanitizado contendo:
 - Metadados do projeto (título, gênero, idioma).
 - Template utilizado e versão do schema.
-- Perfil técnico da ferramenta de destino (`google_flow`, `nano_banana`, `generic`).
+- Perfil técnico da ferramenta de destino (`google_flow`, `nano_banana`, `seedance`, `kling`, `generic`).
 - Payload JSON completo do prompt.
 - Texto compilado para produção.
 - Snapshot de parâmetros e entidades.

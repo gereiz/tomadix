@@ -4,6 +4,7 @@ import { getCurrentWorkspace, AuthenticationError, AuthorizationError } from "@/
 import { ImageGenerationService } from "@/modules/image-generation/image-generation.service";
 import { ImageGenerationError } from "@/modules/image-generation/image-generation.types";
 import { z } from "zod";
+import { CAPTURE_STYLE_KEYS } from "@/modules/prompt-engine/capture-styles";
 
 const generateImageSchema = z.object({
   prompt: z.string().trim().min(2, "O prompt deve conter pelo menos 2 caracteres.").max(4000, "O prompt excede o limite de 4000 caracteres."),
@@ -18,6 +19,8 @@ const generateImageSchema = z.object({
   environmentId: z.string().trim().optional().nullable(),
   sceneId: z.string().trim().optional().nullable(),
   promptVersionId: z.string().trim().optional().nullable(),
+  captureStyle: z.enum(CAPTURE_STYLE_KEYS).optional(),
+  degradeImage: z.boolean().optional(),
   metadata: z.record(z.any()).optional(),
 });
 
@@ -44,6 +47,8 @@ export async function POST(request: NextRequest) {
       environmentId: validated.environmentId || undefined,
       sceneId: validated.sceneId || undefined,
       promptVersionId: validated.promptVersionId || undefined,
+      captureStyle: validated.captureStyle,
+      degradeImage: validated.degradeImage,
       metadata: validated.metadata,
     });
 

@@ -3,14 +3,23 @@
 import { Spinner } from "@/components/ui/spinner";
 import { TemplateKey } from "@/modules/prompt-engine/prompt-engine.schema";
 import { getTemplateCreditCost } from "./helpers";
+import { listCaptureStyles } from "@/modules/prompt-engine/capture-styles";
 import type { PromptsTabState } from "./use-prompts-tab";
 
 interface PromptGeneratorPanelProps {
   s: PromptsTabState;
 }
 
+const TOOL_ICONS: Record<string, string> = {
+  google_flow: "🌊",
+  nano_banana: "🍌",
+  seedance: "🎞️",
+  kling: "🎬",
+  generic: "🌐",
+};
+
 export function PromptGeneratorPanel({ s }: PromptGeneratorPanelProps) {
-  const { projectId, templates, toolProfiles, scenes, characters, environments, selectedTemplate, setSelectedTemplate, selectedTool, setSelectedTool, selectedSceneId, setSelectedSceneId, selectedCharacterId, setSelectedCharacterId, selectedEnvironmentId, setSelectedEnvironmentId, customInstructions, setCustomInstructions, outputFormat, setOutputFormat, generating, generationError, enhancingPrompt, handleEnhancePrompt, handleGenerate, needsScene, needsCharacter, needsEnvironment, blockReason, showAdvanced, setShowAdvanced, loadError } = s;
+  const { projectId, templates, toolProfiles, scenes, characters, environments, selectedTemplate, setSelectedTemplate, selectedTool, setSelectedTool, selectedSceneId, setSelectedSceneId, selectedCharacterId, setSelectedCharacterId, selectedEnvironmentId, setSelectedEnvironmentId, customInstructions, setCustomInstructions, outputFormat, setOutputFormat, generating, generationError, enhancingPrompt, handleEnhancePrompt, handleGenerate, needsScene, supportsCaptureStyle, captureStyle, setCaptureStyle, needsSequence, sequenceScope, setSequenceScope, sequenceSceneIds, setSequenceSceneIds, needsCharacter, needsEnvironment, blockReason, showAdvanced, setShowAdvanced, loadError } = s;
 
   const quickChoices: { key: TemplateKey; icon: string; label: string }[] = [
     { key: "video_prompt", icon: "🎬", label: "Vídeo" },
@@ -99,12 +108,14 @@ export function PromptGeneratorPanel({ s }: PromptGeneratorPanelProps) {
           <label className="block text-xs font-semibold text-white/80 mb-1.5">
             Plataforma de Destino (Perfil de Saída)
           </label>
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
+          <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
             {(toolProfiles.length > 0
               ? toolProfiles
               : [
                   { key: "google_flow", name: "Google Flow", description: "" },
                   { key: "nano_banana", name: "Nano Banana", description: "" },
+                  { key: "seedance", name: "Seedance", description: "" },
+                  { key: "kling", name: "Kling", description: "" },
                   { key: "generic", name: "Genérico", description: "" },
                 ]
             ).map((tool) => (
@@ -119,7 +130,7 @@ export function PromptGeneratorPanel({ s }: PromptGeneratorPanelProps) {
                 }`}
               >
                 <span className="block text-base">
-                  {tool.key === "google_flow" ? "🌊" : tool.key === "nano_banana" ? "🍌" : "🌐"}
+                  {TOOL_ICONS[tool.key] ?? "🌐"}
                 </span>
                 <span className="mt-1 block text-[11px] truncate">{tool.name}</span>
               </button>
@@ -127,6 +138,34 @@ export function PromptGeneratorPanel({ s }: PromptGeneratorPanelProps) {
           </div>
         </div>
     
+        {/* Estilo de Captura (como a imagem/vídeo foi gravado) */}
+        {supportsCaptureStyle && (
+          <div>
+            <label className="block text-xs font-semibold text-white/80 mb-1.5">Estilo de Captura</label>
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+              {listCaptureStyles().map((st) => (
+                <button
+                  key={st.key}
+                  type="button"
+                  title={st.description}
+                  onClick={() => setCaptureStyle(st.key)}
+                  className={`min-h-11 rounded-xl p-2.5 text-center text-xs font-medium border transition ${
+                    captureStyle === st.key
+                      ? "bg-primary/20 text-primary border-primary/40 font-semibold"
+                      : "bg-white/5 text-white/60 border-white/10 hover:text-white"
+                  }`}
+                >
+                  <span className="block text-base">{st.icon}</span>
+                  <span className="mt-1 block text-[11px] truncate">{st.label}</span>
+                </button>
+              ))}
+            </div>
+            <p className="mt-1.5 text-[11px] text-white/50">
+              {listCaptureStyles().find((st) => st.key === captureStyle)?.description}
+            </p>
+          </div>
+        )}
+
         {/* Contexto Específico (Cena, Personagem ou Ambiente) */}
         {needsScene && (
           <div>
@@ -153,6 +192,64 @@ export function PromptGeneratorPanel({ s }: PromptGeneratorPanelProps) {
           </div>
         )}
     
+        {needsSequence && (
+          <div className="space-y-2">
+            <label className="block text-xs font-semibold text-white/80">Cenas da Sequência</label>
+            {scenes.length === 0 ? (
+              <p className="text-xs text-amber-300/80 bg-amber-500/10 p-2.5 rounded-xl border border-amber-500/20">
+                Nenhuma cena cadastrada no projeto. Crie ao menos uma cena na aba &quot;Cenas&quot;.
+              </p>
+            ) : (
+              <>
+                <div className="grid grid-cols-2 gap-2">
+                  {([
+                    ["all", `Todas as cenas (${scenes.length})`],
+                    ["selected", "Escolher cenas"],
+                  ] as const).map(([value, label]) => (
+                    <button
+                      key={value}
+                      type="button"
+                      onClick={() => setSequenceScope(value)}
+                      className={`min-h-11 rounded-xl p-2.5 text-center text-xs font-medium border transition ${
+                        sequenceScope === value
+                          ? "bg-primary/20 text-primary border-primary/40 font-semibold"
+                          : "bg-white/5 text-white/60 border-white/10 hover:text-white"
+                      }`}
+                    >
+                      {label}
+                    </button>
+                  ))}
+                </div>
+                {sequenceScope === "all" ? (
+                  <p className="text-[11px] text-white/50">
+                    A sequência usará as {scenes.length} cenas criadas por você, na ordem da aba Cenas.
+                  </p>
+                ) : (
+                  <div className="max-h-44 overflow-y-auto rounded-xl border border-white/10 bg-[#0f1218] p-2 space-y-1">
+                    {scenes.map((sc) => {
+                      const checked = sequenceSceneIds.includes(sc.id);
+                      return (
+                        <label key={sc.id} className="flex min-h-9 cursor-pointer items-center gap-2 rounded-lg px-2 text-xs text-white/80 hover:bg-white/5">
+                          <input
+                            type="checkbox"
+                            checked={checked}
+                            onChange={() =>
+                              setSequenceSceneIds((prev) =>
+                                checked ? prev.filter((id) => id !== sc.id) : [...prev, sc.id]
+                              )
+                            }
+                          />
+                          <span>Cena #{sc.order} - {sc.title}</span>
+                        </label>
+                      );
+                    })}
+                  </div>
+                )}
+              </>
+            )}
+          </div>
+        )}
+
         {needsCharacter && (
           <div>
             <label className="block text-xs font-semibold text-white/80 mb-1.5">

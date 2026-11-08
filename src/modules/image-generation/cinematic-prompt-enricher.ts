@@ -1,4 +1,5 @@
 import { db } from "@/lib/db";
+import { getCaptureStyle } from "@/modules/prompt-engine/capture-styles";
 
 export interface CinematicEnrichmentInput {
   userPrompt: string;
@@ -9,6 +10,8 @@ export interface CinematicEnrichmentInput {
   sceneId?: string | null;
   negativePrompt?: string;
   aspectRatio?: string;
+  /** Estilo de captura; diferente de "cinematic" desliga o enriquecimento cinematográfico. */
+  captureStyle?: string;
 }
 
 export interface CinematicEnrichmentResult {
@@ -95,6 +98,19 @@ export class CinematicPromptEnricher {
     let negativePrompt = input.negativePrompt || "";
     const appliedDirectives: string[] = [];
     const skippedDirectives: string[] = [];
+
+    // Estilo de captura (amador/celular, segurança, found footage): substitui o look cinematográfico
+    const capture = getCaptureStyle(input.captureStyle);
+    if (capture.key !== "cinematic") {
+      const mergedNegative = [negativePrompt, ...capture.negativeHints].filter(Boolean).join(", ");
+      return {
+        enrichedPrompt: `${userPrompt}. ${capture.directPromptSuffix}`,
+        originalPrompt: userPrompt,
+        enrichedNegativePrompt: mergedNegative || undefined,
+        appliedDirectives: [`estilo de captura: ${capture.label}`],
+        skippedDirectives: ["enriquecimento cinematográfico (substituído pelo estilo de captura)"],
+      };
+    }
 
     if (!projectId) {
       return {

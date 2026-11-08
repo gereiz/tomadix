@@ -4,6 +4,7 @@ import { CreditExecutionService } from "@/modules/billing/credit-execution.servi
 import { ImageProviderRegistryService } from "./image-provider-registry.service";
 import { ImageEntitlementService } from "./image-entitlement.service";
 import { ImageStorageService } from "./image-storage.service";
+import { degradeLevelForStyle } from "./image-degrade";
 import { GeneratedImageService } from "./generated-image.service";
 import { CinematicPromptEnricher } from "./cinematic-prompt-enricher";
 import {
@@ -28,6 +29,10 @@ export interface DirectImageGenerationInput {
   sceneId?: string;
   promptVersionId?: string;
   providerId?: string;
+  /** Estilo de captura (cinematic = padrão). */
+  captureStyle?: string;
+  /** Degradação real da imagem (granulado/baixa resolução). Padrão: segue o estilo de captura. */
+  degradeImage?: boolean;
   metadata?: Record<string, any>;
 }
 
@@ -114,6 +119,7 @@ export class ImageGenerationService {
       sceneId,
       negativePrompt,
       aspectRatio,
+      captureStyle: input.captureStyle,
     });
     const effectivePrompt = enrichment.enrichedPrompt;
     const effectiveNegativePrompt = enrichment.enrichedNegativePrompt || negativePrompt;
@@ -183,6 +189,8 @@ export class ImageGenerationService {
       imageUrl: generationResult.imageUrl,
       userId,
       workspaceId,
+      degradeLevel:
+        input.degradeImage === false ? null : degradeLevelForStyle(input.captureStyle),
     });
 
     // 5. Gravar registro definitivo no histórico de imagens geradas

@@ -158,20 +158,28 @@ describe("PromptEngineService - Motor de Composição e Geração com Gemini", (
       }
     });
 
-    it("deve disponibilizar perfis de saída suportados (Google Flow, Nano Banana, Genérico)", () => {
+    it("deve disponibilizar perfis de saída suportados (Google Flow, Nano Banana, Seedance, Kling, Genérico)", () => {
       const profiles = PromptEngineService.getAvailableToolProfiles();
-      expect(profiles.length).toBe(3);
+      expect(profiles.length).toBe(5);
 
       const keys = profiles.map((p) => p.key);
       expect(keys).toContain("google_flow");
       expect(keys).toContain("nano_banana");
+      expect(keys).toContain("seedance");
+      expect(keys).toContain("kling");
       expect(keys).toContain("generic");
+
+      for (const p of profiles) {
+        expect(p.features.maxPromptCharacters).toBe(5000);
+        expect(p.features.maxPlainTextCharacters).toBe(2500);
+        expect(p.promptFormattingRules.length).toBeGreaterThan(0);
+      }
 
       const flow = profiles.find((p) => p.key === "google_flow");
       expect(flow?.features.supportsMotionVectors).toBe(true);
 
       const banana = profiles.find((p) => p.key === "nano_banana");
-      expect(banana?.features.maxPromptCharacters).toBe(2500);
+      expect(banana?.features.maxPlainTextCharacters).toBe(2500);
     });
 
 
@@ -483,5 +491,69 @@ describe("PromptEngineService - Motor de Composição e Geração com Gemini", (
       }
     });
 
+  });
+
+  // -------------------------------------------------------------
+  // Sequência de Cenas: usa as cenas reais do projeto
+  // -------------------------------------------------------------
+  describe("Sequência de Cenas com cenas reais", () => {
+    it("deve usar as cenas criadas (id, ordem, título) mesmo que a IA invente outras", async () => {
+      const real = await db.scene.findMany({ where: { projectId }, orderBy: { order: "asc" } });
+      expect(real.length).toBeGreaterThan(0);
+
+      const aiOutput = {
+        schemaVersion: "1.0",
+        type: "scene_sequence",
+        projectId,
+        sequenceTitle: "Seq",
+        targetTool: "Seedance",
+        narrativePacing: "Rápido",
+        scenes: real.map((r, i) => ({
+          sceneId: `inventado-${i}`,
+          order: 50 + i,
+          title: `Cena inventada ${i}`,
+          durationSeconds: 5,
+          shotPrompt: `prompt ${i}`,
+          transition: "Corte",
+          continuityNotes: "",
+        })),
+        globalAtmosphere: "x",
+      };
+
+      const spy = vi.spyOn(geminiProvider, "generateStructuredJson").mockResolvedValueOnce({
+        data: aiOutput,
+        rawText: JSON.stringify(aiOutput),
+        model: "gemini-2.5-flash",
+        tokens: { inputTokens: 1, outputTokens: 1 },
+      } as any);
+
+      const result = await PromptEngineService.generate(projectId, workspaceAId, {
+        templateKey: "scene_sequence",
+        targetTool: "seedance",
+      });
+
+      const prompt = spy.mock.calls[0][0] as string;
+      for (const r of real) expect(prompt).toContain(`sceneId: ${r.id}`);
+      const scenes = (result.data as any).scenes;
+      expect(scenes.map((s: any) => s.sceneId)).toEqual(real.map((r) => r.id));
+      expect(scenes.map((s: any) => s.order)).toEqual(real.map((r) => r.order));
+      expect(scenes.map((s: any) => s.title)).toEqual(real.map((r) => r.title));
+      expect(result.targetTool).toBe("seedance");
+      spy.mockRestore();
+    });
+
+    it("deve rejeitar a sequência quando o projeto não tem cenas", async () => {
+      const empty = await withRetry(() =>
+        ProjectService.createProject(workspaceAId, { title: "Sem cenas", description: "", genre: "Geral", language: "pt-BR", configuration: { aspectRatio: "16:9", targetPlatform: "Google Flow" } })
+      );
+      try {
+        await expect(
+          PromptEngineService.generate(empty.id, workspaceAId, { templateKey: "scene_sequence", targetTool: "kling" })
+        ).rejects.toThrow(/Selecione ou crie ao menos uma cena/);
+      } finally {
+        await db.generationJob.deleteMany({ where: { projectId: empty.id } });
+        await db.project.deleteMany({ where: { id: empty.id } });
+      }
+    });
   });
 });

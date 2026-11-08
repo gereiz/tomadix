@@ -10,7 +10,7 @@ import { getToolProfile, TOOL_PROFILES } from "./tool-profiles";
 import { composePromptInstructions } from "./compose-prompt";
 import { generateStructuredJson } from "../ai/gemini-provider";
 import { ParameterService } from "../parameters/parameter.service";
-import { formatPromptToPlainText } from "./format-plain-text";
+import { formatPlainTextWithLimit, truncateAtBoundary } from "./plain-text-limit";
 import { EntitlementService } from "../billing/entitlement.service";
 import { CreditPricingService } from "../billing/credit-pricing.service";
 import { CreditExecutionService } from "../billing/credit-execution.service";
@@ -44,6 +44,49 @@ export class PromptEngineService {
       throw new Error("Projeto não encontrado ou acesso não permitido.");
     }
     return project;
+  }
+
+  /**
+   * Cenas do projeto para a sequência: todas, ou só as selecionadas, sempre ordenadas por `order`.
+   */
+  private static loadSequenceScenes(projectId: string, sceneIds: string[]) {
+    return db.scene.findMany({
+      where: { projectId, ...(sceneIds.length > 0 ? { id: { in: sceneIds } } : {}) },
+      orderBy: { order: "asc" },
+      include: {
+        characters: { include: { character: true } },
+        environments: { include: { environment: true } },
+      },
+    });
+  }
+
+  /**
+   * Reconcilia a sequência devolvida pela IA com as cenas reais: uma tomada por cena,
+   * na ordem do banco, com sceneId/order/title/duração oficiais. O texto criativo
+   * (shotPrompt, transição, continuidade) vem da IA, casado por sceneId ou, na falta, por posição.
+   */
+  static reconcileSequence(
+    data: any,
+    realScenes: Array<{ id: string; order: number; title: string; durationSeconds: number | null }>
+  ) {
+    const aiScenes: any[] = Array.isArray(data?.scenes) ? data.scenes : [];
+    const byId = new Map<string, any>(aiScenes.filter((s) => s?.sceneId).map((s) => [s.sceneId, s]));
+    const scenes = realScenes.map((real, idx) => {
+      const ai = byId.get(real.id) ?? (aiScenes.length === realScenes.length ? aiScenes[idx] : undefined);
+      if (!ai || typeof ai.shotPrompt !== "string" || !ai.shotPrompt.trim()) {
+        throw new Error(
+          `A IA não retornou o prompt da cena #${real.order} ("${real.title}"). Tente gerar novamente.`
+        );
+      }
+      return {
+        ...ai,
+        sceneId: real.id,
+        order: real.order,
+        title: real.title,
+        durationSeconds: real.durationSeconds ?? ai.durationSeconds ?? null,
+      };
+    });
+    return { ...data, scenes };
   }
 
   /**
@@ -90,6 +133,21 @@ export class PromptEngineService {
       if (!sceneData) throw new Error(`Cena informada (${req.sceneId}) não encontrada no projeto.`);
     }
 
+    // Sequência de cenas: carrega as cenas REAIS do projeto, em ordem (fonte de verdade).
+    // Se o usuário selecionou cenas específicas (references.sceneIds), usa só essas; senão, todas.
+    let sequenceScenes: Awaited<ReturnType<typeof PromptEngineService.loadSequenceScenes>> = [];
+    if (req.templateKey === "scene_sequence") {
+      sequenceScenes = await this.loadSequenceScenes(
+        projectId,
+        (req.references?.sceneIds || []).filter(Boolean)
+      );
+      if (sequenceScenes.length === 0) {
+        throw new Error(
+          "Selecione ou crie ao menos uma cena no projeto para gerar a 'Sequência de Cenas'."
+        );
+      }
+    }
+
     if (req.characterId) {
       characterData = await db.character.findFirst({
         where: { id: req.characterId, projectId },
@@ -134,6 +192,7 @@ export class PromptEngineService {
             ? db.scene.findMany({
                 where: { id: { in: sceneIds }, projectId },
                 select: { id: true, title: true, order: true, description: true, configuration: true },
+                orderBy: { order: "asc" },
               })
             : [],
         ]);
@@ -196,7 +255,9 @@ export class PromptEngineService {
       character: characterData || undefined,
       environment: environmentData || undefined,
       contextualReferences,
+      sequenceScenes: sequenceScenes.length > 0 ? sequenceScenes : undefined,
       customInstructions: req.customInstructions,
+      captureStyle: req.captureStyle,
     });
 
     // 7. Política Comercial: Resolução dinâmica de custos via Catálogo Central de Operações
@@ -241,6 +302,7 @@ export class PromptEngineService {
         request: {
           templateKey: req.templateKey,
           targetTool: req.targetTool,
+          captureStyle: req.captureStyle,
           sceneId: req.sceneId,
           characterId: req.characterId,
           environmentId: req.environmentId,
@@ -261,6 +323,11 @@ export class PromptEngineService {
         systemInstruction,
       });
 
+      if (req.templateKey === "scene_sequence") {
+        // Garante que a sequência final reflita exatamente as cenas do usuário.
+        geminiResult.data = this.reconcileSequence(geminiResult.data, sequenceScenes) as typeof geminiResult.data;
+      }
+
       const finishedTime = new Date();
 
       // 10. Atualizar GenerationJob para SUCCEEDED
@@ -279,15 +346,18 @@ export class PromptEngineService {
 
       // 11. Extrair outputText e formatar saída em Texto Simples (Etapa 5)
       const rawData = geminiResult.data as any;
-      const formattedText = formatPromptToPlainText(geminiResult.data, req.templateKey);
-      const outputText =
-        formattedText ||
+      // O limite de caracteres vale só para o Texto Simples; o JSON (outputJson) segue completo.
+      const plainLimit = toolProfile.features.maxPlainTextCharacters;
+      const formattedText = formatPlainTextWithLimit(geminiResult.data, req.templateKey, plainLimit);
+      const fallbackText =
         rawData.compiledPromptText ||
         rawData.compiledProductionPrompt ||
         rawData.compiledBasePrompt ||
         rawData.promptText ||
         rawData.visualIdentity ||
         null;
+      const outputText =
+        formattedText || (typeof fallbackText === "string" ? truncateAtBoundary(fallbackText, plainLimit) : null);
 
       // 12. Contar versões prévias e registrar PromptVersion histórico e rastreável
       const priorCount = await db.promptVersion.count({
@@ -313,6 +383,11 @@ export class PromptEngineService {
             status: "SUCCEEDED",
             resolvedParameters,
             customInstructions: req.customInstructions,
+            captureStyle: req.captureStyle || "cinematic",
+            sequenceSelectedIds:
+              req.templateKey === "scene_sequence" && (req.references?.sceneIds || []).length > 0
+                ? req.references?.sceneIds
+                : null,
             sceneTitle: sceneData?.title || null,
             characterName: characterData?.name || null,
             environmentName: environmentData?.name || null,
@@ -324,6 +399,9 @@ export class PromptEngineService {
                 language: project.language,
                 configuration: project.configuration,
               },
+              sequenceScenes: sequenceScenes.length > 0
+                ? sequenceScenes.map((s) => ({ id: s.id, order: s.order, title: s.title }))
+                : undefined,
               scene: sceneData
                 ? {
                     id: sceneData.id,

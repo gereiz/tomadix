@@ -4,6 +4,7 @@ import { getCurrentWorkspace, AuthenticationError, AuthorizationError } from "@/
 import { VideoGenerationService } from "@/modules/video-generation/video-generation.service";
 import { VideoGenerationError } from "@/modules/video-generation/video-generation.types";
 import { z } from "zod";
+import { CAPTURE_STYLE_KEYS } from "@/modules/prompt-engine/capture-styles";
 
 export const dynamic = "force-dynamic";
 
@@ -19,6 +20,7 @@ const generateVideoSchema = z.object({
   projectId: z.string().trim().optional().nullable(),
   sceneId: z.string().trim().optional().nullable(),
   seed: z.number().int().optional(),
+  captureStyle: z.enum(CAPTURE_STYLE_KEYS).optional(),
   metadata: z.record(z.any()).optional(),
 });
 
@@ -44,6 +46,7 @@ export async function POST(request: NextRequest) {
       projectId: validated.projectId || undefined,
       sceneId: validated.sceneId || undefined,
       seed: validated.seed,
+      captureStyle: validated.captureStyle,
       metadata: validated.metadata,
     });
 

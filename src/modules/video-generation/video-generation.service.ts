@@ -28,6 +28,8 @@ export interface GenerateDirectVideoParams {
   projectId?: string;
   sceneId?: string;
   seed?: number;
+  /** Estilo de captura (cinematic = padrão). */
+  captureStyle?: string;
   metadata?: Record<string, any>;
 }
 
@@ -172,6 +174,7 @@ export class VideoGenerationService {
       projectId,
       sceneId,
       seed,
+      captureStyle,
       metadata = {},
     } = params;
 
@@ -218,6 +221,7 @@ export class VideoGenerationService {
           workspaceId,
           sceneId,
           aspectRatio,
+          captureStyle,
         });
         effectivePrompt = enrichment.enrichedPrompt;
         enrichmentApplied = enrichment;

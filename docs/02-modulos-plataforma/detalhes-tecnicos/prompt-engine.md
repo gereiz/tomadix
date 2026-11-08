@@ -59,17 +59,32 @@ Cada motor de difusão possui características óticas e limitações que o comp
 - **Foco**: Transições contínuas de vídeo, vetores de movimento de câmera (`Dolly forward`, `Pan horizontal`, `Crane descendente`).
 - **Suporte**: Vetores de movimento (`supportsMotionVectors: true`), proporções customizadas e prompts negativos dedicados.
 - **Áudio**: Controlado separadamente na plataforma de destino (`supportsAudioTags: false`).
-- **Tamanho Máximo**: 4.000 caracteres.
+- **Tamanho Máximo**: JSON até 5.000 caracteres; Texto Simples até 2.500.
 
 ### 2. Nano Banana (`nano_banana`)
 - **Foco**: Sintaxe densa com tags cinematográficas, parâmetros em JSON e iluminação detalhada.
 - **Suporte**: Formato estruturado, proporção de aspecto, palavras-chave separadas por vírgula.
-- **Tamanho Máximo**: 2.500 caracteres.
+- **Tamanho Máximo**: JSON até 5.000 caracteres; Texto Simples até 2.500.
 
-### 3. Genérico (`generic`)
-- **Foco**: Compatibilidade universal com ferramentas de difusão de vídeo e imagem (Runway Gen-2/3, Sora, Midjourney, Kling, Luma Dream Machine).
+### 3. Seedance (`seedance`)
+- **Foco**: Cenas multi-shot com tempo explícito (`Shot 1 (0-3s): ...`), ação em verbos físicos, movimento de câmera direto e áudio nativo.
+- **Suporte**: Vetores de movimento e tags de áudio (`supportsAudioTags: true`); restrições breves em vez de negative prompt dedicado.
+- **Tamanho Máximo**: JSON até 5.000 caracteres; Texto Simples até 2.500.
+
+### 4. Kling (`kling`)
+- **Foco**: Prosa natural fluida (sujeito, ação, cenário, câmera, luz), física realista e um movimento principal de câmera por plano.
+- **Suporte**: Negative prompt curto e separado.
+- **Tamanho Máximo**: JSON até 5.000 caracteres; Texto Simples até 2.500.
+
+### 5. Genérico (`generic`)
+- **Foco**: Compatibilidade universal com ferramentas de difusão de vídeo e imagem (Runway Gen-2/3, Sora, Midjourney, Luma Dream Machine).
 - **Suporte**: Linguagem natural descritiva, alta densidade estética e especificações óticas clássicas de 35mm.
-- **Tamanho Máximo**: 5.000 caracteres.
+- **Tamanho Máximo**: JSON até 5.000 caracteres; Texto Simples até 2.500.
+
+> **Limite de caracteres**: o JSON estruturado (`outputJson`) mantém o conteúdo completo (até `maxPromptCharacters`, 5.000). Apenas o **Texto Simples** (`outputText`, aba, cópia e `.txt`) é limitado a `maxPlainTextCharacters` (2.500) por `plain-text-limit.ts`, que encolhe primeiro o prompt compilado em fim de frase. Na Sequência de Cenas o limite vale por cena.
+
+### Sequência de Cenas
+O template `scene_sequence` carrega as cenas reais do projeto (todas, ou as selecionadas), ordenadas por `order`, e as injeta no prompt como fonte de verdade. Após a resposta da IA, `PromptEngineService.reconcileSequence` força `sceneId`, `order`, `title` e duração oficiais, uma tomada por cena; sem cenas o serviço devolve erro e nenhum crédito é cobrado.
 
 ---
 
@@ -124,3 +139,17 @@ O provedor Gemini (`src/modules/ai/gemini-provider.ts`) encapsula os erros em cl
 - `GeminiValidationError` (HTTP 422): JSON recebido não atende ao schema Zod do template.
 
 Em todos os casos de erro, o `GenerationJob` associado é atualizado com `status: FAILED` e mensagem explicativa, garantindo rastreabilidade e integridade total.
+
+---
+
+## Estilos de Captura
+
+`captureStyle` (`cinematic` padrão, `amateur_phone`, `selfie_flash`, `lowres_grain`, `security_cam`, `found_footage`) define **como a imagem/vídeo foi gravado**, independente da plataforma. Catálogo em `capture-styles.ts`.
+
+- Nos templates `image_prompt`, `video_prompt`, `individual_scene` e `scene_sequence`, um estilo diferente de `cinematic` adiciona a seção "ESTILO DE CAPTURA OBRIGATÓRIO" ao prompt do Gemini, que substitui jargões cinematográficos (35mm, anamórfico, grão de película, color grading) por câmera de celular, ruído digital, enquadramento casual etc., e acrescenta termos ao negativo.
+- O estilo é gravado em `inputSnapshot.captureStyle` e repetido na regeneração.
+- Na geração direta de imagem e vídeo (`/api/images/generate`, `/api/videos/generate`), o `CinematicPromptEnricher` troca o enriquecimento cinematográfico pelo sufixo do estilo e mescla os negativos.
+- Interface: seletor "Estilo de Captura" no gerador de prompts, no gerador direto de imagem e no modal de vídeo (`components/ui/capture-style-select.tsx`).
+
+### Granulado e baixa resolução
+Os estilos amadores pedem grão/ruído digital e baixa resolução (e negativam `sharp 4k`/`ultra HD`). O estilo `lowres_grain` ("Granulado / baixa resolução") é o mais forte. Na **geração direta de imagem**, além do texto, `image-degrade.ts` (`sharp`) aplica degradação real antes de salvar: reduz, desfoca, recomprime em JPEG, reamplia e soma grão. Nível por estilo: `lowres_grain` = heavy; `amateur_phone`, `selfie_flash`, `security_cam` e `found_footage` = medium; `cinematic` não degrada. A caixa "Aplicar granulado e baixa resolução reais" (`degradeImage`) permite desligar. O vídeo depende só do texto do estilo (não há pós-processamento).

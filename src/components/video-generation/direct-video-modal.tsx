@@ -1,5 +1,6 @@
 "use client";
 
+import { CaptureStyleSelect } from "@/components/ui/capture-style-select";
 import { useState, useEffect } from "react";
 
 interface VideoModelOption {
@@ -41,6 +42,7 @@ export function DirectVideoModal({
   const [selectedModel, setSelectedModel] = useState<string>("bytedance/seedance-2.0-fast");
   const [duration, setDuration] = useState<number>(5);
   const [aspectRatio, setAspectRatio] = useState<string>("16:9");
+  const [captureStyle, setCaptureStyle] = useState<string>("cinematic");
   const [audio, setAudio] = useState<boolean>(true);
   const [creditsBalance, setCreditsBalance] = useState<number>(0);
   const [loadingModels, setLoadingModels] = useState(true);
@@ -96,6 +98,7 @@ export function DirectVideoModal({
         model: selectedModel,
         durationSeconds: duration,
         aspectRatio,
+        captureStyle,
         audio,
         startFrameUrl: startFrameUrl || undefined,
         projectId: projectId || undefined,
@@ -255,6 +258,8 @@ export function DirectVideoModal({
             <span>Áudio / Efeitos Sonoros</span>
           </label>
         </div>
+
+        <CaptureStyleSelect value={captureStyle} onChange={setCaptureStyle} />
 
         {/* Error message */}
         {error && (

@@ -52,7 +52,7 @@ export function ScenesToolbar({ s }: ScenesToolbarProps) {
           title="Gerar sequência contínua de cenas com IA (GEN_SCENE_SEQUENCE)"
         >
           <span>✨</span>
-          Sequência com IA
+          Criar cenas com IA
         </button>
     
         {/* Botão Roteiro com IA */}

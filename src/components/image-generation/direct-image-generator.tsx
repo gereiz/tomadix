@@ -1,5 +1,6 @@
 "use client";
 
+import { CaptureStyleSelect } from "@/components/ui/capture-style-select";
 import { Spinner } from "@/components/ui/spinner";
 import { useState, useEffect } from "react";
 import Link from "next/link";
@@ -69,6 +70,8 @@ export function DirectImageGenerator({
   const [selectedModel, setSelectedModel] = useState<string>("flux");
   const [aspectRatio, setAspectRatio] = useState<ImageAspectRatio>("16:9");
   const [negativePrompt, setNegativePrompt] = useState<string>("");
+  const [captureStyle, setCaptureStyle] = useState<string>("cinematic");
+  const [degradeImage, setDegradeImage] = useState<boolean>(true);
   const [referenceImageUrl, setReferenceImageUrl] = useState<string>("");
   const [showAdvanced, setShowAdvanced] = useState(false);
 
@@ -138,6 +141,8 @@ export function DirectImageGenerator({
         prompt: prompt.trim(),
         model: selectedModel,
         aspectRatio,
+        captureStyle,
+        degradeImage,
         negativePrompt: negativePrompt.trim() || undefined,
         referenceImageUrl: referenceImageUrl.trim() || undefined,
         projectId: projectId || undefined,
@@ -346,6 +351,19 @@ export function DirectImageGenerator({
             </p>
           </div>
         </div>
+
+        <CaptureStyleSelect value={captureStyle} onChange={setCaptureStyle} />
+        {captureStyle !== "cinematic" && (
+          <label className="flex min-h-11 cursor-pointer items-center gap-2 text-xs text-white/70">
+            <input
+              type="checkbox"
+              checked={degradeImage}
+              onChange={(e) => setDegradeImage(e.target.checked)}
+              className="rounded border-white/20 bg-white/10"
+            />
+            <span>Aplicar granulado e baixa resolução reais na imagem final</span>
+          </label>
+        )}
 
         {/* Componente de Imagem de Referência / Entrada */}
         <div className="p-3.5 rounded-2xl bg-black/30 border border-white/10">

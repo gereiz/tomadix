@@ -21,9 +21,13 @@ export function usePromptsTab({ projectId, initialSceneId, onStatsUpdate }: Prom
   // Form State
   const [selectedTemplate, setSelectedTemplate] = useState<TemplateKey>("video_prompt");
   const [selectedTool, setSelectedTool] = useState<string>("google_flow");
+  const [captureStyle, setCaptureStyle] = useState<string>("cinematic");
   const [selectedSceneId, setSelectedSceneId] = useState<string>(initialSceneId || "");
   const [selectedCharacterId, setSelectedCharacterId] = useState<string>("");
   const [selectedEnvironmentId, setSelectedEnvironmentId] = useState<string>("");
+  // Sequência de Cenas: "all" = todas as cenas do projeto; "selected" = só as marcadas
+  const [sequenceScope, setSequenceScope] = useState<"all" | "selected">("all");
+  const [sequenceSceneIds, setSequenceSceneIds] = useState<string[]>([]);
   const [customInstructions, setCustomInstructions] = useState<string>("");
 
   // Modo simples (padrão) esconde template versionado, formato e diretrizes
@@ -222,7 +226,12 @@ export function usePromptsTab({ projectId, initialSceneId, onStatsUpdate }: Prom
       const payload = {
         templateKey: selectedTemplate,
         targetTool: selectedTool,
+        captureStyle: supportsCaptureStyle ? captureStyle : undefined,
         sceneId: needsScene ? selectedSceneId : undefined,
+        references:
+          needsSequence && sequenceScope === "selected" && sequenceSceneIds.length > 0
+            ? { sceneIds: sequenceSceneIds }
+            : undefined,
         characterId: needsCharacter ? selectedCharacterId : undefined,
         environmentId: needsEnvironment ? selectedEnvironmentId : undefined,
         customInstructions: customInstructions.trim() ? customInstructions : undefined,
@@ -409,13 +418,19 @@ export function usePromptsTab({ projectId, initialSceneId, onStatsUpdate }: Prom
 
   // Determinar se o template exige cena, personagem ou ambiente
   const needsScene = ["video_prompt", "individual_scene"].includes(selectedTemplate);
+  const supportsCaptureStyle = ["image_prompt", "video_prompt", "individual_scene", "scene_sequence"].includes(selectedTemplate);
+  const needsSequence = selectedTemplate === "scene_sequence";
   const needsCharacter = selectedTemplate === "character_definition";
   const needsEnvironment = selectedTemplate === "environment_definition";
 
   // Motivo pelo qual "Gerar" está bloqueado (null = pode gerar)
   const blockReason: string | null = needsScene && !selectedSceneId
     ? "Crie ao menos uma cena na aba Cenas para gerar este prompt."
-    : needsCharacter && !selectedCharacterId
+    : needsSequence && scenes.length === 0
+      ? "Crie ao menos uma cena na aba Cenas para gerar a sequência."
+      : needsSequence && sequenceScope === "selected" && sequenceSceneIds.length === 0
+        ? "Marque ao menos uma cena para a sequência."
+        : needsCharacter && !selectedCharacterId
       ? "Crie ao menos um personagem na aba Personagens."
       : needsEnvironment && !selectedEnvironmentId
         ? "Crie ao menos um ambiente na aba Ambientes."
@@ -455,6 +470,14 @@ export function usePromptsTab({ projectId, initialSceneId, onStatsUpdate }: Prom
     handleEnhancePrompt,
     handleGenerate,
     needsScene,
+    supportsCaptureStyle,
+    captureStyle,
+    setCaptureStyle,
+    needsSequence,
+    sequenceScope,
+    setSequenceScope,
+    sequenceSceneIds,
+    setSequenceSceneIds,
     needsCharacter,
     needsEnvironment,
     blockReason,

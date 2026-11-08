@@ -3,6 +3,7 @@ import fsSync from "fs";
 import path from "path";
 import crypto from "crypto";
 import sharp from "sharp";
+import { degradeImage, type DegradeLevel } from "./image-degrade";
 
 export class ImageStorageService {
   /**
@@ -36,8 +37,10 @@ export class ImageStorageService {
     imageUrl?: string;
     userId: string;
     workspaceId: string;
+    /** Se informado, aplica degradação real (granulado/baixa resolução) antes de salvar. */
+    degradeLevel?: DegradeLevel | null;
   }): Promise<{ publicUrl: string; storageKey: string }> {
-    const { b64Json, imageUrl, userId } = params;
+    const { b64Json, imageUrl, userId, degradeLevel } = params;
 
     const now = new Date();
     const yearMonth = `${now.getFullYear()}/${String(now.getMonth() + 1).padStart(2, "0")}`;
@@ -76,7 +79,8 @@ export class ImageStorageService {
         // Otimizar e comprimir em WebP de alta fidelidade visual (reduz ~70-80% do payload)
         let finalBuffer = buffer;
         try {
-          finalBuffer = await sharp(buffer)
+          const source = degradeLevel ? await degradeImage(buffer, degradeLevel) : buffer;
+          finalBuffer = await sharp(source)
             .webp({ quality: 85, effort: 4 })
             .toBuffer();
         } catch (sharpError) {

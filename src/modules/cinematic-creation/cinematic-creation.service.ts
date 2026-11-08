@@ -1026,7 +1026,7 @@ Retorne o prompt enriquecido e as notas técnicas do que foi aprimorado.`;
               workspaceId,
               {
                 templateKey: "video_prompt",
-                targetTool: input.targetTool === "nano_banana" ? "nano_banana" : "google_flow",
+                targetTool: (["nano_banana", "seedance", "kling", "generic"] as const).find((t) => t === input.targetTool) ?? "google_flow",
                 sceneId: scene.id,
                 customInstructions: hints.slice(0, 2000),
                 references: { characterIds: scene.characters.map((c) => c.characterId) },

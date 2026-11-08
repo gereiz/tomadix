@@ -7,6 +7,7 @@ import {
 } from "./prompt-engine.schema";
 import { PromptEngineService } from "./prompt-engine.service";
 import { formatPromptToPlainText } from "./format-plain-text";
+import { formatPlainTextWithLimit } from "./plain-text-limit";
 
 export interface UnifiedPromptHistoryItem {
   id: string;
@@ -148,7 +149,7 @@ export class PromptHistoryService {
           outputJson: v.outputJson,
           outputText:
             v.outputText ||
-            (v.outputJson ? formatPromptToPlainText(v.templateKey, v.outputJson) : null),
+            (v.outputJson ? formatPlainTextWithLimit(v.outputJson, v.templateKey) : null),
           tokens: techMeta.tokens || null,
           durationMs: techMeta.durationMs || null,
           parentVersionId: snapshot.parentVersionId || null,
@@ -369,8 +370,14 @@ export class PromptHistoryService {
       characterId: elements.character?.id || snap.characterId || undefined,
       environmentId: elements.environment?.id || snap.environmentId || undefined,
       customInstructions: combinedInstructions,
+      captureStyle: (snap.captureStyle || "cinematic") as any,
       model: options?.model || oldVersion.modelName,
       parentVersionId: oldVersion.id,
+      // Sequência de cenas: repete a seleção original (se houve); senão usa todas as cenas atuais.
+      references:
+        oldVersion.templateKey === "scene_sequence" && Array.isArray(snap.sequenceSelectedIds) && snap.sequenceSelectedIds.length > 0
+          ? { sceneIds: snap.sequenceSelectedIds as string[] }
+          : undefined,
     };
 
     // Executa a geração via PromptEngineService
@@ -391,7 +398,7 @@ export class PromptHistoryService {
 
     const formattedText =
       version.outputText ||
-      (version.outputJson ? formatPromptToPlainText(version.templateKey, version.outputJson) : "");
+      (version.outputJson ? formatPlainTextWithLimit(version.outputJson, version.templateKey) : "");
 
     // Estrutura limpa sem dados confidenciais do servidor ou do banco
     return {

@@ -89,7 +89,9 @@ Respeite o idioma configurado do projeto (especialmente se for pt-BR para diálo
     schema: sceneSequenceOutputSchema,
     sections: ["Ritmo Narrativo", "Lista de Tomadas", "Transições", "Continuidade", "Atmosfera Global"],
     systemInstructions: `Você é o Montador e Editor Cinematográfico do Tomadix.
-Sua missão é estruturar a sequência cronológica de cenas do projeto em um fluxo contínuo de decupagem.
+Sua missão é decupar, em um fluxo contínuo, a sequência de cenas JÁ CRIADAS pelo diretor no projeto (fornecidas na seção "CENAS REAIS DO PROJETO").
+Você NÃO cria, remove, funde, reordena nem renomeia cenas: cada cena fornecida vira exatamente uma tomada, na ordem dada, com o mesmo sceneId, order e title.
+Para cada tomada escreva o prompt (shotPrompt) a partir da descrição, configuração, personagens e ambientes daquela cena.
 Mantenha a coerência entre planos consecutivos, especificando o tipo de transição e notas de continuidade para evitar quebras visuais.`,
   },
   individual_scene: {
