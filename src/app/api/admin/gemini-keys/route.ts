@@ -1,3 +1,4 @@
+import { parseJsonBody, createGeminiKeyBodySchema } from "@/lib/api-validation";
 import { NextRequest, NextResponse } from "next/server";
 import { requirePlatformAdmin, AuthorizationError, AuthenticationError } from "@/lib/auth";
 import { GeminiKeyManagerService } from "@/modules/ai/gemini-key-manager.service";
@@ -31,29 +32,10 @@ export async function GET() {
 export async function POST(request: NextRequest) {
   try {
     const adminUser = await requirePlatformAdmin("settings:manage");
-    const body = await request.json().catch(() => ({}));
+    const parsed = await parseJsonBody(request, createGeminiKeyBodySchema);
+    if (parsed.response) return parsed.response;
 
-    const { name, apiKey, priority, isActive, allowedModels, notes } = body;
-
-    if (!name || typeof name !== "string" || name.trim() === "") {
-      return NextResponse.json({ error: "O nome identificador da chave é obrigatório." }, { status: 400 });
-    }
-
-    if (!apiKey || typeof apiKey !== "string" || apiKey.trim().length < 10) {
-      return NextResponse.json({ error: "A API Key fornecida é inválida ou muito curta." }, { status: 400 });
-    }
-
-    const created = await GeminiKeyManagerService.createKey(
-      {
-        name: name.trim(),
-        apiKey: apiKey.trim(),
-        priority: typeof priority === "number" ? priority : undefined,
-        isActive: isActive !== false,
-        allowedModels: Array.isArray(allowedModels) ? allowedModels : [],
-        notes: typeof notes === "string" ? notes : undefined,
-      },
-      adminUser.id
-    );
+    const created = await GeminiKeyManagerService.createKey(parsed.data, adminUser.id);
 
     return NextResponse.json({
       success: true,

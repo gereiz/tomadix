@@ -1,3 +1,4 @@
+import { parseJsonBody, geminiSettingsBodySchema } from "@/lib/api-validation";
 import { NextRequest, NextResponse } from "next/server";
 import { requirePlatformAdmin, AuthorizationError, AuthenticationError } from "@/lib/auth";
 import { GeminiKeyManagerService } from "@/modules/ai/gemini-key-manager.service";
@@ -25,9 +26,10 @@ export async function GET() {
 export async function PUT(request: NextRequest) {
   try {
     const adminUser = await requirePlatformAdmin("settings:manage");
-    const body = await request.json().catch(() => ({}));
+    const parsed = await parseJsonBody(request, geminiSettingsBodySchema);
+    if (parsed.response) return parsed.response;
 
-    const updated = await GeminiKeyManagerService.updateSettings(body, adminUser.id);
+    const updated = await GeminiKeyManagerService.updateSettings(parsed.data, adminUser.id);
 
     return NextResponse.json({
       success: true,

@@ -89,3 +89,89 @@ export const adjustCreditsBodySchema = z.object({
     .refine((v) => Math.abs(v) <= 1_000_000, "Ajuste acima do limite permitido."),
   reason: z.string().trim().min(3, "Informe o motivo.").max(500, "Muito longo."),
 });
+
+// ---------------------------------------------------------------------------
+// Administração: banco de dados e chaves Gemini
+// ---------------------------------------------------------------------------
+
+// Inteiro opcional que tolera null (campo vazio/NaN no formulário) e vira undefined.
+const optionalInt = (min: number, max: number) =>
+  z
+    .number()
+    .int()
+    .min(min)
+    .max(max)
+    .nullish()
+    .transform((v) => v ?? undefined);
+
+const postgresUrl = z
+  .string()
+  .max(2000, "Muito longo.")
+  .refine((v) => v.trim() === "" || /^postgres(ql)?:\/\//i.test(v.trim()), "Use uma URL postgresql://");
+
+export const connectionInputBodySchema = z.object({
+  url: postgresUrl.optional(),
+  host: z.string().trim().max(255).optional(),
+  port: optionalInt(1, 65535),
+  database: z.string().trim().max(128).optional(),
+  user: z.string().trim().max(128).optional(),
+  password: z.string().max(500).optional(),
+  sslMode: z.enum(["disable", "require", "prefer"]).optional(),
+  directUrl: postgresUrl.optional(),
+  connectionType: z.enum(["supabase", "postgres_local", "postgres_remote"]).optional(),
+});
+
+export const changeConnectionBodySchema = connectionInputBodySchema.refine(
+  (v) => Boolean(v.url?.trim()) || Boolean(v.host?.trim()),
+  { message: "É necessário fornecer a URL de conexão ou o host e credenciais." }
+);
+
+export const diagnoseBodySchema = z.object({
+  targetUrl: postgresUrl.optional(),
+});
+
+export const initializeDatabaseBodySchema = z.object({
+  adminUser: z
+    .object({
+      name: z.string().trim().min(1, "Obrigatório.").max(100),
+      email: z.string().trim().email("E-mail inválido.").max(254),
+      password: z.string().min(8, "Mínimo de 8 caracteres.").max(200),
+    })
+    .optional(),
+  seedDemoProject: z.boolean().optional(),
+  targetUrl: postgresUrl.optional(),
+  targetDirectUrl: postgresUrl.optional(),
+});
+
+const allowedModels = z.array(z.string().trim().min(1).max(100)).max(50);
+
+export const createGeminiKeyBodySchema = z.object({
+  name: z.string().trim().min(1, "O nome identificador da chave é obrigatório.").max(100),
+  apiKey: z.string().trim().min(10, "A API Key fornecida é inválida ou muito curta.").max(500),
+  priority: optionalInt(0, 10000),
+  isActive: z.boolean().optional().default(true),
+  allowedModels: allowedModels.optional().default([]),
+  notes: z.string().max(1000).optional(),
+});
+
+export const updateGeminiKeyBodySchema = z.object({
+  name: z.string().trim().max(100).optional(),
+  apiKey: z.string().max(500).optional(),
+  priority: optionalInt(0, 10000),
+  isActive: z.boolean().optional(),
+  allowedModels: allowedModels.optional(),
+  notes: z.string().max(1000).optional(),
+});
+
+export const geminiPrioritiesBodySchema = z.object({
+  orderedIds: z.array(z.string().min(1)).min(1, "A lista orderedIds é obrigatória.").max(200),
+});
+
+export const geminiSettingsBodySchema = z.object({
+  selectionStrategy: z.enum(["SEQUENTIAL_PRIORITY", "BALANCED", "LEAST_USED"]).optional(),
+  maxConsecutiveFailures: z.number().int().min(1).max(1000).optional(),
+  cooldownSeconds: z.number().int().min(0).max(86400).optional(),
+  requestTimeoutMs: z.number().int().min(1000).max(600000).optional(),
+  maxAttemptsPerOperation: z.number().int().min(1).max(50).optional(),
+  envKeyFallbackAllowed: z.boolean().optional(),
+});

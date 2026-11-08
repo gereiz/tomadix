@@ -1,3 +1,4 @@
+import { parseJsonBody, connectionInputBodySchema } from "@/lib/api-validation";
 import { NextRequest, NextResponse } from "next/server";
 import { requirePlatformAdmin, AuthorizationError, AuthenticationError } from "@/lib/auth";
 import { AdminDatabaseService } from "@/modules/admin/admin-database.service";
@@ -6,16 +7,10 @@ import { AdminAuditService } from "@/modules/admin/admin-audit.service";
 export async function POST(request: NextRequest) {
   try {
     const admin = await requirePlatformAdmin("settings:manage");
-    let targetInput = undefined;
-
-    try {
-      const body = await request.json();
-      if (body && Object.keys(body).length > 0) {
-        targetInput = body;
-      }
-    } catch {
-      // Body vazio indica teste da conexão atual
-    }
+    // Corpo vazio indica teste da conexão atual
+    const parsed = await parseJsonBody(request, connectionInputBodySchema);
+    if (parsed.response) return parsed.response;
+    const targetInput = Object.keys(parsed.data).length > 0 ? parsed.data : undefined;
 
     const result = await AdminDatabaseService.testConnection(targetInput);
 

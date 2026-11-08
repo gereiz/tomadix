@@ -1,3 +1,4 @@
+import { parseJsonBody, geminiPrioritiesBodySchema } from "@/lib/api-validation";
 import { NextRequest, NextResponse } from "next/server";
 import { requirePlatformAdmin, AuthorizationError, AuthenticationError } from "@/lib/auth";
 import { GeminiKeyManagerService } from "@/modules/ai/gemini-key-manager.service";
@@ -5,12 +6,9 @@ import { GeminiKeyManagerService } from "@/modules/ai/gemini-key-manager.service
 export async function PUT(request: NextRequest) {
   try {
     await requirePlatformAdmin("settings:manage");
-    const body = await request.json().catch(() => ({}));
-
-    const { orderedIds } = body;
-    if (!Array.isArray(orderedIds) || orderedIds.length === 0) {
-      return NextResponse.json({ error: "A lista orderedIds é obrigatória." }, { status: 400 });
-    }
+    const parsed = await parseJsonBody(request, geminiPrioritiesBodySchema);
+    if (parsed.response) return parsed.response;
+    const { orderedIds } = parsed.data;
 
     const updatedKeys = await GeminiKeyManagerService.reorderPriorities(orderedIds);
 
