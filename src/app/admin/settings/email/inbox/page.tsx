@@ -185,7 +185,8 @@ export default function AdminInboxPage() {
               Nenhuma mensagem. Clique em &quot;Sincronizar agora&quot; para buscar a caixa de entrada.
             </p>
           ) : (
-            list?.items.map((item) => (
+            <div className="max-h-[65vh] space-y-2 overflow-y-auto overscroll-contain pr-1 [scrollbar-width:thin]">
+            {list?.items.map((item) => (
               <button
                 key={item.id}
                 type="button"
@@ -203,7 +204,8 @@ export default function AdminInboxPage() {
                 <p className={`truncate text-xs ${item.isRead ? "text-white/60" : "font-semibold text-white"}`}>{item.subject}</p>
                 <p className="truncate text-[11px] text-white/40">{item.snippet}</p>
               </button>
-            ))
+            ))}
+            </div>
           )}
 
           {list && list.totalPages > 1 && (
