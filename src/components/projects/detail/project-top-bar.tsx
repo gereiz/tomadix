@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { useAdvancedMode } from "@/components/entities/use-advanced-mode";
 import type { TabType } from "./types";
 import type { ProjectDetailTabState } from "./use-project-detail";
 
@@ -10,6 +11,12 @@ interface ProjectTopBarProps {
 
 export function ProjectTopBar({ s }: ProjectTopBarProps) {
   const { project, activeTab, setActiveTab, setIsShareModalOpen, isAdmin } = s;
+  const [advanced, setAdvancedMode] = useAdvancedMode();
+  const setAdvanced = (value: boolean) => {
+    setAdvancedMode(value);
+    // Desligar o avançado com o Board aberto leva para Prompts
+    if (!value && activeTab === "board") setActiveTab("prompts");
+  };
   if (!project) return null;
 
   return (
@@ -18,12 +25,12 @@ export function ProjectTopBar({ s }: ProjectTopBarProps) {
         <Link
           href="/projects"
           className="flex h-7 w-7 items-center justify-center rounded-lg border border-white/10 bg-white/5 text-white/70 hover:bg-white/10 hover:text-white transition"
-          title="Voltar para todos os Spaces"
+          title="Voltar para todos os projetos"
         >
           ‹
         </Link>
         <Link href="/projects" className="text-white/50 hover:text-primary transition font-medium">
-          Spaces
+          Projetos
         </Link>
         <span className="text-white/25">›</span>
         <span className="flex items-center gap-1.5 text-white font-bold truncate max-w-[240px] sm:max-w-md">
@@ -47,7 +54,10 @@ export function ProjectTopBar({ s }: ProjectTopBarProps) {
             { id: "environments", label: "🏛️ Ambientes", count: project._count.environments },
             { id: "scenes", label: "🎬 Cenas", count: project._count.scenes },
             { id: "prompts", label: "📜 Prompts", count: project._count.generations },
-            { id: "board", label: "✨ Board Colaborativo", count: null },
+            // O Board (canvas colaborativo) é a camada avançada: aparece no modo avançado ou se já está aberto
+            ...(advanced || activeTab === "board"
+              ? [{ id: "board", label: "✨ Board Colaborativo", count: null }]
+              : []),
             { id: "overview", label: "📊 Detalhes", count: null },
             ...(isAdmin
               ? [{ id: "parameters", label: "⚙️ Parâmetros", count: project._count.parameterValues }]
@@ -79,6 +89,19 @@ export function ProjectTopBar({ s }: ProjectTopBarProps) {
           })}
         </div>
     
+        <button
+          type="button"
+          role="switch"
+          aria-checked={advanced}
+          onClick={() => setAdvanced(!advanced)}
+          title="Modo avançado: mostra o Board colaborativo e as opções técnicas"
+          className={`min-h-9 rounded-xl border px-3 py-2 text-xs font-semibold whitespace-nowrap transition ${
+            advanced ? "border-primary/50 bg-primary/10 text-primary" : "border-white/10 text-white/60 hover:text-white"
+          }`}
+        >
+          ⚙️ Avançado
+        </button>
+
         <button
           type="button"
           onClick={() => setIsShareModalOpen(true)}

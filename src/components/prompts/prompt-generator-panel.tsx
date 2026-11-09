@@ -4,6 +4,8 @@ import { Spinner } from "@/components/ui/spinner";
 import { TemplateKey } from "@/modules/prompt-engine/prompt-engine.schema";
 import { getTemplateCreditCost } from "./helpers";
 import { listCaptureStyles } from "@/modules/prompt-engine/capture-styles";
+import type { RecipeInput } from "@/modules/recipes/recipe.schema";
+import { RecipesBar } from "./recipes-bar";
 import type { PromptsTabState } from "./use-prompts-tab";
 
 interface PromptGeneratorPanelProps {
@@ -102,6 +104,24 @@ export function PromptGeneratorPanel({ s }: PromptGeneratorPanelProps) {
           </select>
         </div>
         )}
+
+        {/* Receitas: combinações salvas aplicadas com 1 clique */}
+        <RecipesBar
+          current={{
+            templateKey: selectedTemplate,
+            targetTool: selectedTool as RecipeInput["targetTool"],
+            captureStyle: captureStyle as RecipeInput["captureStyle"],
+            outputFormat,
+            instructions: customInstructions.trim().slice(0, 2000),
+          }}
+          onApply={(r) => {
+            setSelectedTemplate(r.templateKey);
+            setSelectedTool(r.targetTool);
+            setCaptureStyle(r.captureStyle);
+            setOutputFormat(r.outputFormat);
+            setCustomInstructions(r.instructions);
+          }}
+        />
 
         {/* Ferramenta de destino */}
         <div>

@@ -15,14 +15,11 @@ export default function WorkspacePage() {
                 🗂️
               </span>
               <h1 className="text-xl sm:text-2xl font-bold font-headline-lg tracking-tight text-on-surface">
-                Workspaces — Acervo & Produções
+                Biblioteca
               </h1>
-              <span className="px-2 py-0.5 rounded-full bg-primary/10 border border-primary/20 text-[10px] font-bold font-label-code text-primary uppercase">
-                Acervo Central
-              </span>
             </div>
             <p className="text-xs sm:text-sm text-on-surface-variant font-body-sm">
-              Explore e gerencie o catálogo unificado de produções, personagens, cenários, cenas decupadas e prompts de IA.
+              Tudo o que você criou em um só lugar: projetos, personagens, ambientes, cenas e prompts. Filtre por tipo ou projeto.
             </p>
           </div>
 
@@ -33,7 +30,7 @@ export default function WorkspacePage() {
               className="px-3 py-1.5 rounded-lg bg-surface-container-high text-primary font-semibold shadow-sm flex items-center gap-1.5 transition"
             >
               <span>🗂️</span>
-              <span>Acervo</span>
+              <span>Biblioteca</span>
             </Link>
             <Link
               href="/workspace/members"
@@ -52,10 +49,10 @@ export default function WorkspacePage() {
             <Link
               href="/studio"
               className="px-3 py-1.5 rounded-lg text-primary hover:bg-primary/10 border border-primary/20 font-medium transition flex items-center gap-1.5"
-              title="Ir para a ferramenta de Análise Cinematográfica"
+              title="Ir para a Análise de imagem"
             >
               <span>🎞️</span>
-              <span>Análise Cinematográfica ↗</span>
+              <span>Análise de imagem ↗</span>
             </Link>
           </div>
         </div>

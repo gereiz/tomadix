@@ -22,8 +22,11 @@ export function StudioGallery({ initialProjectId, refreshTrigger }: StudioGaller
   const [totalPages, setTotalPages] = useState<number>(1);
   const [totalCount, setTotalCount] = useState<number>(0);
   const [availableProjects, setAvailableProjects] = useState<Array<{ id: string; title: string }>>([]);
+  // Filtro de projeto da Biblioteca (a galeria contextual de um projeto continua fixa nele)
+  const [projectFilter, setProjectFilter] = useState<string>("");
+  const effectiveProjectId = initialProjectId || projectFilter || undefined;
 
-  const [isPending, startTransition] = useTransition();
+  const [, startTransition] = useTransition();
 
   const FILTER_TABS = [
     { id: "all", label: "Todos", icon: "✨" },
@@ -41,7 +44,7 @@ export function StudioGallery({ initialProjectId, refreshTrigger }: StudioGaller
 
       const params = new URLSearchParams();
       params.set("type", typeFilter);
-      if (initialProjectId) params.set("projectId", initialProjectId);
+      if (effectiveProjectId) params.set("projectId", effectiveProjectId);
       if (search.trim()) params.set("search", search.trim());
       params.set("sort", sortOrder);
       params.set("page", String(page));
@@ -63,7 +66,7 @@ export function StudioGallery({ initialProjectId, refreshTrigger }: StudioGaller
     } finally {
       setLoading(false);
     }
-  }, [typeFilter, initialProjectId, search, sortOrder, page]);
+  }, [typeFilter, effectiveProjectId, search, sortOrder, page]);
 
   useEffect(() => {
     const handler = setTimeout(() => {
@@ -126,6 +129,24 @@ export function StudioGallery({ initialProjectId, refreshTrigger }: StudioGaller
                 </button>
               )}
             </div>
+
+            {/* Filtro por projeto (Biblioteca) */}
+            {!initialProjectId && availableProjects.length > 0 && (
+              <select
+                value={projectFilter}
+                onChange={(e) => {
+                  setProjectFilter(e.target.value);
+                  setPage(1);
+                }}
+                aria-label="Filtrar por projeto"
+                className="max-w-40 rounded-xl border border-white/10 bg-[#12151E] px-2.5 py-1.5 text-xs font-medium text-white/80 focus:border-primary focus:outline-none"
+              >
+                <option value="">Todos os projetos</option>
+                {availableProjects.map((p) => (
+                  <option key={p.id} value={p.id}>{p.title}</option>
+                ))}
+              </select>
+            )}
 
             {/* Ordenação */}
             <select

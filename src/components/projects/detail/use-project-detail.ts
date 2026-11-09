@@ -3,6 +3,7 @@
 import { cachedFetch } from "@/lib/client-fetch-cache";
 import { useEffect, useState, useCallback, use, useRef } from "react";
 import { useRouter } from "next/navigation";
+import { readAdvancedMode } from "@/components/entities/use-advanced-mode";
 import type { ProjectDetail, TabType } from "./types";
 
 export function useProjectDetailTab({ params }: { params: Promise<{ id: string }> }) {
@@ -11,8 +12,9 @@ export function useProjectDetailTab({ params }: { params: Promise<{ id: string }
   const [project, setProject] = useState<ProjectDetail | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [activeTab, setActiveTab] = useState<TabType>("board");
-  const [visitedTabs, setVisitedTabs] = useState<Record<string, boolean>>({ board: true, overview: true });
+  // Padrão simples: abre em Prompts. O Board (canvas) é a camada avançada e só vira padrão no modo avançado.
+  const [activeTab, setActiveTab] = useState<TabType>("prompts");
+  const [visitedTabs, setVisitedTabs] = useState<Record<string, boolean>>({ prompts: true, overview: true });
   const [actionLoading, setActionLoading] = useState(false);
   const [refreshKey, setRefreshKey] = useState(0);
   const [isShareModalOpen, setIsShareModalOpen] = useState(false);
@@ -27,6 +29,9 @@ export function useProjectDetailTab({ params }: { params: Promise<{ id: string }
       if (tabParam) {
         setActiveTab(tabParam);
         setVisitedTabs((prev) => ({ ...prev, [tabParam]: true }));
+      } else if (readAdvancedMode()) {
+        setActiveTab("board");
+        setVisitedTabs((prev) => ({ ...prev, board: true }));
       }
     }
   }, []);

@@ -24,6 +24,14 @@ describe("Fase 3 - entrada por ferramenta", () => {
     expect(route).toContain("targetTool: validated.targetTool");
   });
 
+  it("Fase 4: board só no avançado, biblioteca com filtro de projeto e onboarding de uma tela", () => {
+    expect(read("src/components/projects/detail/project-top-bar.tsx")).toContain("advanced || activeTab === \"board\"");
+    expect(read("src/components/projects/detail/use-project-detail.ts")).toContain('useState<TabType>("prompts")');
+    expect(read("src/components/studio/studio-gallery.tsx")).toContain("Todos os projetos");
+    expect(read("src/components/onboarding/onboarding-modal.tsx")).toContain("const totalSteps = 1;");
+    expect(read("src/components/prompts/prompt-generator-panel.tsx")).toContain("<RecipesBar");
+  });
+
   it("barra de criação aparece na lista de projetos e a aba clássica gera vídeo direto", () => {
     expect(read("src/components/projects/list/projects-list.tsx")).toContain("<QuickCreationBar");
     expect(read("src/components/prompts/prompts-tab.tsx")).toContain("<DirectVideoModal");

@@ -47,15 +47,12 @@ export function OnboardingModal({
   const [selectedTemplate, setSelectedTemplate] = useState("");
   const [error, setError] = useState<string | null>(null);
 
-  const totalSteps = 3;
+  // Uma única tela: escolher um modelo e já gerar o primeiro resultado
+  const totalSteps = 1;
 
   useEffect(() => {
     if (isOpen) {
-      const initialStep =
-        state?.onboardingStep && state.onboardingStep >= 1 && state.onboardingStep <= totalSteps
-          ? state.onboardingStep
-          : 1;
-      setCurrentStep(initialStep);
+      setCurrentStep(1);
       setError(null);
     }
   }, [isOpen, state?.onboardingStep]);
@@ -101,12 +98,6 @@ export function OnboardingModal({
     } catch (e) {
       console.error(e);
       setError("Falha de conexão ao salvar o progresso.");
-    }
-  };
-
-  const handlePrevStep = () => {
-    if (currentStep > 1) {
-      setCurrentStep(currentStep - 1);
     }
   };
 
@@ -170,9 +161,6 @@ export function OnboardingModal({
               </span>
             </div>
             <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
-              <span className="rounded-full bg-white/10 px-2.5 py-0.5 text-[11px] font-semibold text-white/70">
-                Etapa {currentStep} de {totalSteps}
-              </span>
               <button
                 type="button"
                 onClick={handleRestartTutorial}
@@ -189,22 +177,6 @@ export function OnboardingModal({
               </button>
             </div>
           </div>
-
-          {/* Stepper Progress Bar */}
-          <div className="mt-4 flex gap-1.5">
-            {Array.from({ length: totalSteps }).map((_, idx) => (
-              <div
-                key={idx}
-                className={`h-1.5 flex-1 rounded-full transition-all duration-300 ${
-                  idx + 1 < currentStep
-                    ? "bg-primary"
-                    : idx + 1 === currentStep
-                    ? "bg-primary shadow-sm shadow-primary/50"
-                    : "bg-white/10"
-                }`}
-              />
-            ))}
-          </div>
         </div>
 
         {/* Conteúdo Dinâmico por Etapa */}
@@ -216,92 +188,8 @@ export function OnboardingModal({
             </div>
           )}
 
-          {/* Etapa 1: Boas-vindas e Confirmação de Conta */}
-          {currentStep === 1 && (
-            <div className="space-y-4 animate-in fade-in duration-300">
-              <div className="inline-flex rounded-2xl border border-primary/30 bg-primary/10 p-3 text-primary">
-                <svg className="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z" />
-                </svg>
-              </div>
-              <h2 id="onboarding-step-title" className="text-2xl font-bold tracking-tight">
-                Boas-vindas ao Tomadix, {state.displayName}!
-              </h2>
-              <p className="text-sm text-white/70 leading-relaxed">
-                Você acaba de acessar a plataforma profissional para estruturar roteiros cinematográficos, manter consistência de iluminação e figurino, e gerar prompts de alta precisão para geradores de vídeo por inteligência artificial.
-              </p>
-
-              <div className="mt-6 rounded-2xl border border-white/10 bg-white/[0.02] p-4">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-xs text-white/50">Status do E-mail</p>
-                    <p className="text-sm font-semibold">{state.email}</p>
-                  </div>
-                  <span
-                    className={`rounded-full px-3 py-1 text-xs font-bold ${
-                      state.emailConfirmed
-                        ? "bg-primary/20 text-primary border border-primary/30"
-                        : "bg-amber-400/20 text-amber-300 border border-amber-400/30"
-                    }`}
-                  >
-                    {state.emailConfirmed ? "✓ E-mail Confirmado" : "Confirmação Pendente"}
-                  </span>
-                </div>
-                {!state.emailConfirmed && (
-                  <p className="mt-2 text-xs text-white/50">
-                    Você pode confirmar seu endereço a qualquer momento na página de Perfil para garantir a segurança da conta.
-                  </p>
-                )}
-              </div>
-            </div>
-          )}
-
-          {/* Etapa 2: Arquitetura Cinematográfica */}
-          {currentStep === 2 && (
-            <div className="space-y-4 animate-in fade-in duration-300">
-              <div className="inline-flex rounded-2xl border border-amber-500/30 bg-amber-500/10 p-3 text-amber-400">
-                <svg className="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" />
-                </svg>
-              </div>
-              <h2 id="onboarding-step-title" className="text-2xl font-bold tracking-tight">
-                Como os elementos se conectam
-              </h2>
-              <p className="text-sm text-white/70 leading-relaxed">
-                Entenda a hierarquia que garante a consistência do seu projeto do início ao fim:
-              </p>
-
-              <div className="mt-4 space-y-2.5 text-xs">
-                <div className="flex items-center gap-3 rounded-2xl border border-white/10 bg-white/[0.02] p-3.5">
-                  <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-xl bg-primary/20 text-primary font-bold">1</span>
-                  <div>
-                    <strong className="text-white">Projeto:</strong> Contêiner com a visão geral, tom narrativo, idioma e plataforma-alvo.
-                  </div>
-                </div>
-                <div className="flex items-center gap-3 rounded-2xl border border-white/10 bg-white/[0.02] p-3.5">
-                  <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-xl bg-blue-400/20 text-blue-300 font-bold">2</span>
-                  <div>
-                    <strong className="text-white">Personagens & Ambientes:</strong> Fichas detalhadas com roupas, traços físicos e iluminação.
-                  </div>
-                </div>
-                <div className="flex items-center gap-3 rounded-2xl border border-white/10 bg-white/[0.02] p-3.5">
-                  <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-xl bg-purple-400/20 text-purple-300 font-bold">3</span>
-                  <div>
-                    <strong className="text-white">Cenas & Sequenciamento:</strong> Decupagem com ordem cronológica, enquadramento e ação principal.
-                  </div>
-                </div>
-                <div className="flex items-center gap-3 rounded-2xl border border-white/10 bg-white/[0.02] p-3.5">
-                  <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-xl bg-amber-400/20 text-amber-300 font-bold">4</span>
-                  <div>
-                    <strong className="text-white">Gerador de prompts:</strong> Compilador que une todas as variáveis e gera o prompt cinematográfico perfeito.
-                  </div>
-                </div>
-              </div>
-            </div>
-          )}
-
           {/* Etapa 3: Criar Primeiro Projeto ou Escolher Template */}
-          {currentStep === 3 && (
+          {currentStep === 1 && (
             <div className="space-y-4 animate-in fade-in duration-300">
               <div className="inline-flex rounded-2xl border border-primary/30 bg-primary/10 p-3 text-primary">
                 <svg className="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -309,10 +197,10 @@ export function OnboardingModal({
                 </svg>
               </div>
               <h2 id="onboarding-step-title" className="text-2xl font-bold tracking-tight">
-                Inicie com um Modelo Pronto em 1 Clique
+                Boas-vindas, {state.displayName}! Escolha um modelo e comece
               </h2>
               <p className="text-sm text-white/70 leading-relaxed">
-                Para acelerar seu aprendizado, criamos templates cinematográficos completos com personagens, ambientes e cenas já decupadas:
+                Cada modelo já vem com personagens, ambientes e cenas prontos. Você chega direto na tela de prompts para gerar o primeiro resultado:
               </p>
 
               <div className="mt-4 grid gap-3 sm:grid-cols-2">
@@ -370,40 +258,6 @@ export function OnboardingModal({
           )}
         </div>
 
-        {/* Rodapé / Botões de Navegação */}
-        <div className="safe-bottom flex flex-wrap items-center justify-between gap-3 border-t border-white/10 p-4 sm:p-6 sm:pt-4">
-          <div>
-            {currentStep > 1 && (
-              <button
-                type="button"
-                onClick={handlePrevStep}
-                className="min-h-11 rounded-xl border border-white/15 px-4 py-2 text-xs font-semibold text-white/70 hover:bg-white/10 hover:text-white transition"
-              >
-                ← Voltar
-              </button>
-            )}
-          </div>
-
-          <div className="ml-auto flex items-center gap-3">
-            {currentStep < totalSteps ? (
-              <button
-                type="button"
-                onClick={() => handleNextStep()}
-                className="min-h-11 rounded-xl bg-primary px-6 py-2.5 text-xs font-bold text-on-primary transition hover:opacity-90 shadow-md shadow-primary/20"
-              >
-                Próximo →
-              </button>
-            ) : (
-              <button
-                type="button"
-                onClick={() => handleNextStep(totalSteps + 1)}
-                className="min-h-11 rounded-xl bg-primary px-6 py-2.5 text-xs font-bold text-on-primary transition hover:opacity-90 shadow-lg shadow-primary/20"
-              >
-                Concluir e Explorar Estúdio
-              </button>
-            )}
-          </div>
-        </div>
       </div>
     </div>
   );
