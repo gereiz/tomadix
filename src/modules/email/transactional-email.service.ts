@@ -1,6 +1,7 @@
 import { PlatformSettingsService } from "@/modules/admin/platform-settings.service";
 import { EmailService } from "./email.service";
 import {
+  getAdminNotificationEmail,
   getEmailConfirmationEmail,
   getLowCreditsEmail,
   getPasswordChangedEmail,
@@ -50,6 +51,26 @@ export class TransactionalEmailService {
       return result.success === true;
     } catch (error) {
       console.error("[TransactionalEmail] Falha no envio:", error instanceof Error ? error.message : error);
+      return false;
+    }
+  }
+
+  /**
+   * Aviso ao administrador da plataforma (conta de e-mail configurada em Servidor de E-mail).
+   * Chega na Caixa de Entrada do console, que exibe apenas e-mails com o prefixo [Tomadix].
+   */
+  static async sendAdminNotification(params: {
+    title: string;
+    summary: string;
+    details: Array<[string, string]>;
+  }): Promise<boolean> {
+    try {
+      const settings = await EmailService.getSettings();
+      const adminEmail = settings.smtpUser || settings.senderEmail;
+      if (!adminEmail) return false;
+      return await this.deliver(adminEmail, getAdminNotificationEmail(params));
+    } catch (error) {
+      console.error("[TransactionalEmail] Falha ao notificar admin:", error instanceof Error ? error.message : error);
       return false;
     }
   }

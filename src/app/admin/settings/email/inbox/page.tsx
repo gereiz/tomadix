@@ -137,7 +137,9 @@ export default function AdminInboxPage() {
           <h1 className="mt-1 text-xl font-bold text-white">
             Caixa de Entrada {list && list.unread > 0 && <span className="text-sm text-amber-300">({list.unread} não lida(s))</span>}
           </h1>
-          <p className="text-xs text-white/50">Mensagens recebidas na conta de e-mail configurada (IMAP).</p>
+          <p className="text-xs text-white/50">
+            Exibe somente e-mails do Tomadix (novos cadastros, recuperação de senha, testes e respostas de usuários).
+          </p>
         </div>
         <div className="flex flex-wrap items-center gap-2">
           <label className="flex min-h-10 items-center gap-2 text-xs text-white/70">

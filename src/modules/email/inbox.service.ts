@@ -34,6 +34,35 @@ export function makeSnippet(text?: string | null, html?: string | null): string 
   return base.replace(/\s+/g, " ").trim().slice(0, 160);
 }
 
+/**
+ * Verifica se um e-mail pertence ao Tomadix (notificações de novos cadastros,
+ * recuperação de senha, testes de envio ou respostas a e-mails do Tomadix),
+ * ignorando newsletters e mensagens pessoais da conta de e-mail configurada.
+ */
+export function isTomadixMessage(msg: {
+  subject?: string | null;
+  fromName?: string | null;
+  text?: string | null;
+  html?: string | null;
+  snippet?: string | null;
+}): boolean {
+  const haystack = [msg.subject, msg.fromName, msg.snippet, msg.text, msg.html]
+    .filter(Boolean)
+    .join(" ")
+    .toLowerCase();
+  return haystack.includes("tomadix");
+}
+
+const TOMADIX_DB_FILTER = {
+  OR: [
+    { subject: { contains: "tomadix", mode: "insensitive" as const } },
+    { fromName: { contains: "tomadix", mode: "insensitive" as const } },
+    { snippet: { contains: "tomadix", mode: "insensitive" as const } },
+    { textBody: { contains: "tomadix", mode: "insensitive" as const } },
+    { htmlBody: { contains: "tomadix", mode: "insensitive" as const } },
+  ],
+};
+
 function imapHostFor(provider: EmailProviderType, smtpHost: string): string {
   if (provider === EmailProviderType.GMAIL_SMTP || provider === EmailProviderType.GMAIL_OAUTH2) return "imap.gmail.com";
   if (provider === EmailProviderType.OUTLOOK_SMTP || provider === EmailProviderType.OFFICE365_OAUTH2) {
@@ -110,12 +139,25 @@ export const imapFetcher: InboxFetcher = async (afterUid, limit) => {
  */
 export class InboxService {
   static async sync(fetcher: InboxFetcher = imapFetcher, limit = FIRST_SYNC_LIMIT) {
+    // Remove eventuais mensagens antigas que não sejam do Tomadix (ex.: promoções pessoais da conta IMAP)
+    await db.emailMessage.deleteMany({
+      where: {
+        mailbox: MAILBOX,
+        NOT: TOMADIX_DB_FILTER,
+      },
+    });
+
     const last = await db.emailMessage.findFirst({
       where: { mailbox: MAILBOX },
       orderBy: { uid: "desc" },
       select: { uid: true },
     });
-    const messages = await fetcher(last?.uid ?? 0, limit);
+    const rawMessages = await fetcher(last?.uid ?? 0, limit);
+    const messages = rawMessages.filter((m) => isTomadixMessage(m));
+
+    if (messages.length === 0) {
+      return { fetched: rawMessages.length, saved: 0 };
+    }
 
     const result = await db.emailMessage.createMany({
       data: messages.map((m) => ({
@@ -134,13 +176,17 @@ export class InboxService {
       })),
       skipDuplicates: true,
     });
-    return { fetched: messages.length, saved: result.count };
+    return { fetched: rawMessages.length, saved: result.count };
   }
 
   static async list(options: { page?: number; limit?: number; unreadOnly?: boolean } = {}) {
     const limit = Math.min(Math.max(options.limit ?? 25, 1), 100);
     const page = Math.max(options.page ?? 1, 1);
-    const where = { mailbox: MAILBOX, ...(options.unreadOnly ? { isRead: false } : {}) };
+    const where = {
+      mailbox: MAILBOX,
+      ...TOMADIX_DB_FILTER,
+      ...(options.unreadOnly ? { isRead: false } : {}),
+    };
     const [items, total, unread] = await Promise.all([
       db.emailMessage.findMany({
         where,
@@ -158,7 +204,7 @@ export class InboxService {
         },
       }),
       db.emailMessage.count({ where }),
-      db.emailMessage.count({ where: { mailbox: MAILBOX, isRead: false } }),
+      db.emailMessage.count({ where: { mailbox: MAILBOX, ...TOMADIX_DB_FILTER, isRead: false } }),
     ]);
     return { items, total, unread, page, totalPages: Math.max(1, Math.ceil(total / limit)) };
   }

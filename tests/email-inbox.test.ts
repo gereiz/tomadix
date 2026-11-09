@@ -1,6 +1,6 @@
 import { describe, it, expect, afterEach } from "vitest";
 import { db } from "@/lib/db";
-import { InboxService, makeSnippet, type InboxFetcher, type RawInboxMessage } from "@/modules/email/inbox.service";
+import { InboxService, isTomadixMessage, makeSnippet, type InboxFetcher, type RawInboxMessage } from "@/modules/email/inbox.service";
 
 // uids altos e únicos para não colidir com mensagens reais da caixa de entrada
 const BASE = 2_000_000_000 + Math.floor(Math.random() * 1000) * 10;
@@ -12,7 +12,7 @@ function msg(offset: number, over: Partial<RawInboxMessage> = {}): RawInboxMessa
     fromName: "Cliente Teste",
     fromAddress: "cliente@example.com",
     to: "georgie.a.reis@gmail.com",
-    subject: `Assunto ${offset}`,
+    subject: `[Tomadix] Assunto ${offset}`,
     text: `Corpo da mensagem ${offset}`,
     date: new Date(Date.now() - offset * 1000),
     ...over,
@@ -48,6 +48,18 @@ describe("Caixa de entrada (IMAP) do console admin", () => {
     const again = await InboxService.sync(async () => [msg(2)]);
     expect(again.saved).toBe(0);
     expect(calls[0]).toBeGreaterThanOrEqual(0);
+  });
+
+  it("ignora e-mails pessoais/promocionais que não são do Tomadix", async () => {
+    expect(isTomadixMessage({ subject: "Oferta Samsung Live Shop", text: "Desconto de 50%" })).toBe(false);
+    expect(isTomadixMessage({ subject: "[Tomadix] Novo cadastro: Maria", text: "Detalhes" })).toBe(true);
+
+    const res = await InboxService.sync(async () => [
+      msg(10, { subject: "Oferta Samsung", text: "Promoção imperdível" }),
+      msg(11, { subject: "[Tomadix] Recuperação de senha solicitada" }),
+    ]);
+    expect(res.fetched).toBe(2);
+    expect(res.saved).toBe(1);
   });
 
   it("lista, abre marcando como lida e filtra não lidas", async () => {

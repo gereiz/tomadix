@@ -66,6 +66,7 @@ describe("E-mails transacionais padrão", () => {
     expect(auth).toContain("TransactionalEmailService.sendWelcome");
     expect(auth).toContain("TransactionalEmailService.sendPasswordReset");
     expect(auth).toContain("TransactionalEmailService.sendPasswordChanged");
+    expect(auth).toContain("TransactionalEmailService.sendAdminNotification");
     expect(read("src/modules/workspaces/invite.service.ts")).toContain("TransactionalEmailService.sendWorkspaceInvite");
     expect(read("src/app/api/auth/forgot-password/route.ts")).toContain('process.env.NODE_ENV === "production"');
     expect(read("src/app/api/auth/register/route.ts")).toContain('process.env.NODE_ENV === "production"');

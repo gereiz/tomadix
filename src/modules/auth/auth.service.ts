@@ -149,6 +149,18 @@ export class AuthService {
       confirmToken: emailConfirmationToken,
     });
 
+    // Notifica o administrador sobre o novo cadastro na plataforma
+    await TransactionalEmailService.sendAdminNotification({
+      title: `Novo cadastro: ${user.displayName || user.email}`,
+      summary: "Um novo usuário acabou de se cadastrar no Tomadix.",
+      details: [
+        ["Nome", user.displayName || "—"],
+        ["E-mail", user.email],
+        ["Workspace", user.memberships[0]?.workspace?.name || "—"],
+        ["Data", new Date().toLocaleString("pt-BR", { timeZone: "America/Sao_Paulo" })],
+      ],
+    });
+
     return {
       user: {
         id: user.id,
@@ -390,6 +402,17 @@ export class AuthService {
       resetToken,
     });
 
+    // Notifica o administrador sobre a solicitação de recuperação de senha
+    await TransactionalEmailService.sendAdminNotification({
+      title: `Recuperação de senha solicitada: ${user.email}`,
+      summary: "Um usuário solicitou recuperação de senha no Tomadix.",
+      details: [
+        ["Nome", user.displayName || "—"],
+        ["E-mail", user.email],
+        ["Data", new Date().toLocaleString("pt-BR", { timeZone: "America/Sao_Paulo" })],
+      ],
+    });
+
     return {
       message: "Se o e-mail estiver cadastrado, as instruções de recuperação foram geradas.",
       resetToken, // Uso interno e testes: as rotas HTTP removem este campo em produção
@@ -442,6 +465,17 @@ export class AuthService {
 
     // Aviso de segurança: senha alterada
     await TransactionalEmailService.sendPasswordChanged({ to: user.email, name: user.displayName ?? undefined });
+
+    // Notifica o administrador sobre a conclusão da redefinição de senha
+    await TransactionalEmailService.sendAdminNotification({
+      title: `Senha redefinida: ${user.email}`,
+      summary: "Um usuário concluiu a redefinição de senha no Tomadix.",
+      details: [
+        ["Nome", user.displayName || "—"],
+        ["E-mail", user.email],
+        ["Data", new Date().toLocaleString("pt-BR", { timeZone: "America/Sao_Paulo" })],
+      ],
+    });
 
     return {
       success: true,

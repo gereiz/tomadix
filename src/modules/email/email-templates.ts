@@ -13,6 +13,36 @@ export function escapeHtml(value: string): string {
     .replace(/'/g, "&#39;");
 }
 
+/** Prefixo de assunto que identifica e-mails gerados pelo Tomadix para o administrador (e filtra a Caixa de Entrada). */
+export const TOMADIX_SUBJECT_PREFIX = "[Tomadix]";
+
+/** Aviso interno ao administrador (novo cadastro, recuperação de senha etc.). */
+export function getAdminNotificationEmail({
+  title,
+  summary,
+  details,
+}: {
+  title: string;
+  summary: string;
+  details: Array<[string, string]>;
+}) {
+  const rows = details
+    .map(
+      ([label, value]) =>
+        `<tr><td style="padding:6px 12px 6px 0;color:#8b98a5;font-size:13px;">${escapeHtml(label)}</td><td style="padding:6px 0;font-size:13px;"><strong>${escapeHtml(value)}</strong></td></tr>`
+    )
+    .join("");
+  return {
+    subject: `${TOMADIX_SUBJECT_PREFIX} ${title}`,
+    html: renderBaseEmailTemplate({
+      title: escapeHtml(title),
+      preheader: summary,
+      contentHtml: `<p>${escapeHtml(summary)}</p><table role="presentation" cellpadding="0" cellspacing="0">${rows}</table>`,
+      footerNote: "Notificação automática do Tomadix para o administrador da plataforma.",
+    }),
+  };
+}
+
 interface BaseEmailWrapperProps {
   title: string;
   preheader?: string;
