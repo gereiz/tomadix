@@ -3,6 +3,7 @@ import "./globals.css";
 import { CookieConsentBanner } from "@/components/privacy/cookie-consent-banner";
 import { Navbar } from "@/components/navigation/navbar";
 import { PlatformSettingsService } from "@/modules/admin/platform-settings.service";
+import { FeatureFlagsProvider } from "@/components/providers/feature-flags-provider";
 import { ThemeInjector } from "@/components/theme/theme-injector";
 import { generateThemeCss } from "@/lib/theme-utils";
 import { BRAND } from "@/config/brand";
@@ -54,9 +55,11 @@ export default async function RootLayout({ children }: Readonly<{ children: Reac
       </head>
       <body suppressHydrationWarning className="overflow-x-hidden min-h-dvh bg-surface font-body-md text-on-surface antialiased selection:bg-primary selection:text-on-primary">
         {customization && <ThemeInjector initialCustomization={customization} />}
-        <Navbar />
-        {children}
-        <CookieConsentBanner />
+        <FeatureFlagsProvider>
+          <Navbar />
+          {children}
+          <CookieConsentBanner />
+        </FeatureFlagsProvider>
       </body>
     </html>
   );

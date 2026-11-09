@@ -68,9 +68,13 @@ export interface GeneralSettings {
     cinematicStudioEnabled: boolean;
     visualLibraryEnabled: boolean;
     advancedParametersEnabled: boolean;
+    /** Geração direta de imagens e vídeos por IA (interface e API). Desligada por padrão. */
+    mediaGenerationEnabled: boolean;
   };
   maxUploadSizeMb: number;
 }
+
+export type FeatureFlags = GeneralSettings["featureFlags"];
 
 export const DEFAULT_GENERAL_SETTINGS: GeneralSettings = {
   platformName: BRAND.name,
@@ -90,6 +94,7 @@ export const DEFAULT_GENERAL_SETTINGS: GeneralSettings = {
     cinematicStudioEnabled: true,
     visualLibraryEnabled: true,
     advancedParametersEnabled: true,
+    mediaGenerationEnabled: false,
   },
   maxUploadSizeMb: 25,
 };
@@ -106,6 +111,19 @@ const GENERAL_SETTINGS_POLICY_KEY = "PLATFORM_GENERAL_SETTINGS";
 
 const CUSTOMIZATION_CACHE_TTL_MS = 60 * 1000;
 let customizationCache: { value: CustomizationSettings; expiresAt: number } | null = null;
+
+const FEATURE_FLAGS_CACHE_TTL_MS = 15 * 1000;
+let featureFlagsCache: { value: FeatureFlags; expiresAt: number } | null = null;
+
+/** Lançado quando a geração de imagens/vídeos está desligada pelo administrador. */
+export class MediaGenerationDisabledError extends Error {
+  readonly code = "MEDIA_GENERATION_DISABLED";
+  readonly statusCode = 403;
+  constructor() {
+    super("A geração de imagens e vídeos está desativada nesta plataforma.");
+    this.name = "MediaGenerationDisabledError";
+  }
+}
 
 export class PlatformSettingsService {
   /**
@@ -195,9 +213,13 @@ export class PlatformSettingsService {
         where: { key: GENERAL_SETTINGS_POLICY_KEY },
       });
       if (record?.value && typeof record.value === "object") {
+        const stored = record.value as Partial<GeneralSettings>;
         return {
           ...DEFAULT_GENERAL_SETTINGS,
-          ...(record.value as Partial<GeneralSettings>),
+          ...stored,
+          // Merge profundo: registros antigos sem as chaves novas herdam os padrões (ex.: mídia desligada)
+          announcementBanner: { ...DEFAULT_GENERAL_SETTINGS.announcementBanner, ...(stored.announcementBanner || {}) },
+          featureFlags: { ...DEFAULT_GENERAL_SETTINGS.featureFlags, ...(stored.featureFlags || {}) },
         };
       }
     } catch (error) {
@@ -207,12 +229,40 @@ export class PlatformSettingsService {
   }
 
   /**
+   * Feature flags com cache curto (lido em toda renderização e no caminho de geração).
+   * Em caso de falha do banco devolve os padrões, ou seja, mídia desligada.
+   */
+  static async getFeatureFlags(): Promise<FeatureFlags> {
+    if (featureFlagsCache && featureFlagsCache.expiresAt > Date.now()) {
+      return featureFlagsCache.value;
+    }
+    const settings = await this.getGeneralSettings();
+    featureFlagsCache = { value: settings.featureFlags, expiresAt: Date.now() + FEATURE_FLAGS_CACHE_TTL_MS };
+    return settings.featureFlags;
+  }
+
+  static async isMediaGenerationEnabled(): Promise<boolean> {
+    return (await this.getFeatureFlags()).mediaGenerationEnabled === true;
+  }
+
+  /** Bloqueia a geração de mídia quando a chave global está desligada. */
+  static async assertMediaGenerationEnabled(): Promise<void> {
+    if (!(await this.isMediaGenerationEnabled())) {
+      throw new MediaGenerationDisabledError();
+    }
+  }
+
+  /**
    * Atualiza as configurações gerais da plataforma.
    */
   static async updateGeneralSettings(
-    data: Partial<GeneralSettings>,
+    data: Partial<Omit<GeneralSettings, "announcementBanner" | "featureFlags">> & {
+      announcementBanner?: Partial<GeneralSettings["announcementBanner"]>;
+      featureFlags?: Partial<FeatureFlags>;
+    },
     adminUserId: string
   ): Promise<GeneralSettings> {
+    featureFlagsCache = null;
     const current = await this.getGeneralSettings();
     const updated: GeneralSettings = {
       ...current,
@@ -255,6 +305,20 @@ export class PlatformSettingsService {
         updatedFields: Object.keys(data),
       },
     });
+    featureFlagsCache = null;
+
+    if (current.featureFlags.mediaGenerationEnabled !== updated.featureFlags.mediaGenerationEnabled) {
+      await AdminAuditService.logAction({
+        adminUserId,
+        action: "PLATFORM_MEDIA_GENERATION_TOGGLED",
+        targetType: "PlatformGeneralSettings",
+        targetId: GENERAL_SETTINGS_POLICY_KEY,
+        details: {
+          from: current.featureFlags.mediaGenerationEnabled,
+          to: updated.featureFlags.mediaGenerationEnabled,
+        },
+      });
+    }
 
     return updated;
   }

@@ -1,5 +1,6 @@
 "use client";
 
+import { MediaDisabledNotice } from "@/components/admin/media-disabled-notice";
 import { Spinner } from "@/components/ui/spinner";
 import { useEffect, useState } from "react";
 import Link from "next/link";
@@ -427,6 +428,7 @@ export default function ImageProvidersAdminPage() {
 
   return (
     <div className="space-y-6">
+      <MediaDisabledNotice />
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-white/10 pb-5">
         <div>

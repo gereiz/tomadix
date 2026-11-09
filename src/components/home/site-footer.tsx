@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { BRAND } from "@/config/brand";
+import { PollinationsBadge } from "./pollinations-badge";
 
 export function SiteFooter() {
   return (
@@ -12,17 +13,7 @@ export function SiteFooter() {
           <Link href="/terms" className="inline-flex min-h-10 items-center hover:text-on-surface">Termos</Link>
           <Link href="/privacy" className="inline-flex min-h-10 items-center hover:text-on-surface">Privacidade</Link>
           <Link href="/pricing" className="inline-flex min-h-10 items-center hover:text-on-surface">Planos</Link>
-          <a href="https://pollinations.ai/?ref=badge">
-            <img
-              src="https://raw.githubusercontent.com/pollinations/pollinations/main/packages/ui/src/brand/badge-made-with.svg"
-              alt="Made with pollinations.ai"
-              width={160}
-              height={30}
-              loading="lazy"
-              decoding="async"
-              className="h-7 w-auto"
-            />
-          </a>
+          <PollinationsBadge />
         </nav>
       </div>
     </footer>

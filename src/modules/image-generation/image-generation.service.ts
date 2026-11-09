@@ -1,5 +1,6 @@
 import { db } from "@/lib/db";
 import crypto from "crypto";
+import { PlatformSettingsService } from "@/modules/admin/platform-settings.service";
 import { CreditExecutionService } from "@/modules/billing/credit-execution.service";
 import { ImageProviderRegistryService } from "./image-provider-registry.service";
 import { ImageEntitlementService } from "./image-entitlement.service";
@@ -89,6 +90,15 @@ export class ImageGenerationService {
       providerId = "pollinations",
       metadata = {},
     } = input;
+
+    // Chave global do administrador: antes de qualquer consulta ou cobrança
+    if (!(await PlatformSettingsService.isMediaGenerationEnabled())) {
+      throw new ImageGenerationError(
+        "A geração de imagens está desativada nesta plataforma.",
+        "MEDIA_GENERATION_DISABLED",
+        403
+      );
+    }
 
     if (!prompt || prompt.trim().length === 0) {
       throw new ImageGenerationError("O prompt da imagem é obrigatório.", "EMPTY_PROMPT", 400);

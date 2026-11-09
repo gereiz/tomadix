@@ -1,5 +1,6 @@
 "use client";
 
+import { MediaDisabledNotice } from "@/components/admin/media-disabled-notice";
 import { useState, useEffect } from "react";
 import Link from "next/link";
 
@@ -107,6 +108,7 @@ export default function AdminPollinationsCentralPage() {
 
   return (
     <div className="space-y-8 p-6 lg:p-8 max-w-6xl mx-auto">
+      <MediaDisabledNotice />
       {/* Header */}
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between border-b border-white/10 pb-6">
         <div>

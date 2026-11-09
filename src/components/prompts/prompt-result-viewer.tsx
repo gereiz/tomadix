@@ -7,7 +7,7 @@ interface PromptResultViewerProps {
 }
 
 export function PromptResultViewer({ s }: PromptResultViewerProps) {
-  const { projectId, setGenerationMode, setPromptForImageGen, openVideoWithPrompt, currentResult, activeViewTab, setActiveViewTab, copySuccess, setRegeneratingVersion, setRegenerateInstructions, handleCopy } = s;
+  const { projectId, setGenerationMode, setPromptForImageGen, openVideoWithPrompt, mediaEnabled, currentResult, activeViewTab, setActiveViewTab, copySuccess, setRegeneratingVersion, setRegenerateInstructions, handleCopy } = s;
 
 
   return (
@@ -110,6 +110,8 @@ export function PromptResultViewer({ s }: PromptResultViewerProps) {
                   </svg>
                   Regenerar
                 </button>
+                {mediaEnabled && (
+                <>
                 <button
                   onClick={() => {
                     const promptText = currentResult.outputText || JSON.stringify(currentResult.outputJson);
@@ -130,6 +132,8 @@ export function PromptResultViewer({ s }: PromptResultViewerProps) {
                   <span>🎥</span>
                   Gerar Vídeo
                 </button>
+                </>
+                )}
               </div>
               <button
                 onClick={() =>
@@ -181,6 +185,8 @@ export function PromptResultViewer({ s }: PromptResultViewerProps) {
                   </svg>
                   Regenerar
                 </button>
+                {mediaEnabled && (
+                <>
                 <button
                   onClick={() => {
                     const promptText = currentResult.outputText || JSON.stringify(currentResult.outputJson);
@@ -201,6 +207,8 @@ export function PromptResultViewer({ s }: PromptResultViewerProps) {
                   <span>🎥</span>
                   Gerar Vídeo
                 </button>
+                </>
+                )}
               </div>
               {currentResult.outputText && (
                 <button

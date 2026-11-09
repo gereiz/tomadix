@@ -1,5 +1,6 @@
 "use client";
 
+import { useMediaGeneration } from "@/components/providers/feature-flags-provider";
 import Link from "next/link";
 import { Icon } from "@/components/ui/icon";
 import type { ProjectsListTabState } from "./use-projects-list";
@@ -10,6 +11,8 @@ interface ProjectsContentProps {
 
 export function ProjectsContent({ s }: ProjectsContentProps) {
   const { projects, loading, error, search, setSearch, statusFilter, setStatusFilter, viewMode, setIsCreateModalOpen, setIsPresetsModalOpen, starredProjectIds, setProjectToDelete, setProjectToTransfer, setProjectToShare, duplicatingId, fetchProjects, toggleStarProject, resetForm, handleOpenEdit, handleDuplicate, handleToggleArchive, formatDate } = s;
+  // Chave global do admin: sem geração de mídia, imagens geradas e menções somem
+  const mediaEnabled = useMediaGeneration();
 
 
   return (
@@ -95,7 +98,7 @@ export function ProjectsContent({ s }: ProjectsContentProps) {
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
         {projects.map((project) => {
           const isStarred = starredProjectIds.has(project.id);
-          const previewImages = project.generatedImages || [];
+          const previewImages = mediaEnabled ? project.generatedImages || [] : [];
           const vis = project.visibility || "TEAM";
           const visBadge =
             vis === "PRIVATE"
@@ -244,12 +247,14 @@ export function ProjectsContent({ s }: ProjectsContentProps) {
                               {project._count.characters} Personagens
                             </span>
                           </div>
+                          {mediaEnabled && (
                           <div className="flex items-center gap-1.5 rounded-xl border border-purple-500/30 bg-purple-500/10 px-3 py-2 shadow-md">
                             <span className="text-xs">🎬</span>
                             <span className="text-[9px] font-mono text-purple-400">
                               Vídeo & Imagem
                             </span>
                           </div>
+                          )}
                         </div>
                       </div>
                     </div>

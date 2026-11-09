@@ -1,6 +1,7 @@
 "use client";
 
 import { downloadImage } from "@/lib/utils/download-image";
+import { useMediaGeneration } from "@/components/providers/feature-flags-provider";
 import type { EntityStatusFilter, LightboxImage } from "@/components/entities/types";
 import type { EnvironmentItem } from "./types";
 
@@ -33,6 +34,8 @@ export function EnvironmentGrid({
   onRequestDelete,
   setLightboxImage,
 }: EnvironmentGridProps) {
+  // Chave global do admin: sem mídia, somem retratos gerados e botões de imagem
+  const mediaEnabled = useMediaGeneration();
   return (
     <>
     {loading ? (
@@ -76,7 +79,7 @@ export function EnvironmentGrid({
             >
               <div>
                 {/* Imagem Panorâmica do Ambiente (se gerada) */}
-                {attrs.imageUrl && (
+                {mediaEnabled && attrs.imageUrl && (
                   <div className="relative mb-3.5 w-full overflow-hidden rounded-2xl border border-white/10 bg-[#07090e] shadow-xl group aspect-[16/10] sm:aspect-video">
                     {/* Imagem Principal Centralizada e Completa */}
                     <img loading="lazy" decoding="async"
@@ -207,7 +210,7 @@ export function EnvironmentGrid({
                     Prompt JSON
                   </button>
     
-                  {/* Botão Gerar Imagem com IA */}
+                  {mediaEnabled && (
                   <button
                     onClick={() => handleOpenImageGen(env)}
                     className="flex items-center gap-1 rounded-lg bg-amber-400/15 px-2.5 py-1.5 text-[11px] font-bold text-amber-300 border border-amber-400/30 hover:bg-amber-400/25 transition shadow-sm shadow-amber-500/10"
@@ -216,6 +219,7 @@ export function EnvironmentGrid({
                     <span>🎨</span>
                     <span>Gerar Imagem</span>
                   </button>
+                  )}
                 </div>
     
                 <div className="flex items-center gap-1">

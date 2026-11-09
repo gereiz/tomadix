@@ -1,6 +1,7 @@
 import crypto from "crypto";
 import { db } from "@/lib/db";
 import { PlanTier } from "@prisma/client";
+import { PlatformSettingsService } from "@/modules/admin/platform-settings.service";
 import { EntitlementService } from "@/modules/billing/entitlement.service";
 import { CreditPricingService } from "@/modules/billing/credit-pricing.service";
 import { CreditExecutionService } from "@/modules/billing/credit-execution.service";
@@ -177,6 +178,15 @@ export class VideoGenerationService {
       captureStyle,
       metadata = {},
     } = params;
+
+    // Chave global do administrador: antes de qualquer consulta ou cobrança
+    if (!(await PlatformSettingsService.isMediaGenerationEnabled())) {
+      throw new VideoGenerationError(
+        "A geração de vídeos está desativada nesta plataforma.",
+        "MEDIA_GENERATION_DISABLED",
+        403
+      );
+    }
 
     const startTime = Date.now();
     const operationId = crypto.randomUUID();

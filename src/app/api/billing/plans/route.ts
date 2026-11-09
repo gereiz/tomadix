@@ -1,11 +1,15 @@
 import { NextResponse } from "next/server";
 import { BillingService } from "@/modules/billing/billing.service";
+import { PlatformSettingsService } from "@/modules/admin/platform-settings.service";
+import { stripMediaFeatures } from "@/modules/billing/media-visibility";
 
 export const dynamic = "force-dynamic";
 
 export async function GET() {
   try {
-    const plans = await BillingService.listPlans();
+    const allPlans = await BillingService.listPlans();
+    const mediaEnabled = await PlatformSettingsService.isMediaGenerationEnabled();
+    const plans = mediaEnabled ? allPlans : allPlans.map(stripMediaFeatures);
     return NextResponse.json(
       { data: plans },
       // Catálogo muda raramente: cache curto no navegador/CDN com revalidação em segundo plano

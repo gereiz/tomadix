@@ -582,12 +582,13 @@ function AdminSettingsContent() {
                 { key: "cinematicStudioEnabled", label: "Estúdio Multimodal de Análise de Imagens" },
                 { key: "visualLibraryEnabled", label: "Biblioteca Visual de Referências" },
                 { key: "advancedParametersEnabled", label: "Parâmetros Cinematográficos Avançados" },
+                { key: "mediaGenerationEnabled", label: "Geração de Imagens e Vídeos por IA", defaultValue: false },
               ].map((flag) => (
                 <label key={flag.key} className="flex items-center justify-between p-2.5 rounded-lg border border-white/5 bg-black/20 hover:bg-black/40 cursor-pointer">
                   <span className="text-white/80">{flag.label}</span>
                   <input
                     type="checkbox"
-                    checked={(settings.featureFlags as any)[flag.key]}
+                    checked={(settings.featureFlags as any)[flag.key] ?? flag.defaultValue ?? true}
                     onChange={(e) =>
                       handleChange("featureFlags", {
                         ...settings.featureFlags,
@@ -599,6 +600,12 @@ function AdminSettingsContent() {
                 </label>
               ))}
             </div>
+            <p className="text-[11px] text-white/50 leading-relaxed">
+              Geração de Imagens e Vídeos por IA: desligada, todas as telas, botões e menções a essas funções somem para os
+              usuários e a API recusa a geração. Prompts de imagem/vídeo (texto) e a Análise de imagem continuam ativos. Os
+              provedores, modelos e preços podem ser configurados no console mesmo com a chave desligada. A mudança vale em
+              até 15 segundos para a API e no próximo carregamento de página para a interface.
+            </p>
           </div>
         </div>
       )}

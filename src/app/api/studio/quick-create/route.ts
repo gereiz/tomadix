@@ -8,6 +8,7 @@ import { PromptEngineService } from "@/modules/prompt-engine/prompt-engine.servi
 import { ImageGenerationService } from "@/modules/image-generation/image-generation.service";
 import { CreditExecutionService } from "@/modules/billing/credit-execution.service";
 import { db } from "@/lib/db";
+import { PlatformSettingsService } from "@/modules/admin/platform-settings.service";
 import { z } from "zod";
 
 const quickCreateSchema = z.object({
@@ -295,6 +296,12 @@ export async function POST(request: NextRequest) {
 
     // 6. GERAÇÃO DIRETA DE IMAGEM IA
     if (validated.type === "IMAGE") {
+      if (!(await PlatformSettingsService.isMediaGenerationEnabled())) {
+        return NextResponse.json(
+          { error: "A geração de imagens está desativada nesta plataforma.", code: "MEDIA_GENERATION_DISABLED" },
+          { status: 403 }
+        );
+      }
       const { user } = await getCurrentWorkspace();
       const imageResult = await ImageGenerationService.generateDirectImage({
         workspaceId: workspace.id,

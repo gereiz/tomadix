@@ -39,14 +39,14 @@ export function PromptsTab(props: PromptsTabProps) {
       <PromptModeBar s={s} />
 
       {/* Modalidade: Galeria de Imagens Geradas */}
-      {generationMode === "GALLERY" && (
+      {s.mediaEnabled && generationMode === "GALLERY" && (
         <div className="rounded-3xl border border-white/10 bg-black/40 p-6">
           <GeneratedImagesGallery projectId={projectId} />
         </div>
       )}
 
       {/* Modalidade: Geração Direta de Imagens com IA */}
-      {generationMode === "IMAGE" && (
+      {s.mediaEnabled && generationMode === "IMAGE" && (
         <div className="space-y-6">
           <DirectImageGenerator
             projectId={projectId}
@@ -67,7 +67,7 @@ export function PromptsTab(props: PromptsTabProps) {
       )}
 
       {/* Modalidade: Gerar Prompt com Gemini (Motor de Prompts Original) */}
-      {generationMode === "PROMPT" && (
+      {(generationMode === "PROMPT" || !s.mediaEnabled) && (
       <div className="grid gap-5 sm:gap-8 lg:grid-cols-12">
       <PromptGeneratorPanel s={s} />
 
@@ -98,7 +98,7 @@ export function PromptsTab(props: PromptsTabProps) {
         </div>
       )}
 
-      {s.videoModalOpen && (
+      {s.mediaEnabled && s.videoModalOpen && (
         <DirectVideoModal
           isOpen={s.videoModalOpen}
           onClose={() => s.setVideoModalOpen(false)}

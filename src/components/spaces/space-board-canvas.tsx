@@ -1,6 +1,7 @@
 "use client";
 
-import React, { useState, useEffect, useCallback, useRef } from "react";
+import React, { useState, useEffect, useCallback, useRef, useMemo } from "react";
+import { useMediaGeneration } from "@/components/providers/feature-flags-provider";
 import {
   ReactFlow,
   Background,
@@ -89,6 +90,26 @@ function SpaceBoardCanvasInner({
   // Library drawer state
   const [isLibraryOpen, setIsLibraryOpen] = useState<boolean>(false);
   const [libraryTab, setLibraryTab] = useState<LibraryTab>("images");
+
+  // Chave global do admin: sem geração de mídia, nós de imagem/vídeo e ações de gerar somem da tela
+  // (o estado completo continua salvo no board e volta ao religar a chave).
+  const mediaEnabled = useMediaGeneration();
+  const MEDIA_NODE_TYPES = useMemo(() => new Set(["IMAGE", "VIDEO"]), []);
+  const visibleNodes = useMemo(() => {
+    if (mediaEnabled) return nodes;
+    return nodes
+      .filter((n) => !MEDIA_NODE_TYPES.has(String(n.type)))
+      .map((n) =>
+        n.type === "PROMPT"
+          ? { ...n, data: { ...n.data, onGenerateFromPrompt: undefined, onGenerateVideoFromNode: undefined } }
+          : n
+      );
+  }, [nodes, mediaEnabled, MEDIA_NODE_TYPES]);
+  const visibleEdges = useMemo(() => {
+    if (mediaEnabled) return edges;
+    const hidden = new Set(nodes.filter((n) => MEDIA_NODE_TYPES.has(String(n.type))).map((n) => n.id));
+    return edges.filter((e) => !hidden.has(e.source) && !hidden.has(e.target));
+  }, [edges, nodes, mediaEnabled, MEDIA_NODE_TYPES]);
   const [library, setLibrary] = useState<SpaceLibrary>({
     images: [],
     prompts: [],
@@ -961,8 +982,8 @@ function SpaceBoardCanvasInner({
         </div>
       ) : (
         <ReactFlow
-          nodes={nodes}
-          edges={edges}
+          nodes={visibleNodes}
+          edges={visibleEdges}
           nodeTypes={BOARD_NODE_TYPES}
           deleteKeyCode={["Delete", "Backspace"]}
           onNodesDelete={(deletedNodes) => {

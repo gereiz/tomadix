@@ -1,5 +1,6 @@
 "use client";
 
+import { useMediaGeneration } from "@/components/providers/feature-flags-provider";
 import type { Dispatch, SetStateAction, MutableRefObject } from "react";
 import type { Node } from "@xyflow/react";
 import type { SpaceLibrary, ContextMenuState, AddLibraryItem, CreatePromptNodeAt, CreateNoteNodeAt } from "../types";
@@ -29,6 +30,8 @@ interface BoardContextMenuProps {
 }
 
 export function BoardContextMenu({ contextMenu, setContextMenu, genTargetPosRef, setSafeDeleteTarget, setEditNode, setEditLabel, setEditPrompt, setPreviewNode, setIsGenModalOpen, setGenInitialPrompt, setGenSourceNodeId, setIsVideoGenModalOpen, setVideoGenPrompt, setVideoGenStartFrameUrl, setVideoGenSourceNodeId, library, handleGenerateVideoFromNode, duplicateNode, handleCreatePromptNodeAt, handleCreateNoteNodeAt, addLibraryItemToBoard }: BoardContextMenuProps) {
+  // Chave global do admin: sem mídia, somem as ações de gerar imagem/vídeo
+  const mediaEnabled = useMediaGeneration();
   return (
     <div
       style={{
@@ -111,7 +114,7 @@ export function BoardContextMenu({ contextMenu, setContextMenu, genTargetPosRef,
           </button>
     
           {/* Animar com Vídeo IA se for Imagem */}
-          {contextMenu.targetNode.type === "IMAGE" && (
+          {mediaEnabled && contextMenu.targetNode.type === "IMAGE" && (
             <button
               type="button"
               onClick={() => {
@@ -168,6 +171,8 @@ export function BoardContextMenu({ contextMenu, setContextMenu, genTargetPosRef,
           )}
     
           <div className="space-y-1">
+            {mediaEnabled && (
+            <>
             <button
               type="button"
               onClick={() => {
@@ -212,6 +217,8 @@ export function BoardContextMenu({ contextMenu, setContextMenu, genTargetPosRef,
                 <div className="text-[10px] text-white/50 truncate">Pollinations (Veo, Seedance, Wan)</div>
               </div>
             </button>
+            </>
+            )}
     
             <button
               type="button"

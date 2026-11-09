@@ -1,5 +1,6 @@
 "use client";
 
+import { useMediaGeneration } from "@/components/providers/feature-flags-provider";
 import Link from "next/link";
 import { StudioFeedItem } from "@/app/api/studio/feed/route";
 
@@ -43,6 +44,8 @@ const TYPE_CONFIG = {
 };
 
 export function StudioContentCard({ item, onDuplicate, onDelete }: StudioContentCardProps) {
+  // Chave global do admin: sem geração de mídia, imagens geradas e menções somem
+  const mediaEnabled = useMediaGeneration();
   const config = TYPE_CONFIG[item.type] || TYPE_CONFIG.PROJECT;
 
   const formatDate = (isoString: string) => {
@@ -80,7 +83,7 @@ export function StudioContentCard({ item, onDuplicate, onDelete }: StudioContent
 
         {/* Thumbnail / Representação Visual Neutra Cinematográfica */}
         <div className="mt-3.5 relative flex aspect-video w-full items-center justify-center overflow-hidden rounded-xl border border-white/5 bg-[#181C28]/80 text-white/20 transition group-hover:border-white/10">
-          {item.imageUrl ? (
+          {mediaEnabled && item.imageUrl ? (
             <img
               src={item.imageUrl}
               alt={item.title}

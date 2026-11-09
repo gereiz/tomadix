@@ -1,6 +1,7 @@
 "use client";
 
 import { downloadImage } from "@/lib/utils/download-image";
+import { useMediaGeneration } from "@/components/providers/feature-flags-provider";
 import type { ScenesTabState } from "./use-scenes-tab";
 
 interface ScenesListProps {
@@ -9,6 +10,8 @@ interface ScenesListProps {
 
 export function ScenesList({ s }: ScenesListProps) {
   const { onOpenPromptEngine, scenes, loading, filterMode, setDeleteModalOpen, setSceneToDelete, setLightboxImage, handleOpenSceneImage, checkSceneReadiness, handleOpenCreate, handleOpenEdit, handleMoveScene, handleDuplicate, handleOpenExpand, filteredScenes } = s;
+  // Chave global do admin: sem mídia, somem keyframes e botões de imagem
+  const mediaEnabled = useMediaGeneration();
 
 
   return (
@@ -167,7 +170,7 @@ export function ScenesList({ s }: ScenesListProps) {
                     ))}
                   </div>
     
-                  {/* Keyframes Visuais da Cena (Quadro Inicial e Final) */}
+                  {mediaEnabled && (
                   <div className="pt-2.5 mt-2 border-t border-white/5 flex flex-wrap items-center gap-3">
                     {/* Quadro Inicial (Start Frame) */}
                     <div className="flex items-center gap-2">
@@ -313,6 +316,7 @@ export function ScenesList({ s }: ScenesListProps) {
                       )}
                     </div>
                   </div>
+                  )}
                 </div>
               </div>
     
@@ -336,7 +340,7 @@ export function ScenesList({ s }: ScenesListProps) {
                   Gerar Prompt
                 </button>
     
-                {/* Botão Direto de Gerar Imagem com IA da Cena */}
+                {mediaEnabled && (
                 <button
                   type="button"
                   onClick={() => handleOpenSceneImage(scene, "SCENE_START")}
@@ -346,6 +350,7 @@ export function ScenesList({ s }: ScenesListProps) {
                   <span>🎨</span>
                   <span>Gerar Imagem</span>
                 </button>
+                )}
     
                 <div className="flex items-center gap-1 w-full justify-end">
                   {/* Botão Expandir com IA (EXPAND_SCENE) */}

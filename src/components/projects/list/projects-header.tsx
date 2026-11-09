@@ -1,6 +1,7 @@
 "use client";
 
 import { Icon } from "@/components/ui/icon";
+import { useMediaGeneration } from "@/components/providers/feature-flags-provider";
 import type { ProjectsListTabState } from "./use-projects-list";
 
 interface ProjectsHeaderProps {
@@ -9,6 +10,7 @@ interface ProjectsHeaderProps {
 
 export function ProjectsHeader({ s }: ProjectsHeaderProps) {
   const { projects, setIsCreateModalOpen, setIsPresetsModalOpen, usageSummary, setPlanLimitModal, resetForm } = s;
+  const mediaEnabled = useMediaGeneration();
 
 
   return (
@@ -30,7 +32,7 @@ export function ProjectsHeader({ s }: ProjectsHeaderProps) {
           Spaces
         </h1>
         <p className="font-body-lg text-sm sm:text-base text-on-surface-variant max-w-2xl">
-          Crie fluxos de trabalho generativos baseados em nós e dê vida às suas ideias. Arraste imagens, prompts, personagens e cenas em boards colaborativos com sua equipe.
+          Crie fluxos de trabalho generativos baseados em nós e dê vida às suas ideias. Arraste {mediaEnabled ? "imagens, " : ""}prompts, personagens e cenas em boards colaborativos com sua equipe.
         </p>
       </div>
     

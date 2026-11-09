@@ -7,8 +7,10 @@ interface PromptModeBarProps {
 }
 
 export function PromptModeBar({ s }: PromptModeBarProps) {
-  const { generationMode, setGenerationMode } = s;
+  const { generationMode, setGenerationMode, mediaEnabled } = s;
 
+  // Sem geração de mídia sobra só "Gerar Prompt": a barra de modos não faz sentido
+  if (!mediaEnabled) return null;
 
   return (
     <div className="flex flex-wrap items-center justify-between gap-4 p-2.5 rounded-2xl bg-white/[0.03] border border-white/10 shadow-lg shadow-black/20">

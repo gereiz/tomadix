@@ -1,5 +1,6 @@
 "use client";
 
+import { useMediaGeneration } from "@/components/providers/feature-flags-provider";
 import type { LibraryTab, SpaceLibrary, AddLibraryItem } from "../types";
 
 interface LibraryDrawerProps {
@@ -13,6 +14,9 @@ interface LibraryDrawerProps {
 }
 
 export function LibraryDrawer({ canEdit, libraryTab, setLibraryTab, library, onClose, onGenerateImage, addLibraryItemToBoard }: LibraryDrawerProps) {
+  // Chave global do admin: sem mídia, a aba Imagens e o botão de gerar somem
+  const mediaEnabled = useMediaGeneration();
+  const activeTab = !mediaEnabled && libraryTab === "images" ? "prompts" : libraryTab;
   return (
     <div className="pointer-events-auto absolute inset-x-2 bottom-2 top-16 z-30 flex flex-col rounded-2xl md:inset-x-auto md:bottom-16 md:left-16 md:z-20 md:w-80 border border-outline-variant/30 bg-surface-container/95 shadow-2xl animate-in slide-in-from-left-2 duration-150">
       <div className="flex items-center justify-between border-b border-outline-variant/20 px-4 py-3">
@@ -43,12 +47,14 @@ export function LibraryDrawer({ canEdit, libraryTab, setLibraryTab, library, onC
             { id: "environments", label: "Ambientes", icon: "🏛️", count: library.environments.length },
             { id: "scenes", label: "Cenas", icon: "🎬", count: library.scenes.length },
           ] as const
-        ).map((t) => (
+        )
+          .filter((t) => mediaEnabled || t.id !== "images")
+          .map((t) => (
           <button
             key={t.id}
             type="button"
             onClick={() => setLibraryTab(t.id)}
-            className={`flex items-center gap-1 whitespace-nowrap rounded-lg px-2.5 py-1 text-[11px] font-medium transition ${libraryTab === t.id
+            className={`flex items-center gap-1 whitespace-nowrap rounded-lg px-2.5 py-1 text-[11px] font-medium transition ${activeTab === t.id
               ? "bg-primary/15 text-primary font-semibold"
               : "text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface"
               }`}
@@ -62,7 +68,7 @@ export function LibraryDrawer({ canEdit, libraryTab, setLibraryTab, library, onC
     
       {/* Drawer Content */}
       <div className="flex-1 overflow-y-auto p-3 space-y-2">
-        {libraryTab === "images" && (
+        {activeTab === "images" && (
           <>
             <button
               type="button"
@@ -110,7 +116,7 @@ export function LibraryDrawer({ canEdit, libraryTab, setLibraryTab, library, onC
           </>
         )}
     
-        {libraryTab === "prompts" && (
+        {activeTab === "prompts" && (
           <>
             {library.prompts.length === 0 ? (
               <p className="py-8 text-center text-xs text-on-surface-variant">
@@ -145,7 +151,7 @@ export function LibraryDrawer({ canEdit, libraryTab, setLibraryTab, library, onC
           </>
         )}
     
-        {libraryTab === "characters" &&
+        {activeTab === "characters" &&
           (library.characters.length === 0 ? (
             <p className="py-8 text-center text-xs text-on-surface-variant">
               Nenhum personagem cadastrado neste Space.
@@ -174,7 +180,7 @@ export function LibraryDrawer({ canEdit, libraryTab, setLibraryTab, library, onC
             ))
           ))}
     
-        {libraryTab === "environments" &&
+        {activeTab === "environments" &&
           (library.environments.length === 0 ? (
             <p className="py-8 text-center text-xs text-on-surface-variant">
               Nenhum ambiente cadastrado neste Space.
@@ -203,7 +209,7 @@ export function LibraryDrawer({ canEdit, libraryTab, setLibraryTab, library, onC
             ))
           ))}
     
-        {libraryTab === "scenes" &&
+        {activeTab === "scenes" &&
           (library.scenes.length === 0 ? (
             <p className="py-8 text-center text-xs text-on-surface-variant">
               Nenhuma cena cadastrada neste Space.

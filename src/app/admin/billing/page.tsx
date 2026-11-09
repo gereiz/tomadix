@@ -1,5 +1,6 @@
 "use client";
 
+import { MediaDisabledNotice } from "@/components/admin/media-disabled-notice";
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { GatewaysTab } from "./components/gateways-tab";
@@ -1429,6 +1430,7 @@ export default function AdminBillingPage() {
               </div>
 
               {/* Seção: Geração direta de imagens com IA */}
+              <MediaDisabledNotice />
               <div className="rounded-xl border border-amber-400/20 bg-amber-400/5 p-4 space-y-3">
                 <div className="flex items-center justify-between border-b border-white/10 pb-2">
                   <div>

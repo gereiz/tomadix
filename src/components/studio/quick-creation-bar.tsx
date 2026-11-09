@@ -3,6 +3,7 @@
 import { Spinner } from "@/components/ui/spinner";
 import { useState, useEffect, useRef, useCallback } from "react";
 import { useRouter } from "next/navigation";
+import { useMediaGeneration } from "@/components/providers/feature-flags-provider";
 
 interface ProjectOption {
   id: string;
@@ -39,6 +40,8 @@ export function QuickCreationBar({
   onOpenFullForm,
 }: QuickCreationBarProps) {
   const router = useRouter();
+  // Chave global do admin: sem mídia, some a opção "Imagem IA"
+  const mediaEnabled = useMediaGeneration();
 
   // Preferências persistidas
   const [isCollapsed, setIsCollapsed] = useState(false);
@@ -194,9 +197,9 @@ export function QuickCreationBar({
     { id: "IMAGE", label: "Imagem IA", icon: "🎨", placeholder: "Descreva a imagem cinematográfica que deseja gerar diretamente com IA..." },
   ];
 
-  const TYPE_OPTIONS = currentProjectId
-    ? ALL_TYPE_OPTIONS.filter((opt) => opt.id !== "PROJECT")
-    : ALL_TYPE_OPTIONS;
+  const TYPE_OPTIONS = ALL_TYPE_OPTIONS.filter(
+    (opt) => (!currentProjectId || opt.id !== "PROJECT") && (mediaEnabled || opt.id !== "IMAGE")
+  );
 
   const currentOption = TYPE_OPTIONS.find((t) => t.id === contentType) || TYPE_OPTIONS[0];
 
