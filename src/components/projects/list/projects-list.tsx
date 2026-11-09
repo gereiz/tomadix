@@ -1,6 +1,7 @@
 "use client";
 
 import { ToastNotification } from "@/components/ui/toast";
+import { QuickCreationBar } from "@/components/studio/quick-creation-bar";
 import { TransferProjectModal, SpaceShareModal, PlanLimitModal } from "./helpers";
 import { useProjectsListTab } from "./use-projects-list";
 import { ProjectsHeader } from "./projects-header";
@@ -42,6 +43,9 @@ export default function ProjectsList() {
       {s.projectToDelete && (
         <DeleteProjectModal s={s} />
       )}
+
+      {/* Criação instantânea também na lista: cria projeto, prompt ou imagem sem abrir nada antes */}
+      <QuickCreationBar availableProjects={projects.map((p) => ({ id: p.id, title: p.title }))} />
 
       {/* Modal de Compartilhamento do Space */}
       {projectToShare && (

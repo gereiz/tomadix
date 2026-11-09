@@ -3,6 +3,7 @@
 import { Spinner } from "@/components/ui/spinner";
 import { DirectImageGenerator } from "@/components/image-generation/direct-image-generator";
 import { GeneratedImagesGallery } from "@/components/image-generation/generated-images-gallery";
+import dynamic from "next/dynamic";
 import { usePromptsTab } from "./use-prompts-tab";
 import { PromptModeBar } from "./prompt-mode-bar";
 import { PromptGeneratorPanel } from "./prompt-generator-panel";
@@ -11,6 +12,12 @@ import { PromptHistory } from "./prompt-history";
 import { RegenerateModal } from "./regenerate-modal";
 import { CompareVersionsModal } from "./compare-versions-modal";
 import type { PromptsTabProps } from "./types";
+
+// Modal pesado: só carrega ao pedir um vídeo
+const DirectVideoModal = dynamic(
+  () => import("@/components/video-generation/direct-video-modal").then((m) => m.DirectVideoModal),
+  { ssr: false }
+);
 
 export type { TemplateInfo, ToolProfileInfo, PromptVersionItem, EntityOption, SceneOption, PromptsTabProps } from "./types";
 
@@ -89,6 +96,22 @@ export function PromptsTab(props: PromptsTabProps) {
             </button>
           </div>
         </div>
+      )}
+
+      {s.videoModalOpen && (
+        <DirectVideoModal
+          isOpen={s.videoModalOpen}
+          onClose={() => s.setVideoModalOpen(false)}
+          title="Gerar vídeo com IA"
+          subtitle="O vídeo fica salvo no projeto e aparece na galeria."
+          projectId={projectId}
+          sceneId={selectedSceneId || undefined}
+          initialPrompt={s.promptForVideoGen}
+          onVideoGenerated={() => {
+            s.setNotice({ type: "success", text: "Vídeo gerado com sucesso e salvo no projeto." });
+            if (onStatsUpdate) onStatsUpdate();
+          }}
+        />
       )}
 
       {s.regeneratingVersion && (

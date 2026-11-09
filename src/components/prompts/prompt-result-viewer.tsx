@@ -7,7 +7,7 @@ interface PromptResultViewerProps {
 }
 
 export function PromptResultViewer({ s }: PromptResultViewerProps) {
-  const { projectId, setGenerationMode, setPromptForImageGen, currentResult, activeViewTab, setActiveViewTab, copySuccess, setRegeneratingVersion, setRegenerateInstructions, handleCopy } = s;
+  const { projectId, setGenerationMode, setPromptForImageGen, openVideoWithPrompt, currentResult, activeViewTab, setActiveViewTab, copySuccess, setRegeneratingVersion, setRegenerateInstructions, handleCopy } = s;
 
 
   return (
@@ -122,6 +122,14 @@ export function PromptResultViewer({ s }: PromptResultViewerProps) {
                   <span>🖼️</span>
                   Gerar Imagem
                 </button>
+                <button
+                  onClick={() => openVideoWithPrompt(currentResult.outputText || JSON.stringify(currentResult.outputJson))}
+                  className="flex items-center gap-1.5 rounded-xl border border-purple-400/40 bg-purple-400/10 px-3 py-2 text-xs font-bold text-purple-300 hover:bg-purple-400/20 transition"
+                  title="Gerar vídeo diretamente com este prompt via IA"
+                >
+                  <span>🎥</span>
+                  Gerar Vídeo
+                </button>
               </div>
               <button
                 onClick={() =>
@@ -184,6 +192,14 @@ export function PromptResultViewer({ s }: PromptResultViewerProps) {
                 >
                   <span>🖼️</span>
                   Gerar Imagem
+                </button>
+                <button
+                  onClick={() => openVideoWithPrompt(currentResult.outputText || JSON.stringify(currentResult.outputJson))}
+                  className="flex items-center gap-1.5 rounded-xl border border-purple-400/40 bg-purple-400/10 px-3 py-2 text-xs font-bold text-purple-300 hover:bg-purple-400/20 transition"
+                  title="Gerar vídeo diretamente com este prompt via IA"
+                >
+                  <span>🎥</span>
+                  Gerar Vídeo
                 </button>
               </div>
               {currentResult.outputText && (

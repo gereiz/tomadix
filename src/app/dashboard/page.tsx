@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import dynamic from "next/dynamic";
 import type { OnboardingState } from "@/components/onboarding/onboarding-modal";
 import { ToastNotification } from "@/components/ui/toast";
+import { CreateHub } from "@/components/dashboard/create-hub";
 
 // Modais carregados sob demanda: só entram no bundle quando abertos
 const OnboardingModal = dynamic(
@@ -391,6 +392,9 @@ export default function DashboardPage() {
             </div>
           </div>
         )}
+
+        {/* Tela "Criar": uma ação por cartão, sem exigir projeto antes */}
+        <CreateHub />
 
         {/* 4 Cards de Métricas Principais (DADOS 100% REAIS) */}
         <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">

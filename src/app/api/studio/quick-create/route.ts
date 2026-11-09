@@ -16,6 +16,10 @@ const quickCreateSchema = z.object({
   projectId: z.string().optional().nullable(),
   title: z.string().trim().max(120).optional(),
   generateImageAlso: z.boolean().optional().default(false),
+  // Escolhas leves da criação rápida (padrões mantidos: Google Flow e 16:9)
+  targetTool: z.enum(["google_flow", "nano_banana", "seedance", "kling", "generic"]).optional().default("google_flow"),
+  aspectRatio: z.enum(["16:9", "9:16", "1:1", "4:3", "3:4"]).optional().default("16:9"),
+  outputFormat: z.enum(["json", "text"]).optional().default("json"),
   // Template do motor de prompts (apenas para type PROMPT). Sem ele: vídeo se houver cena, senão imagem.
   templateKey: z
     .enum([
@@ -264,7 +268,8 @@ export async function POST(request: NextRequest) {
         effectiveProjectId!,
         workspace.id,
         {
-          targetTool: "google_flow",
+          targetTool: validated.targetTool,
+          outputFormat: validated.outputFormat,
           templateKey,
           sceneId: referencedSceneId,
           customInstructions: validated.prompt,
@@ -281,6 +286,7 @@ export async function POST(request: NextRequest) {
             title: `Prompt v${promptResult.templateVersion}`,
             href: `/projects/${effectiveProjectId}?tab=prompts`,
             preview: promptResult.data,
+            text: promptResult.formattedText ?? null,
           },
         },
         { status: 201 }
@@ -295,7 +301,7 @@ export async function POST(request: NextRequest) {
         userId: user.id,
         prompt: validated.prompt,
         projectId: effectiveProjectId || undefined,
-        aspectRatio: "16:9",
+        aspectRatio: validated.aspectRatio,
       });
 
       return NextResponse.json(

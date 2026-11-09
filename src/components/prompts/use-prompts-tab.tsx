@@ -17,6 +17,13 @@ export function usePromptsTab({ projectId, initialSceneId, onStatsUpdate }: Prom
   // Modalidade de Operação: Gerar Prompt vs Gerar Imagem vs Galeria
   const [generationMode, setGenerationMode] = useState<"PROMPT" | "IMAGE" | "GALLERY">("PROMPT");
   const [promptForImageGen, setPromptForImageGen] = useState<string>("");
+  // Geração direta de vídeo (modal) a partir do prompt gerado ou da barra de modos
+  const [videoModalOpen, setVideoModalOpen] = useState(false);
+  const [promptForVideoGen, setPromptForVideoGen] = useState<string>("");
+  const openVideoWithPrompt = (text: string) => {
+    setPromptForVideoGen(text.slice(0, 3000));
+    setVideoModalOpen(true);
+  };
 
   // Form State
   const [selectedTemplate, setSelectedTemplate] = useState<TemplateKey>("video_prompt");
@@ -491,6 +498,10 @@ export function usePromptsTab({ projectId, initialSceneId, onStatsUpdate }: Prom
     setNotice,
     loadError,
     setPromptForImageGen,
+    videoModalOpen,
+    setVideoModalOpen,
+    promptForVideoGen,
+    openVideoWithPrompt,
     currentResult,
     activeViewTab,
     setActiveViewTab,

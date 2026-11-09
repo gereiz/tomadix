@@ -52,6 +52,9 @@ export function QuickCreationBar({
   );
   const [selectedProjectId, setSelectedProjectId] = useState<string>(currentProjectId || "");
   const [prompt, setPrompt] = useState("");
+  // Opções leves (valem para Prompt IA e Imagem IA); os padrões são os de sempre
+  const [targetTool, setTargetTool] = useState("google_flow");
+  const [aspectRatio, setAspectRatio] = useState("16:9");
   const [loading, setLoading] = useState(false);
   const [feedback, setFeedback] = useState<{ text: string; type: "success" | "error" } | null>(null);
 
@@ -386,6 +389,8 @@ export function QuickCreationBar({
           prompt: prompt.trim(),
           projectId: effectiveProjectId || undefined,
           references,
+          ...(effectiveType === "PROMPT" ? { targetTool } : {}),
+          ...(effectiveType === "PROMPT" || effectiveType === "IMAGE" ? { aspectRatio } : {}),
         }),
       });
 
@@ -576,6 +581,38 @@ export function QuickCreationBar({
                     </select>
                   </div>
                 )
+              )}
+
+              {/* Escolhas leves: ferramenta (só prompts) e proporção (prompts e imagens) */}
+              {(contentType === "PROMPT" || contentType === "IMAGE") && (
+                <div className="flex items-center gap-1.5">
+                  {contentType === "PROMPT" && (
+                    <select
+                      value={targetTool}
+                      onChange={(e) => setTargetTool(e.target.value)}
+                      aria-label="Gerar para (ferramenta)"
+                      className="rounded-lg border border-white/10 bg-[#181C28] px-2 py-1 text-xs font-medium text-white/80 focus:border-primary focus:outline-none"
+                    >
+                      <option value="google_flow">Google Flow</option>
+                      <option value="nano_banana">Nano Banana</option>
+                      <option value="seedance">Seedance</option>
+                      <option value="kling">Kling</option>
+                      <option value="generic">Genérico</option>
+                    </select>
+                  )}
+                  <select
+                    value={aspectRatio}
+                    onChange={(e) => setAspectRatio(e.target.value)}
+                    aria-label="Proporção"
+                    className="rounded-lg border border-white/10 bg-[#181C28] px-2 py-1 text-xs font-medium text-white/80 focus:border-primary focus:outline-none"
+                  >
+                    <option value="16:9">16:9</option>
+                    <option value="9:16">9:16</option>
+                    <option value="1:1">1:1</option>
+                    <option value="4:3">4:3</option>
+                    <option value="3:4">3:4</option>
+                  </select>
+                </div>
               )}
 
               {/* Botão Minimizar/Recolher */}

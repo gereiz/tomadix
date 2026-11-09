@@ -38,6 +38,15 @@ export function PromptModeBar({ s }: PromptModeBarProps) {
           <span>🖼️</span>
           <span>Gerar Imagem (IA Direta)</span>
         </button>
+
+        <button
+          type="button"
+          onClick={() => s.openVideoWithPrompt("")}
+          className="flex items-center gap-2 px-4 py-2 rounded-lg text-xs font-bold text-white/60 transition hover:text-white hover:bg-white/5"
+        >
+          <span>🎥</span>
+          <span>Gerar Vídeo (IA Direta)</span>
+        </button>
       </div>
     
       <div className="flex items-center gap-2">
