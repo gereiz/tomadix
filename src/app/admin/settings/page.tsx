@@ -1,13 +1,14 @@
 "use client";
 
 import { Suspense, useEffect, useState } from "react";
+import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { GeneralSettings, DEFAULT_GENERAL_SETTINGS } from "@/modules/admin/platform-settings.service";
 import { AdminDatabaseManager } from "@/components/admin/admin-database-manager";
 
 function AdminSettingsContent() {
   const searchParams = useSearchParams();
-  const initialTab = (searchParams.get("tab") as any) || "cleanup";
+  const initialTab = (searchParams.get("tab") as any) || "features";
 
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -18,7 +19,7 @@ function AdminSettingsContent() {
   const [originalSettings, setOriginalSettings] = useState<GeneralSettings>(DEFAULT_GENERAL_SETTINGS);
 
   // Active Category Tab
-  const [activeTab, setActiveTab] = useState<"cleanup" | "database" | "platform" | "maintenance" | "diagnostics">(initialTab);
+  const [activeTab, setActiveTab] = useState<"features" | "cleanup" | "database" | "platform" | "maintenance" | "diagnostics">(initialTab);
 
   // Test data cleanup states
   const [analyzing, setAnalyzing] = useState(false);
@@ -235,6 +236,7 @@ function AdminSettingsContent() {
       {/* Categories Navigation */}
       <div className="flex border-b border-white/10 gap-2 pb-1 overflow-x-auto no-scrollbar">
         {[
+          { id: "features", label: "Recursos de IA", icon: "🎞️" },
           { id: "database", label: "Banco de Dados & Infra", icon: "🗄️" },
           { id: "cleanup", label: "Limpeza de Dados de Teste", icon: "🧹" },
           { id: "platform", label: "Informações da Plataforma", icon: "ℹ️" },
@@ -261,6 +263,76 @@ function AdminSettingsContent() {
           </button>
         ))}
       </div>
+
+      {/* CATEGORY F: RECURSOS DE IA (geração de imagens e vídeos) */}
+      {activeTab === "features" && (
+        <div className="rounded-2xl border border-white/10 bg-[#0d111c] p-6 space-y-5">
+          <h2 className="text-sm font-bold text-white border-b border-white/10 pb-3">
+            Geração de Imagens e Vídeos por IA
+          </h2>
+
+          <div className="flex flex-wrap items-center justify-between gap-4 rounded-xl border border-white/10 bg-black/30 p-4">
+            <div className="min-w-0 space-y-1">
+              <p className="text-sm font-semibold text-white">Liberar geração de imagens e vídeos para os usuários</p>
+              <p className="text-xs text-white/60">
+                Situação salva:{" "}
+                <strong className={originalSettings.featureFlags.mediaGenerationEnabled ? "text-emerald-300" : "text-amber-300"}>
+                  {originalSettings.featureFlags.mediaGenerationEnabled ? "Ligada" : "Desligada"}
+                </strong>
+                {settings.featureFlags.mediaGenerationEnabled !== originalSettings.featureFlags.mediaGenerationEnabled &&
+                  " (alteração pendente: clique em Salvar Configurações)"}
+              </p>
+            </div>
+            <button
+              type="button"
+              role="switch"
+              aria-checked={settings.featureFlags.mediaGenerationEnabled === true}
+              aria-label="Geração de Imagens e Vídeos por IA"
+              onClick={() =>
+                handleChange("featureFlags", {
+                  ...settings.featureFlags,
+                  mediaGenerationEnabled: !settings.featureFlags.mediaGenerationEnabled,
+                })
+              }
+              className="flex min-h-11 min-w-11 items-center justify-center"
+            >
+              <span
+                className={`relative inline-flex h-7 w-12 rounded-full transition ${
+                  settings.featureFlags.mediaGenerationEnabled ? "bg-amber-400" : "bg-white/20"
+                }`}
+              >
+                <span
+                  className={`absolute top-0.5 h-6 w-6 rounded-full bg-white shadow transition-all ${
+                    settings.featureFlags.mediaGenerationEnabled ? "left-[1.375rem]" : "left-0.5"
+                  }`}
+                />
+              </span>
+            </button>
+          </div>
+
+          <ul className="list-disc space-y-1.5 pl-5 text-xs leading-relaxed text-white/60">
+            <li>Desligada: todas as telas, botões e menções a imagem e vídeo somem para os usuários, e a API recusa a geração.</li>
+            <li>Continuam ativos: prompts de imagem/vídeo (texto), Análise de imagem e as imagens já geradas (voltam ao religar).</li>
+            <li>A mudança vale em até 15 segundos para a API e no próximo carregamento de página para a interface.</li>
+            <li>Configure provedores, modelos e preços antes de ligar: eles continuam acessíveis com a chave desligada.</li>
+          </ul>
+
+          <div className="flex flex-wrap gap-2 text-xs">
+            <Link href="/admin/settings/image-providers" className="rounded-lg border border-white/10 px-3 py-1.5 text-white/80 hover:bg-white/10">
+              APIs de Imagem
+            </Link>
+            <Link href="/admin/settings/video-providers" className="rounded-lg border border-white/10 px-3 py-1.5 text-white/80 hover:bg-white/10">
+              APIs de Vídeo
+            </Link>
+            <Link href="/admin/settings/pollinations" className="rounded-lg border border-white/10 px-3 py-1.5 text-white/80 hover:bg-white/10">
+              Central Pollinations
+            </Link>
+            <Link href="/admin/credits" className="rounded-lg border border-white/10 px-3 py-1.5 text-white/80 hover:bg-white/10">
+              Tabela de Créditos
+            </Link>
+          </div>
+        </div>
+      )}
 
       {/* CATEGORY 0: GESTÃO DE BANCO DE DADOS E INFRAESTRUTURA */}
       {activeTab === "database" && <AdminDatabaseManager />}
@@ -582,13 +654,12 @@ function AdminSettingsContent() {
                 { key: "cinematicStudioEnabled", label: "Estúdio Multimodal de Análise de Imagens" },
                 { key: "visualLibraryEnabled", label: "Biblioteca Visual de Referências" },
                 { key: "advancedParametersEnabled", label: "Parâmetros Cinematográficos Avançados" },
-                { key: "mediaGenerationEnabled", label: "Geração de Imagens e Vídeos por IA", defaultValue: false },
               ].map((flag) => (
                 <label key={flag.key} className="flex items-center justify-between p-2.5 rounded-lg border border-white/5 bg-black/20 hover:bg-black/40 cursor-pointer">
                   <span className="text-white/80">{flag.label}</span>
                   <input
                     type="checkbox"
-                    checked={(settings.featureFlags as any)[flag.key] ?? flag.defaultValue ?? true}
+                    checked={(settings.featureFlags as any)[flag.key] ?? true}
                     onChange={(e) =>
                       handleChange("featureFlags", {
                         ...settings.featureFlags,
@@ -600,12 +671,6 @@ function AdminSettingsContent() {
                 </label>
               ))}
             </div>
-            <p className="text-[11px] text-white/50 leading-relaxed">
-              Geração de Imagens e Vídeos por IA: desligada, todas as telas, botões e menções a essas funções somem para os
-              usuários e a API recusa a geração. Prompts de imagem/vídeo (texto) e a Análise de imagem continuam ativos. Os
-              provedores, modelos e preços podem ser configurados no console mesmo com a chave desligada. A mudança vale em
-              até 15 segundos para a API e no próximo carregamento de página para a interface.
-            </p>
           </div>
         </div>
       )}

@@ -2,11 +2,13 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
+import { useMediaGeneration } from "@/components/providers/feature-flags-provider";
 
 export default function AdminOverviewPage() {
   const [loading, setLoading] = useState(true);
   const [period, setPeriod] = useState<"today" | "7d" | "30d" | "90d">("30d");
   const [data, setData] = useState<any>(null);
+  const mediaEnabled = useMediaGeneration();
 
   const loadSummary = (selectedPeriod: string) => {
     setLoading(true);
@@ -103,6 +105,32 @@ export default function AdminOverviewPage() {
             Configurações
           </Link>
         </div>
+      </div>
+
+      {/* Estado da geração de imagens e vídeos (chave global) */}
+      <div className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-white/10 bg-white/[0.03] p-4">
+        <div className="flex items-center gap-3">
+          <span className="text-xl">🎞️</span>
+          <div>
+            <p className="text-xs font-bold text-white">
+              Geração de imagens e vídeos:{" "}
+              <span className={mediaEnabled ? "text-emerald-300" : "text-amber-300"}>
+                {mediaEnabled ? "Ligada" : "Desligada"}
+              </span>
+            </p>
+            <p className="text-[11px] text-white/60">
+              {mediaEnabled
+                ? "Os usuários veem e usam a geração de imagens e vídeos por IA."
+                : "Oculta para os usuários. Ative quando os provedores e preços estiverem configurados."}
+            </p>
+          </div>
+        </div>
+        <Link
+          href="/admin/settings?tab=features"
+          className="rounded-lg bg-amber-400/20 border border-amber-400/30 px-3 py-1.5 text-xs font-medium text-amber-300 hover:bg-amber-400/30"
+        >
+          Gerenciar
+        </Link>
       </div>
 
       {/* Operational Warning if stuck jobs */}

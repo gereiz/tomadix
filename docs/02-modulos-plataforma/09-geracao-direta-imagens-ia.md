@@ -50,7 +50,7 @@ Em qualquer prompt gerado pelo Gemini (seja na visualização atual ou no histó
 
 ## Chave global do administrador (ligar/desligar)
 
-A geração direta de **imagens e vídeos** é controlada por uma chave global, **desligada por padrão**: `Configurações Gerais > Módulos Opcionais > Geração de Imagens e Vídeos por IA` (`featureFlags.mediaGenerationEnabled`, em `PlatformSettingsService`). A mudança é auditada (`PLATFORM_MEDIA_GENERATION_TOGGLED`, com `from`/`to`).
+A geração direta de **imagens e vídeos** é controlada por uma chave global, **desligada por padrão**: `Admin > Configurações Gerais > Recursos de IA` (também há um atalho no Painel do admin) (`featureFlags.mediaGenerationEnabled`, em `PlatformSettingsService`). A mudança é auditada (`PLATFORM_MEDIA_GENERATION_TOGGLED`, com `from`/`to`).
 
 - **API (autoritativo):** com a chave desligada, `ImageGenerationService.generateDirectImage` e `VideoGenerationService.generateDirectVideo` recusam com `MEDIA_GENERATION_DISABLED` (403) antes de qualquer consulta ou cobrança; `quick-create` tipo `IMAGE` responde 403; `available-models` de imagem e vídeo devolvem `enabled: false`. A leitura da flag tem cache de 15 s.
 - **Interface:** o navegador lê `/api/features` (`FeatureFlagsProvider`, hook `useMediaGeneration()`); sem resposta, a mídia fica oculta. Somem: modos Imagem/Vídeo/Galeria da aba Prompts e botões "Gerar Imagem/Vídeo", cartões e ações do dashboard e da barra de criação, retratos/botões de imagem em personagens, ambientes e cenas, nós de imagem/vídeo e ações do Board, miniaturas e colagens de imagens geradas, selo do provedor e menções nos planos/simulação (`media-visibility.ts`).

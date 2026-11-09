@@ -140,6 +140,9 @@ describe("Chave global de geração de imagens e vídeos", () => {
     expect(read("src/app/api/videos/available-models/route.ts")).toContain("enabled: false");
     expect(read("src/app/api/images/available-models/route.ts")).toContain("enabled: false");
     expect(read("src/app/layout.tsx")).toContain("<FeatureFlagsProvider>");
+    expect(read("src/app/admin/settings/page.tsx")).toContain('id: "features"');
+    expect(read("src/app/admin/settings/page.tsx")).toContain("Liberar geração de imagens e vídeos");
+    expect(read("src/app/admin/page.tsx")).toContain("/admin/settings?tab=features");
     for (const f of [
       "src/components/dashboard/create-hub.tsx",
       "src/components/studio/quick-creation-bar.tsx",

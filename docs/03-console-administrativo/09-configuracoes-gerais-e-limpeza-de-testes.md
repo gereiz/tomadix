@@ -10,6 +10,7 @@ O módulo de **Configurações Gerais** (`/admin/settings`) centraliza os parâm
 - **Modo de Manutenção:** Quando ativado, exibe mensagem personalizada aos usuários finais, restringindo o acesso à plataforma durante janelas de manutenção técnica.
 - **Banner de Comunicados:** Exibição condicional de barra de avisos no topo do dashboard com tipagem visual (informativo, aviso ou alerta).
 - **Feature Flags Globais:** Ativação e desativação em tempo real de funcionalidades como registro público de novas contas, estúdio multimodal, biblioteca visual e parâmetros avançados.
+- **Recursos de IA (aba própria):** chave global da geração de imagens e vídeos, desligada por padrão. Veja `02-modulos-plataforma/09-geracao-direta-imagens-ia.md`.
 
 ---
 
