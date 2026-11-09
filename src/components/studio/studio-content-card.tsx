@@ -1,6 +1,6 @@
 "use client";
 
-import { useMediaGeneration } from "@/components/providers/feature-flags-provider";
+import { useMediaFlags } from "@/components/providers/feature-flags-provider";
 import Link from "next/link";
 import { StudioFeedItem } from "@/app/api/studio/feed/route";
 
@@ -45,7 +45,7 @@ const TYPE_CONFIG = {
 
 export function StudioContentCard({ item, onDuplicate, onDelete }: StudioContentCardProps) {
   // Chave global do admin: sem geração de mídia, imagens geradas e menções somem
-  const mediaEnabled = useMediaGeneration();
+  const { image: mediaEnabled } = useMediaFlags(); // imagens ligadas
   const config = TYPE_CONFIG[item.type] || TYPE_CONFIG.PROJECT;
 
   const formatDate = (isoString: string) => {

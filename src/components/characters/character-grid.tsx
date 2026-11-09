@@ -1,7 +1,7 @@
 "use client";
 
 import { downloadImage } from "@/lib/utils/download-image";
-import { useMediaGeneration } from "@/components/providers/feature-flags-provider";
+import { useMediaFlags } from "@/components/providers/feature-flags-provider";
 import type { EntityStatusFilter, LightboxImage } from "@/components/entities/types";
 import type { CharacterItem } from "./types";
 
@@ -35,7 +35,7 @@ export function CharacterGrid({
   setLightboxImage,
 }: CharacterGridProps) {
   // Chave global do admin: sem mídia, somem retratos gerados e botões de imagem
-  const mediaEnabled = useMediaGeneration();
+  const { image: mediaEnabled } = useMediaFlags(); // imagens ligadas
   return (
     <>
     {loading ? (

@@ -8,12 +8,17 @@ import {
 } from "@/modules/admin/platform-settings.service";
 import { ImageGenerationService } from "@/modules/image-generation/image-generation.service";
 import { VideoGenerationService } from "@/modules/video-generation/video-generation.service";
-import { isMediaFeatureText, stripMediaFeatures, stripMediaOperations } from "@/modules/billing/media-visibility";
+import {
+  isImageFeatureText,
+  isVideoFeatureText,
+  stripMediaFeatures,
+  stripMediaOperations,
+} from "@/modules/billing/media-visibility";
 
 const read = (p: string) => readFileSync(join(process.cwd(), p), "utf-8");
 const KEY = "PLATFORM_GENERAL_SETTINGS";
 
-describe("Chave global de geração de imagens e vídeos", () => {
+describe("Chaves globais de geração de imagens e de vídeos", () => {
   let adminId: string;
   let workspaceId: string;
   let originalValue: unknown = null;
@@ -60,10 +65,7 @@ describe("Chave global de geração de imagens e vídeos", () => {
     await PlatformSettingsService.updateGeneralSettings({}, adminId).catch(() => undefined);
   });
 
-  it("começa desligada por padrão, inclusive em registros antigos sem a chave", async () => {
-    expect(DEFAULT_GENERAL_SETTINGS.featureFlags.mediaGenerationEnabled).toBe(false);
-
-    // registro "antigo": featureFlags sem a chave nova
+  async function upsertRaw(value: object) {
     await db.commercialPolicy.upsert({
       where: { key: KEY },
       create: {
@@ -72,20 +74,48 @@ describe("Chave global de geração de imagens e vídeos", () => {
         label: "t",
         description: "t",
         dataType: "json",
-        value: { featureFlags: { registrationEnabled: true } },
+        value,
         defaultValue: {},
         isSystem: true,
       },
-      update: { value: { featureFlags: { registrationEnabled: true } } },
+      update: { value },
     });
+  }
+
+  it("as duas começam desligadas, inclusive em registros antigos sem as chaves", async () => {
+    expect(DEFAULT_GENERAL_SETTINGS.featureFlags.imageGenerationEnabled).toBe(false);
+    expect(DEFAULT_GENERAL_SETTINGS.featureFlags.videoGenerationEnabled).toBe(false);
+
+    await upsertRaw({ featureFlags: { registrationEnabled: true } });
     const settings = await PlatformSettingsService.getGeneralSettings();
-    expect(settings.featureFlags.mediaGenerationEnabled).toBe(false);
+    expect(settings.featureFlags.imageGenerationEnabled).toBe(false);
+    expect(settings.featureFlags.videoGenerationEnabled).toBe(false);
     expect(settings.featureFlags.registrationEnabled).toBe(true);
     expect(settings.featureFlags.visualLibraryEnabled).toBe(true);
   });
 
-  it("desligada, a geração de imagem e de vídeo é recusada sem cobrar créditos", async () => {
-    await PlatformSettingsService.updateGeneralSettings({ featureFlags: { mediaGenerationEnabled: false } }, adminId);
+  it("migra a chave única antiga: ligada liga as duas, desligada mantém as duas desligadas", async () => {
+    await upsertRaw({ featureFlags: { mediaGenerationEnabled: true } });
+    let flags = (await PlatformSettingsService.getGeneralSettings()).featureFlags;
+    expect(flags.imageGenerationEnabled).toBe(true);
+    expect(flags.videoGenerationEnabled).toBe(true);
+
+    await upsertRaw({ featureFlags: { mediaGenerationEnabled: true, videoGenerationEnabled: false } });
+    flags = (await PlatformSettingsService.getGeneralSettings()).featureFlags;
+    expect(flags.imageGenerationEnabled).toBe(true);
+    expect(flags.videoGenerationEnabled).toBe(false);
+
+    await upsertRaw({ featureFlags: { mediaGenerationEnabled: false } });
+    flags = (await PlatformSettingsService.getGeneralSettings()).featureFlags;
+    expect(flags.imageGenerationEnabled).toBe(false);
+    expect(flags.videoGenerationEnabled).toBe(false);
+  });
+
+  it("ambas desligadas: imagem e vídeo são recusados sem cobrar créditos", async () => {
+    await PlatformSettingsService.updateGeneralSettings(
+      { featureFlags: { imageGenerationEnabled: false, videoGenerationEnabled: false } },
+      adminId
+    );
 
     await expect(
       ImageGenerationService.generateDirectImage({ workspaceId, userId: adminId, prompt: "um gato" })
@@ -99,49 +129,96 @@ describe("Chave global de geração de imagens e vídeos", () => {
     expect(ws.creditsBalance).toBe(100);
   });
 
-  it("ligar e desligar vale na hora para a API e fica auditado", async () => {
-    await PlatformSettingsService.updateGeneralSettings({ featureFlags: { mediaGenerationEnabled: true } }, adminId);
+  it("só imagens ligada: imagem libera e vídeo continua recusado", async () => {
+    await PlatformSettingsService.updateGeneralSettings(
+      { featureFlags: { imageGenerationEnabled: true, videoGenerationEnabled: false } },
+      adminId
+    );
+    expect(await PlatformSettingsService.isImageGenerationEnabled()).toBe(true);
+    expect(await PlatformSettingsService.isVideoGenerationEnabled()).toBe(false);
     expect(await PlatformSettingsService.isMediaGenerationEnabled()).toBe(true);
+
     // a guarda libera: o erro agora é outro (prompt vazio), não o bloqueio da chave
     await expect(
       ImageGenerationService.generateDirectImage({ workspaceId, userId: adminId, prompt: "   " })
     ).rejects.toMatchObject({ code: "EMPTY_PROMPT" });
+    await expect(
+      VideoGenerationService.generateDirectVideo({ workspaceId, userId: adminId, prompt: "x" })
+    ).rejects.toMatchObject({ code: "MEDIA_GENERATION_DISABLED" });
+  });
 
-    await PlatformSettingsService.updateGeneralSettings({ featureFlags: { mediaGenerationEnabled: false } }, adminId);
-    expect(await PlatformSettingsService.isMediaGenerationEnabled()).toBe(false);
+  it("só vídeos ligada: a guarda de vídeo libera e imagem continua recusada", async () => {
+    await PlatformSettingsService.updateGeneralSettings(
+      { featureFlags: { imageGenerationEnabled: false, videoGenerationEnabled: true } },
+      adminId
+    );
+    expect(await PlatformSettingsService.isImageGenerationEnabled()).toBe(false);
+    expect(await PlatformSettingsService.isVideoGenerationEnabled()).toBe(true);
+
+    await expect(
+      ImageGenerationService.generateDirectImage({ workspaceId, userId: adminId, prompt: "um gato" })
+    ).rejects.toMatchObject({ code: "MEDIA_GENERATION_DISABLED" });
+  });
+
+  it("a mudança é auditada por tipo, com valor anterior e novo", async () => {
+    await PlatformSettingsService.updateGeneralSettings({ featureFlags: { imageGenerationEnabled: true } }, adminId);
+    await PlatformSettingsService.updateGeneralSettings({ featureFlags: { videoGenerationEnabled: true } }, adminId);
+    await PlatformSettingsService.updateGeneralSettings({ featureFlags: { imageGenerationEnabled: false } }, adminId);
 
     const logs = await db.platformAuditLog.findMany({
       where: { adminUserId: adminId, action: "PLATFORM_MEDIA_GENERATION_TOGGLED" },
       orderBy: { createdAt: "asc" },
     });
-    expect(logs.map((l) => (l.details as { to: boolean }).to)).toEqual([true, false]);
+    expect(logs.map((l) => l.details)).toEqual([
+      { kind: "image", from: false, to: true },
+      { kind: "video", from: false, to: true },
+      { kind: "image", from: true, to: false },
+    ]);
   });
 
-  it("catálogo público não menciona imagem/vídeo quando desligada", () => {
-    expect(isMediaFeatureText("Geração direta de imagens com IA (Flux)")).toBe(true);
-    expect(isMediaFeatureText("Acesso a todos os modelos de imagem")).toBe(true);
-    expect(isMediaFeatureText("Prompts para vídeo ilimitados")).toBe(false);
+  it("catálogo público filtra só o tipo que está desligado", () => {
+    expect(isImageFeatureText("Geração direta de imagens com IA (Flux)")).toBe(true);
+    expect(isImageFeatureText("Acesso a todos os modelos de imagem")).toBe(true);
+    expect(isVideoFeatureText("Geração direta de vídeos com IA")).toBe(true);
+    expect(isImageFeatureText("Prompts para vídeo ilimitados")).toBe(false);
+    expect(isVideoFeatureText("Prompts para vídeo ilimitados")).toBe(false);
 
-    const plan = stripMediaFeatures({ features: ["Prompts ilimitados", "Geração direta de imagens com cotas elevadas"] });
-    expect(plan.features).toEqual(["Prompts ilimitados"]);
+    const plan = {
+      features: ["Prompts ilimitados", "Geração direta de imagens com cotas elevadas", "Geração direta de vídeos"],
+    };
+    expect(stripMediaFeatures(plan, { image: false, video: false }).features).toEqual(["Prompts ilimitados"]);
+    expect(stripMediaFeatures(plan, { image: true, video: false }).features).toEqual([
+      "Prompts ilimitados",
+      "Geração direta de imagens com cotas elevadas",
+    ]);
+    expect(stripMediaFeatures(plan, { image: false, video: true }).features).toEqual([
+      "Prompts ilimitados",
+      "Geração direta de vídeos",
+    ]);
 
-    const sim = stripMediaOperations({
+    const sim = {
       services: [
         { operationCode: "GEN_IMAGE_DIRECT" },
         { operationCode: "GEN_VIDEO_DIRECT" },
         { operationCode: "GEN_IMAGE_PROMPT" },
       ],
-    });
-    expect(sim.services.map((s) => s.operationCode)).toEqual(["GEN_IMAGE_PROMPT"]);
+    };
+    const codes = (flags: { image: boolean; video: boolean }) =>
+      stripMediaOperations(sim, flags).services.map((s) => s.operationCode);
+    expect(codes({ image: false, video: false })).toEqual(["GEN_IMAGE_PROMPT"]);
+    expect(codes({ image: true, video: false })).toEqual(["GEN_IMAGE_DIRECT", "GEN_IMAGE_PROMPT"]);
+    expect(codes({ image: false, video: true })).toEqual(["GEN_VIDEO_DIRECT", "GEN_IMAGE_PROMPT"]);
   });
 
   it("guardas e ocultação da interface estão no código", () => {
-    expect(read("src/app/api/studio/quick-create/route.ts")).toContain("isMediaGenerationEnabled");
-    expect(read("src/app/api/videos/available-models/route.ts")).toContain("enabled: false");
-    expect(read("src/app/api/images/available-models/route.ts")).toContain("enabled: false");
+    expect(read("src/app/api/studio/quick-create/route.ts")).toContain("isImageGenerationEnabled");
+    expect(read("src/app/api/videos/available-models/route.ts")).toContain("isVideoGenerationEnabled");
+    expect(read("src/app/api/images/available-models/route.ts")).toContain("isImageGenerationEnabled");
     expect(read("src/app/layout.tsx")).toContain("<FeatureFlagsProvider>");
-    expect(read("src/app/admin/settings/page.tsx")).toContain('id: "features"');
-    expect(read("src/app/admin/settings/page.tsx")).toContain("Liberar geração de imagens e vídeos");
+    const settingsPage = read("src/app/admin/settings/page.tsx");
+    expect(settingsPage).toContain('id: "features"');
+    expect(settingsPage).toContain("imageGenerationEnabled");
+    expect(settingsPage).toContain("videoGenerationEnabled");
     expect(read("src/app/admin/page.tsx")).toContain("/admin/settings?tab=features");
     for (const f of [
       "src/components/dashboard/create-hub.tsx",
@@ -151,8 +228,9 @@ describe("Chave global de geração de imagens e vídeos", () => {
       "src/components/scenes/scenes-list.tsx",
       "src/components/spaces/board/board-toolbar.tsx",
       "src/components/spaces/board/library-drawer.tsx",
+      "src/components/spaces/board/node-actions-sheet.tsx",
     ]) {
-      expect(read(f), f).toContain("useMediaGeneration");
+      expect(read(f), f).toContain("useMediaFlags");
     }
   });
 });

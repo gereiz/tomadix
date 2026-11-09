@@ -8,8 +8,9 @@ export const dynamic = "force-dynamic";
 export async function GET() {
   try {
     const allPlans = await BillingService.listPlans();
-    const mediaEnabled = await PlatformSettingsService.isMediaGenerationEnabled();
-    const plans = mediaEnabled ? allPlans : allPlans.map(stripMediaFeatures);
+    const flags = await PlatformSettingsService.getFeatureFlags();
+    const media = { image: flags.imageGenerationEnabled === true, video: flags.videoGenerationEnabled === true };
+    const plans = allPlans.map((plan) => stripMediaFeatures(plan, media));
     return NextResponse.json(
       { data: plans },
       // Catálogo muda raramente: cache curto no navegador/CDN com revalidação em segundo plano

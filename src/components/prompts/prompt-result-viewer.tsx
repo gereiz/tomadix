@@ -7,7 +7,7 @@ interface PromptResultViewerProps {
 }
 
 export function PromptResultViewer({ s }: PromptResultViewerProps) {
-  const { projectId, setGenerationMode, setPromptForImageGen, openVideoWithPrompt, mediaEnabled, currentResult, activeViewTab, setActiveViewTab, copySuccess, setRegeneratingVersion, setRegenerateInstructions, handleCopy } = s;
+  const { projectId, setGenerationMode, setPromptForImageGen, openVideoWithPrompt, imageEnabled, videoEnabled, currentResult, activeViewTab, setActiveViewTab, copySuccess, setRegeneratingVersion, setRegenerateInstructions, handleCopy } = s;
 
 
   return (
@@ -110,8 +110,7 @@ export function PromptResultViewer({ s }: PromptResultViewerProps) {
                   </svg>
                   Regenerar
                 </button>
-                {mediaEnabled && (
-                <>
+                {imageEnabled && (
                 <button
                   onClick={() => {
                     const promptText = currentResult.outputText || JSON.stringify(currentResult.outputJson);
@@ -124,6 +123,8 @@ export function PromptResultViewer({ s }: PromptResultViewerProps) {
                   <span>🖼️</span>
                   Gerar Imagem
                 </button>
+                )}
+                {videoEnabled && (
                 <button
                   onClick={() => openVideoWithPrompt(currentResult.outputText || JSON.stringify(currentResult.outputJson))}
                   className="flex items-center gap-1.5 rounded-xl border border-purple-400/40 bg-purple-400/10 px-3 py-2 text-xs font-bold text-purple-300 hover:bg-purple-400/20 transition"
@@ -132,7 +133,6 @@ export function PromptResultViewer({ s }: PromptResultViewerProps) {
                   <span>🎥</span>
                   Gerar Vídeo
                 </button>
-                </>
                 )}
               </div>
               <button
@@ -185,8 +185,7 @@ export function PromptResultViewer({ s }: PromptResultViewerProps) {
                   </svg>
                   Regenerar
                 </button>
-                {mediaEnabled && (
-                <>
+                {imageEnabled && (
                 <button
                   onClick={() => {
                     const promptText = currentResult.outputText || JSON.stringify(currentResult.outputJson);
@@ -199,6 +198,8 @@ export function PromptResultViewer({ s }: PromptResultViewerProps) {
                   <span>🖼️</span>
                   Gerar Imagem
                 </button>
+                )}
+                {videoEnabled && (
                 <button
                   onClick={() => openVideoWithPrompt(currentResult.outputText || JSON.stringify(currentResult.outputJson))}
                   className="flex items-center gap-1.5 rounded-xl border border-purple-400/40 bg-purple-400/10 px-3 py-2 text-xs font-bold text-purple-300 hover:bg-purple-400/20 transition"
@@ -207,7 +208,6 @@ export function PromptResultViewer({ s }: PromptResultViewerProps) {
                   <span>🎥</span>
                   Gerar Vídeo
                 </button>
-                </>
                 )}
               </div>
               {currentResult.outputText && (

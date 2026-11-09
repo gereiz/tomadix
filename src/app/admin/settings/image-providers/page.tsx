@@ -428,7 +428,7 @@ export default function ImageProvidersAdminPage() {
 
   return (
     <div className="space-y-6">
-      <MediaDisabledNotice />
+      <MediaDisabledNotice kind="image" />
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-white/10 pb-5">
         <div>

@@ -9,7 +9,8 @@ const featureFlagsSchema = z
     cinematicStudioEnabled: z.boolean(),
     visualLibraryEnabled: z.boolean(),
     advancedParametersEnabled: z.boolean(),
-    mediaGenerationEnabled: z.boolean(),
+    imageGenerationEnabled: z.boolean(),
+    videoGenerationEnabled: z.boolean(),
   })
   .partial()
   .strict();

@@ -3,7 +3,7 @@
 import { Spinner } from "@/components/ui/spinner";
 import { useState, useEffect, useRef, useCallback } from "react";
 import { useRouter } from "next/navigation";
-import { useMediaGeneration } from "@/components/providers/feature-flags-provider";
+import { useMediaFlags } from "@/components/providers/feature-flags-provider";
 
 interface ProjectOption {
   id: string;
@@ -41,7 +41,7 @@ export function QuickCreationBar({
 }: QuickCreationBarProps) {
   const router = useRouter();
   // Chave global do admin: sem mídia, some a opção "Imagem IA"
-  const mediaEnabled = useMediaGeneration();
+  const { image: mediaEnabled } = useMediaFlags(); // imagens ligadas
 
   // Preferências persistidas
   const [isCollapsed, setIsCollapsed] = useState(false);

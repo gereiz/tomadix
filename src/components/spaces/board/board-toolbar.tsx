@@ -1,6 +1,6 @@
 "use client";
 
-import { useMediaGeneration } from "@/components/providers/feature-flags-provider";
+import { useMediaFlags } from "@/components/providers/feature-flags-provider";
 
 interface BoardToolbarProps {
   canEdit: boolean;
@@ -17,7 +17,7 @@ interface BoardToolbarProps {
 
 export function BoardToolbar({ canEdit, isLibraryOpen, onToggleLibrary, onGenerateImage, onGenerateVideo, addVideoGeneratorNode, addPromptNode, addNoteNode, handleAutoOrganize, onFitView }: BoardToolbarProps) {
   // Chave global do admin: sem mídia, somem as ações de gerar imagem/vídeo
-  const mediaEnabled = useMediaGeneration();
+  const { image: imageEnabled, video: videoEnabled } = useMediaFlags();
   return (
     <div className="no-scrollbar pointer-events-auto absolute bottom-16 left-3 right-3 z-20 flex max-w-max flex-row items-center gap-1.5 overflow-x-auto rounded-2xl border border-outline-variant/30 bg-surface-container/95 p-1.5 shadow-2xl md:bottom-auto md:left-3.5 md:right-auto md:top-1/2 md:max-w-none md:-translate-y-1/2 md:flex-col md:overflow-visible">
       <button
@@ -32,7 +32,7 @@ export function BoardToolbar({ canEdit, isLibraryOpen, onToggleLibrary, onGenera
         +
       </button>
     
-      {mediaEnabled && (
+      {imageEnabled && (
       <>
       <button
         type="button"
@@ -44,6 +44,10 @@ export function BoardToolbar({ canEdit, isLibraryOpen, onToggleLibrary, onGenera
         🖼️
       </button>
     
+      </>
+      )}
+      {videoEnabled && (
+      <>
       <button
         type="button"
         disabled={!canEdit}

@@ -1,7 +1,7 @@
 "use client";
 
 import { Icon } from "@/components/ui/icon";
-import { useMediaGeneration } from "@/components/providers/feature-flags-provider";
+import { useMediaFlags } from "@/components/providers/feature-flags-provider";
 import type { ProjectsListTabState } from "./use-projects-list";
 
 interface ProjectsHeaderProps {
@@ -10,7 +10,7 @@ interface ProjectsHeaderProps {
 
 export function ProjectsHeader({ s }: ProjectsHeaderProps) {
   const { projects, setIsCreateModalOpen, setIsPresetsModalOpen, usageSummary, setPlanLimitModal, resetForm } = s;
-  const mediaEnabled = useMediaGeneration();
+  const { image: mediaEnabled } = useMediaFlags(); // imagens ligadas
 
 
   return (

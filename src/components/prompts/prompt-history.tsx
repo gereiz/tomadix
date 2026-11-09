@@ -7,7 +7,7 @@ interface PromptHistoryProps {
 }
 
 export function PromptHistory({ s }: PromptHistoryProps) {
-  const { projectId, versions, scenes, mediaEnabled, setGenerationMode, setPromptForImageGen, filterTemplate, setFilterTemplate, filterStatus, setFilterStatus, filterScene, setFilterScene, currentResult, setCurrentResult, setRegeneratingVersion, setRegenerateInstructions, setCompareModalOpen, setCompareVersionAId, setCompareVersionBId, setComparisonResult, deletingJobId, isClearingAllErrors, fetchHistory, handleGenerate, handleDeleteError, handleClearAllErrors, succeededVersions, failedVersions } = s;
+  const { projectId, versions, scenes, imageEnabled: mediaEnabled, setGenerationMode, setPromptForImageGen, filterTemplate, setFilterTemplate, filterStatus, setFilterStatus, filterScene, setFilterScene, currentResult, setCurrentResult, setRegeneratingVersion, setRegenerateInstructions, setCompareModalOpen, setCompareVersionAId, setCompareVersionBId, setComparisonResult, deletingJobId, isClearingAllErrors, fetchHistory, handleGenerate, handleDeleteError, handleClearAllErrors, succeededVersions, failedVersions } = s;
 
 
   return (

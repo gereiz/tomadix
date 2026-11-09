@@ -6,10 +6,11 @@ import { stripMediaOperations } from "@/modules/billing/media-visibility";
 export async function GET() {
   try {
     const simulations = await CreditSimulationService.simulateAllPlans();
-    const mediaEnabled = await PlatformSettingsService.isMediaGenerationEnabled();
+    const flags = await PlatformSettingsService.getFeatureFlags();
+    const media = { image: flags.imageGenerationEnabled === true, video: flags.videoGenerationEnabled === true };
     return NextResponse.json({
       success: true,
-      data: mediaEnabled ? simulations : simulations.map(stripMediaOperations),
+      data: simulations.map((sim) => stripMediaOperations(sim, media)),
     });
   } catch (error: any) {
     console.error("Erro ao gerar simulação de capacidade dos planos:", error);
@@ -34,10 +35,11 @@ export async function POST(request: NextRequest) {
       dailyCreditsAccumulative: body.dailyCreditsAccumulative,
     });
 
-    const mediaEnabled = await PlatformSettingsService.isMediaGenerationEnabled();
+    const flags = await PlatformSettingsService.getFeatureFlags();
+    const media = { image: flags.imageGenerationEnabled === true, video: flags.videoGenerationEnabled === true };
     return NextResponse.json({
       success: true,
-      simulation: mediaEnabled ? simulation : stripMediaOperations(simulation),
+      simulation: stripMediaOperations(simulation, media),
     });
   } catch (error: any) {
     console.error("Erro ao simular plano sob demanda:", error);

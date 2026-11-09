@@ -271,47 +271,60 @@ function AdminSettingsContent() {
             Geração de Imagens e Vídeos por IA
           </h2>
 
-          <div className="flex flex-wrap items-center justify-between gap-4 rounded-xl border border-white/10 bg-black/30 p-4">
-            <div className="min-w-0 space-y-1">
-              <p className="text-sm font-semibold text-white">Liberar geração de imagens e vídeos para os usuários</p>
-              <p className="text-xs text-white/60">
-                Situação salva:{" "}
-                <strong className={originalSettings.featureFlags.mediaGenerationEnabled ? "text-emerald-300" : "text-amber-300"}>
-                  {originalSettings.featureFlags.mediaGenerationEnabled ? "Ligada" : "Desligada"}
-                </strong>
-                {settings.featureFlags.mediaGenerationEnabled !== originalSettings.featureFlags.mediaGenerationEnabled &&
-                  " (alteração pendente: clique em Salvar Configurações)"}
-              </p>
-            </div>
-            <button
-              type="button"
-              role="switch"
-              aria-checked={settings.featureFlags.mediaGenerationEnabled === true}
-              aria-label="Geração de Imagens e Vídeos por IA"
-              onClick={() =>
-                handleChange("featureFlags", {
-                  ...settings.featureFlags,
-                  mediaGenerationEnabled: !settings.featureFlags.mediaGenerationEnabled,
-                })
-              }
-              className="flex min-h-11 min-w-11 items-center justify-center"
-            >
-              <span
-                className={`relative inline-flex h-7 w-12 rounded-full transition ${
-                  settings.featureFlags.mediaGenerationEnabled ? "bg-amber-400" : "bg-white/20"
-                }`}
-              >
-                <span
-                  className={`absolute top-0.5 h-6 w-6 rounded-full bg-white shadow transition-all ${
-                    settings.featureFlags.mediaGenerationEnabled ? "left-[1.375rem]" : "left-0.5"
-                  }`}
-                />
-              </span>
-            </button>
-          </div>
+          {(
+            [
+              {
+                key: "imageGenerationEnabled",
+                title: "Imagens por IA",
+                description: "Liberar a geração de imagens para os usuários",
+              },
+              {
+                key: "videoGenerationEnabled",
+                title: "Vídeos por IA",
+                description: "Liberar a geração de vídeos para os usuários",
+              },
+            ] as const
+          ).map((item) => {
+            const draft = settings.featureFlags[item.key] === true;
+            const saved = originalSettings.featureFlags[item.key] === true;
+            return (
+              <div key={item.key} className="flex flex-wrap items-center justify-between gap-4 rounded-xl border border-white/10 bg-black/30 p-4">
+                <div className="min-w-0 space-y-1">
+                  <p className="text-sm font-semibold text-white">{item.title}</p>
+                  <p className="text-xs text-white/60">{item.description}</p>
+                  <p className="text-xs text-white/60">
+                    Situação salva:{" "}
+                    <strong className={saved ? "text-emerald-300" : "text-amber-300"}>{saved ? "Ligada" : "Desligada"}</strong>
+                    {draft !== saved && " (alteração pendente: clique em Salvar Configurações)"}
+                  </p>
+                </div>
+                <button
+                  type="button"
+                  role="switch"
+                  aria-checked={draft}
+                  aria-label={item.title}
+                  onClick={() =>
+                    handleChange("featureFlags", {
+                      ...settings.featureFlags,
+                      [item.key]: !draft,
+                    })
+                  }
+                  className="flex min-h-11 min-w-11 items-center justify-center"
+                >
+                  <span className={`relative inline-flex h-7 w-12 rounded-full transition ${draft ? "bg-amber-400" : "bg-white/20"}`}>
+                    <span
+                      className={`absolute top-0.5 h-6 w-6 rounded-full bg-white shadow transition-all ${
+                        draft ? "left-[1.375rem]" : "left-0.5"
+                      }`}
+                    />
+                  </span>
+                </button>
+              </div>
+            );
+          })}
 
           <ul className="list-disc space-y-1.5 pl-5 text-xs leading-relaxed text-white/60">
-            <li>Desligada: todas as telas, botões e menções a imagem e vídeo somem para os usuários, e a API recusa a geração.</li>
+            <li>Cada chave é independente: dá para liberar só imagens ou só vídeos. Desligada, as telas, botões e menções daquele tipo somem para os usuários e a API recusa a geração.</li>
             <li>Continuam ativos: prompts de imagem/vídeo (texto), Análise de imagem e as imagens já geradas (voltam ao religar).</li>
             <li>A mudança vale em até 15 segundos para a API e no próximo carregamento de página para a interface.</li>
             <li>Configure provedores, modelos e preços antes de ligar: eles continuam acessíveis com a chave desligada.</li>

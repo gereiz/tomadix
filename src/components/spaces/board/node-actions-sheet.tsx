@@ -1,6 +1,6 @@
 "use client";
 
-import { useMediaGeneration } from "@/components/providers/feature-flags-provider";
+import { useMediaFlags } from "@/components/providers/feature-flags-provider";
 import type { Dispatch, SetStateAction } from "react";
 import type { Node } from "@xyflow/react";
 
@@ -18,7 +18,7 @@ interface NodeActionsSheetProps {
 
 export function NodeActionsSheet({ nodeActionsTarget, setNodeActionsTarget, setSafeDeleteTarget, setEditNode, setEditLabel, setEditPrompt, setPreviewNode, handleGenerateVideoFromNode, duplicateNode }: NodeActionsSheetProps) {
   // Chave global do admin: sem mídia, somem as ações de vídeo/imagem
-  const mediaEnabled = useMediaGeneration();
+  const { video: mediaEnabled } = useMediaFlags(); // vídeos ligados
   return (
     <div
       className="fixed inset-0 z-[115] flex items-end sm:items-center justify-center bg-black/75 p-0 sm:p-4"

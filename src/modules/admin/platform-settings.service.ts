@@ -68,8 +68,10 @@ export interface GeneralSettings {
     cinematicStudioEnabled: boolean;
     visualLibraryEnabled: boolean;
     advancedParametersEnabled: boolean;
-    /** Geração direta de imagens e vídeos por IA (interface e API). Desligada por padrão. */
-    mediaGenerationEnabled: boolean;
+    /** Geração direta de imagens por IA (interface e API). Desligada por padrão. */
+    imageGenerationEnabled: boolean;
+    /** Geração direta de vídeos por IA (interface e API). Desligada por padrão. */
+    videoGenerationEnabled: boolean;
   };
   maxUploadSizeMb: number;
 }
@@ -94,7 +96,8 @@ export const DEFAULT_GENERAL_SETTINGS: GeneralSettings = {
     cinematicStudioEnabled: true,
     visualLibraryEnabled: true,
     advancedParametersEnabled: true,
-    mediaGenerationEnabled: false,
+    imageGenerationEnabled: false,
+    videoGenerationEnabled: false,
   },
   maxUploadSizeMb: 25,
 };
@@ -112,18 +115,23 @@ const GENERAL_SETTINGS_POLICY_KEY = "PLATFORM_GENERAL_SETTINGS";
 const CUSTOMIZATION_CACHE_TTL_MS = 60 * 1000;
 let customizationCache: { value: CustomizationSettings; expiresAt: number } | null = null;
 
+/**
+ * Mescla as flags salvas com os padrões. Compatibilidade: a chave única antiga
+ * `mediaGenerationEnabled` (imagens + vídeos) liga as duas novas quando elas ainda não existem.
+ */
+function mergeFeatureFlags(stored: unknown): FeatureFlags {
+  const raw = (stored && typeof stored === "object" ? stored : {}) as Record<string, unknown>;
+  const { mediaGenerationEnabled: legacy, ...rest } = raw;
+  const merged = { ...DEFAULT_GENERAL_SETTINGS.featureFlags, ...(rest as Partial<FeatureFlags>) };
+  if (legacy === true) {
+    if (typeof raw.imageGenerationEnabled !== "boolean") merged.imageGenerationEnabled = true;
+    if (typeof raw.videoGenerationEnabled !== "boolean") merged.videoGenerationEnabled = true;
+  }
+  return merged;
+}
+
 const FEATURE_FLAGS_CACHE_TTL_MS = 15 * 1000;
 let featureFlagsCache: { value: FeatureFlags; expiresAt: number } | null = null;
-
-/** Lançado quando a geração de imagens/vídeos está desligada pelo administrador. */
-export class MediaGenerationDisabledError extends Error {
-  readonly code = "MEDIA_GENERATION_DISABLED";
-  readonly statusCode = 403;
-  constructor() {
-    super("A geração de imagens e vídeos está desativada nesta plataforma.");
-    this.name = "MediaGenerationDisabledError";
-  }
-}
 
 export class PlatformSettingsService {
   /**
@@ -219,7 +227,7 @@ export class PlatformSettingsService {
           ...stored,
           // Merge profundo: registros antigos sem as chaves novas herdam os padrões (ex.: mídia desligada)
           announcementBanner: { ...DEFAULT_GENERAL_SETTINGS.announcementBanner, ...(stored.announcementBanner || {}) },
-          featureFlags: { ...DEFAULT_GENERAL_SETTINGS.featureFlags, ...(stored.featureFlags || {}) },
+          featureFlags: mergeFeatureFlags(stored.featureFlags),
         };
       }
     } catch (error) {
@@ -241,15 +249,18 @@ export class PlatformSettingsService {
     return settings.featureFlags;
   }
 
-  static async isMediaGenerationEnabled(): Promise<boolean> {
-    return (await this.getFeatureFlags()).mediaGenerationEnabled === true;
+  static async isImageGenerationEnabled(): Promise<boolean> {
+    return (await this.getFeatureFlags()).imageGenerationEnabled === true;
   }
 
-  /** Bloqueia a geração de mídia quando a chave global está desligada. */
-  static async assertMediaGenerationEnabled(): Promise<void> {
-    if (!(await this.isMediaGenerationEnabled())) {
-      throw new MediaGenerationDisabledError();
-    }
+  static async isVideoGenerationEnabled(): Promise<boolean> {
+    return (await this.getFeatureFlags()).videoGenerationEnabled === true;
+  }
+
+  /** Imagens OU vídeos ligados (usado em textos e selos genéricos). */
+  static async isMediaGenerationEnabled(): Promise<boolean> {
+    const flags = await this.getFeatureFlags();
+    return flags.imageGenerationEnabled === true || flags.videoGenerationEnabled === true;
   }
 
   /**
@@ -307,17 +318,19 @@ export class PlatformSettingsService {
     });
     featureFlagsCache = null;
 
-    if (current.featureFlags.mediaGenerationEnabled !== updated.featureFlags.mediaGenerationEnabled) {
-      await AdminAuditService.logAction({
-        adminUserId,
-        action: "PLATFORM_MEDIA_GENERATION_TOGGLED",
-        targetType: "PlatformGeneralSettings",
-        targetId: GENERAL_SETTINGS_POLICY_KEY,
-        details: {
-          from: current.featureFlags.mediaGenerationEnabled,
-          to: updated.featureFlags.mediaGenerationEnabled,
-        },
-      });
+    for (const [key, kind] of [
+      ["imageGenerationEnabled", "image"],
+      ["videoGenerationEnabled", "video"],
+    ] as const) {
+      if (current.featureFlags[key] !== updated.featureFlags[key]) {
+        await AdminAuditService.logAction({
+          adminUserId,
+          action: "PLATFORM_MEDIA_GENERATION_TOGGLED",
+          targetType: "PlatformGeneralSettings",
+          targetId: GENERAL_SETTINGS_POLICY_KEY,
+          details: { kind, from: current.featureFlags[key], to: updated.featureFlags[key] },
+        });
+      }
     }
 
     return updated;

@@ -4,7 +4,7 @@ import { useState } from "react";
 import Link from "next/link";
 import dynamic from "next/dynamic";
 import { Spinner } from "@/components/ui/spinner";
-import { useMediaGeneration } from "@/components/providers/feature-flags-provider";
+import { useMediaFlags } from "@/components/providers/feature-flags-provider";
 
 // Modal pesado: só entra no bundle quando o usuário pede um vídeo
 const DirectVideoModal = dynamic(
@@ -74,7 +74,7 @@ function notifyCredits(newBalance: unknown) {
  */
 export function CreateHub({ onCreated }: { onCreated?: () => void }) {
   // Chave global do admin: sem mídia, somem os cartões e botões de imagem/vídeo
-  const mediaEnabled = useMediaGeneration();
+  const { image: imageEnabled, video: videoEnabled } = useMediaFlags();
   const [active, setActive] = useState<ToolId | null>(null);
   const [idea, setIdea] = useState("");
   const [targetTool, setTargetTool] = useState("google_flow");
@@ -85,7 +85,7 @@ export function CreateHub({ onCreated }: { onCreated?: () => void }) {
   const [videoOpen, setVideoOpen] = useState(false);
   const [copied, setCopied] = useState(false);
 
-  const visibleCards = mediaEnabled ? TOOL_CARDS : TOOL_CARDS.filter((c) => c.id !== "image" && c.id !== "video");
+  const visibleCards = TOOL_CARDS.filter((c) => (c.id !== "image" || imageEnabled) && (c.id !== "video" || videoEnabled));
   const card = visibleCards.find((c) => c.id === active) ?? null;
   const isPrompt = active === "video_prompt" || active === "image_prompt";
   const showRatio = active === "image" || isPrompt;
@@ -185,7 +185,7 @@ export function CreateHub({ onCreated }: { onCreated?: () => void }) {
         </Link>
       </div>
 
-      <div className={`mt-4 grid grid-cols-2 gap-2.5 sm:grid-cols-3 ${mediaEnabled ? "lg:grid-cols-6" : "lg:grid-cols-4"}`}>
+      <div className={`mt-4 grid grid-cols-2 gap-2.5 sm:grid-cols-3 ${visibleCards.length >= 6 ? "lg:grid-cols-6" : visibleCards.length === 5 ? "lg:grid-cols-5" : "lg:grid-cols-4"}`}>
         {visibleCards.map((c) => {
           const isActive = active === c.id;
           return (
@@ -279,8 +279,7 @@ export function CreateHub({ onCreated }: { onCreated?: () => void }) {
                 <button type="button" onClick={handleCopy} className="min-h-10 rounded-xl border border-white/15 px-3 text-xs font-semibold text-white/80 hover:bg-white/10">
                   {copied ? "Copiado ✓" : "Copiar"}
                 </button>
-                {mediaEnabled && (
-                <>
+                {imageEnabled && (
                 <button
                   type="button"
                   onClick={handleImageFromPrompt}
@@ -289,6 +288,8 @@ export function CreateHub({ onCreated }: { onCreated?: () => void }) {
                 >
                   🎨 Gerar imagem com este prompt
                 </button>
+                )}
+                {videoEnabled && (
                 <button
                   type="button"
                   onClick={() => setVideoOpen(true)}
@@ -296,7 +297,6 @@ export function CreateHub({ onCreated }: { onCreated?: () => void }) {
                 >
                   🎥 Gerar vídeo com este prompt
                 </button>
-                </>
                 )}
               </div>
             </>
@@ -318,7 +318,7 @@ export function CreateHub({ onCreated }: { onCreated?: () => void }) {
         </div>
       )}
 
-      {mediaEnabled && videoOpen && (
+      {videoEnabled && videoOpen && (
         <DirectVideoModal
           isOpen={videoOpen}
           onClose={() => setVideoOpen(false)}

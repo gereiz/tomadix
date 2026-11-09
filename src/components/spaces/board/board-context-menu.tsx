@@ -1,6 +1,6 @@
 "use client";
 
-import { useMediaGeneration } from "@/components/providers/feature-flags-provider";
+import { useMediaFlags } from "@/components/providers/feature-flags-provider";
 import type { Dispatch, SetStateAction, MutableRefObject } from "react";
 import type { Node } from "@xyflow/react";
 import type { SpaceLibrary, ContextMenuState, AddLibraryItem, CreatePromptNodeAt, CreateNoteNodeAt } from "../types";
@@ -31,7 +31,7 @@ interface BoardContextMenuProps {
 
 export function BoardContextMenu({ contextMenu, setContextMenu, genTargetPosRef, setSafeDeleteTarget, setEditNode, setEditLabel, setEditPrompt, setPreviewNode, setIsGenModalOpen, setGenInitialPrompt, setGenSourceNodeId, setIsVideoGenModalOpen, setVideoGenPrompt, setVideoGenStartFrameUrl, setVideoGenSourceNodeId, library, handleGenerateVideoFromNode, duplicateNode, handleCreatePromptNodeAt, handleCreateNoteNodeAt, addLibraryItemToBoard }: BoardContextMenuProps) {
   // Chave global do admin: sem mídia, somem as ações de gerar imagem/vídeo
-  const mediaEnabled = useMediaGeneration();
+  const { image: imageEnabled, video: videoEnabled } = useMediaFlags();
   return (
     <div
       style={{
@@ -114,7 +114,7 @@ export function BoardContextMenu({ contextMenu, setContextMenu, genTargetPosRef,
           </button>
     
           {/* Animar com Vídeo IA se for Imagem */}
-          {mediaEnabled && contextMenu.targetNode.type === "IMAGE" && (
+          {videoEnabled && contextMenu.targetNode.type === "IMAGE" && (
             <button
               type="button"
               onClick={() => {
@@ -171,7 +171,7 @@ export function BoardContextMenu({ contextMenu, setContextMenu, genTargetPosRef,
           )}
     
           <div className="space-y-1">
-            {mediaEnabled && (
+            {imageEnabled && (
             <>
             <button
               type="button"
@@ -195,6 +195,10 @@ export function BoardContextMenu({ contextMenu, setContextMenu, genTargetPosRef,
               </div>
             </button>
     
+            </>
+            )}
+            {videoEnabled && (
+            <>
             <button
               type="button"
               onClick={() => {

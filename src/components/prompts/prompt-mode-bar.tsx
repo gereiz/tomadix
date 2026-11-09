@@ -7,7 +7,7 @@ interface PromptModeBarProps {
 }
 
 export function PromptModeBar({ s }: PromptModeBarProps) {
-  const { generationMode, setGenerationMode, mediaEnabled } = s;
+  const { generationMode, setGenerationMode, mediaEnabled, imageEnabled, videoEnabled } = s;
 
   // Sem geração de mídia sobra só "Gerar Prompt": a barra de modos não faz sentido
   if (!mediaEnabled) return null;
@@ -28,6 +28,7 @@ export function PromptModeBar({ s }: PromptModeBarProps) {
           <span>Gerar Prompt (Gemini)</span>
         </button>
     
+        {imageEnabled && (
         <button
           type="button"
           onClick={() => setGenerationMode("IMAGE")}
@@ -40,7 +41,9 @@ export function PromptModeBar({ s }: PromptModeBarProps) {
           <span>🖼️</span>
           <span>Gerar Imagem (IA Direta)</span>
         </button>
+        )}
 
+        {videoEnabled && (
         <button
           type="button"
           onClick={() => s.openVideoWithPrompt("")}
@@ -49,8 +52,10 @@ export function PromptModeBar({ s }: PromptModeBarProps) {
           <span>🎥</span>
           <span>Gerar Vídeo (IA Direta)</span>
         </button>
+        )}
       </div>
     
+      {imageEnabled && (
       <div className="flex items-center gap-2">
         <button
           type="button"
@@ -65,6 +70,7 @@ export function PromptModeBar({ s }: PromptModeBarProps) {
           <span>Galeria de Imagens</span>
         </button>
       </div>
+      )}
     </div>
   );
 }

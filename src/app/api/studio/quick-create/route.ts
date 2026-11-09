@@ -296,7 +296,7 @@ export async function POST(request: NextRequest) {
 
     // 6. GERAÇÃO DIRETA DE IMAGEM IA
     if (validated.type === "IMAGE") {
-      if (!(await PlatformSettingsService.isMediaGenerationEnabled())) {
+      if (!(await PlatformSettingsService.isImageGenerationEnabled())) {
         return NextResponse.json(
           { error: "A geração de imagens está desativada nesta plataforma.", code: "MEDIA_GENERATION_DISABLED" },
           { status: 403 }

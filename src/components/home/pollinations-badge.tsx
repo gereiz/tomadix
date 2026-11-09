@@ -1,10 +1,10 @@
 "use client";
 
-import { useMediaGeneration } from "@/components/providers/feature-flags-provider";
+import { useMediaFlags } from "@/components/providers/feature-flags-provider";
 
 /** Selo do provedor de geração: só aparece quando a geração de imagens/vídeos está ligada. */
 export function PollinationsBadge() {
-  const mediaEnabled = useMediaGeneration();
+  const { any: mediaEnabled } = useMediaFlags();
   if (!mediaEnabled) return null;
   return (
     <a href="https://pollinations.ai/?ref=badge">

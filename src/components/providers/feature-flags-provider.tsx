@@ -3,12 +3,14 @@
 import { createContext, useContext, useEffect, useState } from "react";
 
 export interface ClientFeatureFlags {
-  /** Geração de imagens e vídeos por IA habilitada pelo administrador. */
-  mediaGenerationEnabled: boolean;
+  /** Geração de imagens por IA habilitada pelo administrador. */
+  imageGenerationEnabled: boolean;
+  /** Geração de vídeos por IA habilitada pelo administrador. */
+  videoGenerationEnabled: boolean;
 }
 
-// Padrão seguro: até a flag chegar (ou se falhar), a mídia fica desligada e nada de geração aparece.
-const DEFAULT_FLAGS: ClientFeatureFlags = { mediaGenerationEnabled: false };
+// Padrão seguro: até a flag chegar (ou se falhar), imagens e vídeos ficam desligados e nada de geração aparece.
+const DEFAULT_FLAGS: ClientFeatureFlags = { imageGenerationEnabled: false, videoGenerationEnabled: false };
 const FeatureFlagsContext = createContext<ClientFeatureFlags>(DEFAULT_FLAGS);
 
 /**
@@ -25,7 +27,12 @@ export function FeatureFlagsProvider({ children }: { children: React.ReactNode }
         const res = await fetch("/api/features");
         if (!res.ok) return;
         const json = (await res.json()) as Partial<ClientFeatureFlags>;
-        if (!cancelled) setFlags({ mediaGenerationEnabled: json.mediaGenerationEnabled === true });
+        if (!cancelled) {
+          setFlags({
+            imageGenerationEnabled: json.imageGenerationEnabled === true,
+            videoGenerationEnabled: json.videoGenerationEnabled === true,
+          });
+        }
       } catch {
         // sem rede: permanece desligado
       }
@@ -48,7 +55,15 @@ export function useFeatureFlags(): ClientFeatureFlags {
   return useContext(FeatureFlagsContext);
 }
 
-/** Atalho: true quando a geração de imagens/vídeos está ligada. */
-export function useMediaGeneration(): boolean {
-  return useContext(FeatureFlagsContext).mediaGenerationEnabled;
+export interface MediaFlags {
+  image: boolean;
+  video: boolean;
+  /** Imagens OU vídeos ligados. */
+  any: boolean;
+}
+
+/** Quais gerações de mídia estão ligadas: use `image` ou `video` conforme o que o elemento gera. */
+export function useMediaFlags(): MediaFlags {
+  const { imageGenerationEnabled: image, videoGenerationEnabled: video } = useContext(FeatureFlagsContext);
+  return { image, video, any: image || video };
 }

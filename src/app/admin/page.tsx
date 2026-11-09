@@ -2,13 +2,13 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { useMediaGeneration } from "@/components/providers/feature-flags-provider";
+import { useMediaFlags } from "@/components/providers/feature-flags-provider";
 
 export default function AdminOverviewPage() {
   const [loading, setLoading] = useState(true);
   const [period, setPeriod] = useState<"today" | "7d" | "30d" | "90d">("30d");
   const [data, setData] = useState<any>(null);
-  const mediaEnabled = useMediaGeneration();
+  const { image: imageEnabled, video: videoEnabled } = useMediaFlags();
 
   const loadSummary = (selectedPeriod: string) => {
     setLoading(true);
@@ -113,15 +113,15 @@ export default function AdminOverviewPage() {
           <span className="text-xl">🎞️</span>
           <div>
             <p className="text-xs font-bold text-white">
-              Geração de imagens e vídeos:{" "}
-              <span className={mediaEnabled ? "text-emerald-300" : "text-amber-300"}>
-                {mediaEnabled ? "Ligada" : "Desligada"}
-              </span>
+              Imagens:{" "}
+              <span className={imageEnabled ? "text-emerald-300" : "text-amber-300"}>{imageEnabled ? "Ligada" : "Desligada"}</span>
+              {" · "}Vídeos:{" "}
+              <span className={videoEnabled ? "text-emerald-300" : "text-amber-300"}>{videoEnabled ? "Ligada" : "Desligada"}</span>
             </p>
             <p className="text-[11px] text-white/60">
-              {mediaEnabled
-                ? "Os usuários veem e usam a geração de imagens e vídeos por IA."
-                : "Oculta para os usuários. Ative quando os provedores e preços estiverem configurados."}
+              {imageEnabled || videoEnabled
+                ? "Os usuários veem apenas a geração que está ligada."
+                : "Geração de imagens e vídeos oculta para os usuários. Ative quando os provedores e preços estiverem configurados."}
             </p>
           </div>
         </div>

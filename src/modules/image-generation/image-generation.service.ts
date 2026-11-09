@@ -92,7 +92,7 @@ export class ImageGenerationService {
     } = input;
 
     // Chave global do administrador: antes de qualquer consulta ou cobrança
-    if (!(await PlatformSettingsService.isMediaGenerationEnabled())) {
+    if (!(await PlatformSettingsService.isImageGenerationEnabled())) {
       throw new ImageGenerationError(
         "A geração de imagens está desativada nesta plataforma.",
         "MEDIA_GENERATION_DISABLED",

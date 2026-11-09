@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect, useCallback, useRef, useMemo } from "react";
-import { useMediaGeneration } from "@/components/providers/feature-flags-provider";
+import { useMediaFlags } from "@/components/providers/feature-flags-provider";
 import {
   ReactFlow,
   Background,
@@ -93,23 +93,31 @@ function SpaceBoardCanvasInner({
 
   // Chave global do admin: sem geração de mídia, nós de imagem/vídeo e ações de gerar somem da tela
   // (o estado completo continua salvo no board e volta ao religar a chave).
-  const mediaEnabled = useMediaGeneration();
-  const MEDIA_NODE_TYPES = useMemo(() => new Set(["IMAGE", "VIDEO"]), []);
+  const { image: imageEnabled, video: videoEnabled } = useMediaFlags();
+  // Tipos de nó ocultos conforme o que está desligado (o estado salvo do board continua intacto)
+  const hiddenNodeTypes = useMemo(() => {
+    const set = new Set<string>();
+    if (!imageEnabled) set.add("IMAGE");
+    if (!videoEnabled) set.add("VIDEO");
+    return set;
+  }, [imageEnabled, videoEnabled]);
   const visibleNodes = useMemo(() => {
-    if (mediaEnabled) return nodes;
+    if (imageEnabled && videoEnabled) return nodes;
     return nodes
-      .filter((n) => !MEDIA_NODE_TYPES.has(String(n.type)))
-      .map((n) =>
-        n.type === "PROMPT"
-          ? { ...n, data: { ...n.data, onGenerateFromPrompt: undefined, onGenerateVideoFromNode: undefined } }
-          : n
-      );
-  }, [nodes, mediaEnabled, MEDIA_NODE_TYPES]);
+      .filter((n) => !hiddenNodeTypes.has(String(n.type)))
+      .map((n) => {
+        if (n.type !== "PROMPT" && n.type !== "IMAGE") return n;
+        const data = { ...n.data } as Record<string, unknown>;
+        if (!imageEnabled) data.onGenerateFromPrompt = undefined;
+        if (!videoEnabled) data.onGenerateVideoFromNode = undefined;
+        return { ...n, data };
+      });
+  }, [nodes, imageEnabled, videoEnabled, hiddenNodeTypes]);
   const visibleEdges = useMemo(() => {
-    if (mediaEnabled) return edges;
-    const hidden = new Set(nodes.filter((n) => MEDIA_NODE_TYPES.has(String(n.type))).map((n) => n.id));
+    if (hiddenNodeTypes.size === 0) return edges;
+    const hidden = new Set(nodes.filter((n) => hiddenNodeTypes.has(String(n.type))).map((n) => n.id));
     return edges.filter((e) => !hidden.has(e.source) && !hidden.has(e.target));
-  }, [edges, nodes, mediaEnabled, MEDIA_NODE_TYPES]);
+  }, [edges, nodes, hiddenNodeTypes]);
   const [library, setLibrary] = useState<SpaceLibrary>({
     images: [],
     prompts: [],

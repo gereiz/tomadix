@@ -9,7 +9,7 @@ export async function GET() {
   try {
     const { workspace } = await getCurrentWorkspace();
     // Chave global do administrador
-    if (!(await PlatformSettingsService.isMediaGenerationEnabled())) {
+    if (!(await PlatformSettingsService.isImageGenerationEnabled())) {
       return NextResponse.json({
         success: true,
         enabled: false,

@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useCallback } from "react";
 import { TemplateKey } from "@/modules/prompt-engine/prompt-engine.schema";
-import { useMediaGeneration } from "@/components/providers/feature-flags-provider";
+import { useMediaFlags } from "@/components/providers/feature-flags-provider";
 import type { TemplateInfo, ToolProfileInfo, PromptVersionItem, EntityOption, SceneOption } from "./types";
 import type { PromptsTabProps } from "./types";
 
@@ -19,7 +19,7 @@ export function usePromptsTab({ projectId, initialSceneId, onStatsUpdate }: Prom
   const [generationMode, setGenerationMode] = useState<"PROMPT" | "IMAGE" | "GALLERY">("PROMPT");
   const [promptForImageGen, setPromptForImageGen] = useState<string>("");
   // Chave global do admin: desligada, nada de imagem/vídeo aparece na aba
-  const mediaEnabled = useMediaGeneration();
+  const { image: imageEnabled, video: videoEnabled, any: mediaEnabled } = useMediaFlags();
   // Geração direta de vídeo (modal) a partir do prompt gerado ou da barra de modos
   const [videoModalOpen, setVideoModalOpen] = useState(false);
   const [promptForVideoGen, setPromptForVideoGen] = useState<string>("");
@@ -502,6 +502,8 @@ export function usePromptsTab({ projectId, initialSceneId, onStatsUpdate }: Prom
     loadError,
     setPromptForImageGen,
     mediaEnabled,
+    imageEnabled,
+    videoEnabled,
     videoModalOpen,
     setVideoModalOpen,
     promptForVideoGen,

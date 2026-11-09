@@ -192,7 +192,7 @@ export default function AdminVideoProvidersPage() {
 
   return (
     <div className="space-y-8 p-6 lg:p-8 max-w-7xl mx-auto">
-      <MediaDisabledNotice />
+      <MediaDisabledNotice kind="video" />
       {/* Header */}
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between border-b border-white/10 pb-6">
         <div>

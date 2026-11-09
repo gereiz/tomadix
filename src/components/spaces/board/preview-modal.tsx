@@ -1,6 +1,6 @@
 "use client";
 
-import { useMediaGeneration } from "@/components/providers/feature-flags-provider";
+import { useMediaFlags } from "@/components/providers/feature-flags-provider";
 import type { Dispatch, SetStateAction } from "react";
 import type { Node } from "@xyflow/react";
 
@@ -12,7 +12,7 @@ interface PreviewModalProps {
 
 export function PreviewModal({ previewNode, setPreviewNode, handleGenerateVideoFromNode }: PreviewModalProps) {
   // Chave global do admin: sem mídia, somem as ações de vídeo/imagem
-  const mediaEnabled = useMediaGeneration();
+  const { video: mediaEnabled } = useMediaFlags(); // vídeos ligados
   return (
     <div
       className="fixed inset-0 overflow-y-auto z-[130] flex items-center-safe justify-center bg-black/90 p-3 sm:p-4"

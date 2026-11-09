@@ -180,7 +180,7 @@ export class VideoGenerationService {
     } = params;
 
     // Chave global do administrador: antes de qualquer consulta ou cobrança
-    if (!(await PlatformSettingsService.isMediaGenerationEnabled())) {
+    if (!(await PlatformSettingsService.isVideoGenerationEnabled())) {
       throw new VideoGenerationError(
         "A geração de vídeos está desativada nesta plataforma.",
         "MEDIA_GENERATION_DISABLED",

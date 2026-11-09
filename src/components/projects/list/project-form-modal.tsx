@@ -1,6 +1,6 @@
 "use client";
 
-import { useMediaGeneration } from "@/components/providers/feature-flags-provider";
+import { useMediaFlags } from "@/components/providers/feature-flags-provider";
 import Link from "next/link";
 import { GENRE_OPTIONS } from "@/config/genres";
 import { AdvancedModeToggle } from "@/components/entities/advanced-mode-toggle";
@@ -15,7 +15,7 @@ interface ProjectFormModalProps {
 export function ProjectFormModal({ s }: ProjectFormModalProps) {
   const { setIsCreateModalOpen, editingProject, formSubmitError, setFormSubmitError, formData, setFormData, formErrors, submitting, studioParams, selectedParamKeys, setSelectedParamKeys, paramSearch, setParamSearch, paramScopeFilter, setParamScopeFilter, resetForm, handleSubmitForm, isCreateModalOpen, handleApplyPreset } = s;
   const [advanced, setAdvanced] = useAdvancedMode();
-  const mediaEnabled = useMediaGeneration();
+  const { any: mediaEnabled } = useMediaFlags();
   if (!isCreateModalOpen) return null;
 
   return (

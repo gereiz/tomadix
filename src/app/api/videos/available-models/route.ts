@@ -10,7 +10,7 @@ export async function GET() {
     const { workspace } = await getCurrentWorkspace();
 
     // Chave global do administrador: desligada, nem sincroniza modelos
-    if (!(await PlatformSettingsService.isMediaGenerationEnabled())) {
+    if (!(await PlatformSettingsService.isVideoGenerationEnabled())) {
       return NextResponse.json({
         success: true,
         enabled: false,

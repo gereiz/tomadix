@@ -1,7 +1,7 @@
 "use client";
 
 import { downloadImage } from "@/lib/utils/download-image";
-import { useMediaGeneration } from "@/components/providers/feature-flags-provider";
+import { useMediaFlags } from "@/components/providers/feature-flags-provider";
 import type { ScenesTabState } from "./use-scenes-tab";
 
 interface ScenesListProps {
@@ -11,7 +11,7 @@ interface ScenesListProps {
 export function ScenesList({ s }: ScenesListProps) {
   const { onOpenPromptEngine, scenes, loading, filterMode, setDeleteModalOpen, setSceneToDelete, setLightboxImage, handleOpenSceneImage, checkSceneReadiness, handleOpenCreate, handleOpenEdit, handleMoveScene, handleDuplicate, handleOpenExpand, filteredScenes } = s;
   // Chave global do admin: sem mídia, somem keyframes e botões de imagem
-  const mediaEnabled = useMediaGeneration();
+  const { image: mediaEnabled } = useMediaFlags(); // imagens ligadas
 
 
   return (

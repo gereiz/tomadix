@@ -1,6 +1,6 @@
 "use client";
 
-import { useMediaGeneration } from "@/components/providers/feature-flags-provider";
+import { useMediaFlags } from "@/components/providers/feature-flags-provider";
 import type { LibraryTab, SpaceLibrary, AddLibraryItem } from "../types";
 
 interface LibraryDrawerProps {
@@ -15,7 +15,7 @@ interface LibraryDrawerProps {
 
 export function LibraryDrawer({ canEdit, libraryTab, setLibraryTab, library, onClose, onGenerateImage, addLibraryItemToBoard }: LibraryDrawerProps) {
   // Chave global do admin: sem mídia, a aba Imagens e o botão de gerar somem
-  const mediaEnabled = useMediaGeneration();
+  const { image: mediaEnabled } = useMediaFlags(); // imagens ligadas
   const activeTab = !mediaEnabled && libraryTab === "images" ? "prompts" : libraryTab;
   return (
     <div className="pointer-events-auto absolute inset-x-2 bottom-2 top-16 z-30 flex flex-col rounded-2xl md:inset-x-auto md:bottom-16 md:left-16 md:z-20 md:w-80 border border-outline-variant/30 bg-surface-container/95 shadow-2xl animate-in slide-in-from-left-2 duration-150">
