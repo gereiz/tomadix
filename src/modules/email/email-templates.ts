@@ -3,6 +3,16 @@
  * Estilizados na identidade visual da plataforma (Dark Luxury Cinematic)
  */
 
+/** Escapa texto de usuário antes de entrar no HTML do e-mail (nome, motivo, workspace...). */
+export function escapeHtml(value: string): string {
+  return value
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#39;");
+}
+
 interface BaseEmailWrapperProps {
   title: string;
   preheader?: string;
@@ -132,7 +142,7 @@ export function renderBaseEmailTemplate({
                 © ${currentYear} Tomadix Studio — Inteligência Artificial Cinematográfica.
               </p>
               <p style="margin: 0;">
-                Este é um e-mail transacional gerado automaticamente. Por favor, não responda a esta mensagem.
+                Este é um e-mail transacional do Tomadix Studio. Dúvidas? Basta responder a esta mensagem.
               </p>
             </td>
           </tr>
@@ -158,7 +168,7 @@ export function getPasswordResetEmail({
   resetUrl: string;
   expiresInMinutes?: number;
 }) {
-  const greeting = name ? `Olá, <strong>${name}</strong>!` : "Olá!";
+  const greeting = name ? `Olá, <strong>${escapeHtml(name)}</strong>!` : "Olá!";
   return {
     subject: "Redefinição de senha — Tomadix Studio",
     html: renderBaseEmailTemplate({
@@ -186,7 +196,7 @@ export function getWelcomeEmail({
   name?: string;
   confirmUrl?: string;
 }) {
-  const greeting = name ? `Bem-vindo(a) ao Tomadix Studio, <strong>${name}</strong>!` : "Bem-vindo(a) ao Tomadix Studio!";
+  const greeting = name ? `Bem-vindo(a) ao Tomadix Studio, <strong>${escapeHtml(name)}</strong>!` : "Bem-vindo(a) ao Tomadix Studio!";
   return {
     subject: "Bem-vindo ao Tomadix Studio — Confirme seu e-mail",
     html: renderBaseEmailTemplate({
@@ -194,7 +204,7 @@ export function getWelcomeEmail({
       preheader: "Sua jornada com direção de arte e fotografia de ponta começa agora.",
       contentHtml: `
         <p>${greeting}</p>
-        <p>Sua conta foi criada com sucesso! Você agora tem acesso às ferramentas de análise cinematográfica, Spaces colaborativos, geração de imagens e direção fotográfica.</p>
+        <p>Sua conta foi criada com sucesso! Você agora tem acesso à análise de imagens, aos projetos colaborativos e à geração de prompts cinematográficos.</p>
         ${confirmUrl ? "<p>Para ativar todos os recursos e garantir a segurança da sua conta, por favor confirme seu endereço de e-mail:</p>" : ""}
       `,
       actionUrl: confirmUrl,
@@ -220,7 +230,7 @@ export function getCreditsNotificationEmail({
   reason: string;
   loginUrl: string;
 }) {
-  const greeting = name ? `Olá, <strong>${name}</strong>!` : "Olá!";
+  const greeting = name ? `Olá, <strong>${escapeHtml(name)}</strong>!` : "Olá!";
   return {
     subject: `Créditos atualizados: +${amount} créditos adicionados — Tomadix`,
     html: renderBaseEmailTemplate({
@@ -231,10 +241,10 @@ export function getCreditsNotificationEmail({
         <p>Seus créditos de IA no <strong>Tomadix</strong> foram atualizados com sucesso:</p>
         <div style="background: rgba(16, 185, 129, 0.08); border: 1px solid rgba(16, 185, 129, 0.2); border-radius: 12px; padding: 16px; margin: 20px 0;">
           <p style="margin: 0 0 8px 0; color: #10b981; font-weight: 700; font-size: 16px;">+${amount} créditos recebidos</p>
-          <p style="margin: 0 0 6px 0; color: #d1d5db; font-size: 13px;">Motivo: <strong>${reason}</strong></p>
+          <p style="margin: 0 0 6px 0; color: #d1d5db; font-size: 13px;">Motivo: <strong>${escapeHtml(reason)}</strong></p>
           <p style="margin: 0; color: #ffffff; font-weight: 600; font-size: 14px;">Saldo atual disponível: <strong>${newBalance} créditos</strong></p>
         </div>
-        <p>Aproveite para continuar gerando imagens, prompts avançados e explorando o potencial cinematográfico dos seus projetos.</p>
+        <p>Aproveite para continuar gerando prompts avançados e explorando o potencial cinematográfico dos seus projetos.</p>
       `,
       actionUrl: loginUrl,
       actionLabel: "Abrir o Tomadix Studio",
@@ -260,10 +270,10 @@ export function getTestEmail({
       title: "Conexão de E-mail Verificada!",
       preheader: `E-mail de teste enviado via ${providerName}.`,
       contentHtml: `
-        <p>Este é um e-mail de teste disparado pelo painel administrativo do <strong>Tomadix</strong> para validar a integração com o provedor <strong>${providerName}</strong>.</p>
+        <p>Este é um e-mail de teste disparado pelo painel administrativo do <strong>Tomadix</strong> para validar a integração com o provedor <strong>${escapeHtml(providerName)}</strong>.</p>
         <div style="background: rgba(59, 130, 246, 0.08); border: 1px solid rgba(59, 130, 246, 0.25); border-radius: 12px; padding: 16px; margin: 18px 0;">
           <p style="margin: 0 0 6px 0; color: #60a5fa; font-weight: 600; font-size: 13px;">Status do Teste: CONECTADO COM SUCESSO</p>
-          <p style="margin: 0 0 4px 0; color: #9ca3af; font-size: 12px;">Disparado por: <strong>${testedBy}</strong></p>
+          <p style="margin: 0 0 4px 0; color: #9ca3af; font-size: 12px;">Disparado por: <strong>${escapeHtml(testedBy)}</strong></p>
           <p style="margin: 0; color: #9ca3af; font-size: 12px;">Data / Hora: <strong>${timestamp}</strong></p>
         </div>
         <p>Seus disparos transacionais de boas-vindas, redefinição de senhas e notificações de créditos estão operacionais.</p>
@@ -273,3 +283,153 @@ export function getTestEmail({
   };
 }
 
+
+/**
+ * Template: Confirmação de e-mail (reenvio ou confirmação isolada)
+ */
+export function getEmailConfirmationEmail({
+  name,
+  confirmUrl,
+  expiresInHours = 24,
+}: {
+  name?: string;
+  confirmUrl: string;
+  expiresInHours?: number;
+}) {
+  const greeting = name ? `Olá, <strong>${escapeHtml(name)}</strong>!` : "Olá!";
+  return {
+    subject: "Confirme seu e-mail — Tomadix Studio",
+    html: renderBaseEmailTemplate({
+      title: "Confirme seu endereço de e-mail",
+      preheader: "Falta só um passo para ativar sua conta no Tomadix Studio.",
+      contentHtml: `
+        <p>${greeting}</p>
+        <p>Para ativar sua conta e garantir a segurança do seu acesso, confirme que este endereço de e-mail é seu.</p>
+        <p>O link abaixo expira em <strong>${expiresInHours} horas</strong>.</p>
+      `,
+      actionUrl: confirmUrl,
+      actionLabel: "Confirmar Meu E-mail",
+      footerNote: "Se você não criou uma conta no Tomadix Studio, pode ignorar este e-mail com tranquilidade.",
+    }),
+  };
+}
+
+/**
+ * Template: Aviso de senha alterada
+ */
+export function getPasswordChangedEmail({
+  name,
+  loginUrl,
+  changedAt,
+}: {
+  name?: string;
+  loginUrl: string;
+  changedAt: string;
+}) {
+  const greeting = name ? `Olá, <strong>${escapeHtml(name)}</strong>!` : "Olá!";
+  return {
+    subject: "Sua senha foi alterada — Tomadix Studio",
+    html: renderBaseEmailTemplate({
+      title: "Sua senha foi alterada",
+      preheader: "A senha da sua conta Tomadix foi redefinida com sucesso.",
+      contentHtml: `
+        <p>${greeting}</p>
+        <p>A senha de acesso à sua conta no <strong>Tomadix Studio</strong> foi alterada em <strong>${escapeHtml(changedAt)}</strong>.</p>
+        <p>Por segurança, todas as sessões anteriores foram encerradas.</p>
+      `,
+      actionUrl: loginUrl,
+      actionLabel: "Acessar Minha Conta",
+      footerNote: "Não foi você? Redefina sua senha imediatamente e responda a este e-mail para falar com o suporte.",
+    }),
+  };
+}
+
+/**
+ * Template: Convite para entrar em um workspace (equipe)
+ */
+export function getWorkspaceInviteEmail({
+  inviterName,
+  workspaceName,
+  roleLabel,
+  acceptUrl,
+  expiresInDays = 7,
+}: {
+  inviterName?: string;
+  workspaceName: string;
+  roleLabel: string;
+  acceptUrl: string;
+  expiresInDays?: number;
+}) {
+  const who = inviterName ? `<strong>${escapeHtml(inviterName)}</strong>` : "Um colega";
+  return {
+    subject: `Convite para participar de ${workspaceName} — Tomadix Studio`,
+    html: renderBaseEmailTemplate({
+      title: "Você foi convidado(a) para uma equipe",
+      preheader: `${escapeHtml(inviterName || "Um colega")} convidou você para ${escapeHtml(workspaceName)}.`,
+      contentHtml: `
+        <p>${who} convidou você para colaborar no estúdio <strong>${escapeHtml(workspaceName)}</strong> como <strong>${escapeHtml(roleLabel)}</strong>.</p>
+        <p>Entre ou crie sua conta com este mesmo e-mail e aceite o convite. Ele expira em <strong>${expiresInDays} dias</strong>.</p>
+      `,
+      actionUrl: acceptUrl,
+      actionLabel: "Ver Convite",
+      footerNote: "Se você não esperava este convite, pode ignorá-lo.",
+    }),
+  };
+}
+
+/**
+ * Template: Assinatura / pagamento confirmado
+ */
+export function getSubscriptionConfirmedEmail({
+  name,
+  planName,
+  billingUrl,
+}: {
+  name?: string;
+  planName: string;
+  billingUrl: string;
+}) {
+  const greeting = name ? `Olá, <strong>${escapeHtml(name)}</strong>!` : "Olá!";
+  return {
+    subject: `Assinatura confirmada: plano ${planName} — Tomadix Studio`,
+    html: renderBaseEmailTemplate({
+      title: "Assinatura confirmada",
+      preheader: `Seu plano ${planName} está ativo.`,
+      contentHtml: `
+        <p>${greeting}</p>
+        <p>Recebemos seu pagamento e o plano <strong>${escapeHtml(planName)}</strong> já está ativo na sua conta.</p>
+        <p>Você pode acompanhar créditos, faturas e renovação a qualquer momento na área de assinatura.</p>
+      `,
+      actionUrl: billingUrl,
+      actionLabel: "Ver Minha Assinatura",
+    }),
+  };
+}
+
+/**
+ * Template: Aviso de créditos baixos
+ */
+export function getLowCreditsEmail({
+  name,
+  balance,
+  billingUrl,
+}: {
+  name?: string;
+  balance: number;
+  billingUrl: string;
+}) {
+  const greeting = name ? `Olá, <strong>${escapeHtml(name)}</strong>!` : "Olá!";
+  return {
+    subject: "Seus créditos estão acabando — Tomadix Studio",
+    html: renderBaseEmailTemplate({
+      title: "Seu saldo de créditos está baixo",
+      preheader: `Restam ${balance} créditos na sua conta.`,
+      contentHtml: `
+        <p>${greeting}</p>
+        <p>Seu saldo atual é de <strong>${balance} créditos</strong>. Para não interromper suas gerações, considere recarregar ou mudar de plano.</p>
+      `,
+      actionUrl: billingUrl,
+      actionLabel: "Recarregar Créditos",
+    }),
+  };
+}

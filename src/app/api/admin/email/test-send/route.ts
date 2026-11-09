@@ -7,15 +7,18 @@ export const dynamic = "force-dynamic";
 
 const testSendSchema = z.object({
   recipient: z.string().trim().email("E-mail de destinatário inválido."),
+  templateKey: z.string().trim().max(60).optional(),
 });
 
 export async function POST(request: NextRequest) {
   try {
     const adminUser = await requirePlatformAdmin("settings:manage");
     const body = await request.json().catch(() => ({}));
-    const { recipient } = testSendSchema.parse(body);
+    const { recipient, templateKey } = testSendSchema.parse(body);
 
-    const result = await EmailService.sendTestEmail(recipient, adminUser.email);
+    const result = templateKey
+      ? await EmailService.sendTemplateTest(recipient, templateKey, adminUser.email)
+      : await EmailService.sendTestEmail(recipient, adminUser.email);
 
     return NextResponse.json(result);
   } catch (error: any) {

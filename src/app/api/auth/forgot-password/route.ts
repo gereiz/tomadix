@@ -25,7 +25,8 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json({
       message: result.message,
-      resetToken: result.resetToken, // Disponível para ambiente de testes e desenvolvimento
+      // O token só é devolvido fora de produção (em produção ele vai somente por e-mail)
+      resetToken: process.env.NODE_ENV === "production" ? undefined : result.resetToken,
     });
   } catch (error) {
     if (error instanceof ZodError) {

@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { EmailTemplatesPanel } from "@/components/admin/email-templates-panel";
 import Link from "next/link";
 
 interface MaskedEmailSettings {
@@ -330,6 +331,20 @@ export default function AdminEmailSettingsPage() {
                 {provider === "GMAIL_SMTP" && (
                   <div className="rounded-xl border border-amber-500/20 bg-amber-500/5 p-3 text-xs text-amber-200/90 leading-relaxed">
                     💡 <strong>Dica Google:</strong> Para o Gmail, ative a <em>Verificação em duas etapas</em> na sua Conta Google e gere uma <strong>Senha de App</strong> (16 caracteres) em <em>Segurança → Senhas de app</em>. Nunca utilize a senha principal da sua conta.
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setSmtpHost("smtp.gmail.com");
+                        setSmtpPort(587);
+                        setSmtpSecure(false);
+                        setSmtpUser("georgie.a.reis@gmail.com");
+                        setSenderEmail("georgie.a.reis@gmail.com");
+                        setReplyTo("georgie.a.reis@gmail.com");
+                      }}
+                      className="mt-2 block min-h-9 rounded-lg border border-amber-400/40 bg-amber-400/10 px-3 text-xs font-semibold text-amber-200 hover:bg-amber-400/20"
+                    >
+                      Preencher com georgie.a.reis@gmail.com
+                    </button>
                   </div>
                 )}
 
@@ -601,6 +616,7 @@ export default function AdminEmailSettingsPage() {
           </div>
         </div>
       )}
+      <EmailTemplatesPanel />
     </div>
   );
 }

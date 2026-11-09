@@ -1,4 +1,5 @@
 import { db, withDbRetry } from "@/lib/db";
+import { TransactionalEmailService } from "@/modules/email/transactional-email.service";
 import {
   hashPassword,
   verifyPassword,
@@ -140,6 +141,13 @@ export class AuthService {
 
     // Cria sessão inicial para o usuário recém-registrado
     const session = await this.createSession(user.id, ctx);
+
+    // Boas-vindas + confirmação de e-mail (não bloqueia nem derruba o cadastro)
+    await TransactionalEmailService.sendWelcome({
+      to: user.email,
+      name: user.displayName ?? undefined,
+      confirmToken: emailConfirmationToken,
+    });
 
     return {
       user: {
@@ -375,9 +383,16 @@ export class AuthService {
       },
     });
 
+    // Envia o link por e-mail (a rota nunca devolve o token em produção)
+    await TransactionalEmailService.sendPasswordReset({
+      to: user.email,
+      name: user.displayName ?? undefined,
+      resetToken,
+    });
+
     return {
       message: "Se o e-mail estiver cadastrado, as instruções de recuperação foram geradas.",
-      resetToken, // Retornado para exibição/testes sem expor em produção não autorizada
+      resetToken, // Uso interno e testes: as rotas HTTP removem este campo em produção
     };
   }
 
@@ -424,6 +439,9 @@ export class AuthService {
 
     // Cria nova sessão autenticada para o usuário
     const newSession = await this.createSession(user.id, ctx);
+
+    // Aviso de segurança: senha alterada
+    await TransactionalEmailService.sendPasswordChanged({ to: user.email, name: user.displayName ?? undefined });
 
     return {
       success: true,

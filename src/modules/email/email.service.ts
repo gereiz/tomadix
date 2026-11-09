@@ -3,6 +3,7 @@ import { db } from "@/lib/db";
 import { EmailProviderType } from "@prisma/client";
 import { encryptString, decryptString, maskSecretValue } from "@/lib/encryption";
 import { getTestEmail } from "./email-templates";
+import { renderTemplateSample } from "./email-template-catalog";
 
 export interface SendMailOptions {
   to: string | string[];
@@ -29,6 +30,9 @@ export interface SaveEmailSettingsInput {
   replyTo?: string;
 }
 
+/** Conta Gmail padrão de envio e recebimento (a senha de app é informada no console admin). */
+export const DEFAULT_GMAIL_ADDRESS = process.env.SMTP_USER || "georgie.a.reis@gmail.com";
+
 export class EmailService {
   /**
    * Obtém as configurações atuais do banco ou cria as configurações padrão.
@@ -47,8 +51,10 @@ export class EmailService {
           smtpHost: "smtp.gmail.com",
           smtpPort: 587,
           smtpSecure: false,
-          senderEmail: process.env.SMTP_FROM || "noreply@tomadix.com",
+          smtpUser: DEFAULT_GMAIL_ADDRESS,
+          senderEmail: process.env.SMTP_FROM || DEFAULT_GMAIL_ADDRESS,
           senderName: "Tomadix Studio",
+          replyTo: DEFAULT_GMAIL_ADDRESS,
         },
       });
     }
@@ -147,6 +153,9 @@ export class EmailService {
       pass = customConfig.smtpPassword.trim();
     } else if (settings.smtpPasswordEnc) {
       pass = decryptString(settings.smtpPasswordEnc);
+    } else if (process.env.SMTP_PASSWORD) {
+      // Alternativa por variável de ambiente (senha de app do Gmail)
+      pass = process.env.SMTP_PASSWORD;
     }
 
     // Configurações padrão por provedor
@@ -322,6 +331,43 @@ export class EmailService {
       success: true,
       messageId: info.messageId,
       message: `E-mail de teste enviado com sucesso para ${targetEmail}!`,
+    };
+  }
+
+  /**
+   * Envia um template do catálogo com dados de exemplo (teste do console admin).
+   */
+  static async sendTemplateTest(targetEmail: string, templateKey: string, testedBy = "Administrador") {
+    const rendered = renderTemplateSample(templateKey);
+    if (!rendered) throw new Error("Template de e-mail desconhecido.");
+
+    const settings = await this.getSettings();
+    const transporter = await this.createTransporter();
+    const sender = `"${settings.senderName}" <${settings.senderEmail}>`;
+
+    const info = await transporter.sendMail({
+      from: sender,
+      to: targetEmail,
+      subject: `[Teste] ${rendered.subject}`,
+      html: rendered.html,
+      replyTo: settings.replyTo || undefined,
+    });
+
+    await db.emailLog.create({
+      data: {
+        recipient: targetEmail,
+        subject: `[Teste] ${rendered.subject}`,
+        provider: settings.provider,
+        status: "SENT",
+        messageId: info.messageId,
+        metadata: { isTest: true, templateKey, testedBy },
+      },
+    });
+
+    return {
+      success: true,
+      messageId: info.messageId,
+      message: `Modelo enviado com sucesso para ${targetEmail}!`,
     };
   }
 

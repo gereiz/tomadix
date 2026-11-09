@@ -32,7 +32,8 @@ export async function POST(request: NextRequest) {
         message: "Conta criada com sucesso!",
         user: result.user,
         workspace: result.workspace,
-        confirmationToken: result.confirmationToken,
+        // O token de confirmação só é devolvido fora de produção (em produção vai por e-mail)
+        confirmationToken: process.env.NODE_ENV === "production" ? undefined : result.confirmationToken,
       },
       { status: 201 }
     );

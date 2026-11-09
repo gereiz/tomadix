@@ -69,6 +69,7 @@ docs/
 | [**10-gestao-de-bancos-de-dados-e-setup.md**](./03-console-administrativo/10-gestao-de-bancos-de-dados-e-setup.md) ⭐ **Novo** | Teste de conexão ativa em tempo real (latência, versão PostgreSQL, contagem de tabelas), troca segura de banco (PostgreSQL/Supabase) com backup do `.env` e assistente guiado de inicialização (Setup Wizard com 35 tabelas, admin inicial e projeto tutorial). |
 | [**11-manual-do-administrador.md**](./03-console-administrativo/11-manual-do-administrador.md) | Manual prático de operação e FAQ para administradores e operadores da plataforma. |
 | [**12-integracoes-apis-imagem-pollinations.md**](./03-console-administrativo/12-integracoes-apis-imagem-pollinations.md) ⭐ **Novo** | Gestão de APIs de geração de imagens, provedor Pollinations.ai, credenciais seguras mascaradas, catálogo dinâmico de modelos, teste de conexão em tempo real e limites por plano. |
+| [**13-email-transacional-e-modelos.md**](./03-console-administrativo/13-email-transacional-e-modelos.md) ⭐ **Novo** | Servidor de e-mail (Gmail com senha de app), modelos padrão (cadastro, confirmação, senha, convite, assinatura, créditos) e regras de envio. |
 
 ---
 

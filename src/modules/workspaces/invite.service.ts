@@ -1,4 +1,5 @@
 import crypto from "crypto";
+import { TransactionalEmailService } from "@/modules/email/transactional-email.service";
 import { db } from "@/lib/db";
 import { WorkspaceRole, InviteStatus } from "@prisma/client";
 import { AuthorizationError, NotFoundError } from "@/lib/auth";
@@ -114,6 +115,15 @@ export class InviteService {
           expiresAt,
         },
       },
+    });
+
+    // Convite por e-mail (não bloqueia a criação do convite)
+    await TransactionalEmailService.sendWorkspaceInvite({
+      to: normalizedEmail,
+      inviterName: invite.invitedBy?.displayName || invite.invitedBy?.email,
+      workspaceName: invite.workspace.name,
+      role,
+      inviteToken: token,
     });
 
     return {
