@@ -79,7 +79,7 @@ export class EmailService {
       smtpPort: s.smtpPort,
       smtpSecure: s.smtpSecure,
       smtpUser: s.smtpUser || "",
-      hasPassword: Boolean(s.smtpPasswordEnc && s.smtpPasswordEnc.length > 0),
+      hasPassword: Boolean(s.smtpPasswordEnc && decryptString(s.smtpPasswordEnc)),
       smtpPasswordMasked: s.smtpPasswordEnc ? maskSecretValue(decryptString(s.smtpPasswordEnc)) : "",
       clientId: s.clientId || "",
       hasClientSecret: Boolean(s.clientSecretEnc && s.clientSecretEnc.length > 0),
@@ -118,7 +118,10 @@ export class EmailService {
 
     // Atualiza a senha apenas se uma nova foi digitada
     if (input.smtpPassword && input.smtpPassword.trim().length > 0) {
-      dataToUpdate.smtpPasswordEnc = encryptString(input.smtpPassword.trim());
+      // Senhas de app do Google são exibidas com espaços (xxxx xxxx xxxx xxxx); remover para autenticar corretamente
+      const rawPass = input.smtpPassword.trim();
+      const cleanPass = input.provider === "GMAIL_SMTP" ? rawPass.replace(/\s+/g, "") : rawPass;
+      dataToUpdate.smtpPasswordEnc = encryptString(cleanPass);
     }
 
     // Atualiza client secret se novo
@@ -156,9 +159,21 @@ export class EmailService {
       pass = customConfig.smtpPassword.trim();
     } else if (settings.smtpPasswordEnc) {
       pass = decryptString(settings.smtpPasswordEnc);
-    } else if (process.env.SMTP_PASSWORD) {
+    }
+    if (!pass && process.env.SMTP_PASSWORD) {
       // Alternativa por variável de ambiente (senha de app do Gmail)
       pass = process.env.SMTP_PASSWORD;
+    }
+    if (provider === EmailProviderType.GMAIL_SMTP) {
+      pass = pass.replace(/\s+/g, "");
+    }
+
+    if (!user || !pass) {
+      throw new Error(
+        !pass
+          ? "Nenhuma senha de app salva. Digite a senha no campo 'Senha de App / SMTP' e clique em Salvar (ou Testar conexão)."
+          : "Usuário SMTP não informado."
+      );
     }
 
     // Configurações padrão por provedor

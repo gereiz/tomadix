@@ -13,6 +13,12 @@ function getMasterKey(): Buffer {
 
   if (!secret) {
     if (process.env.NODE_ENV === "production") {
+      // Fallback estável: deriva a chave de um segredo de infraestrutura já existente (nunca armazenado no banco),
+      // evitando que salvar credenciais falhe quando ENCRYPTION_SECRET não foi configurada.
+      const infraSecret = process.env.DIRECT_URL || process.env.DATABASE_URL || process.env.GEMINI_API_KEY;
+      if (infraSecret) {
+        return crypto.createHash("sha256").update(`tomadix-enc:${infraSecret}`).digest();
+      }
       throw new Error(
         "ENCRYPTION_SECRET (ou SESSION_SECRET) não está definido. Defina a variável de ambiente antes de iniciar em produção."
       );

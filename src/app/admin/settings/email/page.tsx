@@ -423,6 +423,8 @@ export default function AdminEmailSettingsPage() {
                     </div>
                     <input
                       type="password"
+                      name="tomadix-smtp-app-password"
+                      autoComplete="new-password"
                       value={smtpPassword}
                       onChange={(e) => setSmtpPassword(e.target.value)}
                       placeholder={settings?.hasPassword ? "Preencha apenas para alterar" : "Senha ou App Password"}
