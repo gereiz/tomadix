@@ -28,3 +28,12 @@ A tela de e-mail tem o painel **Modelos de E-mail** com pré-visualização e en
 - Nunca derruba o fluxo de origem: falhas e o modo desativado viram log em "Disparos Recentes".
 - Em testes automatizados (`NODE_ENV=test`) nada é enviado.
 - Segurança: em **produção** as rotas de cadastro e de "Esqueci minha senha" **não devolvem mais o token** na resposta (ele vai somente por e-mail). Fora de produção o token continua na resposta para facilitar testes.
+
+## Caixa de entrada (receber e responder)
+`Admin > Servidor de E-mail > Abrir caixa de entrada` (`/admin/settings/email/inbox`) lê a caixa da conta configurada por **IMAP** (Gmail: `imap.gmail.com:993`, a mesma senha de app do envio) e permite responder.
+
+- **Ative o IMAP no Gmail:** Configurações do Gmail > Encaminhamento e POP/IMAP > Ativar IMAP.
+- **Sincronizar agora:** busca só mensagens novas (a primeira vez traz as 50 mais recentes) e guarda em `EmailMessage` (migração `20261109120000_add_email_inbox`). Não há leitura automática em segundo plano.
+- **Abrir:** marca como lida (só no Tomadix; a marcação não volta ao Gmail). Texto por padrão; a formatação original abre em iframe isolado (`sandbox`), pois o conteúdo recebido não é confiável.
+- **Responder:** envia pelo SMTP configurado para o remetente, mantendo o encadeamento (`In-Reply-To`/`References`).
+- Código: `modules/email/inbox.service.ts` (`InboxService`, `imapFetcher`), rota `api/admin/email/inbox` (permissão `settings:manage`).

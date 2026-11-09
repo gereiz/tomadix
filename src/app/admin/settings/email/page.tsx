@@ -616,6 +616,19 @@ export default function AdminEmailSettingsPage() {
           </div>
         </div>
       )}
+      <div className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-white/10 bg-[#121620] p-5">
+        <div>
+          <h2 className="text-base font-semibold text-white">Caixa de Entrada</h2>
+          <p className="text-xs text-white/50">Leia e responda os e-mails recebidos na conta configurada (usa a mesma senha de app).</p>
+        </div>
+        <Link
+          href="/admin/settings/email/inbox"
+          className="min-h-10 rounded-xl bg-amber-400 px-4 py-2.5 text-xs font-bold text-black transition hover:bg-amber-300"
+        >
+          Abrir caixa de entrada
+        </Link>
+      </div>
+
       <EmailTemplatesPanel />
     </div>
   );

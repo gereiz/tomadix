@@ -1295,6 +1295,29 @@ model EmailLog {
   @@index([recipient, createdAt(sort: Desc)])
 }
 
+/// Mensagens recebidas na caixa de entrada configurada (IMAP), lidas pelo console admin.
+model EmailMessage {
+  id          String    @id @default(cuid())
+  mailbox     String    @default("INBOX")
+  uid         Int
+  messageId   String?
+  inReplyTo   String?
+  fromName    String?
+  fromAddress String
+  toAddresses String    @default("")
+  subject     String    @default("")
+  snippet     String    @default("")
+  textBody    String?
+  htmlBody    String?
+  receivedAt  DateTime
+  isRead      Boolean   @default(false)
+  createdAt   DateTime  @default(now())
+
+  @@unique([mailbox, uid])
+  @@index([receivedAt(sort: Desc)])
+  @@index([isRead, receivedAt(sort: Desc)])
+}
+
 // ============================================================================
 // GERAÇÃO DIRETA DE VÍDEOS VIA POLLINATIONS API
 // ============================================================================

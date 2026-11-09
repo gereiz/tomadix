@@ -11,6 +11,9 @@ export interface SendMailOptions {
   html: string;
   text?: string;
   replyTo?: string;
+  /** Message-ID da mensagem respondida (mantém a conversa encadeada no cliente de e-mail). */
+  inReplyTo?: string;
+  references?: string;
 }
 
 export interface SaveEmailSettingsInput {
@@ -183,6 +186,23 @@ export class EmailService {
   }
 
   /**
+   * Credenciais da conta configurada (usuário e senha em texto), para uso interno do servidor
+   * (ex.: leitura da caixa de entrada por IMAP). Nunca exponha ao cliente.
+   */
+  static async getMailboxCredentials() {
+    const settings = await this.getSettings();
+    let pass = "";
+    if (settings.smtpPasswordEnc) pass = decryptString(settings.smtpPasswordEnc);
+    else if (process.env.SMTP_PASSWORD) pass = process.env.SMTP_PASSWORD;
+    return {
+      provider: settings.provider,
+      smtpHost: settings.smtpHost,
+      user: settings.smtpUser || "",
+      pass,
+    };
+  }
+
+  /**
    * Valida a conexão com o servidor SMTP sem enviar e-mails.
    */
   static async testConnection(customConfig?: Partial<SaveEmailSettingsInput>) {
@@ -251,6 +271,8 @@ export class EmailService {
         html: options.html,
         text: options.text,
         replyTo: options.replyTo || settings.replyTo || undefined,
+        inReplyTo: options.inReplyTo,
+        references: options.references,
       });
 
       // Registrar log com sucesso
