@@ -384,7 +384,8 @@ Escreva a história com exatamente ${input.sceneCount} cenas numeradas na ordem 
             list.push(created);
           }
           return list;
-        });
+          // Banco remoto lento: o padrão de 5s do Prisma estoura com várias cenas aninhadas (P2028).
+        }, { maxWait: 15000, timeout: 60000 });
 
         return {
           sequenceTitle: sequenceData.sequenceTitle || "Sequência",
