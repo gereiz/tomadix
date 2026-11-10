@@ -234,6 +234,23 @@ export function getCaptureStyle(key?: string | null): CaptureStyle {
   return CAPTURE_STYLES.cinematic;
 }
 
+/**
+ * Geradores de imagem e vídeo seguem o começo do prompt e tendem a embelezar a cena. Nos estilos com
+ * `suffixFirst`, o descritor de baixa qualidade (em inglês) vai ANTES do prompt compilado, no JSON e no texto.
+ * Idempotente; não mexe em estilos sem `suffixFirst` nem em saídas sem prompt compilado.
+ */
+const COMPILED_PROMPT_KEYS = ["compiledPromptText", "compiledProductionPrompt", "compiledBasePrompt", "promptText"];
+export function applyCaptureStylePrefix<T>(data: T, captureStyle?: string | null): T {
+  const style = getCaptureStyle(captureStyle);
+  if (!style.suffixFirst || !data || typeof data !== "object") return data;
+  const record = data as Record<string, unknown>;
+  const key = COMPILED_PROMPT_KEYS.find((k) => typeof record[k] === "string" && record[k]);
+  if (key && !(record[key] as string).startsWith(style.directPromptSuffix)) {
+    record[key] = `${style.directPromptSuffix}. ${record[key] as string}`;
+  }
+  return data;
+}
+
 export function listCaptureStyles(): CaptureStyle[] {
   return CAPTURE_STYLE_KEYS.map((k) => CAPTURE_STYLES[k]);
 }

@@ -11,6 +11,7 @@ import { composePromptInstructions } from "./compose-prompt";
 import { generateStructuredJson } from "../ai/gemini-provider";
 import { ParameterService } from "../parameters/parameter.service";
 import { formatPlainTextWithLimit, truncateAtBoundary } from "./plain-text-limit";
+import { applyCaptureStylePrefix } from "./capture-styles";
 import { EntitlementService } from "../billing/entitlement.service";
 import { CreditPricingService } from "../billing/credit-pricing.service";
 import { CreditExecutionService } from "../billing/credit-execution.service";
@@ -327,6 +328,8 @@ export class PromptEngineService {
         // Garante que a sequência final reflita exatamente as cenas do usuário.
         geminiResult.data = this.reconcileSequence(geminiResult.data, sequenceScenes) as typeof geminiResult.data;
       }
+
+      applyCaptureStylePrefix(geminiResult.data, req.captureStyle);
 
       const finishedTime = new Date();
 

@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { CAPTURE_STYLE_KEYS, getCaptureStyle, listCaptureStyles } from "@/modules/prompt-engine/capture-styles";
+import { CAPTURE_STYLE_KEYS, applyCaptureStylePrefix, getCaptureStyle, listCaptureStyles } from "@/modules/prompt-engine/capture-styles";
 import { composePromptInstructions } from "@/modules/prompt-engine/compose-prompt";
 import { getSystemTemplate } from "@/modules/prompt-engine/prompt-template.catalog";
 import { getToolProfile } from "@/modules/prompt-engine/tool-profiles";
@@ -91,5 +91,17 @@ describe("Estilos de captura", () => {
     expect(out.enrichedNegativePrompt).toContain("cinematic lighting");
     expect(out.enrichedNegativePrompt).toContain("texto");
     expect(out.appliedDirectives[0]).toContain("Amador");
+  });
+  it("estilo extremo põe o descritor em inglês antes do prompt compilado (uma vez só)", () => {
+    const style = getCaptureStyle("lowres_grain_extreme");
+    const data = { compiledPromptText: "Uma mulher abre a porta da cabana." };
+    applyCaptureStylePrefix(data, "lowres_grain_extreme");
+    applyCaptureStylePrefix(data, "lowres_grain_extreme");
+    expect(data.compiledPromptText).toBe(`${style.directPromptSuffix}. Uma mulher abre a porta da cabana.`);
+
+    const other = { compiledPromptText: "texto" };
+    applyCaptureStylePrefix(other, "amateur_phone");
+    applyCaptureStylePrefix(other, undefined);
+    expect(other.compiledPromptText).toBe("texto");
   });
 });
