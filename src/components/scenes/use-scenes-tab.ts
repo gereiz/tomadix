@@ -629,6 +629,8 @@ export function useScenesTab({ projectId, onStatsUpdate, onOpenPromptEngine }: S
     setSequenceMood,
     sequenceSelectedChars,
     setSequenceSelectedChars,
+    sequenceSelectedEnvs,
+    setSequenceSelectedEnvs,
     sequenceLoading,
     sequenceError,
     handleSubmitSequence,

@@ -231,34 +231,32 @@ Gere exatamente ${input.count} planos complementares/sub-cenas decupadas.`;
       },
     });
 
-    const outputSchema = z.preprocess(
-      (val: any) => {
-        if (!val || typeof val !== "object") return {};
-        return {
-          sequenceTitle: val.sequenceTitle || val.titulo || "Sequência",
-          dramaticArc: val.dramaticArc || val.arcoDramatico || "",
-          scenes: Array.isArray(val.scenes || val.cenas) ? (val.scenes || val.cenas) : [],
-        };
-      },
-      z.object({
-        sequenceTitle: z.string().default("Sequência"),
-        dramaticArc: z.string().default(""),
-        scenes: z.array(
+    // Saída estrita: JSON fora do formato falha a operação e o wrapper estorna os créditos.
+    const outputSchema = z.object({
+      sequenceTitle: z.string().min(1),
+      dramaticArc: z.string().min(1),
+      scenes: z
+        .array(
           z.object({
-            title: z.string().default("Cena"),
-            description: z.string().default(""),
-            durationSeconds: z.number().int().default(6),
-            framing: z.string().default("Plano Geral"),
-            cameraMovement: z.string().default("Tracking"),
-            mainAction: z.string().default(""),
-            lighting: z.string().default("Cinemática"),
-            visualStyle: z.string().default("Estilizado"),
-            transitionIn: z.string().default("Corte Direto (Cut)"),
-            transitionOut: z.string().default("Corte Direto (Cut)"),
+            title: z.string().min(1),
+            description: z.string().min(1),
+            durationSeconds: z.number().int().min(1),
+            framing: z.string().min(1),
+            cameraMovement: z.string().min(1),
+            mainAction: z.string().min(1),
+            lighting: z.string().min(1),
+            visualStyle: z.string().min(1),
+            transitionIn: z.string().min(1),
+            transitionOut: z.string().min(1),
+            startState: z.string().min(1),
+            endState: z.string().min(1),
+            visualContinuity: z.string().min(1),
+            characterIds: z.array(z.string()),
+            environmentIds: z.array(z.string()),
           })
-        ).default([]),
-      })
-    );
+        )
+        .length(input.sceneCount),
+    });
 
     return await CreditExecutionService.executeWithCredits(
       {
@@ -274,34 +272,48 @@ Gere exatamente ${input.count} planos complementares/sub-cenas decupadas.`;
         },
       },
       async () => {
-        const charContext = characters.map((c) => `- ${c.name}: ${c.description}`).join("\n");
-        const envContext = environments.map((e) => `- ${e.name}: ${e.description}`).join("\n");
+        const describe = (e: { id: string; name: string; description: string | null; attributes: unknown }) =>
+          `- [id: ${e.id}] ${e.name}: ${e.description || "sem descrição"}${
+            e.attributes && Object.keys(e.attributes as object).length
+              ? `\n  Atributos: ${JSON.stringify(e.attributes)}`
+              : ""
+          }`;
+        const charContext = characters.map(describe).join("\n");
+        const envContext = environments.map(describe).join("\n");
 
         const systemPrompt = `Você é um Roteirista e Diretor Cinematográfico de renome.
-Sua função é gerar uma sequência contínua de exatamente ${input.sceneCount} cenas encadeadas para um filme/produção audiovisual.
+Sua função é escrever uma HISTÓRIA CURTA de exatamente ${input.sceneCount} cenas encadeadas, a partir da ideia inicial do usuário.
 
 REGRAS OBRIGATÓRIAS:
-- A sequência deve possuir arco narrativo com começo, tensão crescente e desfecho dramático ou gancho.
-- Cada cena deve ter ações claras, físicas e enquadramento cinematográfico de alto nível.
+- Estrutura de história curta: começo (apresenta personagens e lugar), virada (algo muda ou complica) e fecho (resolução ou gancho). Distribua as ${input.sceneCount} cenas nesses três atos.
+- CONTINUIDADE: o início (startState) da cena N+1 deve continuar exatamente de onde o fim (endState) da cena N parou: mesma posição, figurino, iluminação, hora do dia e clima.
+- Em visualContinuity, liste o que deve permanecer idêntico entre esta cena e a anterior (e a próxima).
+- Descreva personagens e ambientes de forma IDÊNTICA em todas as cenas em que aparecem: copie os traços físicos, figurino e características dos cadastros abaixo, sem variar.
+- Use SOMENTE os ids fornecidos em characterIds/environmentIds, e apenas nas cenas em que o personagem/ambiente realmente aparece. Não invente ids.
+- Cada cena tem ação clara, física e enquadramento cinematográfico de alto nível.
 - Ritmo solicitado: ${input.pacing}.
-- Mantenha continuidade absoluta entre as cenas consecutivas.`;
+- Responda apenas com JSON no formato pedido, em português do Brasil.`;
 
         const userPrompt = `PROJETO: "${project.title}"
 GÊNERO: ${project.genre || "Drama / Ficção"}
-PREMISSA DA SEQUÊNCIA: ${input.premise}
+IDEIA INICIAL: ${input.premise}
 CLIMA / MOOD: ${input.mood || "Cinematográfico e envolvente"}
-PERSONAGENS VINCULADOS:
-${charContext || "Personagens anônimos ou definidos na ação"}
-AMBIENTES VINCULADOS:
-${envContext || "Ambientes urbanos ou descritos no enredo"}
+PERSONAGENS ESCOLHIDOS (use o id para vincular):
+${charContext || "Nenhum escolhido: descreva os personagens na ação e deixe characterIds vazio."}
+AMBIENTES ESCOLHIDOS (use o id para vincular):
+${envContext || "Nenhum escolhido: descreva os locais na ação e deixe environmentIds vazio."}
 
-Gere a sequência técnica de exatamente ${input.sceneCount} cenas numeradas.`;
+Escreva a história com exatamente ${input.sceneCount} cenas numeradas na ordem em que acontecem.`;
 
         const geminiResponse = await generateStructuredJson(
           userPrompt,
           outputSchema,
           { systemInstruction: systemPrompt }
         );
+        // Revalida: garante o formato estrito mesmo se o provedor devolver dado já "parseado" por outro caminho.
+        const sequenceData = outputSchema.parse(geminiResponse.data);
+        const validCharIds = new Set(characters.map((c) => c.id));
+        const validEnvIds = new Set(environments.map((e) => e.id));
 
         // Obter maior ordem existente para anexar no fim
         const maxOrderScene = await db.scene.findFirst({
@@ -312,10 +324,9 @@ Gere a sequência técnica de exatamente ${input.sceneCount} cenas numeradas.`;
 
         let nextOrder = (maxOrderScene?.order ?? 0) + 1;
 
-        const sequenceData = geminiResponse.data as any;
         const createdScenes = await db.$transaction(async (tx) => {
           const list = [];
-          for (const s of (sequenceData.scenes || [])) {
+          for (const s of sequenceData.scenes) {
             const created = await tx.scene.create({
               data: {
                 projectId,
@@ -331,20 +342,22 @@ Gere a sequência técnica de exatamente ${input.sceneCount} cenas numeradas.`;
                   visualStyle: s.visualStyle,
                   transitionIn: s.transitionIn,
                   transitionOut: s.transitionOut,
+                  startState: s.startState,
+                  endState: s.endState,
+                  visualContinuity: s.visualContinuity,
                   sequenceTitle: sequenceData.sequenceTitle,
                   sequenceArc: sequenceData.dramaticArc,
                 },
+                // Só vincula ids escolhidos pelo usuário e citados nesta cena (ids inventados são ignorados).
                 characters: {
-                  create: characters.map((c) => ({
-                    characterId: c.id,
-                    configuration: {},
-                  })),
+                  create: [...new Set(s.characterIds)]
+                    .filter((id) => validCharIds.has(id))
+                    .map((characterId) => ({ characterId, configuration: {} })),
                 },
                 environments: {
-                  create: environments.map((e) => ({
-                    environmentId: e.id,
-                    configuration: {},
-                  })),
+                  create: [...new Set(s.environmentIds)]
+                    .filter((id) => validEnvIds.has(id))
+                    .map((environmentId) => ({ environmentId, configuration: {} })),
                 },
               },
               include: {

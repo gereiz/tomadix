@@ -41,8 +41,11 @@ Disponível no card de cada cena na lista (`ScenesTab`), permite que o diretor d
 
 ### 3.2. Geração de Sequência Contínua de Cenas (`GEN_SCENE_SEQUENCE`)
 Acessível na barra superior de cenas através do botão **"✨ Sequência com IA"**:
-- O diretor informa a premissa dramática da sequência, o número de cenas desejadas (2 a 8), o ritmo cinematográfico (*Equilibrado*, *Ação Intensa*, *Slow Burn*, *Acelerado*) e os personagens/ambientes a serem vinculados.
-- O motor Gemini concebe a sequência inteira encadeada com continuidade dramática, ações físicas e transições de corte, inserindo as cenas automaticamente na produção.
+- Botão "Criar cenas com IA" (custo 12 créditos, estornados em caso de falha). O usuário informa a **ideia inicial**, o número de cenas (2 a 8) e escolhe personagens e ambientes. Ritmo e clima ficam no bloco **avançado** (`useAdvancedMode`).
+- O Gemini escreve uma história curta (começo, virada, fecho). O prompt envia a descrição completa e o id de cada personagem/ambiente escolhido, exige que o início (`startState`) da cena N+1 continue o fim (`endState`) da N e que personagens e locais sejam descritos de forma idêntica em todas as cenas.
+- A saída é validada por um `z.object` estrito (sem defaults): cada cena traz `startState`, `endState`, `visualContinuity`, `characterIds` e `environmentIds`. JSON inválido ou com número de cenas diferente do pedido falha a operação e estorna os créditos.
+- Persistência: as cenas são anexadas ao fim; `SceneCharacter`/`SceneEnvironment` são vinculados só às cenas em que o id aparece (ids inventados são ignorados). `startState`, `endState`, `visualContinuity`, `sequenceTitle` e `sequenceArc` ficam em `Scene.configuration` (sem migração).
+- Obs.: o tipo SCENE de `api/studio/quick-create` não chama IA; só esta rota usa `GEN_SCENE_SEQUENCE` na criação de cenas.
 
 ### 3.3. Geração de Roteiro Cinematográfico Completo (`GEN_SCRIPT`)
 Acessível na barra superior através do botão **"🎬 Roteiro com IA"**:

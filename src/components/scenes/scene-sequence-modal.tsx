@@ -1,149 +1,173 @@
 "use client";
 
+import { Modal } from "@/components/ui/modal";
+import { AdvancedModeToggle } from "@/components/entities/advanced-mode-toggle";
+import { useAdvancedMode } from "@/components/entities/use-advanced-mode";
 import type { ScenesTabState } from "./use-scenes-tab";
 
 interface SceneSequenceModalProps {
   s: ScenesTabState;
 }
 
+// Custo da operação GEN_SCENE_SEQUENCE (credit-pricing.service.ts); o valor final cobrado vem da tabela de créditos.
+const SEQUENCE_CREDIT_COST = 12;
+
+const chipClass = (selected: boolean) =>
+  `min-h-10 rounded-lg px-2.5 py-1 text-xs transition border ${
+    selected
+      ? "bg-primary/20 border-primary text-primary font-semibold"
+      : "bg-white/5 border-white/10 text-white/60 hover:text-white"
+  }`;
+
+const toggleId = (list: string[], id: string) =>
+  list.includes(id) ? list.filter((x) => x !== id) : [...list, id];
+
 export function SceneSequenceModal({ s }: SceneSequenceModalProps) {
-  const { availableCharacters, setSequenceModalOpen, sequencePremise, setSequencePremise, sequenceCount, setSequenceCount, sequencePacing, setSequencePacing, sequenceMood, setSequenceMood, sequenceSelectedChars, setSequenceSelectedChars, sequenceLoading, sequenceError, handleSubmitSequence, sequenceModalOpen } = s;
+  const {
+    availableCharacters, availableEnvironments, setSequenceModalOpen, sequencePremise, setSequencePremise,
+    sequenceCount, setSequenceCount, sequencePacing, setSequencePacing, sequenceMood, setSequenceMood,
+    sequenceSelectedChars, setSequenceSelectedChars, sequenceSelectedEnvs, setSequenceSelectedEnvs,
+    sequenceLoading, sequenceError, handleSubmitSequence, sequenceModalOpen,
+  } = s;
+  const [advanced, setAdvanced] = useAdvancedMode();
   if (!sequenceModalOpen) return null;
 
   return (
-    <div className="fixed inset-0 overflow-y-auto z-50 flex items-center-safe justify-center bg-black/80 p-3 sm:p-4">
-      <div className="relative w-full max-w-xl rounded-3xl border border-white/10 bg-[#0f1218] p-6 shadow-2xl">
-        <div className="flex items-center justify-between border-b border-white/10 pb-4">
+    <Modal onClose={() => setSequenceModalOpen(false)} size="xl" labelledBy="sequence-modal-title" closeOnOverlay={!sequenceLoading}>
+      <div className="p-4 sm:p-6">
+        <div className="flex items-start justify-between gap-3 border-b border-white/10 pb-4">
           <div>
-            <h3 className="text-base font-bold text-white flex items-center gap-2">
-              <span className="text-primary">✨</span> Gerar Sequência de Cenas com IA
+            <h3 id="sequence-modal-title" className="text-base font-bold text-white">
+              Criar cenas com IA
             </h3>
             <p className="mt-1 text-xs text-white/50">
-              Estruturação seriada e contínua de planos encadeados para seu projeto cinematográfico.
+              Escreva uma ideia e a IA monta uma história curta em cenas encadeadas, mantendo personagens e locais iguais do começo ao fim.
             </p>
           </div>
           <button
+            type="button"
+            aria-label="Fechar"
             onClick={() => setSequenceModalOpen(false)}
-            className="rounded-xl p-1.5 text-white/50 hover:bg-white/10 hover:text-white transition"
+            className="min-h-11 min-w-11 rounded-xl p-1.5 text-white/50 hover:bg-white/10 hover:text-white transition"
           >
             ✕
           </button>
         </div>
-    
+
         <div className="mt-5 space-y-4">
           <div>
-            <label className="block text-xs font-medium text-white/70 mb-1.5">
-              Premissa Dramática da Sequência *
-            </label>
+            <label className="block text-xs font-medium text-white/70 mb-1.5">Ideia inicial *</label>
             <textarea
               value={sequencePremise}
               onChange={(e) => setSequencePremise(e.target.value)}
-              placeholder="Ex: Fuga noturna pelos telhados de paralelepípedo, começando com a perda de cobertura e terminando no salto para o caminhão em movimento..."
+              placeholder="Ex: Uma ladra foge pelos telhados à noite e, no fim, descobre que o caminhão onde pulou é do seu perseguidor..."
               rows={3}
               className="w-full rounded-xl border border-white/10 bg-white/5 p-3 text-xs text-white placeholder-white/30 focus:border-primary focus:outline-none resize-none"
             />
           </div>
-    
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <div>
-              <label className="block text-xs font-medium text-white/70 mb-1.5">
-                Número de Cenas ({sequenceCount})
-              </label>
-              <input
-                type="range"
-                min="2"
-                max="8"
-                value={sequenceCount}
-                onChange={(e) => setSequenceCount(parseInt(e.target.value, 10))}
-                className="w-full accent-primary cursor-pointer"
-              />
-              <div className="flex justify-between text-[11px] text-white/40 mt-1">
-                <span>2 cenas</span>
-                <span>4 cenas (Padrão)</span>
-                <span>8 cenas</span>
-              </div>
-            </div>
-    
-            <div>
-              <label className="block text-xs font-medium text-white/70 mb-1.5">
-                Ritmo Dramático
-              </label>
-              <select
-                value={sequencePacing}
-                onChange={(e) => setSequencePacing(e.target.value as any)}
-                className="w-full rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-xs text-white focus:border-primary focus:outline-none"
-              >
-                <option value="BALANCED" className="bg-[#0f1218]">Equilibrado (Clássico)</option>
-                <option value="ACTION_INTENSE" className="bg-[#0f1218]">Ação Intensa / Dinâmico</option>
-                <option value="SLOW_BURN" className="bg-[#0f1218]">Slow Burn / Atmosférico</option>
-                <option value="FAST_PACED" className="bg-[#0f1218]">Ritmo Acelerado</option>
-              </select>
-            </div>
-          </div>
-    
+
           <div>
-            <label className="block text-xs font-medium text-white/70 mb-1.5">
-              Clima / Atmosfera Visual (Opcional)
-            </label>
+            <label className="block text-xs font-medium text-white/70 mb-1.5">Número de cenas ({sequenceCount})</label>
             <input
-              type="text"
-              value={sequenceMood}
-              onChange={(e) => setSequenceMood(e.target.value)}
-              placeholder="Ex: Iluminação chiaroscuro, chuva volumétrica, névoa densa..."
-              className="w-full rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-xs text-white placeholder-white/30 focus:border-primary focus:outline-none"
+              type="range"
+              min="2"
+              max="8"
+              value={sequenceCount}
+              onChange={(e) => setSequenceCount(parseInt(e.target.value, 10))}
+              className="w-full accent-primary cursor-pointer"
             />
+            <div className="flex justify-between text-[11px] text-white/40 mt-1">
+              <span>2</span>
+              <span>4 (padrão)</span>
+              <span>8</span>
+            </div>
           </div>
-    
+
           {availableCharacters.length > 0 && (
             <div>
-              <label className="block text-xs font-medium text-white/70 mb-1.5">
-                Vincular Personagens Presentes
-              </label>
+              <label className="block text-xs font-medium text-white/70 mb-1.5">Personagens da história</label>
               <div className="flex flex-wrap gap-1.5">
-                {availableCharacters.map((char) => {
-                  const isSelected = sequenceSelectedChars.includes(char.id);
-                  return (
-                    <button
-                      key={char.id}
-                      type="button"
-                      onClick={() => {
-                        setSequenceSelectedChars((prev) =>
-                          isSelected ? prev.filter((id) => id !== char.id) : [...prev, char.id]
-                        );
-                      }}
-                      className={`rounded-lg px-2.5 py-1 text-xs transition border ${
-                        isSelected
-                          ? "bg-primary/20 border-primary text-primary font-semibold"
-                          : "bg-white/5 border-white/10 text-white/60 hover:text-white"
-                      }`}
-                    >
-                      👤 {char.name}
-                    </button>
-                  );
-                })}
+                {availableCharacters.map((char) => (
+                  <button
+                    key={char.id}
+                    type="button"
+                    aria-pressed={sequenceSelectedChars.includes(char.id)}
+                    onClick={() => setSequenceSelectedChars((prev) => toggleId(prev, char.id))}
+                    className={chipClass(sequenceSelectedChars.includes(char.id))}
+                  >
+                    👤 {char.name}
+                  </button>
+                ))}
               </div>
             </div>
           )}
-    
+
+          {availableEnvironments.length > 0 && (
+            <div>
+              <label className="block text-xs font-medium text-white/70 mb-1.5">Ambientes da história</label>
+              <div className="flex flex-wrap gap-1.5">
+                {availableEnvironments.map((env) => (
+                  <button
+                    key={env.id}
+                    type="button"
+                    aria-pressed={sequenceSelectedEnvs.includes(env.id)}
+                    onClick={() => setSequenceSelectedEnvs((prev) => toggleId(prev, env.id))}
+                    className={chipClass(sequenceSelectedEnvs.includes(env.id))}
+                  >
+                    📍 {env.name}
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
+
+          <AdvancedModeToggle advanced={advanced} onChange={setAdvanced} />
+
+          {advanced && (
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div>
+                <label className="block text-xs font-medium text-white/70 mb-1.5">Ritmo dramático</label>
+                <select
+                  value={sequencePacing}
+                  onChange={(e) => setSequencePacing(e.target.value as typeof sequencePacing)}
+                  className="min-h-11 w-full rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-xs text-white focus:border-primary focus:outline-none"
+                >
+                  <option value="BALANCED" className="bg-[#0f1218]">Equilibrado (clássico)</option>
+                  <option value="ACTION_INTENSE" className="bg-[#0f1218]">Ação intensa / dinâmico</option>
+                  <option value="SLOW_BURN" className="bg-[#0f1218]">Slow burn / atmosférico</option>
+                  <option value="FAST_PACED" className="bg-[#0f1218]">Ritmo acelerado</option>
+                </select>
+              </div>
+              <div>
+                <label className="block text-xs font-medium text-white/70 mb-1.5">Clima / atmosfera visual (opcional)</label>
+                <input
+                  type="text"
+                  value={sequenceMood}
+                  onChange={(e) => setSequenceMood(e.target.value)}
+                  placeholder="Ex: chiaroscuro, chuva volumétrica, névoa densa..."
+                  className="min-h-11 w-full rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-xs text-white placeholder-white/30 focus:border-primary focus:outline-none"
+                />
+              </div>
+            </div>
+          )}
+
           {sequenceError && (
-            <div className="rounded-xl border border-red-500/30 bg-red-500/10 p-3 text-xs text-red-300">
+            <div role="alert" className="rounded-xl border border-red-500/30 bg-red-500/10 p-3 text-xs text-red-300">
               {sequenceError}
             </div>
           )}
         </div>
-    
-        <div className="mt-6 flex items-center justify-between border-t border-white/10 pt-4">
-          <span className="text-xs text-white/50 flex items-center gap-1.5">
-            <span className="text-amber-400 font-bold flex items-center gap-1">
-              <span>🪙</span> 8 créditos
-            </span>
-            <span>• Tabela de créditos</span>
+
+        <div className="mt-6 flex flex-col gap-3 border-t border-white/10 pt-4 sm:flex-row sm:items-center sm:justify-between">
+          <span className="text-xs text-white/50">
+            <span className="text-amber-400 font-bold">🪙 {SEQUENCE_CREDIT_COST} créditos</span>
+            <span> • devolvidos se a geração falhar</span>
           </span>
           <div className="flex gap-2">
             <button
               type="button"
               onClick={() => setSequenceModalOpen(false)}
-              className="rounded-xl px-4 py-2 text-xs font-medium text-white/70 hover:bg-white/10 transition"
+              className="min-h-11 flex-1 rounded-xl px-4 py-2 text-xs font-medium text-white/70 hover:bg-white/10 transition sm:flex-none"
             >
               Cancelar
             </button>
@@ -151,13 +175,13 @@ export function SceneSequenceModal({ s }: SceneSequenceModalProps) {
               type="button"
               onClick={handleSubmitSequence}
               disabled={sequenceLoading}
-              className="rounded-xl bg-primary px-4 py-2 text-xs font-semibold text-on-primary shadow-lg hover:opacity-90 disabled:opacity-50 transition"
+              className="min-h-11 flex-1 rounded-xl bg-primary px-4 py-2 text-xs font-semibold text-on-primary shadow-lg hover:opacity-90 disabled:opacity-50 transition sm:flex-none"
             >
-              {sequenceLoading ? "Estruturando Sequência..." : "Gerar Sequência"}
+              {sequenceLoading ? "Escrevendo a história..." : "Criar cenas"}
             </button>
           </div>
         </div>
       </div>
-    </div>
+    </Modal>
   );
 }

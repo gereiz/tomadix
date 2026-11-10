@@ -1,4 +1,6 @@
-import { describe, it, expect, vi, beforeEach } from "vitest";
+import { describe, it, expect, vi, beforeEach, beforeAll, afterAll } from "vitest";
+import * as geminiProvider from "@/modules/ai/gemini-provider";
+import { CinematicCreationService } from "@/modules/cinematic-creation/cinematic-creation.service";
 import {
   expandSceneSchema,
   generateSceneSequenceSchema,
@@ -143,6 +145,121 @@ describe("Cinematic Creation Operations & AI Schemas", () => {
       expect(result.creditCost).toBe(4);
       expect(result.newBalance).toBe(96);
       expect(result.result).toEqual({ shotsCreated: 3 });
+    });
+  });
+
+  describe("generateSceneSequence (história curta com IA)", () => {
+    let workspaceId: string;
+    let projectId: string;
+    let charA: string;
+    let charB: string;
+    let envA: string;
+
+    beforeAll(async () => {
+      const { db } = await import("@/lib/db");
+      const { ProjectService } = await import("@/modules/projects/project.service");
+      const { CharacterService } = await import("@/modules/characters/character.service");
+      const { EnvironmentService } = await import("@/modules/environments/environment.service");
+      const ws = await db.workspace.create({ data: { name: "Seq Test", slug: `seq-test-${Date.now()}` } });
+      workspaceId = ws.id;
+      const project = await ProjectService.createProject(workspaceId, {
+        title: "Fuga nos Telhados",
+        description: "Curta de ação noturno.",
+        genre: "Ação",
+        language: "pt-BR",
+        configuration: { aspectRatio: "16:9" },
+      } as any);
+      projectId = project.id;
+      charA = (await CharacterService.createCharacter(projectId, workspaceId, { name: "Lia", description: "Ladra de casaco vermelho." } as any)).id;
+      charB = (await CharacterService.createCharacter(projectId, workspaceId, { name: "Caio", description: "Perseguidor de terno cinza." } as any)).id;
+      envA = (await EnvironmentService.createEnvironment(projectId, workspaceId, { name: "Telhados", description: "Telhados molhados à noite." } as any)).id;
+    }, 60000);
+
+    afterAll(async () => {
+      const { db } = await import("@/lib/db");
+      await db.scene.deleteMany({ where: { projectId } });
+      await db.character.deleteMany({ where: { projectId } });
+      await db.environment.deleteMany({ where: { projectId } });
+      await db.project.deleteMany({ where: { id: projectId } });
+      await db.workspace.deleteMany({ where: { id: workspaceId } });
+    }, 60000);
+
+    const scene = (n: number, characterIds: string[], environmentIds: string[]) => ({
+      title: `Cena ${n}`,
+      description: `Descrição ${n}`,
+      durationSeconds: 6,
+      framing: "Plano Geral",
+      cameraMovement: "Tracking",
+      mainAction: `Ação ${n}`,
+      lighting: "Neon azul",
+      visualStyle: "Noir",
+      transitionIn: "Corte",
+      transitionOut: "Corte",
+      startState: `Início ${n}`,
+      endState: `Fim ${n}`,
+      visualContinuity: "Casaco vermelho molhado",
+      characterIds,
+      environmentIds,
+    });
+
+    const mockCredits = () => {
+      vi.spyOn(EntitlementService, "getWorkspaceSubscription").mockResolvedValue({ planTier: PlanTier.PRO } as any);
+      vi.spyOn(CreditPricingService, "resolveCost").mockResolvedValue({
+        operationCode: "GEN_SCENE_SEQUENCE", operationName: "Sequência", creditCost: 12, isFree: false, appliedRule: "OPERATION_DEFAULT", version: 1,
+      });
+      vi.spyOn(CreditExecutionService as any, "deductViaConsumptionOrder").mockResolvedValue({
+        newBalance: 88,
+        usedLots: [{ lotId: "lot-x", amount: 12 }],
+      });
+      return vi.spyOn(CreditExecutionService as any, "refundDeductedLots").mockResolvedValue(undefined);
+    };
+
+    it("cria 3 cenas em ordem e vincula personagens/ambientes só onde aparecem", async () => {
+      vi.restoreAllMocks();
+      const refund = mockCredits();
+      const data = {
+        sequenceTitle: "A Fuga",
+        dramaticArc: "Começo, virada e fecho.",
+        // ids inventados ("fantasma") devem ser ignorados
+        scenes: [scene(1, [charA], [envA]), scene(2, [charA, charB, "fantasma"], [envA]), scene(3, [charB], [])],
+      };
+      vi.spyOn(geminiProvider, "generateStructuredJson").mockResolvedValueOnce({
+        data, rawText: JSON.stringify(data), model: "mock", tokens: { inputTokens: 1, outputTokens: 1 },
+      } as any);
+
+      const res = await CinematicCreationService.generateSceneSequence(projectId, workspaceId, {
+        premise: "Uma ladra foge pelos telhados", sceneCount: 3, characterIds: [charA, charB], environmentIds: [envA], mood: "", pacing: "BALANCED",
+      });
+
+      const created = res.result.createdScenes;
+      expect(created.map((c) => c.order)).toEqual([created[0].order, created[0].order + 1, created[0].order + 2]);
+      const chars = created.map((c) => c.characters.map((x) => x.characterId).sort());
+      expect(chars).toEqual([[charA], [charA, charB].sort(), [charB]]);
+      expect(created.map((c) => c.environments.length)).toEqual([1, 1, 0]);
+      expect((created[1].configuration as any).startState).toBe("Início 2");
+      expect((created[1].configuration as any).endState).toBe("Fim 2");
+      expect((created[1].configuration as any).sequenceTitle).toBe("A Fuga");
+      expect(refund).not.toHaveBeenCalled();
+    });
+
+    it("JSON inválido falha, não cria cenas e estorna os créditos", async () => {
+      vi.restoreAllMocks();
+      const refund = mockCredits();
+      const { db } = await import("@/lib/db");
+      const before = await db.scene.count({ where: { projectId } });
+      const bad = { sequenceTitle: "X", dramaticArc: "Y", scenes: [{ title: "só título" }] };
+      vi.spyOn(geminiProvider, "generateStructuredJson").mockResolvedValueOnce({
+        data: bad, rawText: "{}", model: "mock", tokens: { inputTokens: 1, outputTokens: 1 },
+      } as any);
+
+      await expect(
+        CinematicCreationService.generateSceneSequence(projectId, workspaceId, {
+          premise: "Uma ladra foge pelos telhados", sceneCount: 3, characterIds: [], environmentIds: [], mood: "", pacing: "BALANCED",
+        })
+      ).rejects.toThrow();
+
+      expect(refund).toHaveBeenCalledTimes(1);
+      expect(await db.scene.count({ where: { projectId } })).toBe(before);
     });
   });
 
