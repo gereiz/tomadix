@@ -104,7 +104,7 @@ export class CinematicPromptEnricher {
     if (capture.key !== "cinematic") {
       const mergedNegative = [negativePrompt, ...capture.negativeHints].filter(Boolean).join(", ");
       return {
-        enrichedPrompt: `${userPrompt}. ${capture.directPromptSuffix}`,
+        enrichedPrompt: capture.suffixFirst ? `${capture.directPromptSuffix}. ${userPrompt}` : `${userPrompt}. ${capture.directPromptSuffix}`,
         originalPrompt: userPrompt,
         enrichedNegativePrompt: mergedNegative || undefined,
         appliedDirectives: [`estilo de captura: ${capture.label}`],

@@ -1,6 +1,6 @@
 import sharp from "sharp";
 
-export type DegradeLevel = "light" | "medium" | "heavy";
+export type DegradeLevel = "light" | "medium" | "heavy" | "extreme";
 
 interface DegradeSettings {
   /** Fração da largura original mantida antes de reampliar. */
@@ -17,6 +17,8 @@ const SETTINGS: Record<DegradeLevel, DegradeSettings> = {
   light: { scale: 0.6, noise: 10, blur: 0.4, jpegQuality: 55, saturation: 1.05, contrast: 0.97 },
   medium: { scale: 0.45, noise: 18, blur: 0.6, jpegQuality: 38, saturation: 1.1, contrast: 0.94 },
   heavy: { scale: 0.38, noise: 23, blur: 0.7, jpegQuality: 30, saturation: 1.12, contrast: 0.92 },
+  // Alvo: frame mole de celular repostado (detalhe borrado, cor natural), não pixel gigante nem cor saturada.
+  extreme: { scale: 0.4, noise: 26, blur: 1.2, jpegQuality: 22, saturation: 0.95, contrast: 0.9 },
 };
 
 /** Ruído gaussiano aproximado (soma de uniformes), determinístico quando `seed` é informado. */
@@ -83,6 +85,9 @@ export async function degradeImage(
 /** Nível sugerido por estilo de captura (null = não degradar). */
 export function degradeLevelForStyle(captureStyle?: string | null): DegradeLevel | null {
   switch (captureStyle) {
+    case "lowres_grain_extreme":
+    case "cctv_lowbit":
+      return "extreme";
     case "lowres_grain":
       return "heavy";
     case "amateur_phone":

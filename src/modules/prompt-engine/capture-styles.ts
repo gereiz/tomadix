@@ -3,7 +3,7 @@
  * O padrão (`cinematic`) mantém o comportamento cinematográfico atual; os demais
  * substituem câmera, granulação, composição e luz por uma aparência de captura real.
  */
-export const CAPTURE_STYLE_KEYS = ["cinematic", "amateur_phone", "selfie_flash", "lowres_grain", "security_cam", "found_footage"] as const;
+export const CAPTURE_STYLE_KEYS = ["cinematic", "amateur_phone", "selfie_flash", "lowres_grain", "lowres_grain_extreme", "security_cam", "cctv_lowbit", "found_footage"] as const;
 export type CaptureStyleKey = (typeof CAPTURE_STYLE_KEYS)[number];
 
 export interface CaptureStyle {
@@ -17,6 +17,8 @@ export interface CaptureStyle {
   negativeHints: string[];
   /** Fragmento curto, em inglês, anexado direto ao prompt da geração direta de imagem/vídeo. */
   directPromptSuffix: string;
+  /** Quando true, o sufixo vai ANTES do prompt do usuário (o descritor mais forte pesa mais no início). */
+  suffixFirst?: boolean;
 }
 
 export const CAPTURE_STYLES: Record<CaptureStyleKey, CaptureStyle> = {
@@ -114,6 +116,49 @@ export const CAPTURE_STYLES: Record<CaptureStyleKey, CaptureStyle> = {
     directPromptSuffix:
       "low resolution amateur footage, upscaled 480p look, heavy film grain and sensor noise, soft blurry details, strong video compression artifacts, washed-out low contrast, blown highlights, handheld cheap camera, candid unedited recording",
   },
+  lowres_grain_extreme: {
+    key: "lowres_grain_extreme",
+    label: "Granulado extremo / IA viral",
+    icon: "📟",
+    description: "Degradação máxima: 240-360p ampliado, ruído digital de sensor ISO 6400+, macroblocking e cara de vídeo viral de IA.",
+    instructions: [
+      "Resolução: vídeo de 240-360p ampliado para tela cheia, pixels grandes e macios. Os detalhes finos viram borrão liso: NÃO aparecem veios de madeira, trama de tecido nem poros de pele; tudo é mancha suave, sem textura.",
+      "Ruído: ruído digital de sensor (NÃO grão de película), ISO 6400+ em sensor pequeno de celular barato, ruído de luminância e de crominância (manchas coloridas) visíveis em toda a imagem, sobretudo nas sombras e no céu.",
+      "Compressão: H.264 em bitrate muito baixo, macroblocking (blocos quadrados visíveis), mosquito noise ao redor de bordas e rostos, smearing de JPEG (cores borradas como tinta), banding em degradês, cores vazando entre blocos.",
+      "Imagem: SEM HDR, sem tone mapping, sem clareza, sem microcontraste e sem nitidez artificial. A imagem é suave e achatada, contraste baixo, cores naturais e um pouco apagadas; as sombras são cinza com ruído de cor, nunca pretas e nítidas.",
+      "Câmera: frame de vídeo de celular barato, tirado de relance; enquadramento acidental e meio torto, sujeito um pouco fora do centro, foco macio, leve motion blur de mão.",
+      "Realismo: cena banal e real captada por quem passava, só luz disponível (poste, farol, lâmpada, giroflex), sem luz de estúdio e sem composição bonita; print de vídeo repostado em rede social, sem cara de render nem de ilustração.",
+    ],
+    negativeHints: [
+      "sharp",
+      "4k",
+      "8k",
+      "ultra HD",
+      "high resolution",
+      "clean image",
+      "smooth skin",
+      "film grain",
+      "studio quality",
+      "cinematic lighting",
+      "professional photography",
+      "denoised",
+      "crisp details",
+      "HDR",
+      "tone mapping",
+      "oversharpened",
+      "crisp edges",
+      "micro-contrast",
+      "vivid saturated colors",
+      "detailed textures",
+      "beautiful composition",
+      "bokeh",
+      "shallow depth of field",
+      "dramatic lighting",
+    ],
+    directPromptSuffix:
+      "ordinary candid frame grab from a cheap smartphone video reposted on social media, 360p upscaled with soft smeared mushy detail and no fine texture (no visible wood grain, fabric weave or skin pores), heavy digital sensor noise (not film grain) at ISO 6400+ with chroma blotches in the shadows, severe H.264 low-bitrate macroblocking, mosquito noise and JPEG smearing, banding, slight motion blur, low micro-contrast, flat muted natural colors, available light only, accidental off-center composition, no HDR, no tone mapping, no sharpening",
+    suffixFirst: true,
+  },
   security_cam: {
     key: "security_cam",
     label: "Câmera de segurança",
@@ -128,6 +173,42 @@ export const CAPTURE_STYLES: Record<CaptureStyleKey, CaptureStyle> = {
     negativeHints: ["cinematic lighting", "shallow depth of field", "bokeh", "color grading", "high resolution", "clean render"],
     directPromptSuffix:
       "CCTV security camera footage, fixed high-angle wide lens, low resolution, heavy compression, washed-out colors, timestamp overlay, no cinematic look",
+  },
+  cctv_lowbit: {
+    key: "cctv_lowbit",
+    label: "Câmera de segurança de baixo bitrate",
+    icon: "📷",
+    description: "Câmera de segurança barata com H.264 em bitrate mínimo: 240-360p, ruído, macroblocking e exposição instável.",
+    instructions: [
+      "Câmera: câmera de vigilância fixa e barata, grande angular com distorção nas bordas, posicionada alto em ângulo descendente, sem movimento de câmera.",
+      "Resolução: 240-360p ampliado, detalhes borrados e sem textura (sem veios de madeira, trama de tecido ou poros), rostos e placas ilegíveis, sujeitos pequenos no quadro.",
+      "Ruído: ruído digital de sensor (NÃO grão de película), ISO 6400+ à noite, ruído de luminância e crominância, sensor pequeno.",
+      "Compressão: H.264 em bitrate baixo, macroblocking e mosquito noise, banding, quadros que congelam e se atualizam em blocos, rolling shutter e motion blur em quem se move rápido.",
+      "Imagem: SEM HDR, sem tone mapping e sem nitidez artificial; imagem mole e achatada, contraste baixo, cores lavadas ou quase monocromáticas, sombras cinza com ruído; carimbo de data e hora no canto.",
+      "Luz: iluminação existente do local (poste, loja, noite), sem luz de cinema; composição sem consciência da câmera, sem enquadramento artístico.",
+    ],
+    negativeHints: [
+      "cinematic lighting",
+      "shallow depth of field",
+      "bokeh",
+      "color grading",
+      "high resolution",
+      "4k",
+      "ultra HD",
+      "clean render",
+      "film grain",
+      "sharp details",
+      "HDR",
+      "tone mapping",
+      "oversharpened",
+      "crisp edges",
+      "micro-contrast",
+      "vivid saturated colors",
+      "detailed textures",
+    ],
+    directPromptSuffix:
+      "low-bitrate CCTV security camera footage, 240p-360p upscaled with soft smeared detail and no fine texture, fixed high-angle wide lens, heavy digital sensor noise (not film grain) at ISO 6400+, H.264 macroblocking, mosquito noise and JPEG smearing, banding, slight motion blur, rolling shutter, low micro-contrast, washed-out flat colors, available light only, no HDR, no tone mapping, no sharpening, timestamp overlay",
+    suffixFirst: true,
   },
   found_footage: {
     key: "found_footage",

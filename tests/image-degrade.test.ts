@@ -46,6 +46,8 @@ describe("Degradação de imagem (granulado / baixa resolução)", () => {
 
   it("escolhe o nível pelo estilo de captura", () => {
     expect(degradeLevelForStyle("lowres_grain")).toBe("heavy");
+    expect(degradeLevelForStyle("lowres_grain_extreme")).toBe("extreme");
+    expect(degradeLevelForStyle("cctv_lowbit")).toBe("extreme");
     expect(degradeLevelForStyle("amateur_phone")).toBe("medium");
     expect(degradeLevelForStyle("selfie_flash")).toBe("medium");
     expect(degradeLevelForStyle("cinematic")).toBeNull();

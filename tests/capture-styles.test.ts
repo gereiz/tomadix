@@ -36,6 +36,21 @@ describe("Estilos de captura", () => {
     }
   });
 
+  it("estilos extremos trazem descritores concretos de ruído digital e compressão", async () => {
+    for (const key of ["lowres_grain_extreme", "cctv_lowbit"] as const) {
+      const st = getCaptureStyle(key);
+      expect(CAPTURE_STYLE_KEYS).toContain(key);
+      expect(st.directPromptSuffix).toMatch(/360p/);
+      expect(st.directPromptSuffix).toMatch(/macroblocking/);
+      expect(st.directPromptSuffix).toMatch(/ISO 6400/);
+      expect(st.directPromptSuffix).toMatch(/not film grain/);
+      expect(st.instructions.join(" ")).toMatch(/360p/);
+    }
+    const out = await CinematicPromptEnricher.enrich({ userPrompt: "um gato", projectId: "x", workspaceId: "w", captureStyle: "lowres_grain_extreme" });
+    expect(out.enrichedPrompt.startsWith(getCaptureStyle("lowres_grain_extreme").directPromptSuffix)).toBe(true);
+    expect(out.enrichedPrompt).toContain("um gato");
+  });
+
   it("amador/celular entra no prompt de imagem e vídeo; cinematográfico não adiciona seção", () => {
     for (const key of ["image_prompt", "video_prompt"] as const) {
       const amateur = composePromptInstructions({ ...base, template: getSystemTemplate(key), captureStyle: "amateur_phone" });
