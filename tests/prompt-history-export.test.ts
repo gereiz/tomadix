@@ -526,4 +526,49 @@ describe("PromptHistoryService & Export - Histórico, Versionamento e Exportaç�
       expect(remainingFailed.length).toBe(0);
     });
   });
+
+  // -------------------------------------------------------------
+  // 8. Exclusão de prompts gerados (PromptVersion)
+  // -------------------------------------------------------------
+  describe("Exclusão de prompts gerados", () => {
+    const mk = () => ({
+      projectId,
+      templateKey: "video_prompt",
+      templateVersion: 1,
+      targetTool: "google_flow",
+      modelName: "gemini-3.5-flash",
+      inputSnapshot: {},
+      outputJson: {},
+    });
+
+    it("Workspace B não deve excluir prompt do Workspace A", async () => {
+      const v = await db.promptVersion.create({ data: mk() });
+      await expect(PromptHistoryService.deleteVersion(v.id, projectId, workspaceBId)).rejects.toThrow(
+        "Projeto não encontrado ou acesso não permitido."
+      );
+      expect(await db.promptVersion.findUnique({ where: { id: v.id } })).not.toBeNull();
+      await db.promptVersion.delete({ where: { id: v.id } });
+    });
+
+    it("exclui um prompt específico e recusa excluir de novo", async () => {
+      const v = await db.promptVersion.create({ data: mk() });
+      const res = await PromptHistoryService.deleteVersion(v.id, projectId, workspaceAId);
+      expect(res.success).toBe(true);
+      expect(await db.promptVersion.findUnique({ where: { id: v.id } })).toBeNull();
+      await expect(PromptHistoryService.deleteVersion(v.id, projectId, workspaceAId)).rejects.toThrow("Prompt não encontrado");
+    });
+
+    it("exclui todos os prompts do projeto sem tocar nos registros de erro", async () => {
+      await db.promptVersion.createMany({ data: [mk(), mk()] });
+      const failed = await db.generationJob.create({
+        data: { projectId, modelName: "gemini-3.5-flash", status: GenerationStatus.FAILED, request: {}, errorMessage: "erro preservado" },
+      });
+
+      const res = await PromptHistoryService.clearAllVersions(projectId, workspaceAId);
+      expect(res.count).toBeGreaterThanOrEqual(2);
+      expect(await db.promptVersion.count({ where: { projectId } })).toBe(0);
+      expect(await db.generationJob.findUnique({ where: { id: failed.id } })).not.toBeNull();
+      await db.generationJob.delete({ where: { id: failed.id } });
+    });
+  });
 });

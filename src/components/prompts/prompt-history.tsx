@@ -7,7 +7,7 @@ interface PromptHistoryProps {
 }
 
 export function PromptHistory({ s }: PromptHistoryProps) {
-  const { projectId, versions, scenes, imageEnabled: mediaEnabled, setGenerationMode, setPromptForImageGen, filterTemplate, setFilterTemplate, filterStatus, setFilterStatus, filterScene, setFilterScene, currentResult, setCurrentResult, setRegeneratingVersion, setRegenerateInstructions, setCompareModalOpen, setCompareVersionAId, setCompareVersionBId, setComparisonResult, deletingJobId, isClearingAllErrors, fetchHistory, handleGenerate, handleDeleteError, handleClearAllErrors, succeededVersions, failedVersions } = s;
+  const { projectId, versions, scenes, imageEnabled: mediaEnabled, setGenerationMode, setPromptForImageGen, filterTemplate, setFilterTemplate, filterStatus, setFilterStatus, filterScene, setFilterScene, currentResult, setCurrentResult, setRegeneratingVersion, setRegenerateInstructions, setCompareModalOpen, setCompareVersionAId, setCompareVersionBId, setComparisonResult, deletingJobId, isClearingAllErrors, fetchHistory, handleGenerate, handleDeleteError, handleClearAllErrors, deletingVersionId, isDeletingAllVersions, handleDeleteVersion, handleDeleteAllVersions, succeededVersions, failedVersions } = s;
 
 
   return (
@@ -37,6 +37,20 @@ export function PromptHistory({ s }: PromptHistoryProps) {
             </button>
           )}
     
+          {succeededVersions.length > 0 && (
+            <button
+              onClick={handleDeleteAllVersions}
+              disabled={isDeletingAllVersions}
+              title="Excluir todos os prompts gerados deste projeto"
+              className="min-h-10 rounded-xl border border-red-500/30 bg-red-500/10 px-3 py-1.5 text-xs font-semibold text-red-300 hover:bg-red-500/20 transition flex items-center gap-1.5 disabled:opacity-50"
+            >
+              <svg className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+              </svg>
+              Excluir todos ({succeededVersions.length})
+            </button>
+          )}
+
           {succeededVersions.length >= 2 && (
             <button
               onClick={() => {
@@ -195,6 +209,17 @@ export function PromptHistory({ s }: PromptHistoryProps) {
                     >
                       <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                      </svg>
+                    </button>
+                    <button
+                      onClick={() => handleDeleteVersion(ver.id)}
+                      disabled={deletingVersionId === ver.id}
+                      title="Excluir este prompt"
+                      aria-label="Excluir este prompt"
+                      className="p-1.5 rounded-lg text-white/60 hover:text-red-300 hover:bg-red-500/10 transition disabled:opacity-50"
+                    >
+                      <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
                       </svg>
                     </button>
                     {mediaEnabled && (

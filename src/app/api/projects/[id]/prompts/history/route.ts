@@ -39,3 +39,22 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
     );
   }
 }
+
+export async function DELETE(request: NextRequest, { params }: RouteParams) {
+  try {
+    const { id: projectId } = await params;
+    const { workspace } = await getCurrentWorkspace();
+
+    const result = await PromptHistoryService.clearAllVersions(projectId, workspace.id);
+    return NextResponse.json(result);
+  } catch (error: any) {
+    if (error instanceof AuthorizationError) {
+      return NextResponse.json({ error: error.message }, { status: 403 });
+    }
+    console.error("Erro ao excluir prompts:", error);
+    return NextResponse.json(
+      { error: error?.message || "Erro ao excluir prompts." },
+      { status: 500 }
+    );
+  }
+}

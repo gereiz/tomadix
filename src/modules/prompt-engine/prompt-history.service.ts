@@ -635,5 +635,30 @@ export class PromptHistoryService {
 
     return { success: true, count, message: `${count} registro(s) de erro excluído(s) com sucesso.` };
   }
+
+  /**
+   * 12. Exclui um prompt gerado (PromptVersion). Imagens geradas a partir dele ficam, sem o vínculo (onDelete SetNull).
+   */
+  static async deleteVersion(versionId: string, projectId: string, workspaceId: string) {
+    await this.assertProjectOwnership(projectId, workspaceId);
+
+    const { count } = await db.promptVersion.deleteMany({ where: { id: versionId, projectId } });
+    if (count === 0) {
+      throw new Error("Prompt não encontrado ou já excluído.");
+    }
+
+    return { success: true, message: "Prompt excluído com sucesso." };
+  }
+
+  /**
+   * 13. Exclui todos os prompts gerados do projeto (os registros de erro têm exclusão própria).
+   */
+  static async clearAllVersions(projectId: string, workspaceId: string) {
+    await this.assertProjectOwnership(projectId, workspaceId);
+
+    const { count } = await db.promptVersion.deleteMany({ where: { projectId } });
+
+    return { success: true, count, message: `${count} prompt(s) excluído(s) com sucesso.` };
+  }
 }
 

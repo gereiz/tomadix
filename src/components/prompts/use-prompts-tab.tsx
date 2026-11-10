@@ -85,6 +85,8 @@ export function usePromptsTab({ projectId, initialSceneId, onStatsUpdate }: Prom
   // Estado para exclusão de erros
   const [deletingJobId, setDeletingJobId] = useState<string | null>(null);
   const [isClearingAllErrors, setIsClearingAllErrors] = useState(false);
+  const [deletingVersionId, setDeletingVersionId] = useState<string | null>(null);
+  const [isDeletingAllVersions, setIsDeletingAllVersions] = useState(false);
 
   // Função para buscar histórico com filtros aplicados
   const fetchHistory = useCallback(
@@ -390,6 +392,48 @@ export function usePromptsTab({ projectId, initialSceneId, onStatsUpdate }: Prom
     }
   };
 
+  // Excluir um prompt gerado
+  const handleDeleteVersion = async (versionId: string) => {
+    if (!confirm("Excluir este prompt? Essa ação não pode ser desfeita.")) return;
+    try {
+      setDeletingVersionId(versionId);
+      const res = await fetch(`/api/projects/${projectId}/prompts/${versionId}`, { method: "DELETE" });
+      if (res.ok) {
+        setVersions((prev) => prev.filter((v) => v.id !== versionId));
+        setCurrentResult((cur) => (cur?.id === versionId ? null : cur));
+      } else {
+        const data = await res.json();
+        notify("error", data.error || "Erro ao excluir prompt.");
+      }
+    } catch (err: any) {
+      console.error("Erro ao excluir prompt:", err);
+      notify("error", err.message || "Erro ao excluir prompt.");
+    } finally {
+      setDeletingVersionId(null);
+    }
+  };
+
+  // Excluir todos os prompts gerados do projeto
+  const handleDeleteAllVersions = async () => {
+    if (!confirm("Excluir TODOS os prompts gerados deste projeto? Essa ação não pode ser desfeita. Imagens já geradas são mantidas.")) return;
+    try {
+      setIsDeletingAllVersions(true);
+      const res = await fetch(`/api/projects/${projectId}/prompts/history`, { method: "DELETE" });
+      if (res.ok) {
+        setVersions((prev) => prev.filter((v) => v.status === "FAILED"));
+        setCurrentResult(null);
+      } else {
+        const data = await res.json();
+        notify("error", data.error || "Erro ao excluir prompts.");
+      }
+    } catch (err: any) {
+      console.error("Erro ao excluir prompts:", err);
+      notify("error", err.message || "Erro ao excluir prompts.");
+    } finally {
+      setIsDeletingAllVersions(false);
+    }
+  };
+
   // Executar comparação de versões
   const handleCompareSubmit = async () => {
     if (!compareVersionAId || !compareVersionBId) return;
@@ -532,6 +576,10 @@ export function usePromptsTab({ projectId, initialSceneId, onStatsUpdate }: Prom
     fetchHistory,
     handleDeleteError,
     handleClearAllErrors,
+    deletingVersionId,
+    isDeletingAllVersions,
+    handleDeleteVersion,
+    handleDeleteAllVersions,
     succeededVersions,
     failedVersions,
     regeneratingVersion,
