@@ -19,6 +19,21 @@ import util from "util";
 
 const execAsync = util.promisify(exec);
 
+/** .env somente leitura (Docker/Easypanel, usuário sem permissão): erro claro em vez de EACCES cru. */
+function writeEnvFile(file: string, content: string) {
+  try {
+    fs.writeFileSync(file, content, "utf-8");
+  } catch (err) {
+    const code = (err as NodeJS.ErrnoException).code;
+    if (code === "EACCES" || code === "EPERM" || code === "EROFS") {
+      throw new Error(
+        "Esta instalação não pode gravar o arquivo .env (somente leitura, comum em Docker/Easypanel). A conexão testada está OK, mas nada foi alterado. Defina DATABASE_URL e DIRECT_URL nas variáveis de ambiente do serviço e reinicie o aplicativo."
+      );
+    }
+    throw err;
+  }
+}
+
 export interface SanitizedConnectionInfo {
   provider: "postgresql";
   engine: string;
@@ -423,7 +438,7 @@ export class AdminDatabaseService {
     const backupPath = path.resolve(process.cwd(), backupFileName);
 
     if (envContent) {
-      fs.writeFileSync(backupPath, envContent, "utf-8");
+      writeEnvFile(backupPath, envContent);
     }
 
     // 3. Atualizar DATABASE_URL e DIRECT_URL no conteúdo do .env
@@ -451,7 +466,7 @@ export class AdminDatabaseService {
       }
     }
 
-    fs.writeFileSync(envPath, updatedEnv, "utf-8");
+    writeEnvFile(envPath, updatedEnv);
 
     // 4. Atualizar processo ativo em memória
     process.env.DATABASE_URL = url;

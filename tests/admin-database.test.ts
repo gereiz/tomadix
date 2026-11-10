@@ -1,4 +1,7 @@
-import { describe, it, expect, vi } from "vitest";
+import { describe, it, expect, vi, afterEach } from "vitest";
+import fs from "fs";
+import os from "os";
+import path from "path";
 import {
   AdminDatabaseService,
   EXPECTED_SCHEMA_MODELS,
@@ -121,4 +124,31 @@ describe("Console Administrativo — Gestão de Bancos de Dados & Infraestrutura
     // Garante que nenhum admin duplicado foi criado
     expect(postAdminsCount).toBe(initialAdminsCount);
   }, 120000);
+  describe("changeConnection com .env somente leitura", () => {
+    afterEach(() => vi.restoreAllMocks());
+
+    it("devolve mensagem clara (não EACCES cru) e não altera o ambiente ativo", async () => {
+      // cwd em pasta temporária: mesmo que o spy falhe, o .env real do projeto nunca é tocado
+      const tmp = fs.mkdtempSync(path.join(os.tmpdir(), "tomadix-env-"));
+      fs.writeFileSync(path.join(tmp, ".env"), 'DATABASE_URL="postgresql://velho"');
+      vi.spyOn(process, "cwd").mockReturnValue(tmp);
+      vi.spyOn(AdminDatabaseService, "testConnection").mockResolvedValue({ success: true } as any);
+      vi.spyOn(fs, "writeFileSync").mockImplementation(() => {
+        throw Object.assign(new Error("EACCES: permission denied, open '/app/.env.backup.1'"), { code: "EACCES" });
+      });
+      const before = process.env.DATABASE_URL;
+
+      await expect(
+        AdminDatabaseService.changeConnection(
+          { url: "postgresql://u:p@host:5432/db" },
+          "admin-test"
+        )
+      ).rejects.toThrow(/variáveis de ambiente do serviço/);
+
+      expect(process.env.DATABASE_URL).toBe(before);
+      vi.restoreAllMocks();
+      expect(fs.readFileSync(path.join(tmp, ".env"), "utf-8")).toContain("postgresql://velho");
+      fs.rmSync(tmp, { recursive: true, force: true });
+    });
+  });
 });
