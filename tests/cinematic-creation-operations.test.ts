@@ -223,13 +223,18 @@ describe("Cinematic Creation Operations & AI Schemas", () => {
         // ids inventados ("fantasma") devem ser ignorados
         scenes: [scene(1, [charA], [envA]), scene(2, [charA, charB, "fantasma"], [envA]), scene(3, [charB], [])],
       };
-      vi.spyOn(geminiProvider, "generateStructuredJson").mockResolvedValueOnce({
+      const gen = vi.spyOn(geminiProvider, "generateStructuredJson").mockResolvedValueOnce({
         data, rawText: JSON.stringify(data), model: "mock", tokens: { inputTokens: 1, outputTokens: 1 },
       } as any);
 
       const res = await CinematicCreationService.generateSceneSequence(projectId, workspaceId, {
         premise: "Uma ladra foge pelos telhados", sceneCount: 3, characterIds: [charA, charB], environmentIds: [envA], mood: "", pacing: "BALANCED",
       });
+
+      // O modelo só obedece o formato se o prompt o descrever (sem isso o Gemini inventa outro JSON).
+      const sent = (gen.mock.calls[0][2] as { systemInstruction: string }).systemInstruction;
+      expect(sent).toContain('"sequenceTitle"');
+      expect(sent).toContain('"startState"');
 
       const created = res.result.createdScenes;
       expect(created.map((c) => c.order)).toEqual([created[0].order, created[0].order + 1, created[0].order + 2]);

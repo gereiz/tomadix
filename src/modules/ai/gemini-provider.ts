@@ -94,7 +94,7 @@ export async function generateStructuredJson<T>(
     async (activeApiKey, currentSelectedModel) => {
       // Modelos resilientes reais oficiais para tolerância a picos de demanda 503 dentro da chave ativa
       const candidateModels = Array.from(
-        new Set([currentSelectedModel, "gemini-2.5-flash", "gemini-2.0-flash", "gemini-1.5-flash"])
+        new Set([currentSelectedModel, "gemini-2.5-flash"])
       ).filter(Boolean);
 
       const ai = new GoogleGenAI({ apiKey: activeApiKey });

@@ -278,7 +278,7 @@ Importante: Em "technicalData" e em todos os "prompts", combine os parâmetros g
         async (activeApiKey, currentSelectedModel) => {
           const ai = new GoogleGenAI({ apiKey: activeApiKey });
           const candidateModels = Array.from(
-            new Set([currentSelectedModel, "gemini-2.5-flash", "gemini-2.0-flash", "gemini-1.5-flash"])
+            new Set([currentSelectedModel, "gemini-2.5-flash"])
           );
 
           let attemptErr: any = null;

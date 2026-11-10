@@ -292,7 +292,21 @@ REGRAS OBRIGATÓRIAS:
 - Use SOMENTE os ids fornecidos em characterIds/environmentIds, e apenas nas cenas em que o personagem/ambiente realmente aparece. Não invente ids.
 - Cada cena tem ação clara, física e enquadramento cinematográfico de alto nível.
 - Ritmo solicitado: ${input.pacing}.
-- Responda apenas com JSON no formato pedido, em português do Brasil.`;
+- Responda apenas com JSON, em português do Brasil, EXATAMENTE neste formato (mesmos nomes de campos, sem outros campos nem texto fora do JSON):
+{
+  "sequenceTitle": "título da história",
+  "dramaticArc": "resumo do arco em uma ou duas frases",
+  "scenes": [
+    {
+      "title": "...", "description": "...", "durationSeconds": 6,
+      "framing": "...", "cameraMovement": "...", "mainAction": "...", "lighting": "...", "visualStyle": "...",
+      "transitionIn": "...", "transitionOut": "...",
+      "startState": "...", "endState": "...", "visualContinuity": "...",
+      "characterIds": ["id"], "environmentIds": ["id"]
+    }
+  ]
+}
+"scenes" deve ter exatamente ${input.sceneCount} objetos.`;
 
         const userPrompt = `PROJETO: "${project.title}"
 GÊNERO: ${project.genre || "Drama / Ficção"}
