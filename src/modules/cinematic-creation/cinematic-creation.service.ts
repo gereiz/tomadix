@@ -238,21 +238,23 @@ Gere exatamente ${input.count} planos complementares/sub-cenas decupadas.`;
       scenes: z
         .array(
           z.object({
+            // Obrigatórios: o que sustenta a história e o elo entre cenas.
             title: z.string().min(1),
             description: z.string().min(1),
-            durationSeconds: z.number().int().min(1),
-            framing: z.string().min(1),
-            cameraMovement: z.string().min(1),
             mainAction: z.string().min(1),
-            lighting: z.string().min(1),
-            visualStyle: z.string().min(1),
-            transitionIn: z.string().min(1),
-            transitionOut: z.string().min(1),
             startState: z.string().min(1),
             endState: z.string().min(1),
-            visualContinuity: z.string().min(1),
-            characterIds: z.array(z.string()),
-            environmentIds: z.array(z.string()),
+            // Só apresentação: se o modelo omitir, vale o padrão (o usuário ajusta depois no formulário da cena).
+            durationSeconds: z.coerce.number().int().min(1).default(6),
+            framing: z.string().min(1).default("Plano Geral"),
+            cameraMovement: z.string().min(1).default("Tracking"),
+            lighting: z.string().min(1).default("Cinemática"),
+            visualStyle: z.string().min(1).default("Estilizado"),
+            transitionIn: z.string().min(1).default("Corte Direto (Cut)"),
+            transitionOut: z.string().min(1).default("Corte Direto (Cut)"),
+            visualContinuity: z.string().default(""),
+            characterIds: z.array(z.string()).default([]),
+            environmentIds: z.array(z.string()).default([]),
           })
         )
         .length(input.sceneCount),

@@ -247,6 +247,28 @@ describe("Cinematic Creation Operations & AI Schemas", () => {
       expect(refund).not.toHaveBeenCalled();
     });
 
+    it("campos só de apresentação omitidos pelo modelo usam o padrão e a história é criada", async () => {
+      vi.restoreAllMocks();
+      mockCredits();
+      const full = scene(1, [charA], [envA]);
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      const { framing, cameraMovement, lighting, visualStyle, transitionIn, transitionOut, durationSeconds, visualContinuity, characterIds, environmentIds, ...minimal } = full;
+      const data = { sequenceTitle: "Mínima", dramaticArc: "Arco.", scenes: [minimal, { ...minimal, title: "Cena B" }] };
+      vi.spyOn(geminiProvider, "generateStructuredJson").mockResolvedValueOnce({
+        data, rawText: JSON.stringify(data), model: "mock", tokens: { inputTokens: 1, outputTokens: 1 },
+      } as any);
+
+      const res = await CinematicCreationService.generateSceneSequence(projectId, workspaceId, {
+        premise: "Ideia", sceneCount: 2, characterIds: [charA], environmentIds: [envA], mood: "", pacing: "BALANCED",
+      });
+
+      const cfg = res.result.createdScenes[0].configuration as any;
+      expect(res.result.createdScenes).toHaveLength(2);
+      expect(cfg.framing).toBe("Plano Geral");
+      expect(cfg.transitionOut).toBe("Corte Direto (Cut)");
+      expect(res.result.createdScenes[0].characters).toHaveLength(0);
+    });
+
     it("JSON inválido falha, não cria cenas e estorna os créditos", async () => {
       vi.restoreAllMocks();
       const refund = mockCredits();

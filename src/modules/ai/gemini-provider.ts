@@ -217,7 +217,7 @@ export async function generateStructuredJson<T>(
           if (!validationResult.success) {
             console.warn(
               `[GeminiProvider] Validação de schema falhou no modelo "${candidateModel}":`,
-              JSON.stringify(validationResult.error.flatten()),
+              validationResult.error.issues.map((i) => `${i.path.join(".")}: ${i.message}`).join(" | "),
               "\nResposta bruta recebida:",
               cleanJson.slice(0, 300)
             );
