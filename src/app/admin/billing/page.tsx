@@ -1240,7 +1240,7 @@ export default function AdminBillingPage() {
                       <label className="text-[10px] text-primary flex items-center gap-1 cursor-pointer">
                         <input
                           type="checkbox"
-                          checked={editingPlan.dailyCreditsAccumulative ?? true}
+                          checked={editingPlan.dailyCreditsAccumulative ?? false}
                           onChange={(e) => setEditingPlan({ ...editingPlan, dailyCreditsAccumulative: e.target.checked })}
                         />
                         Acumulativo

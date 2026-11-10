@@ -5,6 +5,7 @@ import { CreditPricingService } from "./credit-pricing.service";
 import { BillingPolicyService } from "./billing-policy.service";
 import { CreditConsumptionOrderService } from "./credit-consumption-order.service";
 import { CreditLotService } from "./credit-lot.service";
+import { CreditDailyMaintenanceService } from "./credit-daily-maintenance.service";
 
 export interface CreditExecutionOptions {
   workspaceId: string;
@@ -148,6 +149,9 @@ export class CreditExecutionService {
     metadata: Record<string, any>;
   }): Promise<{ newBalance: number; usedLots: UsedLotRecord[] }> {
     const { workspaceId, creditCost, operationCode, description, costResolution, projectId, userId, idempotencyKey, metadata } = params;
+
+    // Lote diário vencido com cron atrasado não pode virar saldo LEGACY (acumulativo) abaixo
+    await CreditLotService.expireOverdueLots(workspaceId);
 
     return await db.$transaction(async (tx) => {
       // 1. Obter o workspace atual
@@ -327,7 +331,9 @@ export class CreditExecutionService {
             },
           });
         } else {
-          // Lote original expirou entre a dedução e a falha: criar novo lote de REFUND
+          // Lote original expirou entre a dedução e a falha: criar novo lote de REFUND.
+          // Se era crédito diário (não acumulativo), o estorno também vence no fim do dia de hoje.
+          const isDailyLot = lot?.origin === CreditOrigin.DAILY_RENEWAL && !lot.isAccumulative;
           await tx.creditLot.create({
             data: {
               workspaceId,
@@ -337,7 +343,10 @@ export class CreditExecutionService {
               amountAvailable: item.deducted,
               amountConsumed: 0,
               status: CreditLotStatus.ACTIVE,
-              isAccumulative: true,
+              isAccumulative: !isDailyLot,
+              expiresAt: isDailyLot
+                ? CreditDailyMaintenanceService.getEndOfDayDate(CreditDailyMaintenanceService.getTodayDateKey())
+                : null,
               reason: `Estorno compensatório por expiração do lote original [${item.lotId}]`,
             },
           });

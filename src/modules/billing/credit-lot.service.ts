@@ -207,22 +207,23 @@ export class CreditLotService {
    */
   static async expireOverdueLots(targetWorkspaceId?: string): Promise<{ expiredLotsCount: number; expiredCreditsTotal: number }> {
     const now = new Date();
+    const where: Prisma.CreditLotWhereInput = {
+      status: CreditLotStatus.ACTIVE,
+      amountAvailable: { gt: 0 },
+      expiresAt: { lte: now },
+    };
+
+    if (targetWorkspaceId) {
+      where.workspaceId = targetWorkspaceId;
+    }
+
+    // Chamado a cada resolução de entitlement: evita abrir transação quando não há nada vencido.
+    if (!(await db.creditLot.findFirst({ where, select: { id: true } }))) {
+      return { expiredLotsCount: 0, expiredCreditsTotal: 0 };
+    }
 
     return await db.$transaction(async (tx) => {
-      const where: Prisma.CreditLotWhereInput = {
-        status: CreditLotStatus.ACTIVE,
-        amountAvailable: { gt: 0 },
-        expiresAt: { lte: now },
-      };
-
-      if (targetWorkspaceId) {
-        where.workspaceId = targetWorkspaceId;
-      }
-
-      const expiredLots = await tx.creditLot.findMany({
-        where,
-        include: { workspace: true },
-      });
+      const expiredLots = await tx.creditLot.findMany({ where });
 
       let expiredCreditsTotal = 0;
 
@@ -239,14 +240,17 @@ export class CreditLotService {
           },
         });
 
-        // Deduzir do saldo do workspace
-        const currentBalance = lot.workspace.creditsBalance;
-        const newBalance = Math.max(0, currentBalance - expiredAmount);
-
-        await tx.workspace.update({
+        // Deduzir do saldo do workspace (decrement atômico: não perde débitos concorrentes)
+        const updated = await tx.workspace.update({
           where: { id: lot.workspaceId },
-          data: { creditsBalance: newBalance },
+          data: { creditsBalance: { decrement: expiredAmount } },
+          select: { creditsBalance: true },
         });
+        let newBalance = updated.creditsBalance;
+        if (newBalance < 0) {
+          newBalance = 0;
+          await tx.workspace.update({ where: { id: lot.workspaceId }, data: { creditsBalance: 0 } });
+        }
 
         // Registrar no ledger
         await tx.creditLedger.create({

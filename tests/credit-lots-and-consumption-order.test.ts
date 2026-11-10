@@ -1,4 +1,5 @@
-import { describe, it, expect, vi, beforeEach } from "vitest";
+import { describe, it, expect, vi, beforeEach, afterAll } from "vitest";
+import { db } from "@/lib/db";
 import { CreditConsumptionOrderService, ConsumptionCategory } from "@/modules/billing/credit-consumption-order.service";
 import { CreditSimulationService } from "@/modules/billing/credit-simulation.service";
 import { CreditLotService } from "@/modules/billing/credit-lot.service";
@@ -352,5 +353,47 @@ describe("TOMADIX — Sistema de Planos, Créditos, Lotes, Ledger e Ordem de Con
       expect(discrepancy).toBe(100);
       expect(isConsistent).toBe(false);
     });
+  });
+});
+
+describe("5. Crédito diário não usado expira antes da próxima concessão (banco real)", () => {
+  const slug = `daily-expire-${Date.now()}`;
+  let workspaceId = "";
+
+  afterAll(async () => {
+    if (!workspaceId) return;
+    await db.creditLedger.deleteMany({ where: { workspaceId } });
+    await db.creditLot.deleteMany({ where: { workspaceId } });
+    await db.workspace.delete({ where: { id: workspaceId } });
+  });
+
+  it("zera o lote diário vencido, debita o saldo e registra a expiração no ledger", async () => {
+    const ws = await db.workspace.create({ data: { name: slug, slug, creditsBalance: 100 } });
+    workspaceId = ws.id;
+    const yesterdayEnd = new Date(Date.now() - 60 * 60 * 1000);
+    const lot = await db.creditLot.create({
+      data: {
+        workspaceId,
+        origin: CreditOrigin.DAILY_RENEWAL,
+        amountGranted: 100,
+        amountAvailable: 100,
+        status: CreditLotStatus.ACTIVE,
+        isAccumulative: false,
+        expiresAt: yesterdayEnd,
+      },
+    });
+
+    await CreditDailyMaintenanceService.ensureDailyCreditsForWorkspace(workspaceId);
+
+    const [after, balance, ledger] = await Promise.all([
+      db.creditLot.findUniqueOrThrow({ where: { id: lot.id } }),
+      db.workspace.findUniqueOrThrow({ where: { id: workspaceId }, select: { creditsBalance: true } }),
+      db.creditLedger.findMany({ where: { workspaceId, lotId: lot.id } }),
+    ]);
+    expect(after.status).toBe(CreditLotStatus.EXPIRED);
+    expect(after.amountAvailable).toBe(0);
+    expect(balance.creditsBalance).toBe(0);
+    expect(ledger).toHaveLength(1);
+    expect(ledger[0].amount).toBe(-100);
   });
 });

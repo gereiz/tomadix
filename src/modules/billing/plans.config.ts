@@ -13,7 +13,7 @@ export const PLANS_CATALOG: Record<PlanTier, PlanConfig> = {
     monthlyCredits: 0,
     adhesionCredits: 100,
     dailyCredits: 20,
-    dailyCreditsAccumulative: true,
+    dailyCreditsAccumulative: false,
     isFreePlan: true,
     features: [
       "Até 2 projetos cinematográficos ativos",
@@ -80,7 +80,7 @@ export const PLANS_CATALOG: Record<PlanTier, PlanConfig> = {
     monthlyCredits: 2500,
     adhesionCredits: 1000,
     dailyCredits: 200,
-    dailyCreditsAccumulative: true,
+    dailyCreditsAccumulative: false,
     isFreePlan: false,
     features: [
       "Projetos cinematográficos ilimitados",
@@ -115,7 +115,7 @@ export const PLANS_CATALOG: Record<PlanTier, PlanConfig> = {
     monthlyCredits: 10000,
     adhesionCredits: 5000,
     dailyCredits: 500,
-    dailyCreditsAccumulative: true,
+    dailyCreditsAccumulative: false,
     isFreePlan: false,
     features: [
       "Projetos e membros ilimitados",

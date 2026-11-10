@@ -101,6 +101,12 @@ A aba **"12. Ordem de Consumo"** permite que operadores configurem a ordem em qu
   9. `LEGACY`: Saldos migrados pré-existentes.
 - **Critério FEFO (First Expired, First Out)**: Dentro da mesma categoria, lotes com validade mais próxima de expirar são liquidados primeiro.
 - **Categorias Protegidas**: Opção de travar categorias para que não sejam debitadas automaticamente.
+
+### Créditos diários não acumulativos (padrão de todos os planos)
+- Todos os planos padrão têm `dailyCreditsAccumulative = false`: o lote diário vence às 23:59:59 (America/Sao_Paulo) e o que não foi usado expira antes da concessão do dia seguinte.
+- A expiração roda por demanda: `ensureDailyCreditsForWorkspace` e `deductViaConsumptionOrder` chamam `CreditLotService.expireOverdueLots` antes de conceder ou debitar, sem depender do cron `credits-maintenance`. Com isso, um lote diário vencido nunca "ressuscita" como lote `LEGACY`.
+- Estorno de operação que falhou, cujo lote diário já venceu, gera um lote `REFUND` que também vence no fim do dia.
+- Planos já gravados no banco não são alterados pelo `plans.config.ts`. Para converter um banco existente (planos e lotes diários antigos sem validade), rode uma vez `npx tsx scripts/make-daily-credits-non-accumulative.ts`.
 - **Versionamento**: Toda alteração incrementa a versão da configuração com histórico de autoria.
 
 ---

@@ -45,6 +45,9 @@ export class CreditDailyMaintenanceService {
     const dateKey = customDateKey || this.getTodayDateKey();
     const eventId = `daily_${workspaceId}_${dateKey}`;
 
+    // 0. Créditos diários não usados de dias anteriores expiram antes da nova concessão
+    await CreditLotService.expireOverdueLots(workspaceId);
+
     // 1. Verificar se o lote diário de hoje já foi concedido
     const existingLot = await db.creditLot.findFirst({
       where: { eventId },
