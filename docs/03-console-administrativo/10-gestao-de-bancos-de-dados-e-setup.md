@@ -30,6 +30,8 @@ Permite que o administrador aponte a aplicação para um novo banco de dados (lo
 ### 2.2. Regras Rígidas de Segurança
 - **Teste Prévio Obrigatório:** Antes de salvar, o sistema estabelece uma conexão temporária isolada. Se o teste falhar (por exemplo, senha incorreta ou host inacessível), a conexão ativa é mantida intacta e a substituição é bloqueada.
 - **Backup Automático do `.env`:** Antes de sobrescrever o arquivo de configuração, o servidor gera automaticamente um backup timestamped (ex: `.env.backup.<timestamp>`).
+- **Prévia do `.env` antes de gravar:** ao clicar em "Salvar", um modal mostra as variáveis que serão gravadas (`DATABASE_URL` e `DIRECT_URL`, com a senha oculta) e oferece **Copiar variáveis** (leva o valor completo), **Gravar no .env** e **Cancelar**. A prévia vem de `POST /api/admin/database/preview` (`AdminDatabaseService.previewEnv`) e não altera nada. `DIRECT_URL` é sempre definida: a informada, a porta direta do Supabase (5432, sem `pgbouncer`) ou, em Postgres comum, a própria `DATABASE_URL`.
+- **`.env` somente leitura (Docker/Easypanel):** se o servidor não tiver permissão de escrita (`EACCES`/`EPERM`/`EROFS`), nada é alterado e a tela explica que as variáveis devem ser definidas no serviço e o app reiniciado. Nesse caso use **Copiar variáveis** no modal.
 - **Auditoria Administrativa:** Toda troca de banco é registrada em `PlatformAuditLog` sob a ação `DATABASE_CONNECTION_CHANGED` com dados mascarados.
 
 ---

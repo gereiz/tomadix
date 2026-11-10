@@ -404,6 +404,26 @@ export class AdminDatabaseService {
   }
 
   /**
+   * Valores que vão para o .env. DIRECT_URL sempre é definida: a informada, a porta direta do Supabase
+   * ou, em Postgres comum (sem pooler), a própria DATABASE_URL (senão ficaria apontando para o banco antigo).
+   */
+  static buildEnvValues(input: ConnectionInput): { databaseUrl: string; directUrl: string } {
+    const { url, directUrl } = this.buildConnectionString(input);
+    if (directUrl) return { databaseUrl: url, directUrl };
+    const isSupabase = input.connectionType === "supabase" || url.includes("supabase.com");
+    const direct = url.replace(":6543", ":5432").replace("?pgbouncer=true", "").replace("&pgbouncer=true", "");
+    return { databaseUrl: url, directUrl: isSupabase ? direct : url };
+  }
+
+  /** Prévia do .env: `envText` tem os valores reais (para copiar); `envMasked` esconde a senha (para exibir). */
+  static previewEnv(input: ConnectionInput): { envText: string; envMasked: string } {
+    const { databaseUrl, directUrl } = this.buildEnvValues(input);
+    const toText = (db: string, direct: string) => `DATABASE_URL="${db}"\nDIRECT_URL="${direct}"`;
+    const mask = (v: string) => v.replace(/(\/\/[^:/@]*:)[^@]*(@)/, "$1********$2");
+    return { envText: toText(databaseUrl, directUrl), envMasked: toText(mask(databaseUrl), mask(directUrl)) };
+  }
+
+  /**
    * Altera a conexão com o banco de dados no .env após validação obrigatória.
    */
   static async changeConnection(
@@ -424,7 +444,7 @@ export class AdminDatabaseService {
       );
     }
 
-    const { url, directUrl } = this.buildConnectionString(input);
+    const { databaseUrl: url, directUrl } = this.buildEnvValues(input);
 
     // 2. Realizar backup seguro do arquivo .env
     const envPath = path.resolve(process.cwd(), ".env");
@@ -450,29 +470,17 @@ export class AdminDatabaseService {
       updatedEnv += `\nDATABASE_URL="${url}"`;
     }
 
-    if (directUrl) {
-      if (/^DIRECT_URL=.*$/m.test(updatedEnv)) {
-        updatedEnv = updatedEnv.replace(/^DIRECT_URL=.*$/m, `DIRECT_URL="${directUrl}"`);
-      } else {
-        updatedEnv += `\nDIRECT_URL="${directUrl}"`;
-      }
-    } else if (input.connectionType === "supabase" || url.includes("supabase.com")) {
-      // Se for Supabase e directUrl não foi fornecida, manter directUrl consistente ou apontar para a porta 5432
-      const directCandidate = url.replace(":6543", ":5432").replace("?pgbouncer=true", "").replace("&pgbouncer=true", "");
-      if (/^DIRECT_URL=.*$/m.test(updatedEnv)) {
-        updatedEnv = updatedEnv.replace(/^DIRECT_URL=.*$/m, `DIRECT_URL="${directCandidate}"`);
-      } else {
-        updatedEnv += `\nDIRECT_URL="${directCandidate}"`;
-      }
+    if (/^DIRECT_URL=.*$/m.test(updatedEnv)) {
+      updatedEnv = updatedEnv.replace(/^DIRECT_URL=.*$/m, `DIRECT_URL="${directUrl}"`);
+    } else {
+      updatedEnv += `\nDIRECT_URL="${directUrl}"`;
     }
 
     writeEnvFile(envPath, updatedEnv);
 
     // 4. Atualizar processo ativo em memória
     process.env.DATABASE_URL = url;
-    if (directUrl) {
-      process.env.DIRECT_URL = directUrl;
-    }
+    process.env.DIRECT_URL = directUrl;
 
     // 5. Registrar auditoria administrativa (sem registrar senhas)
     await AdminAuditService.logAction({

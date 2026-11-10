@@ -124,6 +124,30 @@ describe("Console Administrativo — Gestão de Bancos de Dados & Infraestrutura
     // Garante que nenhum admin duplicado foi criado
     expect(postAdminsCount).toBe(initialAdminsCount);
   }, 120000);
+  describe("prévia do .env (previewEnv)", () => {
+    it("Postgres sem pooler: DIRECT_URL é a própria DATABASE_URL e a senha sai mascarada na exibição", () => {
+      const { envText, envMasked } = AdminDatabaseService.previewEnv({
+        connectionType: "postgres_local", host: "ibitweb_postgres_tomadix", port: 5432, database: "tomadix", user: "tomadix_gereiz", password: "s3cr&t@!", sslMode: "disable",
+      });
+      const [dbLine, directLine] = envText.split("\n");
+      expect(dbLine.replace("DATABASE_URL=", "")).toBe(directLine.replace("DIRECT_URL=", ""));
+      expect(envText).toContain("s3cr%26t%40!");
+      expect(envMasked).not.toContain("s3cr");
+      expect(envMasked).toContain("tomadix_gereiz:********@ibitweb_postgres_tomadix:5432/tomadix");
+    });
+
+    it("Supabase pooler (6543): DIRECT_URL usa a porta 5432 e sem pgbouncer", () => {
+      const { envText } = AdminDatabaseService.previewEnv({
+        connectionType: "supabase", host: "aws-0.pooler.supabase.com", port: 6543, database: "postgres", user: "postgres.abc", password: "x",
+      });
+      const direct = envText.split("\n")[1];
+      expect(envText.split("\n")[0]).toContain(":6543/");
+      expect(envText.split("\n")[0]).toContain("pgbouncer=true");
+      expect(direct).toContain(":5432/");
+      expect(direct).not.toContain("pgbouncer");
+    });
+  });
+
   describe("changeConnection com .env somente leitura", () => {
     afterEach(() => vi.restoreAllMocks());
 

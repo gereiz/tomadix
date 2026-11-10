@@ -1,6 +1,7 @@
 "use client";
 
 import { Spinner } from "@/components/ui/spinner";
+import { Modal } from "@/components/ui/modal";
 import { useEffect, useState } from "react";
 import {
   SanitizedConnectionInfo,
@@ -30,6 +31,10 @@ export function AdminDatabaseManager() {
   const [testingCandidate, setTestingCandidate] = useState(false);
   const [savingConnection, setSavingConnection] = useState(false);
   const [saveSuccessMessage, setSaveSuccessMessage] = useState<string | null>(null);
+  const [loadingEnvPreview, setLoadingEnvPreview] = useState(false);
+  const [envPreview, setEnvPreview] = useState<{ envText: string; envMasked: string } | null>(null);
+  const [envModalError, setEnvModalError] = useState<string | null>(null);
+  const [envCopied, setEnvCopied] = useState(false);
 
   // Estado da Inicialização / Diagnóstico
   const [activeSubTab, setActiveSubTab] = useState<"status" | "change" | "wizard">("status");
@@ -85,25 +90,63 @@ export function AdminDatabaseManager() {
     }
   };
 
+  const candidatePayload = () =>
+    connectionType === "custom_url"
+      ? { url: customUrl.trim() }
+      : {
+          connectionType,
+          host: formHost.trim(),
+          port: Number(formPort),
+          database: formDatabase.trim(),
+          user: formUser.trim(),
+          password: formPassword,
+          sslMode: formSslMode,
+          directUrl: formDirectUrl.trim() || undefined,
+        };
+
+  // Ao clicar em Salvar: mostra o .env que seria gravado e só aplica depois da confirmação no modal.
+  const handleOpenEnvPreview = async () => {
+    if (!candidateTest || !candidateTest.success) {
+      alert("É necessário testar e validar com sucesso a nova conexão antes de aplicá-la.");
+      return;
+    }
+    setLoadingEnvPreview(true);
+    setFeedback(null);
+    try {
+      const res = await fetch("/api/admin/database/preview", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(candidatePayload()),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || "Erro ao gerar prévia do .env.");
+      setEnvModalError(null);
+      setEnvCopied(false);
+      setEnvPreview(data);
+    } catch (err: any) {
+      setFeedback({ type: "error", message: err.message || "Erro ao gerar prévia do .env." });
+    } finally {
+      setLoadingEnvPreview(false);
+    }
+  };
+
+  const handleCopyEnv = async () => {
+    if (!envPreview) return;
+    try {
+      await navigator.clipboard.writeText(envPreview.envText);
+      setEnvCopied(true);
+    } catch {
+      setEnvModalError("Não foi possível copiar automaticamente. Selecione o texto e copie manualmente.");
+    }
+  };
+
   const handleTestCandidate = async () => {
     setTestingCandidate(true);
     setCandidateTest(null);
     setSaveSuccessMessage(null);
     setFeedback(null);
 
-    const payload =
-      connectionType === "custom_url"
-        ? { url: customUrl.trim() }
-        : {
-            connectionType,
-            host: formHost.trim(),
-            port: Number(formPort),
-            database: formDatabase.trim(),
-            user: formUser.trim(),
-            password: formPassword,
-            sslMode: formSslMode,
-            directUrl: formDirectUrl.trim() || undefined,
-          };
+    const payload = candidatePayload();
 
     try {
       const res = await fetch("/api/admin/database/test", {
@@ -138,30 +181,10 @@ export function AdminDatabaseManager() {
       return;
     }
 
-    if (
-      !confirm(
-        "Tem certeza que deseja alterar a conexão de banco de dados do Tomadix? Um backup automático do arquivo .env será gerado."
-      )
-    ) {
-      return;
-    }
-
     setSavingConnection(true);
     setFeedback(null);
 
-    const payload =
-      connectionType === "custom_url"
-        ? { url: customUrl.trim() }
-        : {
-            connectionType,
-            host: formHost.trim(),
-            port: Number(formPort),
-            database: formDatabase.trim(),
-            user: formUser.trim(),
-            password: formPassword,
-            sslMode: formSslMode,
-            directUrl: formDirectUrl.trim() || undefined,
-          };
+    const payload = candidatePayload();
 
     try {
       const res = await fetch("/api/admin/database/change", {
@@ -175,12 +198,13 @@ export function AdminDatabaseManager() {
       setSaveSuccessMessage(
         `Conexão alterada com sucesso! Backup criado em ${data.backupFile}. Reinicie a aplicação caso necessário para atualizar o pool.`
       );
+      setEnvPreview(null);
       setConnectionInfo(data.connectionInfo);
       setCandidateTest(null);
       setFormPassword("");
       await handleTestCurrent();
     } catch (err: any) {
-      setFeedback({ type: "error", message: err.message || "Erro ao aplicar nova conexão." });
+      setEnvModalError(err.message || "Erro ao aplicar nova conexão.");
     } finally {
       setSavingConnection(false);
     }
@@ -634,12 +658,12 @@ export function AdminDatabaseManager() {
               {candidateTest?.success && (
                 <button
                   type="button"
-                  onClick={handleApplyNewConnection}
-                  disabled={savingConnection}
+                  onClick={handleOpenEnvPreview}
+                  disabled={loadingEnvPreview}
                   className="rounded-xl bg-primary hover:bg-primary-fixed px-5 py-2.5 text-xs font-bold text-black transition shadow-lg shadow-primary/10 disabled:opacity-50 flex items-center gap-2"
                 >
-                  {savingConnection ? (
-                    <span>Aplicando e criando backup...</span>
+                  {loadingEnvPreview ? (
+                    <span>Gerando prévia do .env...</span>
                   ) : (
                     <>
                       <span>💾</span>
@@ -647,6 +671,63 @@ export function AdminDatabaseManager() {
                     </>
                   )}
                 </button>
+              )}
+
+              {envPreview && (
+                <Modal
+                  onClose={() => !savingConnection && setEnvPreview(null)}
+                  size="2xl"
+                  labelledBy="env-preview-title"
+                  closeOnOverlay={!savingConnection}
+                >
+                  <div className="p-4 sm:p-6 space-y-4">
+                    <div>
+                      <h3 id="env-preview-title" className="text-base font-bold text-white">
+                        Novas configurações do .env
+                      </h3>
+                      <p className="mt-1 text-xs text-white/50">
+                        Estas são as variáveis que serão gravadas. A senha aparece oculta aqui, mas o botão Copiar leva o valor completo.
+                        Em produção (Docker/Easypanel) o .env é somente leitura: copie e defina as duas variáveis no serviço.
+                      </p>
+                    </div>
+
+                    <pre className="overflow-x-auto rounded-xl border border-white/10 bg-black/40 p-3 text-xs text-emerald-300 font-mono whitespace-pre-wrap break-all">
+                      {envPreview.envMasked}
+                    </pre>
+
+                    {envModalError && (
+                      <div role="alert" className="rounded-xl border border-red-500/30 bg-red-500/10 p-3 text-xs text-red-300">
+                        {envModalError}
+                      </div>
+                    )}
+
+                    <div className="flex flex-col-reverse gap-2 border-t border-white/10 pt-4 sm:flex-row sm:justify-end">
+                      <button
+                        type="button"
+                        onClick={() => setEnvPreview(null)}
+                        disabled={savingConnection}
+                        className="min-h-11 rounded-xl px-4 py-2 text-xs font-medium text-white/70 hover:bg-white/10 transition disabled:opacity-50"
+                      >
+                        Cancelar
+                      </button>
+                      <button
+                        type="button"
+                        onClick={handleCopyEnv}
+                        className="min-h-11 rounded-xl border border-white/20 bg-white/5 px-4 py-2 text-xs font-semibold text-white hover:bg-white/10 transition"
+                      >
+                        {envCopied ? "Copiado!" : "Copiar variáveis"}
+                      </button>
+                      <button
+                        type="button"
+                        onClick={handleApplyNewConnection}
+                        disabled={savingConnection}
+                        className="min-h-11 rounded-xl bg-primary px-4 py-2 text-xs font-bold text-black hover:bg-primary-fixed transition disabled:opacity-50"
+                      >
+                        {savingConnection ? "Gravando no .env..." : "Gravar no .env"}
+                      </button>
+                    </div>
+                  </div>
+                </Modal>
               )}
             </div>
 
