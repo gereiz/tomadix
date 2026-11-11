@@ -2,6 +2,7 @@
 
 import { Spinner } from "@/components/ui/spinner";
 import { Modal } from "@/components/ui/modal";
+import { AdminDatabaseDump } from "@/components/admin/admin-database-dump";
 import { useEffect, useState } from "react";
 import {
   SanitizedConnectionInfo,
@@ -37,7 +38,7 @@ export function AdminDatabaseManager() {
   const [envCopied, setEnvCopied] = useState(false);
 
   // Estado da Inicialização / Diagnóstico
-  const [activeSubTab, setActiveSubTab] = useState<"status" | "change" | "wizard">("status");
+  const [activeSubTab, setActiveSubTab] = useState<"status" | "change" | "wizard" | "backup">("status");
   const [diagnosing, setDiagnosing] = useState(false);
   const [diagnosis, setDiagnosis] = useState<DatabaseDiagnosis | null>(null);
 
@@ -312,6 +313,7 @@ export function AdminDatabaseManager() {
           { id: "status", label: "Conexão Ativa & Métricas", icon: "🔌" },
           { id: "change", label: "Alterar ou Testar Conexão", icon: "🔄" },
           { id: "wizard", label: "Inicializar Banco de Dados (Setup)", icon: "🚀" },
+          { id: "backup", label: "Backup e Migração (Dump)", icon: "📦" },
         ].map((tab) => (
           <button
             key={tab.id}
@@ -332,6 +334,8 @@ export function AdminDatabaseManager() {
       {/* ========================================================= */}
       {/* SEÇÃO 1: CONEXÃO ATIVA E MÉTRICAS EM TEMPO REAL          */}
       {/* ========================================================= */}
+      {activeSubTab === "backup" && <AdminDatabaseDump />}
+
       {activeSubTab === "status" && (
         <div className="space-y-6">
           <div className="rounded-2xl border border-white/10 bg-[#0d111c] p-6 space-y-6">

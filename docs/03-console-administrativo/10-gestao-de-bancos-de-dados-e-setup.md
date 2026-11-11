@@ -61,3 +61,19 @@ Apresenta o resumo de todas as ações idempotentes que serão executadas:
 - Exibe o tempo total decorrido em milissegundos e a quantidade exata de tabelas, planos e parâmetros verificados.
 - Registra o evento na trilha de auditoria sob `DATABASE_INITIALIZATION_EXECUTED`.
 
+---
+
+## Backup e Migração (Dump) entre bancos
+
+Aba **"Backup e Migração (Dump)"** da tela de Gestão de Bancos (`components/admin/admin-database-dump.tsx`; serviço em `modules/admin/admin-database-dump.service.ts`). Exige a permissão `settings:manage`; cada exportação e importação gera registro de auditoria. **Nenhum dump deve ser compartilhado ou guardado**: ele contém usuários, hashes de senha e credenciais criptografadas.
+
+### Formatos de exportação (`POST /api/admin/database/export`, campo `format`)
+| Formato | O que traz | Como importar |
+|---|---|---|
+| `pgdump` (padrão na tela) | **Estrutura + dados** pelo `pg_dump` (`--no-owner --no-privileges --schema=public`, dados de `Session` omitidos) | `psql "<conexão do novo banco>" -v ON_ERROR_STOP=1 -f arquivo.sql` num banco novo e vazio |
+| `sql` | Só dados, em `INSERT`s gerados pelo Tomadix, dentro de `BEGIN/COMMIT`, na ordem das dependências | O destino já precisa ter as tabelas (`npx prisma migrate deploy`) e estar vazio |
+| `json` | Dump em JSON (`format: "tomadix-dump"`) | Pela própria tela ("Importar dump", `POST /api/admin/database/import`), só em banco vazio, em transação única |
+
+- A origem pode ser outro banco (campo "Banco de origem"); vazio exporta o banco que o app usa agora.
+- O `pg_dump` roda no servidor: o `Dockerfile` instala o `postgresql-client`. Ele precisa ter versão igual ou maior que a do banco de origem. Caminho alternativo pela variável `PG_DUMP_PATH`. A senha vai por variáveis `PG*`, nunca na linha de comando; no pooler do Supabase (porta 6543) usa-se a porta de sessão 5432.
+- Fora do dump: sessões de login (todos entram de novo) e arquivos em disco (imagens e vídeos da pasta de uploads). As credenciais criptografadas só funcionam no destino com a mesma chave de criptografia do app.

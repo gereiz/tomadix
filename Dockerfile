@@ -44,6 +44,9 @@ ENV PORT=3000
 ENV HOSTNAME=0.0.0.0
 ENV STORAGE_DIR=/app/uploads
 
+# pg_dump (Admin > Banco de Dados > Backup e Migração): dump completo estrutura + dados em SQL
+RUN apk add --no-cache postgresql-client
+
 RUN addgroup --system --gid 1001 nodejs \
     && adduser --system --uid 1001 nextjs
 
