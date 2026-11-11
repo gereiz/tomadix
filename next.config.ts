@@ -6,6 +6,7 @@ const nextConfig: NextConfig = {
   compress: true,
   experimental: {
     optimizePackageImports: ["@xyflow/react"],
+    webpackMemoryOptimizations: true,
   },
   eslint: {
     ignoreDuringBuilds: true,
