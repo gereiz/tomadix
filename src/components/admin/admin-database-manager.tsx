@@ -36,6 +36,14 @@ export function AdminDatabaseManager() {
   const [envPreview, setEnvPreview] = useState<{ envText: string; envMasked: string } | null>(null);
   const [envModalError, setEnvModalError] = useState<string | null>(null);
   const [envCopied, setEnvCopied] = useState(false);
+  const [copyModalOpen, setCopyModalOpen] = useState(false);
+  const [copying, setCopying] = useState(false);
+  const [copyError, setCopyError] = useState<string | null>(null);
+  const [copyResult, setCopyResult] = useState<{
+    totalRows: number;
+    schemaCreated: boolean;
+    tables: { table: string; rows: number }[];
+  } | null>(null);
 
   // Estado da Inicialização / Diagnóstico
   const [activeSubTab, setActiveSubTab] = useState<"status" | "change" | "wizard" | "backup">("status");
@@ -128,6 +136,27 @@ export function AdminDatabaseManager() {
       setFeedback({ type: "error", message: err.message || "Erro ao gerar prévia do .env." });
     } finally {
       setLoadingEnvPreview(false);
+    }
+  };
+
+  // Copia o banco ativo para a conexão testada (destino vazio). Não troca a conexão do app.
+  const handleCopyDatabase = async () => {
+    setCopying(true);
+    setCopyError(null);
+    setCopyResult(null);
+    try {
+      const res = await fetch("/api/admin/database/copy", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(candidatePayload()),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || "Erro ao copiar o banco de dados.");
+      setCopyResult(data);
+    } catch (err) {
+      setCopyError(err instanceof Error ? err.message : "Erro ao copiar o banco de dados.");
+    } finally {
+      setCopying(false);
     }
   };
 
@@ -675,6 +704,120 @@ export function AdminDatabaseManager() {
                     </>
                   )}
                 </button>
+              )}
+
+              {candidateTest?.success && (
+                <button
+                  type="button"
+                  onClick={() => {
+                    setCopyError(null);
+                    setCopyResult(null);
+                    setCopyModalOpen(true);
+                  }}
+                  className="rounded-xl border border-white/20 bg-white/5 px-5 py-2.5 text-xs font-bold text-white hover:bg-white/10 transition flex items-center gap-2"
+                >
+                  <span>🗄️</span>
+                  <span>Copiar banco atual para esta conexão</span>
+                </button>
+              )}
+
+              {copyModalOpen && candidateTest?.success && (
+                <Modal
+                  onClose={() => !copying && setCopyModalOpen(false)}
+                  size="2xl"
+                  labelledBy="copy-db-title"
+                  closeOnOverlay={!copying}
+                >
+                  <div className="p-4 sm:p-6 space-y-4">
+                    <div>
+                      <h3 id="copy-db-title" className="text-base font-bold text-white">
+                        Copiar o banco atual para a nova conexão
+                      </h3>
+                      <p className="mt-1 text-xs text-white/50">
+                        Todos os dados do banco que o app usa agora são copiados para o banco testado. Isso não troca a conexão do app:
+                        depois da cópia, use &quot;Salvar&quot; para apontar o app para o novo banco.
+                      </p>
+                    </div>
+
+                    <dl className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
+                      <div className="rounded-xl border border-white/10 bg-black/30 p-3">
+                        <dt className="text-white/40">Origem (banco ativo)</dt>
+                        <dd className="mt-1 font-mono text-white">
+                          {connectionInfo ? `${connectionInfo.hostMasked}:${connectionInfo.port}/${connectionInfo.database}` : "banco ativo"}
+                        </dd>
+                      </div>
+                      <div className="rounded-xl border border-white/10 bg-black/30 p-3">
+                        <dt className="text-white/40">Destino (conexão testada)</dt>
+                        <dd className="mt-1 font-mono text-white">
+                          {candidateTest.hostMasked}:{candidateTest.port}/{candidateTest.databaseName}
+                        </dd>
+                        <dd className="mt-1 text-white/50">{candidateTest.tableCount} tabelas já existentes</dd>
+                      </div>
+                    </dl>
+
+                    <ul className="list-disc pl-4 space-y-1 text-xs text-amber-200/80">
+                      <li>O destino precisa estar vazio (sem registros). Se faltarem tabelas, o sistema tenta criá-las.</li>
+                      <li>A cópia é uma transação única: ou entra tudo ou nada. Pode levar alguns minutos.</li>
+                      <li>Sessões de login não são copiadas (todos entram de novo). Arquivos de imagens e vídeos não fazem parte do banco.</li>
+                      <li>Credenciais criptografadas só funcionam no destino com a mesma chave de criptografia do app.</li>
+                    </ul>
+
+                    {copyError && (
+                      <div role="alert" className="rounded-xl border border-red-500/30 bg-red-500/10 p-3 text-xs text-red-300">
+                        {copyError}
+                      </div>
+                    )}
+
+                    {copyResult && (
+                      <div role="status" className="rounded-xl border border-emerald-500/30 bg-emerald-500/10 p-3 text-xs text-emerald-300 space-y-2">
+                        <p className="font-bold">
+                          Cópia concluída: {copyResult.totalRows} registros em {copyResult.tables.length} tabelas
+                          {copyResult.schemaCreated ? " (tabelas criadas no destino)" : ""}. Agora clique em Salvar para o app usar o novo banco.
+                        </p>
+                        <div className="max-h-40 overflow-y-auto overflow-x-auto">
+                          <table className="min-w-[320px] w-full text-left">
+                            <tbody>
+                              {copyResult.tables.map((t) => (
+                                <tr key={t.table} className="border-t border-emerald-500/10">
+                                  <td className="py-1 pr-4 font-mono">{t.table}</td>
+                                  <td className="py-1 text-right font-mono">{t.rows}</td>
+                                </tr>
+                              ))}
+                            </tbody>
+                          </table>
+                        </div>
+                      </div>
+                    )}
+
+                    <div className="flex flex-col-reverse gap-2 border-t border-white/10 pt-4 sm:flex-row sm:justify-end">
+                      <button
+                        type="button"
+                        onClick={() => setCopyModalOpen(false)}
+                        disabled={copying}
+                        className="min-h-11 rounded-xl px-4 py-2 text-xs font-medium text-white/70 hover:bg-white/10 transition disabled:opacity-50"
+                      >
+                        {copyResult ? "Fechar" : "Cancelar"}
+                      </button>
+                      {!copyResult && (
+                        <button
+                          type="button"
+                          onClick={handleCopyDatabase}
+                          disabled={copying}
+                          className="min-h-11 rounded-xl bg-primary px-4 py-2 text-xs font-bold text-black hover:bg-primary-fixed transition disabled:opacity-50 flex items-center justify-center gap-2"
+                        >
+                          {copying ? (
+                            <>
+                              <Spinner block className="h-3 w-3 border-2 border-black" />
+                              <span>Copiando... não feche esta página</span>
+                            </>
+                          ) : (
+                            <span>Copiar agora</span>
+                          )}
+                        </button>
+                      )}
+                    </div>
+                  </div>
+                </Modal>
               )}
 
               {envPreview && (

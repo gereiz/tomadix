@@ -3,7 +3,7 @@ import util from "util";
 import { Prisma, PrismaClient } from "@prisma/client";
 import { db } from "@/lib/db";
 import { AdminAuditService } from "@/modules/admin/admin-audit.service";
-import { AdminDatabaseService } from "@/modules/admin/admin-database.service";
+import { AdminDatabaseService, type ConnectionInput } from "@/modules/admin/admin-database.service";
 
 const execAsync = util.promisify(exec);
 
@@ -138,6 +138,17 @@ export function dumpToSql(dump: TomadixDump): string {
   }
   lines.push("", "COMMIT;", "");
   return lines.join("\n");
+}
+
+/** Mesmo servidor e mesmo banco (a porta pode mudar entre pooler e conexão direta). */
+export function isSameDatabase(a: string, b: string): boolean {
+  try {
+    const ua = new URL(a);
+    const ub = new URL(b);
+    return ua.hostname.toLowerCase() === ub.hostname.toLowerCase() && ua.pathname === ub.pathname;
+  } catch {
+    return false;
+  }
 }
 
 function clientFor(url?: string): { client: PrismaClient; temporary: boolean } {
@@ -296,7 +307,8 @@ export class AdminDatabaseDumpService {
   static async importDump(
     dumpInput: unknown,
     targetUrl: string | undefined,
-    adminUserId: string
+    adminUserId: string,
+    schemaUrl?: string // conexão direta para criar as tabelas (o `prisma db push` não funciona em pooler)
   ): Promise<{ tables: DumpTableReport[]; totalRows: number; schemaCreated: boolean }> {
     const dump = this.validateDump(dumpInput);
     const { client, temporary } = clientFor(targetUrl);
@@ -306,7 +318,10 @@ export class AdminDatabaseDumpService {
       if (diagnosis.missingTablesCount > 0) {
         try {
           await execAsync("npx prisma db push --skip-generate --accept-data-loss=false", {
-            env: { ...process.env, ...(targetUrl?.trim() ? { DATABASE_URL: targetUrl.trim(), DIRECT_URL: targetUrl.trim() } : {}) },
+            env: {
+              ...process.env,
+              ...(targetUrl?.trim() ? { DATABASE_URL: schemaUrl?.trim() || targetUrl.trim(), DIRECT_URL: schemaUrl?.trim() || targetUrl.trim() } : {}),
+            },
             timeout: 120000,
           });
         } catch {
@@ -343,5 +358,27 @@ export class AdminDatabaseDumpService {
     } finally {
       if (temporary) await client.$disconnect().catch(() => {});
     }
+  }
+
+  /**
+   * Copia todo o banco ativo (menos sessões) para a conexão informada, sem arquivo no meio.
+   * O destino precisa estar vazio; as tabelas são criadas se der. A conexão do app NÃO é trocada.
+   */
+  static async copyToConnection(
+    input: ConnectionInput,
+    adminUserId: string
+  ): Promise<{ tables: DumpTableReport[]; totalRows: number; schemaCreated: boolean }> {
+    const { databaseUrl, directUrl } = AdminDatabaseService.buildEnvValues(input);
+    if ([process.env.DATABASE_URL, process.env.DIRECT_URL].some((active) => active && isSameDatabase(active, databaseUrl))) {
+      throw new Error("A conexão informada é o próprio banco ativo: não há o que copiar. Informe o banco de destino.");
+    }
+
+    const test = await AdminDatabaseService.testConnection(input);
+    if (!test.success) {
+      throw new Error(`Falha ao testar a conexão de destino: ${test.error || "servidor inacessível"}. Nada foi copiado.`);
+    }
+
+    const { dump } = await this.exportDump(undefined, adminUserId);
+    return this.importDump(dump, databaseUrl, adminUserId, directUrl);
   }
 }

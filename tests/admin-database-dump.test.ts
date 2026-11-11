@@ -7,6 +7,7 @@ import {
   DUMP_VERSION,
   dumpToSql,
   getDumpModelOrder,
+  isSameDatabase,
   reviveRow,
 } from "@/modules/admin/admin-database-dump.service";
 
@@ -80,6 +81,22 @@ describe("Dump e importação do banco (migração entre bancos)", () => {
     expect(sql.indexOf('INSERT INTO "User"')).toBeLessThan(sql.indexOf('INSERT INTO "PromptVersion"'));
     expect(sql).not.toContain("INSERT INTO \"Session\"");
   });
+
+  it("isSameDatabase: mesmo servidor e banco com portas diferentes é o mesmo; outro banco ou URL inválida não", () => {
+    expect(isSameDatabase("postgresql://u:p@Host.com:6543/postgres?pgbouncer=true", "postgresql://u:p@host.com:5432/postgres")).toBe(true);
+    expect(isSameDatabase("postgresql://u:p@host.com:5432/postgres", "postgresql://u:p@host.com:5432/tomadix")).toBe(false);
+    expect(isSameDatabase("postgresql://u:p@a.com:5432/x", "postgresql://u:p@b.com:5432/x")).toBe(false);
+    expect(isSameDatabase("não é url", "postgresql://u:p@a.com:5432/x")).toBe(false);
+  });
+
+  it("copyToConnection recusa o próprio banco ativo e conexão que não passa no teste (sem copiar nada)", async () => {
+    const active = process.env.DATABASE_URL as string;
+    await expect(AdminDatabaseDumpService.copyToConnection({ url: active }, "admin-test")).rejects.toThrow(/próprio banco ativo/);
+
+    await expect(
+      AdminDatabaseDumpService.copyToConnection({ url: "postgresql://u:p@127.0.0.1:1/inexistente?connect_timeout=3" }, "admin-test")
+    ).rejects.toThrow(/Falha ao testar a conexão de destino/);
+  }, 60000);
 
   it("exporta o banco ativo (todas as tabelas, sem sessões) e recusa importar em banco que já tem dados", async () => {
     const admin = await db.user.findFirst({ select: { id: true } });
