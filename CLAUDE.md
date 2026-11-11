@@ -14,7 +14,7 @@ Responda sempre em português do Brasil e crie arquivos de documentação (como 
 
 ```bash
 npm run dev            # next dev (http://localhost:3000, health: /api/health)
-npm run build          # next build
+npm run build          # next build --turbopack (o do Docker/Easypanel também); npm run build:webpack = webpack
 npm run lint           # eslint src tests
 npm run typecheck      # tsc --noEmit
 npm test               # vitest run (todos os testes)
@@ -27,7 +27,7 @@ npm run db:clean-tests # remove dados residuais de testes (scripts/clean-test-da
 
 - Exige `.env` com `DATABASE_URL` (pooled, pgbouncer) e `DIRECT_URL` (conexão direta, usada nas migrações) — veja `.env.example`.
 - **Os testes em `tests/` rodam contra o banco de dados real** (criam workspaces/projetos pelos serviços, sem mock de banco; apenas o provedor Gemini é mockado com `vi.spyOn`). Timeout de 30s. Rode `npm run db:clean-tests` se sobrarem dados. O alias `@` aponta para `src`.
-- O build do Docker executa `npx prisma generate && npm run build` (Node 22 alpine).
+- O build do Docker executa `npx prisma generate && npm run build` (Node 22 alpine) com `SKIP_TYPECHECK=1` (o typecheck roda localmente antes do push), `NODE_OPTIONS=--max-old-space-size=3072` e cache do npm (BuildKit). Há `.dockerignore`; o Tailwind só varre `src/` (`@import "tailwindcss" source("../")` em `globals.css`): classe usada fora de `src/` não é gerada.
 
 ## Arquitetura
 

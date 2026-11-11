@@ -1,0 +1,31 @@
+# Fora da imagem de build: reduz o contexto enviado ao Docker e impede que Tailwind e TypeScript leiam arquivos inúteis.
+node_modules
+.next
+.next-*
+out
+dist
+coverage
+.git
+.gitignore
+.github
+.claude
+.agents
+.vscode
+.idea
+
+# Segredos e arquivos locais (o Easypanel injeta as variáveis de ambiente)
+.env.local
+.env.backup.*
+*.log
+
+# Código que não entra no build da aplicação
+tests
+scripts
+scratch
+docs
+graphify-out
+stitch_tomadix_modern_nextjs_redesign
+tsconfig.tsbuildinfo
+vitest.config.ts
+*.md
+!README.md

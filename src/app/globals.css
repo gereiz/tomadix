@@ -1,4 +1,5 @@
-@import "tailwindcss";
+/* Só varre src/ em busca de classes (não docs, testes nem HTML de referência). */
+@import "tailwindcss" source("../");
 
 @theme {
   --color-surface: var(--brand-surface, #101418);

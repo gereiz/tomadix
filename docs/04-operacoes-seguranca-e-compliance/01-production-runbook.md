@@ -91,3 +91,23 @@ Este documento estabelece as diretrizes técnicas e operacionais para publicaç�
 | **A cada 24h** | Remoção de sessões de usuário expiradas (`expiresAt < NOW()`). |
 | **Semanal** | Análise de faturas não pagas (`PAST_DUE`) com disparo de notificação. |
 | **Mensal** | Revisão de logs de auditoria e métricas de conversão e churn. |
+
+---
+
+## Build do Docker/Easypanel mais rápido
+
+Medido em uma máquina de desenvolvimento, a frio:
+
+| Build | Tempo |
+|---|---|
+| webpack + checagem de tipos (antes) | 251 s |
+| Turbopack + checagem de tipos | 153 s |
+| Turbopack sem checagem de tipos (o que o Docker faz) | 119 s |
+
+O que foi feito: `npm run build` usa `next build --turbopack` (`build:webpack` volta ao webpack se algo quebrar); `serverExternalPackages` deixa `imapflow`, `mailparser`, `nodemailer`, `@google/genai` e `bcryptjs` fora do bundle; `typescript.ignoreBuildErrors` só com `SKIP_TYPECHECK=1` (definido no `Dockerfile`; o build local continua checando tipos); `.dockerignore` (sem `node_modules`, `tests`, `docs`, etc.); Tailwind varre só `src/`; `NODE_OPTIONS=--max-old-space-size=3072` para servidor de 4 GB; cache do npm com BuildKit (`# syntax=docker/dockerfile:1`).
+
+Observações:
+- O cache do Next (`.next/cache`) **não ajuda** com Turbopack nesta versão (15.5): o segundo build leva o mesmo tempo. Por isso o Dockerfile não monta esse cache.
+- Se o Easypanel não usar BuildKit, o `RUN --mount` do `npm ci` falha com erro de sintaxe: remova o `--mount` (o build fica correto, só mais lento).
+- O Tailwind deixou de gerar cerca de 240 classes que só existiam em arquivos fora de `src/` (docs, testes, HTML de referência); nenhuma é usada pelos componentes.
+- Se o build continuar lento no servidor, o gargalo é CPU/RAM: aumente a RAM ou crie swap só para o build.

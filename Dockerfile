@@ -1,3 +1,4 @@
+# syntax=docker/dockerfile:1
 FROM node:22-alpine AS base
 
 # Dependências do sistema para compatibilidade nativa no Alpine (Prisma, Sharp, etc.)
@@ -13,7 +14,8 @@ WORKDIR /app
 COPY package.json package-lock.json* ./
 COPY prisma ./prisma/
 
-RUN npm ci
+# Cache do npm entre deploys (BuildKit). Sem BuildKit no builder, remova o --mount.
+RUN --mount=type=cache,target=/root/.npm npm ci --prefer-offline --no-audit --no-fund
 
 
 # -----------------------------
@@ -27,7 +29,12 @@ COPY --from=deps /app/node_modules ./node_modules
 COPY . .
 
 ENV NEXT_TELEMETRY_DISABLED=1
+# O typecheck roda localmente antes do push (npm run typecheck); aqui o build não gasta tempo com ele.
+ENV SKIP_TYPECHECK=1
+# Servidor de build de 4 GB: limita o heap do Node para não entrar em swap.
+ENV NODE_OPTIONS=--max-old-space-size=3072
 
+# Turbopack (next build --turbopack): sem cache persistente no build, então não há .next/cache para reaproveitar.
 RUN npx prisma generate && npm run build
 
 

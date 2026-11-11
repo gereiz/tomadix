@@ -4,12 +4,17 @@ const nextConfig: NextConfig = {
   output: "standalone",
   poweredByHeader: false,
   compress: true,
+  // Pacotes só de servidor ficam fora do bundle (o standalone copia o que o tracer encontrar): menos código para compilar.
+  serverExternalPackages: ["imapflow", "mailparser", "nodemailer", "@google/genai", "bcryptjs"],
   experimental: {
     optimizePackageImports: ["@xyflow/react"],
-    webpackMemoryOptimizations: true,
   },
   eslint: {
     ignoreDuringBuilds: true,
+  },
+  typescript: {
+    // O Dockerfile define SKIP_TYPECHECK=1 (o typecheck roda localmente antes do push); o build local continua checando tipos.
+    ignoreBuildErrors: process.env.SKIP_TYPECHECK === "1",
   },
   images: {
     formats: ["image/avif", "image/webp"],
