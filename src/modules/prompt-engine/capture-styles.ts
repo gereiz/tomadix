@@ -17,8 +17,6 @@ export interface CaptureStyle {
   negativeHints: string[];
   /** Fragmento curto, em inglês, anexado direto ao prompt da geração direta de imagem/vídeo. */
   directPromptSuffix: string;
-  /** Quando true, o sufixo vai ANTES do prompt do usuário (o descritor mais forte pesa mais no início). */
-  suffixFirst?: boolean;
 }
 
 export const CAPTURE_STYLES: Record<CaptureStyleKey, CaptureStyle> = {
@@ -157,7 +155,6 @@ export const CAPTURE_STYLES: Record<CaptureStyleKey, CaptureStyle> = {
     ],
     directPromptSuffix:
       "ordinary candid frame grab from a cheap smartphone video reposted on social media, 360p upscaled with soft smeared mushy detail and no fine texture (no visible wood grain, fabric weave or skin pores), heavy digital sensor noise (not film grain) at ISO 6400+ with chroma blotches in the shadows, severe H.264 low-bitrate macroblocking, mosquito noise and JPEG smearing, banding, slight motion blur, low micro-contrast, flat muted natural colors, available light only, accidental off-center composition, no HDR, no tone mapping, no sharpening",
-    suffixFirst: true,
   },
   security_cam: {
     key: "security_cam",
@@ -208,7 +205,6 @@ export const CAPTURE_STYLES: Record<CaptureStyleKey, CaptureStyle> = {
     ],
     directPromptSuffix:
       "low-bitrate CCTV security camera footage, 240p-360p upscaled with soft smeared detail and no fine texture, fixed high-angle wide lens, heavy digital sensor noise (not film grain) at ISO 6400+, H.264 macroblocking, mosquito noise and JPEG smearing, banding, slight motion blur, rolling shutter, low micro-contrast, washed-out flat colors, available light only, no HDR, no tone mapping, no sharpening, timestamp overlay",
-    suffixFirst: true,
   },
   found_footage: {
     key: "found_footage",
@@ -235,14 +231,14 @@ export function getCaptureStyle(key?: string | null): CaptureStyle {
 }
 
 /**
- * Geradores de imagem e vídeo seguem o começo do prompt e tendem a embelezar a cena. Nos estilos com
- * `suffixFirst`, o descritor de baixa qualidade (em inglês) vai ANTES do prompt compilado, no JSON e no texto.
- * Idempotente; não mexe em estilos sem `suffixFirst` nem em saídas sem prompt compilado.
+ * Geradores de imagem e vídeo seguem o começo do prompt e tendem a embelezar a cena. Em todo estilo de captura
+ * (menos o cinematográfico), o descritor em inglês vai ANTES do prompt compilado, no JSON e no texto.
+ * Idempotente; não mexe no estilo cinematográfico nem em saídas sem prompt compilado.
  */
 const COMPILED_PROMPT_KEYS = ["compiledPromptText", "compiledProductionPrompt", "compiledBasePrompt", "promptText"];
 export function applyCaptureStylePrefix<T>(data: T, captureStyle?: string | null): T {
   const style = getCaptureStyle(captureStyle);
-  if (!style.suffixFirst || !data || typeof data !== "object") return data;
+  if (style.key === "cinematic" || !data || typeof data !== "object") return data;
   const record = data as Record<string, unknown>;
   const key = COMPILED_PROMPT_KEYS.find((k) => typeof record[k] === "string" && record[k]);
   if (key && !(record[key] as string).startsWith(style.directPromptSuffix)) {

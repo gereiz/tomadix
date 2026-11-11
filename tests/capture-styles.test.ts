@@ -92,16 +92,19 @@ describe("Estilos de captura", () => {
     expect(out.enrichedNegativePrompt).toContain("texto");
     expect(out.appliedDirectives[0]).toContain("Amador");
   });
-  it("estilo extremo põe o descritor em inglês antes do prompt compilado (uma vez só)", () => {
-    const style = getCaptureStyle("lowres_grain_extreme");
-    const data = { compiledPromptText: "Uma mulher abre a porta da cabana." };
-    applyCaptureStylePrefix(data, "lowres_grain_extreme");
-    applyCaptureStylePrefix(data, "lowres_grain_extreme");
-    expect(data.compiledPromptText).toBe(`${style.directPromptSuffix}. Uma mulher abre a porta da cabana.`);
+  it("todo estilo de captura (menos o cinematográfico) põe o descritor em inglês antes do prompt compilado, uma vez só", () => {
+    for (const key of CAPTURE_STYLE_KEYS.filter((k) => k !== "cinematic")) {
+      const style = getCaptureStyle(key);
+      const data = { compiledPromptText: "Uma mulher abre a porta da cabana." };
+      applyCaptureStylePrefix(data, key);
+      applyCaptureStylePrefix(data, key);
+      expect(data.compiledPromptText, key).toBe(`${style.directPromptSuffix}. Uma mulher abre a porta da cabana.`);
+    }
 
-    const other = { compiledPromptText: "texto" };
-    applyCaptureStylePrefix(other, "amateur_phone");
-    applyCaptureStylePrefix(other, undefined);
-    expect(other.compiledPromptText).toBe("texto");
+    for (const key of ["cinematic", undefined, "inexistente"]) {
+      const data = { compiledPromptText: "texto" };
+      applyCaptureStylePrefix(data, key);
+      expect(data.compiledPromptText).toBe("texto");
+    }
   });
 });
