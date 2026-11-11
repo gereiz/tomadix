@@ -12,7 +12,8 @@
     "test": "vitest run",
     "prisma:generate": "prisma generate",
     "prisma:migrate": "prisma migrate dev",
-    "db:clean-tests": "npx tsx scripts/clean-test-data.ts"
+    "db:clean-tests": "npx tsx scripts/clean-test-data.ts",
+    "db:schema-sql": "prisma migrate diff --from-empty --to-schema-datamodel prisma/schema.prisma --script > prisma/schema.sql"
   },
   "dependencies": {
     "@google/genai": "^1.0.0",

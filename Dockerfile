@@ -66,6 +66,8 @@ RUN mkdir -p /app/uploads /app/public/generated-images \
 COPY --from=builder --chown=nextjs:nodejs /app/public ./public
 COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
 COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
+# prisma/schema.sql: usado por "Criar tabelas no banco novo" (Admin > Banco de Dados)
+COPY --from=builder --chown=nextjs:nodejs /app/prisma ./prisma
 
 # Garantir permissão de escrita pós-cópia para o usuário da aplicação
 RUN chown -R nextjs:nodejs /app/uploads /app/public/generated-images \

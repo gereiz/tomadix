@@ -1,11 +1,10 @@
-import { exec, spawn } from "child_process";
-import util from "util";
+import fs from "fs";
+import path from "path";
+import { spawn } from "child_process";
 import { Prisma, PrismaClient } from "@prisma/client";
 import { db } from "@/lib/db";
 import { AdminAuditService } from "@/modules/admin/admin-audit.service";
 import { AdminDatabaseService, type ConnectionInput } from "@/modules/admin/admin-database.service";
-
-const execAsync = util.promisify(exec);
 
 export const DUMP_FORMAT = "tomadix-dump";
 export const DUMP_VERSION = 1;
@@ -112,12 +111,12 @@ function sqlLiteral(field: ScalarField, value: unknown): string {
 
 /**
  * Converte o dump em SQL de dados (INSERTs em lote, na ordem das dependências, dentro de BEGIN/COMMIT).
- * Pré-requisito no destino: tabelas criadas (`npx prisma migrate deploy`) e banco vazio.
+ * Pré-requisito no destino: tabelas criadas (botão "Criar tabelas no banco novo" ou `psql -f prisma/schema.sql`) e banco vazio.
  */
 export function dumpToSql(dump: TomadixDump): string {
   const lines: string[] = [
     `-- Tomadix: dump de dados gerado em ${dump.exportedAt}`,
-    "-- Pré-requisito: banco de destino vazio e com as tabelas criadas (npx prisma migrate deploy).",
+    "-- Pré-requisito: banco de destino vazio e com as tabelas criadas (psql -f prisma/schema.sql).",
     '-- Uso: psql "<string de conexão>" -v ON_ERROR_STOP=1 -f este-arquivo.sql',
     "SET client_encoding = 'UTF8';",
     "BEGIN;",
@@ -149,6 +148,97 @@ export function isSameDatabase(a: string, b: string): boolean {
   } catch {
     return false;
   }
+}
+
+/**
+ * Divide um script SQL em comandos (o Prisma só aceita um por chamada), respeitando '...', "...",
+ * comentários (-- e barra-asterisco) e blocos entre dollar-quotes. Comentários são descartados.
+ */
+export function splitSqlStatements(sql: string): string[] {
+  const NL = String.fromCharCode(10);
+  const out: string[] = [];
+  let current = "";
+  let i = 0;
+  const n = sql.length;
+  while (i < n) {
+    const c = sql[i];
+    const next = sql[i + 1];
+    if (c === "-" && next === "-") {
+      const end = sql.indexOf(NL, i);
+      i = end === -1 ? n : end;
+      continue;
+    }
+    if (c === "/" && next === "*") {
+      const end = sql.indexOf("*/", i + 2);
+      i = end === -1 ? n : end + 2;
+      continue;
+    }
+    if (c === "'" || c === '"') {
+      let j = i + 1;
+      while (j < n) {
+        if (sql[j] === c) {
+          if (sql[j + 1] === c) {
+            j += 2;
+            continue;
+          }
+          break;
+        }
+        j++;
+      }
+      current += sql.slice(i, j + 1);
+      i = j + 1;
+      continue;
+    }
+    if (c === "$") {
+      let k = i + 1;
+      while (k < n && /[A-Za-z_]/.test(sql[k])) k++;
+      if (sql[k] === "$") {
+        const tag = sql.slice(i, k + 1);
+        const end = sql.indexOf(tag, k + 1);
+        const stop = end === -1 ? n : end + tag.length;
+        current += sql.slice(i, stop);
+        i = stop;
+        continue;
+      }
+    }
+    if (c === ";") {
+      if (current.trim()) out.push(current.trim());
+      current = "";
+      i++;
+      continue;
+    }
+    current += c;
+    i++;
+  }
+  if (current.trim()) out.push(current.trim());
+  return out;
+}
+
+async function listPublicTables(client: PrismaClient): Promise<string[]> {
+  const rows = await client.$queryRawUnsafe<{ table_name: string }[]>(
+    "SELECT table_name FROM information_schema.tables WHERE table_schema = 'public' AND table_type = 'BASE TABLE'"
+  );
+  return rows.map((r) => r.table_name);
+}
+
+/** prisma/schema.sql: DDL completo do schema (gerado por `npm run db:schema-sql`; as migrations não cobrem todas as tabelas). */
+function readSchemaStatements(): string[] {
+  const file = path.join(process.cwd(), "prisma", "schema.sql");
+  if (!fs.existsSync(file)) {
+    throw new Error("O arquivo prisma/schema.sql não existe neste servidor (gere com `npm run db:schema-sql` e inclua na imagem).");
+  }
+  return splitSqlStatements(fs.readFileSync(file, "utf8"));
+}
+
+/** Cria tabelas, enums, índices e chaves do schema em um banco SEM tabelas, em uma transação (tudo ou nada). */
+async function createSchemaOn(client: PrismaClient): Promise<number> {
+  const existing = await listPublicTables(client);
+  if (existing.length > 0) {
+    throw new Error(`O banco de destino já tem ${existing.length} tabela(s) no schema public: o schema só é criado em banco sem tabelas.`);
+  }
+  const statements = readSchemaStatements();
+  await client.$transaction(statements.map((st) => client.$executeRawUnsafe(st)));
+  return statements.filter((st) => st.startsWith("CREATE TABLE")).length;
 }
 
 function clientFor(url?: string): { client: PrismaClient; temporary: boolean } {
@@ -307,32 +397,22 @@ export class AdminDatabaseDumpService {
   static async importDump(
     dumpInput: unknown,
     targetUrl: string | undefined,
-    adminUserId: string,
-    schemaUrl?: string // conexão direta para criar as tabelas (o `prisma db push` não funciona em pooler)
+    adminUserId: string
   ): Promise<{ tables: DumpTableReport[]; totalRows: number; schemaCreated: boolean }> {
     const dump = this.validateDump(dumpInput);
     const { client, temporary } = clientFor(targetUrl);
     try {
+      let tables = await listPublicTables(client);
       let schemaCreated = false;
-      let diagnosis = await AdminDatabaseService.diagnoseDatabase(targetUrl?.trim() || undefined);
-      if (diagnosis.missingTablesCount > 0) {
-        try {
-          await execAsync("npx prisma db push --skip-generate --accept-data-loss=false", {
-            env: {
-              ...process.env,
-              ...(targetUrl?.trim() ? { DATABASE_URL: schemaUrl?.trim() || targetUrl.trim(), DIRECT_URL: schemaUrl?.trim() || targetUrl.trim() } : {}),
-            },
-            timeout: 120000,
-          });
-        } catch {
-          // segue para a checagem abaixo, que explica o que fazer
-        }
-        diagnosis = await AdminDatabaseService.diagnoseDatabase(targetUrl?.trim() || undefined);
-        schemaCreated = diagnosis.missingTablesCount === 0;
+      if (tables.length === 0) {
+        await createSchemaOn(client);
+        schemaCreated = true;
+        tables = await listPublicTables(client);
       }
-      if (diagnosis.missingTablesCount > 0) {
+      const missing = getDumpModelOrder().filter((name) => !tables.includes(name));
+      if (missing.length > 0) {
         throw new Error(
-          `O banco de destino não tem as tabelas do Tomadix (${diagnosis.missingTablesCount} ausentes) e não foi possível criá-las daqui. Rode "npx prisma migrate deploy" apontando para esse banco e importe de novo.`
+          `O banco de destino não tem as tabelas: ${missing.slice(0, 6).join(", ")}${missing.length > 6 ? "…" : ""}. Use "Criar tabelas no banco novo" em um banco sem tabelas.`
         );
       }
 
@@ -361,6 +441,43 @@ export class AdminDatabaseDumpService {
   }
 
   /**
+   * Cria todas as tabelas do schema na conexão informada (banco sem tabelas), sem precisar do CLI do Prisma,
+   * e, se pedido, o administrador inicial (SUPER_ADMIN) nesse banco.
+   */
+  static async createSchema(
+    input: ConnectionInput,
+    adminUserId: string,
+    newAdmin?: { name: string; email: string; password: string }
+  ): Promise<{ tablesCreated: number; adminEmail?: string }> {
+    if (newAdmin) AdminDatabaseService.validateAdminUser(newAdmin); // antes de criar qualquer coisa
+    const { databaseUrl } = AdminDatabaseService.buildEnvValues(input);
+    const test = await AdminDatabaseService.testConnection(input);
+    if (!test.success) {
+      throw new Error(`Falha ao testar a conexão: ${test.error || "servidor inacessível"}. Nada foi criado.`);
+    }
+
+    const { client, temporary } = clientFor(databaseUrl);
+    try {
+      const tablesCreated = await createSchemaOn(client);
+
+      let adminEmail: string | undefined;
+      if (newAdmin) {
+        try {
+          adminEmail = (await AdminDatabaseService.createInitialAdmin(client, newAdmin)).email;
+        } catch (err) {
+          const reason = err instanceof Error ? err.message : "erro desconhecido";
+          throw new Error(`As ${tablesCreated} tabelas foram criadas, mas o administrador não: ${reason}`);
+        }
+      }
+
+      await auditSafely(adminUserId, "DATABASE_SCHEMA_CREATED", { tablesCreated, adminCreated: Boolean(adminEmail) });
+      return { tablesCreated, adminEmail };
+    } finally {
+      if (temporary) await client.$disconnect().catch(() => {});
+    }
+  }
+
+  /**
    * Copia todo o banco ativo (menos sessões) para a conexão informada, sem arquivo no meio.
    * O destino precisa estar vazio; as tabelas são criadas se der. A conexão do app NÃO é trocada.
    */
@@ -368,7 +485,7 @@ export class AdminDatabaseDumpService {
     input: ConnectionInput,
     adminUserId: string
   ): Promise<{ tables: DumpTableReport[]; totalRows: number; schemaCreated: boolean }> {
-    const { databaseUrl, directUrl } = AdminDatabaseService.buildEnvValues(input);
+    const { databaseUrl } = AdminDatabaseService.buildEnvValues(input);
     if ([process.env.DATABASE_URL, process.env.DIRECT_URL].some((active) => active && isSameDatabase(active, databaseUrl))) {
       throw new Error("A conexão informada é o próprio banco ativo: não há o que copiar. Informe o banco de destino.");
     }
@@ -379,6 +496,6 @@ export class AdminDatabaseDumpService {
     }
 
     const { dump } = await this.exportDump(undefined, adminUserId);
-    return this.importDump(dump, databaseUrl, adminUserId, directUrl);
+    return this.importDump(dump, databaseUrl, adminUserId);
   }
 }

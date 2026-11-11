@@ -634,6 +634,54 @@ export class AdminDatabaseService {
     }
   }
 
+  /** Valida os dados do administrador inicial (e-mail e senha de no mínimo 8 caracteres). */
+  static validateAdminUser(adminUser: { name: string; email: string; password: string }) {
+    if (!adminUser.email || !adminUser.email.includes("@")) {
+      throw new Error("E-mail inválido para o administrador inicial.");
+    }
+    if (!adminUser.password || adminUser.password.length < 8) {
+      throw new Error("A senha do administrador deve conter no mínimo 8 caracteres.");
+    }
+  }
+
+  /** Cria o administrador inicial (SUPER_ADMIN) e o Workspace pessoal "Estúdio Principal" no banco do client informado. */
+  static async createInitialAdmin(
+    client: PrismaClient,
+    adminUser: { name: string; email: string; password: string }
+  ): Promise<{ id: string; email: string }> {
+    this.validateAdminUser(adminUser);
+    const passwordHash = await hashPassword(adminUser.password);
+    const cleanEmail = adminUser.email.toLowerCase().trim();
+
+    const newAdmin = await client.user.create({
+      data: {
+        displayName: adminUser.name.trim() || "Administrador Geral",
+        email: cleanEmail,
+        authSubject: `admin_${Date.now()}_${Math.random().toString(36).substring(7)}`,
+        passwordHash,
+        platformRole: PlatformRole.SUPER_ADMIN,
+        emailConfirmed: true,
+        onboardingCompleted: true,
+      },
+    });
+
+    await client.workspace.create({
+      data: {
+        name: "Estúdio Principal",
+        slug: `estudio-principal-${Date.now().toString(36)}`,
+        isPersonal: true,
+        memberships: {
+          create: {
+            userId: newAdmin.id,
+            role: WorkspaceRole.OWNER,
+          },
+        },
+      },
+    });
+
+    return { id: newAdmin.id, email: cleanEmail };
+  }
+
   /**
    * Inicializa de forma idempotente e segura o banco de dados:
    * 1. Cria tabelas ausentes (Prisma schema sync).
@@ -702,48 +750,10 @@ export class AdminDatabaseService {
       effectiveAdminUserId = effectiveAdminUserId || existingAdmin.id;
       createdAdminEmail = existingAdmin.email;
     } else if (options.adminUser) {
-      // Validar dados do administrador solicitado
-      const { name, email, password } = options.adminUser;
-      if (!email || !email.includes("@")) {
-        throw new Error("E-mail inválido para o administrador inicial.");
-      }
-      if (!password || password.length < 8) {
-        throw new Error("A senha do administrador deve conter no mínimo 8 caracteres.");
-      }
-
-      const passwordHash = await hashPassword(password);
-      const cleanEmail = email.toLowerCase().trim();
-
-      const newAdmin = await db.user.create({
-        data: {
-          displayName: name.trim() || "Administrador Geral",
-          email: cleanEmail,
-          authSubject: `admin_${Date.now()}_${Math.random().toString(36).substring(7)}`,
-          passwordHash,
-          platformRole: PlatformRole.SUPER_ADMIN,
-          emailConfirmed: true,
-          onboardingCompleted: true,
-        },
-      });
-
-      // Cria Workspace Principal para o novo Admin
-      await db.workspace.create({
-        data: {
-          name: "Estúdio Principal",
-          slug: `estudio-principal-${Date.now().toString(36)}`,
-          isPersonal: true,
-          memberships: {
-            create: {
-              userId: newAdmin.id,
-              role: WorkspaceRole.OWNER,
-            },
-          },
-        },
-      });
-
+      const created = await this.createInitialAdmin(db, options.adminUser);
       adminCreated = true;
-      effectiveAdminUserId = newAdmin.id;
-      createdAdminEmail = cleanEmail;
+      effectiveAdminUserId = created.id;
+      createdAdminEmail = created.email;
     }
 
     // FASE 3: Sincronização de Planos Comerciais Padrão

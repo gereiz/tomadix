@@ -37,6 +37,15 @@ export function AdminDatabaseManager() {
   const [envModalError, setEnvModalError] = useState<string | null>(null);
   const [envCopied, setEnvCopied] = useState(false);
   const [copyModalOpen, setCopyModalOpen] = useState(false);
+  const [schemaModalOpen, setSchemaModalOpen] = useState(false);
+  const [creatingSchema, setCreatingSchema] = useState(false);
+  const [schemaError, setSchemaError] = useState<string | null>(null);
+  const [schemaResult, setSchemaResult] = useState<{ tablesCreated: number; adminEmail?: string } | null>(null);
+  const [schemaWithAdmin, setSchemaWithAdmin] = useState(true);
+  const [schemaAdminName, setSchemaAdminName] = useState("");
+  const [schemaAdminEmail, setSchemaAdminEmail] = useState("");
+  const [schemaAdminPassword, setSchemaAdminPassword] = useState("");
+  const [schemaAdminPassword2, setSchemaAdminPassword2] = useState("");
   const [copying, setCopying] = useState(false);
   const [copyError, setCopyError] = useState<string | null>(null);
   const [copyResult, setCopyResult] = useState<{
@@ -136,6 +145,38 @@ export function AdminDatabaseManager() {
       setFeedback({ type: "error", message: err.message || "Erro ao gerar prévia do .env." });
     } finally {
       setLoadingEnvPreview(false);
+    }
+  };
+
+  // Cria todas as tabelas (prisma/schema.sql) no banco testado e, se pedido, o administrador inicial.
+  const handleCreateSchema = async () => {
+    setSchemaError(null);
+    setSchemaResult(null);
+    if (schemaWithAdmin) {
+      if (!schemaAdminEmail.includes("@")) return setSchemaError("Informe um e-mail válido para o administrador.");
+      if (schemaAdminPassword.length < 8) return setSchemaError("A senha do administrador deve ter no mínimo 8 caracteres.");
+      if (schemaAdminPassword !== schemaAdminPassword2) return setSchemaError("A confirmação da senha não confere.");
+    }
+    setCreatingSchema(true);
+    try {
+      const adminUser = schemaWithAdmin
+        ? { name: schemaAdminName.trim() || "Administrador Geral", email: schemaAdminEmail.trim(), password: schemaAdminPassword }
+        : undefined;
+      const res = await fetch("/api/admin/database/create-schema", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ ...candidatePayload(), adminUser }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || "Erro ao criar as tabelas.");
+      setSchemaResult(data);
+      setSchemaAdminPassword("");
+      setSchemaAdminPassword2("");
+      setCandidateTest((prev) => (prev ? { ...prev, tableCount: data.tablesCreated } : prev));
+    } catch (err) {
+      setSchemaError(err instanceof Error ? err.message : "Erro ao criar as tabelas.");
+    } finally {
+      setCreatingSchema(false);
     }
   };
 
@@ -710,6 +751,21 @@ export function AdminDatabaseManager() {
                 <button
                   type="button"
                   onClick={() => {
+                    setSchemaError(null);
+                    setSchemaResult(null);
+                    setSchemaModalOpen(true);
+                  }}
+                  className="rounded-xl border border-white/20 bg-white/5 px-5 py-2.5 text-xs font-bold text-white hover:bg-white/10 transition flex items-center gap-2"
+                >
+                  <span>🧱</span>
+                  <span>Criar tabelas no banco novo</span>
+                </button>
+              )}
+
+              {candidateTest?.success && (
+                <button
+                  type="button"
+                  onClick={() => {
                     setCopyError(null);
                     setCopyResult(null);
                     setCopyModalOpen(true);
@@ -719,6 +775,106 @@ export function AdminDatabaseManager() {
                   <span>🗄️</span>
                   <span>Copiar banco atual para esta conexão</span>
                 </button>
+              )}
+
+              {schemaModalOpen && candidateTest?.success && (
+                <Modal
+                  onClose={() => !creatingSchema && setSchemaModalOpen(false)}
+                  size="2xl"
+                  labelledBy="create-schema-title"
+                  closeOnOverlay={!creatingSchema}
+                >
+                  <div className="p-4 sm:p-6 space-y-4">
+                    <div>
+                      <h3 id="create-schema-title" className="text-base font-bold text-white">
+                        Criar as tabelas no banco novo
+                      </h3>
+                      <p className="mt-1 text-xs text-white/50">
+                        Cria todas as tabelas, tipos, índices e chaves do Tomadix em{" "}
+                        <span className="font-mono text-white">
+                          {candidateTest.hostMasked}:{candidateTest.port}/{candidateTest.databaseName}
+                        </span>{" "}
+                        a partir do schema do projeto (prisma/schema.sql). Só funciona em banco sem tabelas e é uma transação única.
+                      </p>
+                    </div>
+
+                    <label className="flex items-start gap-2 text-xs text-white/70 cursor-pointer">
+                      <input
+                        type="checkbox"
+                        checked={schemaWithAdmin}
+                        onChange={(e) => setSchemaWithAdmin(e.target.checked)}
+                        className="mt-0.5"
+                      />
+                      <span>Criar também um usuário administrador (SUPER_ADMIN) nesse banco, para entrar no app depois de apontá-lo para ele.</span>
+                    </label>
+
+                    {schemaWithAdmin && (
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        <div className="sm:col-span-2">
+                          <label className="block text-xs font-medium text-white/70 mb-1.5">Nome</label>
+                          <input type="text" value={schemaAdminName} onChange={(e) => setSchemaAdminName(e.target.value)} placeholder="Administrador Geral" className="min-h-11 w-full rounded-xl border border-white/10 bg-black/40 px-3 py-2 text-xs text-white placeholder-white/30 focus:border-primary focus:outline-none" autoComplete="off" />
+                        </div>
+                        <div className="sm:col-span-2">
+                          <label className="block text-xs font-medium text-white/70 mb-1.5">E-mail</label>
+                          <input type="email" value={schemaAdminEmail} onChange={(e) => setSchemaAdminEmail(e.target.value)} placeholder="admin@empresa.com" className="min-h-11 w-full rounded-xl border border-white/10 bg-black/40 px-3 py-2 text-xs text-white placeholder-white/30 focus:border-primary focus:outline-none" autoComplete="off" />
+                        </div>
+                        <div>
+                          <label className="block text-xs font-medium text-white/70 mb-1.5">Senha (mín. 8 caracteres)</label>
+                          <input type="password" value={schemaAdminPassword} onChange={(e) => setSchemaAdminPassword(e.target.value)} className="min-h-11 w-full rounded-xl border border-white/10 bg-black/40 px-3 py-2 text-xs text-white focus:border-primary focus:outline-none" autoComplete="new-password" />
+                        </div>
+                        <div>
+                          <label className="block text-xs font-medium text-white/70 mb-1.5">Confirmar senha</label>
+                          <input type="password" value={schemaAdminPassword2} onChange={(e) => setSchemaAdminPassword2(e.target.value)} className="min-h-11 w-full rounded-xl border border-white/10 bg-black/40 px-3 py-2 text-xs text-white focus:border-primary focus:outline-none" autoComplete="new-password" />
+                        </div>
+                      </div>
+                    )}
+
+                    {schemaError && (
+                      <div role="alert" className="rounded-xl border border-red-500/30 bg-red-500/10 p-3 text-xs text-red-300">
+                        {schemaError}
+                      </div>
+                    )}
+
+                    {schemaResult && (
+                      <div role="status" className="rounded-xl border border-emerald-500/30 bg-emerald-500/10 p-3 text-xs text-emerald-300 space-y-1">
+                        <p className="font-bold">{schemaResult.tablesCreated} tabelas criadas no banco novo.</p>
+                        {schemaResult.adminEmail && <p>Administrador criado: {schemaResult.adminEmail}.</p>}
+                        <p className="text-emerald-300/80">
+                          Próximo passo: copie os dados do banco atual (&quot;Copiar banco atual para esta conexão&quot;), ou clique em Salvar e inicialize o banco
+                          pela aba de Setup (planos e parâmetros).
+                        </p>
+                      </div>
+                    )}
+
+                    <div className="flex flex-col-reverse gap-2 border-t border-white/10 pt-4 sm:flex-row sm:justify-end">
+                      <button
+                        type="button"
+                        onClick={() => setSchemaModalOpen(false)}
+                        disabled={creatingSchema}
+                        className="min-h-11 rounded-xl px-4 py-2 text-xs font-medium text-white/70 hover:bg-white/10 transition disabled:opacity-50"
+                      >
+                        {schemaResult ? "Fechar" : "Cancelar"}
+                      </button>
+                      {!schemaResult && (
+                        <button
+                          type="button"
+                          onClick={handleCreateSchema}
+                          disabled={creatingSchema}
+                          className="min-h-11 rounded-xl bg-primary px-4 py-2 text-xs font-bold text-black hover:bg-primary-fixed transition disabled:opacity-50 flex items-center justify-center gap-2"
+                        >
+                          {creatingSchema ? (
+                            <>
+                              <Spinner block className="h-3 w-3 border-2 border-black" />
+                              <span>Criando tabelas...</span>
+                            </>
+                          ) : (
+                            <span>Criar tabelas</span>
+                          )}
+                        </button>
+                      )}
+                    </div>
+                  </div>
+                </Modal>
               )}
 
               {copyModalOpen && candidateTest?.success && (
@@ -756,7 +912,7 @@ export function AdminDatabaseManager() {
                     </dl>
 
                     <ul className="list-disc pl-4 space-y-1 text-xs text-amber-200/80">
-                      <li>O destino precisa estar vazio (sem registros). Se faltarem tabelas, o sistema tenta criá-las.</li>
+                      <li>O destino precisa estar vazio (sem registros). Se não tiver nenhuma tabela, o sistema as cria antes de copiar (prisma/schema.sql).</li>
                       <li>A cópia é uma transação única: ou entra tudo ou nada. Pode levar alguns minutos.</li>
                       <li>Sessões de login não são copiadas (todos entram de novo). Arquivos de imagens e vídeos não fazem parte do banco.</li>
                       <li>Credenciais criptografadas só funcionam no destino com a mesma chave de criptografia do app.</li>

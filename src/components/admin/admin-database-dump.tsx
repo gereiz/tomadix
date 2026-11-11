@@ -88,7 +88,7 @@ export function AdminDatabaseDump() {
           <li>As credenciais criptografadas só funcionam no destino com a mesma chave de criptografia do app atual.</li>
           <li>Sessões de login não migram: todos entram de novo. Imagens e vídeos salvos em arquivo (pasta de uploads) não fazem parte do dump.</li>
           <li>O SQL completo (pg_dump) cria as tabelas e insere os dados: rode em um banco novo e vazio. O pg_dump precisa estar instalado no servidor e ter versão igual ou maior que a do banco de origem.</li>
-          <li>O banco de destino da importação por JSON precisa estar vazio. Se faltarem tabelas, o sistema tenta criá-las; se não conseguir, rode <code>npx prisma migrate deploy</code> nele.</li>
+          <li>O banco de destino da importação por JSON precisa estar vazio. Se ele não tiver nenhuma tabela, o sistema as cria antes (prisma/schema.sql).</li>
         </ul>
       </div>
 
@@ -103,7 +103,7 @@ export function AdminDatabaseDump() {
           <legend className="text-xs font-medium text-white/70 mb-1.5">Formato</legend>
           {[
             { id: "pgdump", label: "SQL completo (pg_dump)", hint: 'Estrutura + dados. Importe direto no banco novo: psql "<conexão>" -v ON_ERROR_STOP=1 -f arquivo.sql' },
-            { id: "sql", label: "SQL só de dados (gerado pelo Tomadix)", hint: "Não precisa do pg_dump no servidor; o destino já deve ter as tabelas (npx prisma migrate deploy)." },
+            { id: "sql", label: "SQL só de dados (gerado pelo Tomadix)", hint: "Não precisa do pg_dump no servidor; o destino já deve ter as tabelas (use o botão Criar tabelas no banco novo ou psql -f prisma/schema.sql)." },
             { id: "json", label: "JSON (.json)", hint: "Arquivo que a importação abaixo, nesta tela, lê." },
           ].map((opt) => (
             <label key={opt.id} className="flex items-start gap-2 text-xs text-white/70 cursor-pointer">

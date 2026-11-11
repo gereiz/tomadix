@@ -37,6 +37,7 @@ Este documento estabelece as diretrizes técnicas e operacionais para publicaç�
      ```bash
      npx prisma migrate deploy
      ```
+   - **Atenção:** a pasta de migrations não cobre todas as tabelas do schema (41 vieram de `prisma db push`); num banco vazio use o `prisma/schema.sql` (Admin > Banco de Dados > "Criar tabelas no banco novo", ou `psql -f prisma/schema.sql`).
    - O comando `migrate deploy` aplica apenas migrações pendentes sem alterar dados existentes.
 4. **Compilação da Aplicação:**
    ```bash

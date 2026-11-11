@@ -130,14 +130,21 @@ export const diagnoseBodySchema = z.object({
   targetUrl: postgresUrl.optional(),
 });
 
+const adminUserBodySchema = z.object({
+  name: z.string().trim().min(1, "Obrigatório.").max(100),
+  email: z.string().trim().email("E-mail inválido.").max(254),
+  password: z.string().min(8, "Mínimo de 8 caracteres.").max(200),
+});
+
+// Criar as tabelas no banco da conexão informada e, opcionalmente, o administrador inicial.
+export const createSchemaBodySchema = connectionInputBodySchema
+  .extend({ adminUser: adminUserBodySchema.optional() })
+  .refine((v) => Boolean(v.url?.trim()) || Boolean(v.host?.trim()), {
+    message: "É necessário fornecer a URL de conexão ou o host e credenciais.",
+  });
+
 export const initializeDatabaseBodySchema = z.object({
-  adminUser: z
-    .object({
-      name: z.string().trim().min(1, "Obrigatório.").max(100),
-      email: z.string().trim().email("E-mail inválido.").max(254),
-      password: z.string().min(8, "Mínimo de 8 caracteres.").max(200),
-    })
-    .optional(),
+  adminUser: adminUserBodySchema.optional(),
   seedDemoProject: z.boolean().optional(),
   targetUrl: postgresUrl.optional(),
   targetDirectUrl: postgresUrl.optional(),

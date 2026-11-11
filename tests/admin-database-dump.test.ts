@@ -1,6 +1,8 @@
 import { describe, it, expect } from "vitest";
+import fs from "fs";
 import { Prisma } from "@prisma/client";
 import { db } from "@/lib/db";
+import { AdminDatabaseService } from "@/modules/admin/admin-database.service";
 import {
   AdminDatabaseDumpService,
   DUMP_FORMAT,
@@ -9,6 +11,7 @@ import {
   getDumpModelOrder,
   isSameDatabase,
   reviveRow,
+  splitSqlStatements,
 } from "@/modules/admin/admin-database-dump.service";
 
 describe("Dump e importação do banco (migração entre bancos)", () => {
@@ -96,6 +99,53 @@ describe("Dump e importação do banco (migração entre bancos)", () => {
     await expect(
       AdminDatabaseDumpService.copyToConnection({ url: "postgresql://u:p@127.0.0.1:1/inexistente?connect_timeout=3" }, "admin-test")
     ).rejects.toThrow(/Falha ao testar a conexão de destino/);
+  }, 60000);
+
+  it("splitSqlStatements respeita aspas, comentários e dollar-quotes", () => {
+    const sql = `
+-- comentário com ; dentro
+CREATE TABLE "A" ("x" TEXT DEFAULT 'a;b'); /* bloco ; */
+INSERT INTO "A" VALUES ('it''s');
+DO $body$ BEGIN PERFORM 1; END $body$;
+SELECT 1
+`;
+    expect(splitSqlStatements(sql)).toEqual([
+      `CREATE TABLE "A" ("x" TEXT DEFAULT 'a;b')`,
+      `INSERT INTO "A" VALUES ('it''s')`,
+      `DO $body$ BEGIN PERFORM 1; END $body$`,
+      "SELECT 1",
+    ]);
+  });
+
+  it("prisma/schema.sql acompanha o schema: toda tabela, enum e coluna do Prisma está nele (rode npm run db:schema-sql se falhar)", () => {
+    const statements = splitSqlStatements(fs.readFileSync("prisma/schema.sql", "utf8"));
+    for (const model of Prisma.dmmf.datamodel.models) {
+      const create = statements.find((st) => st.startsWith(`CREATE TABLE "${model.name}" (`));
+      expect(create, `CREATE TABLE ${model.name}`).toBeDefined();
+      for (const f of model.fields.filter((x) => x.kind === "scalar" || x.kind === "enum")) {
+        expect(create, `${model.name}.${f.name}`).toContain(`"${f.name}"`);
+      }
+    }
+    for (const e of Prisma.dmmf.datamodel.enums) {
+      expect(statements.some((st) => st.startsWith(`CREATE TYPE "${e.name}"`)), `CREATE TYPE ${e.name}`).toBe(true);
+    }
+  });
+
+  it("administrador inicial: valida e-mail e senha antes de criar qualquer coisa", async () => {
+    expect(() => AdminDatabaseService.validateAdminUser({ name: "", email: "sem-arroba", password: "12345678" })).toThrow(/E-mail inválido/);
+    expect(() => AdminDatabaseService.validateAdminUser({ name: "", email: "a@b.com", password: "curta" })).toThrow(/mínimo 8/);
+    // createSchema valida antes de testar a conexão: nem chega a conectar
+    await expect(
+      AdminDatabaseDumpService.createSchema({ url: "postgresql://u:p@127.0.0.1:1/x" }, "admin-test", { name: "", email: "x", password: "12345678" })
+    ).rejects.toThrow(/E-mail inválido/);
+  });
+
+  it("createSchema recusa banco que já tem tabelas (o banco ativo), sem alterar nada", async () => {
+    const before = await db.user.count();
+    await expect(AdminDatabaseDumpService.createSchema({ url: process.env.DATABASE_URL as string }, "admin-test")).rejects.toThrow(
+      /já tem \d+ tabela/
+    );
+    expect(await db.user.count()).toBe(before);
   }, 60000);
 
   it("exporta o banco ativo (todas as tabelas, sem sessões) e recusa importar em banco que já tem dados", async () => {
